@@ -368,6 +368,31 @@ As decisões atuais ainda podem ser refinadas depois, mas já estão fechadas o 
 - `expo-sqlite` como biblioteca inicial de persistência;
 - logger local + handler global como solução inicial de monitoramento de erros.
 
+## Status de Implementacao Atual
+
+Estado do projeto em `2026-04-24`:
+
+- estrutura inicial criada em `apps/mobile`;
+- app iniciado com `React Native`, `Expo`, `TypeScript` e `expo-sqlite`;
+- scripts de `test`, `typecheck` e `lint` configurados;
+- arquitetura em camadas criada com `domain`, `application`, `infrastructure`, `ui` e `bootstrap`;
+- primeira vertical implementada: catalogo de exercicios;
+- caso de uso de criacao de exercicio implementado com validacao e prevencao de duplicidade;
+- repositorio `SQLite` implementado para persistencia local da feature de exercicios;
+- tela inicial funcional para cadastro e listagem de exercicios;
+- testes automatizados iniciais criados para dominio, caso de uso, repositorio e presenter;
+- validacao local executada com sucesso em `npm run test` e `npm run typecheck`.
+
+## Proximo Marco Tecnico
+
+Depois desta base, a proxima etapa recomendada e:
+
+- modelar treinos e treino-exercicio;
+- implementar criacao e edicao de treinos;
+- iniciar sessao de treino a partir de um treino salvo;
+- registrar aquecimento e series validas;
+- consultar historico da ultima carga por exercicio.
+
 ## Como Usar Este Arquivo
 
 Este arquivo deve servir como contexto-base para decisões futuras de:

@@ -1,0 +1,12 @@
+{
+  "name": "projeto-academia",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "mobile:start": "npm --prefix apps/mobile run start",
+    "mobile:test": "npm --prefix apps/mobile run test",
+    "mobile:typecheck": "npm --prefix apps/mobile run typecheck"
+  }
+}
