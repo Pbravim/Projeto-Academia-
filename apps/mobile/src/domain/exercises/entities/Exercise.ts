@@ -25,6 +25,13 @@ export interface CreateExerciseProps {
   isCustom?: boolean;
 }
 
+export interface UpdateExerciseProps {
+  name: string;
+  groupMuscle: string;
+  category: string;
+  equipment?: string | null;
+}
+
 export class Exercise {
   private constructor(private readonly props: ExercisePrimitives) {}
 
@@ -52,6 +59,26 @@ export class Exercise {
 
   static restore(primitives: ExercisePrimitives): Exercise {
     return new Exercise(primitives);
+  }
+
+  static update(current: ExercisePrimitives, input: UpdateExerciseProps, updatedAt: Date): Exercise {
+    const name = requireText(input.name, 'Nome');
+    const groupMuscle = requireText(input.groupMuscle, 'Grupo muscular');
+    const category = requireText(input.category, 'Categoria');
+    const equipment = normalizeOptionalText(input.equipment);
+
+    return new Exercise({
+      id: current.id,
+      name,
+      normalizedName: normalizeText(name),
+      groupMuscle,
+      category,
+      equipment,
+      loadUnit: current.loadUnit,
+      isCustom: current.isCustom,
+      createdAt: current.createdAt,
+      updatedAt: updatedAt.toISOString(),
+    });
   }
 
   toPrimitives(): ExercisePrimitives {

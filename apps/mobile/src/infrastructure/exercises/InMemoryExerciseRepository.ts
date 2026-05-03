@@ -12,6 +12,10 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
     return Array.from(this.exercisesById.values());
   }
 
+  async findById(id: string): Promise<Exercise | null> {
+    return this.exercisesById.get(id) ?? null;
+  }
+
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {
     for (const exercise of this.exercisesById.values()) {
       if (exercise.toPrimitives().normalizedName === normalizedName) {
@@ -20,5 +24,9 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
     }
 
     return null;
+  }
+
+  async delete(id: string): Promise<void> {
+    this.exercisesById.delete(id);
   }
 }

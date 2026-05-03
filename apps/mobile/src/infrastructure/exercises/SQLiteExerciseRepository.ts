@@ -73,6 +73,30 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
   }
 
+  async findById(id: string): Promise<Exercise | null> {
+    const row = await this.database.getFirst<ExerciseRow>(
+      `
+        SELECT
+          id,
+          name,
+          normalized_name,
+          group_muscle,
+          category,
+          equipment,
+          load_unit,
+          is_custom,
+          created_at,
+          updated_at
+        FROM exercises
+        WHERE id = ?
+        LIMIT 1
+      `,
+      [id]
+    );
+
+    return row ? Exercise.restore(mapRowToPrimitives(row)) : null;
+  }
+
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
       `
@@ -95,6 +119,10 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     );
 
     return row ? Exercise.restore(mapRowToPrimitives(row)) : null;
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.database.run('DELETE FROM exercises WHERE id = ?', [id]);
   }
 }
 

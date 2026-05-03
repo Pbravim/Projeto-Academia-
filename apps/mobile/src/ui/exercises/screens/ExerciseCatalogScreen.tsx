@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { buildExerciseCatalogViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
@@ -6,27 +6,43 @@ import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalog
 export function ExerciseCatalogScreen({
   draft,
   exercises,
+  ultimosPesos,
   errorMessage,
   feedbackMessage,
+  isLoading,
   isSubmitting,
+  editingExerciseId,
   onChangeField,
   onSubmit,
+  onSelectEdit,
+  onCancelEdit,
+  onDelete,
+  onViewHistorico,
 }: ExerciseCatalogControllerState) {
-  const viewModel = buildExerciseCatalogViewModel(exercises);
+  const viewModel = buildExerciseCatalogViewModel(exercises, ultimosPesos);
+  const isEditing = editingExerciseId !== null;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
         <Text style={styles.eyebrow}>MVP local e offline</Text>
-        <Text style={styles.title}>Cadastro de exercicios</Text>
+        <Text style={styles.title}>Catalogo de exercicios</Text>
         <Text style={styles.description}>
-          Comecamos pela base do treino: exercicios reutilizaveis, historico limpo e
-          arquitetura pronta para TDD.
+          Exercicios reutilizaveis, historico limpo e arquitetura pronta para TDD.
         </Text>
       </View>
 
       <View style={styles.formCard}>
-        <Text style={styles.sectionTitle}>Novo exercicio</Text>
+        <View style={styles.formHeader}>
+          <Text style={styles.sectionTitle}>
+            {isEditing ? 'Editar exercicio' : 'Novo exercicio'}
+          </Text>
+          {isEditing ? (
+            <Pressable onPress={onCancelEdit} hitSlop={8}>
+              <Text style={styles.cancelLink}>Cancelar</Text>
+            </Pressable>
+          ) : null}
+        </View>
 
         <Field
           label="Nome"
@@ -71,7 +87,13 @@ export function ExerciseCatalogScreen({
           disabled={isSubmitting}
         >
           <Text style={styles.primaryButtonText}>
-            {isSubmitting ? 'Salvando...' : 'Salvar exercicio'}
+            {isSubmitting
+              ? isEditing
+                ? 'Salvando...'
+                : 'Salvando...'
+              : isEditing
+                ? 'Salvar alteracoes'
+                : 'Salvar exercicio'}
           </Text>
         </Pressable>
       </View>
@@ -79,14 +101,48 @@ export function ExerciseCatalogScreen({
       <View style={styles.listCard}>
         <Text style={styles.sectionTitle}>Catalogo atual</Text>
 
-        {viewModel.emptyStateMessage ? (
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#c96f2d" style={styles.loading} />
+        ) : viewModel.emptyStateMessage ? (
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
         ) : (
           viewModel.cards.map((card) => (
-            <View key={card.id} style={styles.exerciseCard}>
+            <View
+              key={card.id}
+              style={[styles.exerciseCard, editingExerciseId === card.id ? styles.exerciseCardEditing : null]}
+            >
               <Text style={styles.exerciseTitle}>{card.title}</Text>
               <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
               <Text style={styles.exerciseMeta}>{card.meta}</Text>
+              {card.ultimoPeso ? (
+                <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
+              ) : null}
+
+              <View style={styles.cardActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => onSelectEdit(exercises.find((e) => e.id === card.id)!)}
+                  style={({ pressed }) => [styles.actionButton, pressed ? styles.actionButtonPressed : null]}
+                >
+                  <Text style={styles.editButtonText}>Editar</Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => onViewHistorico(card.id, card.title)}
+                  style={({ pressed }) => [styles.actionButton, styles.historicoButton, pressed ? styles.actionButtonPressed : null]}
+                >
+                  <Text style={styles.historicoButtonText}>Historico</Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => { void onDelete(card.id); }}
+                  style={({ pressed }) => [styles.actionButton, styles.deleteButton, pressed ? styles.actionButtonPressed : null]}
+                >
+                  <Text style={styles.deleteButtonText}>Excluir</Text>
+                </Pressable>
+              </View>
             </View>
           ))
         )}
@@ -159,6 +215,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e1dccd',
   },
+  formHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   listCard: {
     backgroundColor: '#fbf9f2',
     borderRadius: 24,
@@ -171,6 +232,11 @@ const styles = StyleSheet.create({
     color: '#20352c',
     fontSize: 20,
     fontWeight: '800',
+  },
+  cancelLink: {
+    color: '#c96f2d',
+    fontSize: 14,
+    fontWeight: '700',
   },
   field: {
     gap: 6,
@@ -223,6 +289,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
   },
+  loading: {
+    marginVertical: 12,
+  },
   emptyState: {
     color: '#66725f',
     fontSize: 14,
@@ -233,6 +302,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#eef1e7',
     gap: 4,
+  },
+  exerciseCardEditing: {
+    borderWidth: 2,
+    borderColor: '#c96f2d',
   },
   exerciseTitle: {
     color: '#20352c',
@@ -247,5 +320,46 @@ const styles = StyleSheet.create({
   exerciseMeta: {
     color: '#657062',
     fontSize: 13,
+  },
+  exerciseUltimoPeso: {
+    color: '#c96f2d',
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  actionButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: '#d9ddd0',
+  },
+  actionButtonPressed: {
+    opacity: 0.75,
+  },
+  deleteButton: {
+    backgroundColor: '#f0dbd8',
+  },
+  historicoButton: {
+    backgroundColor: '#dde8e3',
+  },
+  editButtonText: {
+    color: '#20352c',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  deleteButtonText: {
+    color: '#a1362e',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  historicoButtonText: {
+    color: '#20352c',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

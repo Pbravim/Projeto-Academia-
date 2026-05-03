@@ -32,6 +32,7 @@ describe('buildExerciseCatalogViewModel', () => {
       title: 'Remada curvada',
       subtitle: 'Costas · Composto',
       meta: 'Equipamento: Barra reta',
+      ultimoPeso: null,
     });
   });
 });

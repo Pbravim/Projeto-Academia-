@@ -370,28 +370,66 @@ As decisões atuais ainda podem ser refinadas depois, mas já estão fechadas o 
 
 ## Status de Implementacao Atual
 
-Estado do projeto em `2026-04-24`:
+Estado do projeto em `2026-05-03`. MVP completo.
 
-- estrutura inicial criada em `apps/mobile`;
-- app iniciado com `React Native`, `Expo`, `TypeScript` e `expo-sqlite`;
-- scripts de `test`, `typecheck` e `lint` configurados;
-- arquitetura em camadas criada com `domain`, `application`, `infrastructure`, `ui` e `bootstrap`;
-- primeira vertical implementada: catalogo de exercicios;
-- caso de uso de criacao de exercicio implementado com validacao e prevencao de duplicidade;
-- repositorio `SQLite` implementado para persistencia local da feature de exercicios;
-- tela inicial funcional para cadastro e listagem de exercicios;
-- testes automatizados iniciais criados para dominio, caso de uso, repositorio e presenter;
-- validacao local executada com sucesso em `npm run test` e `npm run typecheck`.
+### Modulo de Exercicios (completo)
 
-## Proximo Marco Tecnico
+- cadastro de exercicios com validacao de dominio e prevencao de duplicatas por nome normalizado;
+- edicao de exercicio existente com verificacao de conflito de nome;
+- exclusao de exercicio;
+- listagem de exercicios ordenada por nome;
+- ultimo peso valido exibido em cada card (via `GetUltimaExecucaoValidaUseCase`);
+- navegacao para historico individual do exercicio;
+- repositorio `SQLite` com `save`, `list`, `findById`, `findByNormalizedName`, `delete`;
+- casos de uso: `CreateExerciseUseCase`, `UpdateExerciseUseCase`, `DeleteExerciseUseCase`, `ListExercisesUseCase`;
+- testes de dominio, caso de uso, repositorio e presenter.
 
-Depois desta base, a proxima etapa recomendada e:
+### Modulo de Treinos (completo)
 
-- modelar treinos e treino-exercicio;
-- implementar criacao e edicao de treinos;
-- iniciar sessao de treino a partir de um treino salvo;
-- registrar aquecimento e series validas;
-- consultar historico da ultima carga por exercicio.
+- criacao de treinos template com nome e objetivo opcional;
+- listagem e exclusao de treinos (exclusao em cascata com exercicios do treino);
+- adicao, remocao e reordenacao de exercicios no treino;
+- prevencao de exercicio duplicado no mesmo treino;
+- tabelas `treinos` e `treino_exercicios` no banco com `UNIQUE(treino_id, exercicio_id)` e FK;
+- casos de uso: `CreateTreinoUseCase`, `ListTreinosUseCase`, `DeleteTreinoUseCase`, `AddExercicioAoTreinoUseCase`, `RemoveExercicioDoTreinoUseCase`, `ReordenarExerciciosUseCase`, `ListTreinoExerciciosUseCase`;
+- testes de dominio, caso de uso e repositorio.
+
+### Modulo de Sessoes de Treino (completo)
+
+- inicio de sessao com snapshot completo dos exercicios e metadados (imutavel para edicoes futuras);
+- apenas uma sessao ativa por vez;
+- sessao persiste entre fechamentos do app;
+- registro de series com tipo (aquecimento / valida), carga decimal, repeticoes e observacao opcional;
+- exclusao de serie, toggle de realizado, adicao de exercicio extra;
+- finalizacao com tela de resumo: duracao, volume total, melhor serie por `1RM` por exercicio;
+- tabelas `sessao_treinos`, `sessao_exercicios`, `series_registradas`;
+- casos de uso: `IniciarSessaoUseCase`, `GetSessaoAtivaUseCase`, `GetSessaoDetalheUseCase`, `FinalizarSessaoUseCase`, `RegistrarSerieUseCase`, `DeleteSerieUseCase`, `ToggleExercicioRealizadoUseCase`, `AddExercicioASessaoUseCase`;
+- testes incluem verificacao de preservacao de snapshot apos edicao de exercicio.
+
+### Modulo de Historico (completo)
+
+- `HistoricoRepository` com queries JOIN triplo entre as tres tabelas de sessao;
+- `GetUltimaExecucaoValidaUseCase` — melhor serie valida por 1RM da sessao mais recente;
+- `GetHistoricoExercicioUseCase` — lista de todas as execucoes passadas, desc por data;
+- tela de historico por exercicio: data, volume total da sessao, melhor 1RM, series com descricao;
+- testes de caso de uso e presenter.
+
+### Modulo de Peso Corporal (completo)
+
+- registro de peso com observacao opcional e validacao de dominio;
+- listagem em ordem decrescente com delta entre entradas;
+- tabela `registros_peso` no banco;
+- casos de uso: `RegistrarPesoUseCase`, `ListRegistrosPesoUseCase`, `DeleteRegistroPesoUseCase`;
+- testes de dominio, caso de uso e presenter.
+
+### Infraestrutura Geral
+
+- tab bar com quatro abas: `Sessao` (inicial), `Treinos`, `Exercicios`, `Peso`;
+- migracao versionada com `PRAGMA user_version` (array de steps, nunca editar step passado);
+- `LoadingScreen` compartilhado; loading spinner em todas as listas;
+- JSDoc com contrato (`@throws`, `@returns`) em todos os 20 casos de uso;
+- 104 testes automatizados passando;
+- `tsc --noEmit` sem erros em modo strict.
 
 ## Como Usar Este Arquivo
 

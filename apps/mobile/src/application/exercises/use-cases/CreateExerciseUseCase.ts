@@ -16,9 +16,14 @@ interface CreateExerciseUseCaseDependencies {
   now: () => Date;
 }
 
+/** Cria um novo exercicio no catalogo. O nome e normalizado (trim + lowercase) antes da verificacao de duplicata. */
 export class CreateExerciseUseCase {
   constructor(private readonly dependencies: CreateExerciseUseCaseDependencies) {}
 
+  /**
+   * @throws {ExerciseValidationError} nome, grupo muscular ou categoria inválidos
+   * @throws {DuplicateExerciseError} já existe exercicio com o mesmo nome normalizado
+   */
   async execute(input: CreateExerciseInput): Promise<ExercisePrimitives> {
     const exercise = Exercise.create({
       id: this.dependencies.idGenerator(),

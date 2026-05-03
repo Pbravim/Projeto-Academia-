@@ -1,6 +1,7 @@
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 
+/** Lista todos os exercicios do catalogo ordenados alfabeticamente pelo nome (pt-BR). */
 export class ListExercisesUseCase {
   constructor(private readonly exerciseRepository: ExerciseRepository) {}
 
