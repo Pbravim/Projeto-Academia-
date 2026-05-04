@@ -36,11 +36,9 @@ export function TreinoListScreen({
           value={draft.name}
           onChangeText={(v) => onChangeField('name', v)}
         />
-        <Field
-          label="Objetivo"
-          placeholder="Ex.: Hipertrofia"
+        <ObjetivoPicker
           value={draft.objetivo}
-          onChangeText={(v) => onChangeField('objetivo', v)}
+          onChange={(v) => onChangeField('objetivo', v)}
         />
 
         {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
@@ -99,6 +97,57 @@ export function TreinoListScreen({
   );
 }
 
+const OBJETIVOS = [
+  'Hipertrofia', 'Forca', 'Resistencia', 'Emagrecimento',
+  'Mobilidade', 'Reabilitacao', 'Condicionamento',
+];
+
+interface ObjetivoPickerProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function ObjetivoPicker({ value, onChange }: ObjetivoPickerProps) {
+  const isCustom = value !== '' && !OBJETIVOS.includes(value);
+  const showCustomInput = isCustom || value === '__outro__';
+
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>Objetivo</Text>
+      <View style={styles.chipGrid}>
+        {OBJETIVOS.map((opt) => {
+          const active = value === opt;
+          return (
+            <Pressable
+              key={opt}
+              onPress={() => onChange(opt)}
+              style={[styles.chip, active ? styles.chipActive : null]}
+            >
+              <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{opt}</Text>
+            </Pressable>
+          );
+        })}
+        <Pressable
+          onPress={() => onChange('__outro__')}
+          style={[styles.chip, showCustomInput ? styles.chipActive : null]}
+        >
+          <Text style={[styles.chipText, showCustomInput ? styles.chipTextActive : null]}>Outro</Text>
+        </Pressable>
+      </View>
+      {showCustomInput ? (
+        <TextInput
+          style={styles.input}
+          placeholder="Digite o objetivo"
+          placeholderTextColor="#7f856f"
+          value={value === '__outro__' ? '' : value}
+          onChangeText={onChange}
+          autoFocus
+        />
+      ) : null}
+    </View>
+  );
+}
+
 interface FieldProps {
   label: string;
   placeholder: string;
@@ -134,6 +183,11 @@ const styles = StyleSheet.create({
   field: { gap: 6 },
   fieldLabel: { color: '#31463d', fontSize: 13, fontWeight: '700' },
   input: { minHeight: 48, borderRadius: 14, borderWidth: 1, borderColor: '#d4cfbf', backgroundColor: '#ffffff', paddingHorizontal: 14, color: '#1d271f', fontSize: 15 },
+  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: '#eef1e7', borderWidth: 1, borderColor: '#d4cfbf' },
+  chipActive: { backgroundColor: '#20352c', borderColor: '#20352c' },
+  chipText: { color: '#31463d', fontSize: 13, fontWeight: '600' },
+  chipTextActive: { color: '#f8f4ea' },
   errorMessage: { color: '#a1362e', fontSize: 14, fontWeight: '600' },
   successMessage: { color: '#2c6b42', fontSize: 14, fontWeight: '600' },
   primaryButton: { minHeight: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c96f2d' },

@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
@@ -14,6 +15,7 @@ export function TreinoDetailScreen({
   onRemoveExercicio,
   onMoveUp,
   onMoveDown,
+  onUpdateRecomendacoes,
   onBack,
 }: TreinoDetailControllerState) {
   const viewModel = buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById);
@@ -44,42 +46,21 @@ export function TreinoDetailScreen({
         {viewModel.emptyStateMessage ? (
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
         ) : (
-          viewModel.exercicios.map((item) => (
-            <View key={item.treinoExercicioId} style={styles.exercicioCard}>
-              <View style={styles.exercicioInfo}>
-                <Text style={styles.exercicioOrdem}>{item.ordem}.</Text>
-                <View style={styles.exercicioTexts}>
-                  <Text style={styles.exercicioName}>{item.name}</Text>
-                  <Text style={styles.exercicioMeta}>{item.groupMuscle} · {item.category}</Text>
-                </View>
-              </View>
-
-              <View style={styles.exercicioActions}>
-                <Pressable
-                  onPress={() => { void onMoveUp(item.treinoExercicioId); }}
-                  style={({ pressed }) => [styles.orderButton, item.isFirst ? styles.orderButtonDisabled : null, pressed ? styles.orderButtonPressed : null]}
-                  disabled={item.isFirst}
-                >
-                  <Text style={styles.orderButtonText}>↑</Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={() => { void onMoveDown(item.treinoExercicioId); }}
-                  style={({ pressed }) => [styles.orderButton, item.isLast ? styles.orderButtonDisabled : null, pressed ? styles.orderButtonPressed : null]}
-                  disabled={item.isLast}
-                >
-                  <Text style={styles.orderButtonText}>↓</Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={() => { void onRemoveExercicio(item.treinoExercicioId); }}
-                  style={({ pressed }) => [styles.removeButton, pressed ? styles.removeButtonPressed : null]}
-                >
-                  <Text style={styles.removeButtonText}>Remover</Text>
-                </Pressable>
-              </View>
-            </View>
-          ))
+          viewModel.exercicios.map((item) => {
+            const te = treinoExercicios.find((t) => t.id === item.treinoExercicioId);
+            return (
+              <ExercicioCardTreino
+                key={item.treinoExercicioId}
+                item={item}
+                seriesRecomendadas={te?.seriesRecomendadas ?? null}
+                execucoesRecomendadas={te?.execucoesRecomendadas ?? null}
+                onMoveUp={() => { void onMoveUp(item.treinoExercicioId); }}
+                onMoveDown={() => { void onMoveDown(item.treinoExercicioId); }}
+                onRemove={() => { void onRemoveExercicio(item.treinoExercicioId); }}
+                onUpdateRecomendacoes={(s, e) => { void onUpdateRecomendacoes(item.treinoExercicioId, s, e); }}
+              />
+            );
+          })
         )}
       </View>
 
@@ -101,6 +82,93 @@ export function TreinoDetailScreen({
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+interface ExercicioCardTreinoProps {
+  item: ReturnType<typeof buildTreinoDetailViewModel>['exercicios'][number];
+  seriesRecomendadas: number | null;
+  execucoesRecomendadas: number | null;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onRemove: () => void;
+  onUpdateRecomendacoes: (series: number | null, execucoes: number | null) => void;
+}
+
+function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, onMoveUp, onMoveDown, onRemove, onUpdateRecomendacoes }: ExercicioCardTreinoProps) {
+  const [seriesText, setSeriesText] = useState(seriesRecomendadas != null ? String(seriesRecomendadas) : '');
+  const [execucoesText, setExecucoesText] = useState(execucoesRecomendadas != null ? String(execucoesRecomendadas) : '');
+
+  function handleBlur() {
+    const s = parseInt(seriesText, 10);
+    const e = parseInt(execucoesText, 10);
+    onUpdateRecomendacoes(
+      Number.isInteger(s) && s > 0 ? s : null,
+      Number.isInteger(e) && e > 0 ? e : null,
+    );
+  }
+
+  return (
+    <View style={styles.exercicioCard}>
+      <View style={styles.exercicioInfo}>
+        <Text style={styles.exercicioOrdem}>{item.ordem}.</Text>
+        <View style={styles.exercicioTexts}>
+          <Text style={styles.exercicioName}>{item.name}</Text>
+          <Text style={styles.exercicioMeta}>{item.groupMuscle} · {item.category}</Text>
+        </View>
+      </View>
+
+      <View style={styles.recomendacoesRow}>
+        <View style={styles.recomendacaoField}>
+          <Text style={styles.recomendacaoLabel}>Series</Text>
+          <TextInput
+            style={styles.recomendacaoInput}
+            value={seriesText}
+            onChangeText={setSeriesText}
+            onBlur={handleBlur}
+            keyboardType="number-pad"
+            placeholder="—"
+            placeholderTextColor="#aab5a0"
+          />
+        </View>
+        <Text style={styles.recomendacaoSep}>×</Text>
+        <View style={styles.recomendacaoField}>
+          <Text style={styles.recomendacaoLabel}>Reps</Text>
+          <TextInput
+            style={styles.recomendacaoInput}
+            value={execucoesText}
+            onChangeText={setExecucoesText}
+            onBlur={handleBlur}
+            keyboardType="number-pad"
+            placeholder="—"
+            placeholderTextColor="#aab5a0"
+          />
+        </View>
+      </View>
+
+      <View style={styles.exercicioActions}>
+        <Pressable
+          onPress={onMoveUp}
+          style={({ pressed }) => [styles.orderButton, item.isFirst ? styles.orderButtonDisabled : null, pressed ? styles.orderButtonPressed : null]}
+          disabled={item.isFirst}
+        >
+          <Text style={styles.orderButtonText}>↑</Text>
+        </Pressable>
+        <Pressable
+          onPress={onMoveDown}
+          style={({ pressed }) => [styles.orderButton, item.isLast ? styles.orderButtonDisabled : null, pressed ? styles.orderButtonPressed : null]}
+          disabled={item.isLast}
+        >
+          <Text style={styles.orderButtonText}>↓</Text>
+        </Pressable>
+        <Pressable
+          onPress={onRemove}
+          style={({ pressed }) => [styles.removeButton, pressed ? styles.removeButtonPressed : null]}
+        >
+          <Text style={styles.removeButtonText}>Remover</Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -135,6 +203,11 @@ const styles = StyleSheet.create({
   removeButton: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: '#f0dbd8' },
   removeButtonPressed: { opacity: 0.75 },
   removeButtonText: { color: '#a1362e', fontSize: 13, fontWeight: '700' },
+  recomendacoesRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  recomendacaoField: { alignItems: 'center', gap: 3 },
+  recomendacaoLabel: { color: '#657062', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  recomendacaoInput: { width: 52, height: 36, borderRadius: 10, borderWidth: 1, borderColor: '#d4cfbf', backgroundColor: '#fff', textAlign: 'center', color: '#1d271f', fontSize: 15, fontWeight: '700' },
+  recomendacaoSep: { color: '#8a9486', fontSize: 16, fontWeight: '700', marginTop: 14 },
   availableCard: { borderRadius: 14, padding: 14, backgroundColor: '#eef1e7' },
   availableCardPressed: { opacity: 0.7 },
   availableName: { color: '#20352c', fontSize: 15, fontWeight: '700' },

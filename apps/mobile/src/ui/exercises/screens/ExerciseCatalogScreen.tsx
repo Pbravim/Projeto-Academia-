@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { buildExerciseCatalogViewModel } from '../presenters/buildExerciseCatalogViewModel';
@@ -50,23 +51,23 @@ export function ExerciseCatalogScreen({
           value={draft.name}
           onChangeText={(value) => onChangeField('name', value)}
         />
-        <Field
-          label="Grupo muscular"
-          placeholder="Ex.: Peito"
+        <MultiChipPicker
           value={draft.groupMuscle}
-          onChangeText={(value) => onChangeField('groupMuscle', value)}
+          onChange={(value) => onChangeField('groupMuscle', value)}
         />
-        <Field
+        <ChipPicker
           label="Categoria"
-          placeholder="Ex.: Composto"
+          options={CATEGORIES}
+          customPlaceholder="Digite a categoria"
           value={draft.category}
-          onChangeText={(value) => onChangeField('category', value)}
+          onChange={(value) => onChangeField('category', value)}
         />
-        <Field
+        <ChipPicker
           label="Equipamento"
-          placeholder="Ex.: Barra olimpica"
+          options={EQUIPMENTS}
+          customPlaceholder="Digite o equipamento"
           value={draft.equipment}
-          onChangeText={(value) => onChangeField('equipment', value)}
+          onChange={(value) => onChangeField('equipment', value)}
         />
 
         <Text style={styles.helperText}>Carga sempre registrada em kg com valores decimais.</Text>
@@ -148,6 +149,153 @@ export function ExerciseCatalogScreen({
         )}
       </View>
     </ScrollView>
+  );
+}
+
+const MUSCLE_GROUPS = [
+  'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
+  'Abdomen', 'Gluteos', 'Quadriceps', 'Posterior', 'Panturrilha',
+  'Antebraco', 'Trapezio',
+];
+
+const CATEGORIES = ['Composto', 'Isolado', 'Cardio', 'Mobilidade', 'Alongamento'];
+
+const EQUIPMENTS = [
+  'Barra olimpica', 'Haltere', 'Cabo', 'Maquina',
+  'Peso corporal', 'Elastico', 'Smith', 'Kettlebell',
+];
+
+interface MultiChipPickerProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
+  const toArray = (v: string) => v.split(',').map((s) => s.trim()).filter(Boolean);
+
+  const allSelected = toArray(value);
+  const predefinedSelected = allSelected.filter((s) => MUSCLE_GROUPS.includes(s));
+  const initialCustom = allSelected.filter((s) => !MUSCLE_GROUPS.includes(s)).join(', ');
+
+  const [customText, setCustomText] = useState(initialCustom);
+  const [showCustomInput, setShowCustomInput] = useState(initialCustom !== '');
+
+  useEffect(() => {
+    const custom = toArray(value).filter((s) => !MUSCLE_GROUPS.includes(s)).join(', ');
+    setCustomText(custom);
+    setShowCustomInput(custom !== '');
+  }, [value]);
+
+  function buildValue(predefined: string[], custom: string) {
+    const parts = [...predefined, ...(custom.trim() ? [custom.trim()] : [])];
+    return parts.join(', ');
+  }
+
+  function toggleGroup(group: string) {
+    const next = predefinedSelected.includes(group)
+      ? predefinedSelected.filter((g) => g !== group)
+      : [...predefinedSelected, group];
+    onChange(buildValue(next, customText));
+  }
+
+  function handleCustomChange(text: string) {
+    setCustomText(text);
+    onChange(buildValue(predefinedSelected, text));
+  }
+
+  function toggleCustom() {
+    if (showCustomInput) {
+      setShowCustomInput(false);
+      setCustomText('');
+      onChange(buildValue(predefinedSelected, ''));
+    } else {
+      setShowCustomInput(true);
+    }
+  }
+
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>Grupo muscular</Text>
+      <View style={styles.chipGrid}>
+        {MUSCLE_GROUPS.map((group) => {
+          const active = predefinedSelected.includes(group);
+          return (
+            <Pressable
+              key={group}
+              onPress={() => toggleGroup(group)}
+              style={[styles.chip, active ? styles.chipActive : null]}
+            >
+              <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{group}</Text>
+            </Pressable>
+          );
+        })}
+        <Pressable
+          onPress={toggleCustom}
+          style={[styles.chip, showCustomInput ? styles.chipActive : null]}
+        >
+          <Text style={[styles.chipText, showCustomInput ? styles.chipTextActive : null]}>Outro</Text>
+        </Pressable>
+      </View>
+      {showCustomInput ? (
+        <TextInput
+          style={styles.input}
+          placeholder="Digite o grupo muscular"
+          placeholderTextColor="#7f856f"
+          value={customText}
+          onChangeText={handleCustomChange}
+          autoFocus
+        />
+      ) : null}
+    </View>
+  );
+}
+
+interface ChipPickerProps {
+  label: string;
+  options: string[];
+  customPlaceholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function ChipPicker({ label, options, customPlaceholder, value, onChange }: ChipPickerProps) {
+  const isCustom = value !== '' && !options.includes(value);
+  const showCustomInput = isCustom || value === '__outro__';
+
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <View style={styles.chipGrid}>
+        {options.map((option) => {
+          const active = value === option;
+          return (
+            <Pressable
+              key={option}
+              onPress={() => onChange(option)}
+              style={[styles.chip, active ? styles.chipActive : null]}
+            >
+              <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{option}</Text>
+            </Pressable>
+          );
+        })}
+        <Pressable
+          onPress={() => onChange('__outro__')}
+          style={[styles.chip, showCustomInput ? styles.chipActive : null]}
+        >
+          <Text style={[styles.chipText, showCustomInput ? styles.chipTextActive : null]}>Outro</Text>
+        </Pressable>
+      </View>
+      {showCustomInput ? (
+        <TextInput
+          style={styles.input}
+          placeholder={customPlaceholder}
+          placeholderTextColor="#7f856f"
+          value={value === '__outro__' ? '' : value}
+          onChangeText={onChange}
+          autoFocus
+        />
+      ) : null}
+    </View>
   );
 }
 
@@ -255,6 +403,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     color: '#1d271f',
     fontSize: 15,
+  },
+  chipGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#eef1e7',
+    borderWidth: 1,
+    borderColor: '#d4cfbf',
+  },
+  chipActive: {
+    backgroundColor: '#20352c',
+    borderColor: '#20352c',
+  },
+  chipText: {
+    color: '#31463d',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  chipTextActive: {
+    color: '#f8f4ea',
   },
   helperText: {
     color: '#66725f',

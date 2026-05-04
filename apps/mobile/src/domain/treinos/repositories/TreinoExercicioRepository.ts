@@ -7,6 +7,7 @@ export interface TreinoExercicioRepository {
   findByTreinoIdAndExercicioId(treinoId: string, exercicioId: string): Promise<TreinoExercicio | null>;
   countByTreinoId(treinoId: string): Promise<number>;
   updateOrdem(id: string, ordem: number): Promise<void>;
+  updateRecomendacoes(id: string, seriesRecomendadas: number | null, execucoesRecomendadas: number | null): Promise<void>;
   delete(id: string): Promise<void>;
   deleteByTreinoId(treinoId: string): Promise<void>;
 }

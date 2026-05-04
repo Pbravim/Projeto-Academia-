@@ -45,7 +45,7 @@ async function seedTreinoComExercicio(repos: ReturnType<typeof makeRepos>) {
   });
   await repos.exerciseRepository.save(exercise);
 
-  const te = TreinoExercicio.create({ id: 'te_1', treinoId: 'treino_1', exercicioId: 'exercise_1', ordem: 1 });
+  const te = TreinoExercicio.create({ id: 'te_1', treinoId: 'treino_1', exercicioId: 'exercise_1', ordem: 1, seriesRecomendadas: null, execucoesRecomendadas: null });
   await repos.treinoExercicioRepository.save(te);
 }
 

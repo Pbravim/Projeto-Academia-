@@ -3,6 +3,8 @@ export interface TreinoExercicioPrimitives {
   treinoId: string;
   exercicioId: string;
   ordem: number;
+  seriesRecomendadas: number | null;
+  execucoesRecomendadas: number | null;
 }
 
 export class TreinoExercicio {

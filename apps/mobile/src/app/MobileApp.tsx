@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mobileDependencies } from '../bootstrap/mobileDependencies';
 import { registerGlobalErrorHandler } from '../infrastructure/logging/registerGlobalErrorHandler';
@@ -12,20 +13,24 @@ import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'peso';
 
 export function MobileApp() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
+  );
+}
+
+function AppContent() {
   const [activeModule, setActiveModule] = useState<ActiveModule>('sessao');
+  const insets = useSafeAreaInsets();
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.root}>
       <StatusBar style="light" />
 
-      <View style={styles.tabBar}>
-        <TabButton label="Sessao" active={activeModule === 'sessao'} onPress={() => setActiveModule('sessao')} />
-        <TabButton label="Treinos" active={activeModule === 'treinos'} onPress={() => setActiveModule('treinos')} />
-        <TabButton label="Exercicios" active={activeModule === 'exercicios'} onPress={() => setActiveModule('exercicios')} />
-        <TabButton label="Peso" active={activeModule === 'peso'} onPress={() => setActiveModule('peso')} />
-      </View>
+      <View style={[styles.topBar, { height: insets.top, backgroundColor: '#20352c' }]} />
 
       <View style={styles.container}>
         {activeModule === 'sessao' ? (
@@ -38,7 +43,14 @@ export function MobileApp() {
           <PesoFeature dependencies={mobileDependencies.peso} />
         )}
       </View>
-    </SafeAreaView>
+
+      <View style={[styles.tabBar, { paddingBottom: insets.bottom + 4 }]}>
+        <TabButton label="Sessao" active={activeModule === 'sessao'} onPress={() => setActiveModule('sessao')} />
+        <TabButton label="Treinos" active={activeModule === 'treinos'} onPress={() => setActiveModule('treinos')} />
+        <TabButton label="Exercicios" active={activeModule === 'exercicios'} onPress={() => setActiveModule('exercicios')} />
+        <TabButton label="Peso" active={activeModule === 'peso'} onPress={() => setActiveModule('peso')} />
+      </View>
+    </View>
   );
 }
 
@@ -57,13 +69,14 @@ function TabButton({ label, active, onPress }: TabButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#20352c' },
+  root: { flex: 1, backgroundColor: '#20352c' },
+  topBar: { width: '100%' },
+  container: { flex: 1, backgroundColor: '#f3f0e8' },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#20352c',
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 6,
+    paddingTop: 6,
     gap: 4,
   },
   tab: {
@@ -83,5 +96,4 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: '#fff8f2',
   },
-  container: { flex: 1, backgroundColor: '#f3f0e8' },
 });

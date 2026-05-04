@@ -78,8 +78,8 @@ export function useTreinoListController(
         objetivo: draft.objetivo || undefined,
       });
       setDraft(initialDraft);
-      setFeedbackMessage(`"${created.name}" criado com sucesso.`);
       await loadTreinos();
+      onSelectTreino(created);
     } catch (error) {
       dependencies.logger.error('treino_list.create_failed', error, { draft });
 

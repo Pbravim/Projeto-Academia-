@@ -17,6 +17,7 @@ export interface TreinoDetailControllerDependencies {
   removeExercicioDoTreino: RemoveExercicioDoTreinoUseCase;
   reordenarExercicios: ReordenarExerciciosUseCase;
   listExercises: ListExercisesUseCase;
+  updateRecomendacoes: (id: string, series: number | null, execucoes: number | null) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -31,6 +32,7 @@ export interface TreinoDetailControllerState {
   onRemoveExercicio: (treinoExercicioId: string) => Promise<void>;
   onMoveUp: (treinoExercicioId: string) => Promise<void>;
   onMoveDown: (treinoExercicioId: string) => Promise<void>;
+  onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null) => Promise<void>;
   onBack: () => void;
 }
 
@@ -131,6 +133,16 @@ export function useTreinoDetailController(
     await reorder(newIds);
   };
 
+  const onUpdateRecomendacoes = async (treinoExercicioId: string, series: number | null, execucoes: number | null) => {
+    try {
+      await dependencies.updateRecomendacoes(treinoExercicioId, series, execucoes);
+      await loadData();
+    } catch (error) {
+      dependencies.logger.error('treino_detail.update_recomendacoes_failed', error);
+      setErrorMessage('Nao foi possivel atualizar as recomendacoes.');
+    }
+  };
+
   return {
     treino,
     treinoExercicios,
@@ -142,6 +154,7 @@ export function useTreinoDetailController(
     onRemoveExercicio,
     onMoveUp,
     onMoveDown,
+    onUpdateRecomendacoes,
     onBack,
   };
 }

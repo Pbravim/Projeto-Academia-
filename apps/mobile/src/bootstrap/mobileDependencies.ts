@@ -91,6 +91,8 @@ export const mobileDependencies = {
       removeExercicioDoTreino: new RemoveExercicioDoTreinoUseCase({ treinoExercicioRepository }),
       reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
       listExercises,
+      updateRecomendacoes: (id: string, series: number | null, execucoes: number | null) =>
+        treinoExercicioRepository.updateRecomendacoes(id, series, execucoes),
       logger,
     },
   },

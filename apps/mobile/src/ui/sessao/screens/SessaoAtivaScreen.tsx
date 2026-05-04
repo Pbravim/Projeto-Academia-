@@ -124,10 +124,12 @@ function ExercicioCard({ sessaoExercicio, series, onRegistrarSerie, onDeleteSeri
       observacao: obs,
     });
 
-    setCarga('');
+    // Mantém a carga como default para a próxima série
     setReps('');
     setObs('');
   };
+
+  const efetivamenteRealizado = sessaoExercicio.realizado && series.length > 0;
 
   return (
     <View style={[styles.exercicioCard, !sessaoExercicio.realizado ? styles.exercicioCardNaoRealizado : null]}>
@@ -140,10 +142,10 @@ function ExercicioCard({ sessaoExercicio, series, onRegistrarSerie, onDeleteSeri
         </View>
         <Pressable
           onPress={() => { void onToggleRealizado(sessaoExercicio.id); }}
-          style={[styles.realizadoToggle, !sessaoExercicio.realizado ? styles.naoRealizadoToggle : null]}
+          style={[styles.realizadoToggle, !efetivamenteRealizado ? styles.naoRealizadoToggle : null]}
         >
-          <Text style={[styles.realizadoToggleText, !sessaoExercicio.realizado ? styles.naoRealizadoText : null]}>
-            {sessaoExercicio.realizado ? 'Realizado' : 'Nao realizado'}
+          <Text style={[styles.realizadoToggleText, !efetivamenteRealizado ? styles.naoRealizadoText : null]}>
+            {efetivamenteRealizado ? 'Realizado' : 'Sem series'}
           </Text>
         </Pressable>
       </View>
