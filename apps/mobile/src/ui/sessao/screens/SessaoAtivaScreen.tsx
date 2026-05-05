@@ -97,8 +97,8 @@ interface ExercicioCardProps {
 
 function ExercicioCard({ sessaoExercicio, series, onRegistrarSerie, onDeleteSerie, onToggleRealizado }: ExercicioCardProps) {
   const [tipoSerie, setTipoSerie] = useState<TipoSerie>('valida');
-  const [carga, setCarga] = useState('');
-  const [reps, setReps] = useState('');
+  const [carga, setCarga] = useState(sessaoExercicio.cargaPadrao != null ? String(sessaoExercicio.cargaPadrao) : '');
+  const [reps, setReps] = useState(sessaoExercicio.execucoesRecomendadas != null ? String(sessaoExercicio.execucoesRecomendadas) : '');
   const [obs, setObs] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -139,6 +139,12 @@ function ExercicioCard({ sessaoExercicio, series, onRegistrarSerie, onDeleteSeri
           <Text style={styles.exercicioMeta}>
             {sessaoExercicio.grupoMuscularSnapshot} · {sessaoExercicio.categoriaSnapshot}
           </Text>
+          {(sessaoExercicio.seriesRecomendadas != null || sessaoExercicio.execucoesRecomendadas != null) ? (
+            <Text style={styles.metaRecs}>
+              Meta: {sessaoExercicio.seriesRecomendadas ?? '?'} × {sessaoExercicio.execucoesRecomendadas ?? '?'}
+              {sessaoExercicio.cargaPadrao != null ? ` @ ${sessaoExercicio.cargaPadrao}kg` : ''}
+            </Text>
+          ) : null}
         </View>
         <Pressable
           onPress={() => { void onToggleRealizado(sessaoExercicio.id); }}
@@ -275,6 +281,7 @@ const styles = StyleSheet.create({
   exercicioInfo: { flex: 1 },
   exercicioName: { color: '#20352c', fontSize: 15, fontWeight: '800' },
   exercicioMeta: { color: '#657062', fontSize: 13, marginTop: 2 },
+  metaRecs: { color: '#c96f2d', fontSize: 12, fontWeight: '700', marginTop: 4 },
   realizadoToggle: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#c5e0b8' },
   naoRealizadoToggle: { backgroundColor: '#f0dbd8' },
   realizadoToggleText: { color: '#1e4030', fontSize: 12, fontWeight: '700' },

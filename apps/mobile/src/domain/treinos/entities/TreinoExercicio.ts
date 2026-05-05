@@ -5,6 +5,7 @@ export interface TreinoExercicioPrimitives {
   ordem: number;
   seriesRecomendadas: number | null;
   execucoesRecomendadas: number | null;
+  cargaPadrao: number | null;
 }
 
 export class TreinoExercicio {

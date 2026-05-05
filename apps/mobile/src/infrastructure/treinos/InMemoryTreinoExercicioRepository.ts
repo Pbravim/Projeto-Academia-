@@ -45,10 +45,10 @@ export class InMemoryTreinoExercicioRepository implements TreinoExercicioReposit
     this.itemsById.set(id, TreinoExercicio.restore({ ...item.toPrimitives(), ordem }));
   }
 
-  async updateRecomendacoes(id: string, seriesRecomendadas: number | null, execucoesRecomendadas: number | null): Promise<void> {
+  async updateRecomendacoes(id: string, seriesRecomendadas: number | null, execucoesRecomendadas: number | null, cargaPadrao: number | null): Promise<void> {
     const item = this.itemsById.get(id);
     if (!item) return;
-    this.itemsById.set(id, TreinoExercicio.restore({ ...item.toPrimitives(), seriesRecomendadas, execucoesRecomendadas }));
+    this.itemsById.set(id, TreinoExercicio.restore({ ...item.toPrimitives(), seriesRecomendadas, execucoesRecomendadas, cargaPadrao }));
   }
 
   async delete(id: string): Promise<void> {

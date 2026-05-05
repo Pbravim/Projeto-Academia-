@@ -13,8 +13,8 @@ export function SessaoInicioScreen({ treinos, errorMessage, isIniciando, onInici
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Registrar treino</Text>
-        <Text style={styles.title}>Iniciar sessao</Text>
+        <Text style={styles.eyebrow}>Treinar agora</Text>
+        <Text style={styles.title}>Comecar treino</Text>
         <Text style={styles.description}>
           Escolha um treino para comecar. Todas as series serao registradas e salvas no historico.
         </Text>
@@ -50,7 +50,7 @@ export function SessaoInicioScreen({ treinos, errorMessage, isIniciando, onInici
                 ]}
               >
                 <Text style={styles.iniciarButtonText}>
-                  {isIniciando ? 'Iniciando...' : 'Iniciar'}
+                  {isIniciando ? 'Iniciando...' : 'Comecar'}
                 </Text>
               </Pressable>
             </View>

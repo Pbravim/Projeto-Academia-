@@ -8,6 +8,9 @@ export interface SessaoExercicioPrimitives {
   categoriaSnapshot: string;
   equipamentoSnapshot: string | null;
   realizado: boolean;
+  seriesRecomendadas: number | null;
+  execucoesRecomendadas: number | null;
+  cargaPadrao: number | null;
 }
 
 export class SessaoExercicio {

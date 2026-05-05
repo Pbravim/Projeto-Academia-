@@ -9,8 +9,9 @@ import { ExerciseCatalogFeature } from '../ui/exercises/ExerciseCatalogFeature';
 import { PesoFeature } from '../ui/peso/PesoFeature';
 import { TreinoFeature } from '../ui/treinos/TreinoFeature';
 import { SessaoFeature } from '../ui/sessao/SessaoFeature';
+import { DashboardFeature } from '../ui/dashboard/DashboardFeature';
 
-type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'peso';
+type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'peso' | 'evolucao';
 
 export function MobileApp() {
   return (
@@ -39,8 +40,10 @@ function AppContent() {
           <TreinoFeature dependencies={mobileDependencies.treinos} />
         ) : activeModule === 'exercicios' ? (
           <ExerciseCatalogFeature dependencies={mobileDependencies.exerciseCatalog} />
-        ) : (
+        ) : activeModule === 'peso' ? (
           <PesoFeature dependencies={mobileDependencies.peso} />
+        ) : (
+          <DashboardFeature dependencies={mobileDependencies.dashboard} />
         )}
       </View>
 
@@ -49,6 +52,7 @@ function AppContent() {
         <TabButton label="Treinos" active={activeModule === 'treinos'} onPress={() => setActiveModule('treinos')} />
         <TabButton label="Exercicios" active={activeModule === 'exercicios'} onPress={() => setActiveModule('exercicios')} />
         <TabButton label="Peso" active={activeModule === 'peso'} onPress={() => setActiveModule('peso')} />
+        <TabButton label="Evolucao" active={activeModule === 'evolucao'} onPress={() => setActiveModule('evolucao')} />
       </View>
     </View>
   );

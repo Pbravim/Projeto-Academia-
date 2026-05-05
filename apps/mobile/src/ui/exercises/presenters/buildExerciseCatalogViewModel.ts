@@ -9,9 +9,32 @@ export interface ExerciseCardViewModel {
   ultimoPeso: string | null;
 }
 
+export interface ExerciseSectionViewModel {
+  groupMuscle: string;
+  cards: ExerciseCardViewModel[];
+}
+
 export interface ExerciseCatalogViewModel {
+  sections: ExerciseSectionViewModel[];
+  /** Flat list kept for backwards compat with tests that check card structure */
   cards: ExerciseCardViewModel[];
   emptyStateMessage: string | null;
+}
+
+// Canonical order for main muscle groups; anything else goes to the end alphabetically
+const GROUP_ORDER: string[] = [
+  'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
+  'Quadriceps', 'Posterior', 'Gluteos', 'Panturrilha',
+  'Abdomen', 'Trapezio', 'Antebraco',
+];
+
+function primaryGroup(groupMuscle: string): string {
+  return groupMuscle.split(',')[0].trim();
+}
+
+function groupOrder(group: string): number {
+  const idx = GROUP_ORDER.indexOf(group);
+  return idx === -1 ? GROUP_ORDER.length : idx;
 }
 
 export function buildExerciseCatalogViewModel(
@@ -20,22 +43,42 @@ export function buildExerciseCatalogViewModel(
 ): ExerciseCatalogViewModel {
   if (exercises.length === 0) {
     return {
+      sections: [],
       cards: [],
       emptyStateMessage: 'Nenhum exercicio cadastrado ainda. Comece criando o primeiro.',
     };
   }
 
+  const byGroup = new Map<string, ExerciseCardViewModel[]>();
+
+  for (const exercise of exercises) {
+    const group = primaryGroup(exercise.groupMuscle);
+    const ultima = ultimosPesos.get(exercise.id);
+    const card: ExerciseCardViewModel = {
+      id: exercise.id,
+      title: exercise.name,
+      subtitle: `${exercise.groupMuscle} · ${exercise.category}`,
+      meta: exercise.equipment ? `Equipamento: ${exercise.equipment}` : 'Equipamento livre',
+      ultimoPeso: ultima ? `Ultimo: ${ultima.cargaKg} kg × ${ultima.repeticoes} rep` : null,
+    };
+    const list = byGroup.get(group) ?? [];
+    list.push(card);
+    byGroup.set(group, list);
+  }
+
+  const sections: ExerciseSectionViewModel[] = Array.from(byGroup.entries())
+    .sort(([a], [b]) => {
+      const diff = groupOrder(a) - groupOrder(b);
+      return diff !== 0 ? diff : a.localeCompare(b);
+    })
+    .map(([groupMuscle, cards]) => ({
+      groupMuscle,
+      cards: [...cards].sort((a, b) => a.title.localeCompare(b.title)),
+    }));
+
   return {
-    cards: exercises.map((exercise) => {
-      const ultima = ultimosPesos.get(exercise.id);
-      return {
-        id: exercise.id,
-        title: exercise.name,
-        subtitle: `${exercise.groupMuscle} · ${exercise.category}`,
-        meta: exercise.equipment ? `Equipamento: ${exercise.equipment}` : 'Equipamento livre',
-        ultimoPeso: ultima ? `Ultimo: ${ultima.cargaKg} kg × ${ultima.repeticoes} rep` : null,
-      };
-    }),
+    sections,
+    cards: sections.flatMap((s) => s.cards),
     emptyStateMessage: null,
   };
 }

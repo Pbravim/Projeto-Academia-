@@ -25,6 +25,9 @@ function makeSessaoExercicio(id: string, realizado = true) {
     categoriaSnapshot: 'Composto',
     equipamentoSnapshot: null,
     realizado,
+    seriesRecomendadas: null,
+    execucoesRecomendadas: null,
+    cargaPadrao: null,
   };
 }
 

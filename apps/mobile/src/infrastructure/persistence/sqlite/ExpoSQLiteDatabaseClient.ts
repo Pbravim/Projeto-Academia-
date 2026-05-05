@@ -72,7 +72,13 @@ const migrations: string[] = [
   `ALTER TABLE treino_exercicios ADD COLUMN series_recomendadas INTEGER;
    ALTER TABLE treino_exercicios ADD COLUMN execucoes_recomendadas INTEGER;`,
 
-  // v3: exercicios basicos pre-cadastrados (INSERT OR IGNORE — nao sobrescreve dados do usuario)
+  // v4: carga padrão em treino_exercicios; séries/execuções/carga em sessao_exercicios
+  `ALTER TABLE treino_exercicios ADD COLUMN carga_padrao REAL;
+   ALTER TABLE sessao_exercicios ADD COLUMN series_recomendadas INTEGER;
+   ALTER TABLE sessao_exercicios ADD COLUMN execucoes_recomendadas INTEGER;
+   ALTER TABLE sessao_exercicios ADD COLUMN carga_padrao REAL;`,
+
+  // v5: exercicios basicos pre-cadastrados (INSERT OR IGNORE — nao sobrescreve dados do usuario)
   `INSERT OR IGNORE INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
   ('seed-ex-001', 'Supino Reto com Barra',         'supino reto com barra',         'Peito, Triceps, Ombros',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-002', 'Supino Inclinado com Barra',     'supino inclinado com barra',    'Peito, Ombros, Triceps',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),

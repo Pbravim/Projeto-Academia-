@@ -14,6 +14,8 @@ import { ListTreinoExerciciosUseCase } from '../application/treinos/use-cases/Li
 import { ListTreinosUseCase } from '../application/treinos/use-cases/ListTreinosUseCase';
 import { RemoveExercicioDoTreinoUseCase } from '../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import { ReordenarExerciciosUseCase } from '../application/treinos/use-cases/ReordenarExerciciosUseCase';
+import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTreinoUseCase';
+import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { AddExercicioASessaoUseCase } from '../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import { DeleteSerieUseCase } from '../application/sessoes/use-cases/DeleteSerieUseCase';
 import { FinalizarSessaoUseCase } from '../application/sessoes/use-cases/FinalizarSessaoUseCase';
@@ -90,9 +92,10 @@ export const mobileDependencies = {
       }),
       removeExercicioDoTreino: new RemoveExercicioDoTreinoUseCase({ treinoExercicioRepository }),
       reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
+      updateTreino: new UpdateTreinoUseCase({ treinoRepository, now: () => new Date() }),
       listExercises,
-      updateRecomendacoes: (id: string, series: number | null, execucoes: number | null) =>
-        treinoExercicioRepository.updateRecomendacoes(id, series, execucoes),
+      updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) =>
+        treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao),
       logger,
     },
   },
@@ -152,6 +155,11 @@ export const mobileDependencies = {
     }),
     listRegistrosPeso: new ListRegistrosPesoUseCase(registroPesoRepository),
     deleteRegistroPeso: new DeleteRegistroPesoUseCase(registroPesoRepository),
+    logger,
+  },
+
+  dashboard: {
+    getDashboardStats: new GetDashboardStatsUseCase({ database: databaseClient }),
     logger,
   },
 };

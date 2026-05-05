@@ -4,6 +4,7 @@ import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/u
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { RemoveExercicioDoTreinoUseCase } from '../../../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import type { ReordenarExerciciosUseCase } from '../../../application/treinos/use-cases/ReordenarExerciciosUseCase';
+import type { UpdateTreinoUseCase } from '../../../application/treinos/use-cases/UpdateTreinoUseCase';
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
@@ -16,8 +17,9 @@ export interface TreinoDetailControllerDependencies {
   addExercicioAoTreino: AddExercicioAoTreinoUseCase;
   removeExercicioDoTreino: RemoveExercicioDoTreinoUseCase;
   reordenarExercicios: ReordenarExerciciosUseCase;
+  updateTreino: UpdateTreinoUseCase;
   listExercises: ListExercisesUseCase;
-  updateRecomendacoes: (id: string, series: number | null, execucoes: number | null) => Promise<void>;
+  updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -29,10 +31,12 @@ export interface TreinoDetailControllerState {
   errorMessage: string | null;
   feedbackMessage: string | null;
   onAddExercicio: (exercicioId: string) => Promise<void>;
+  onAddMultiplosExercicios: (exercicioIds: string[]) => Promise<void>;
   onRemoveExercicio: (treinoExercicioId: string) => Promise<void>;
   onMoveUp: (treinoExercicioId: string) => Promise<void>;
   onMoveDown: (treinoExercicioId: string) => Promise<void>;
-  onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null) => Promise<void>;
+  onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) => Promise<void>;
+  onUpdateNome: (novoNome: string) => Promise<void>;
   onBack: () => void;
 }
 
@@ -41,6 +45,7 @@ export function useTreinoDetailController(
   dependencies: TreinoDetailControllerDependencies,
   onBack: () => void
 ): TreinoDetailControllerState {
+  const [localTreino, setLocalTreino] = useState<TreinoPrimitives>(treino);
   const [treinoExercicios, setTreinoExercicios] = useState<TreinoExercicioPrimitives[]>([]);
   const [availableExercises, setAvailableExercises] = useState<ExercisePrimitives[]>([]);
   const [exercisesById, setExercisesById] = useState<Map<string, ExercisePrimitives>>(new Map());
@@ -74,8 +79,10 @@ export function useTreinoDetailController(
     setFeedbackMessage(null);
 
     try {
-      await dependencies.addExercicioAoTreino.execute({ treinoId: treino.id, exercicioId });
-      await loadData();
+      const newTe = await dependencies.addExercicioAoTreino.execute({ treinoId: treino.id, exercicioId });
+      // Optimistic update to avoid scroll jump
+      setTreinoExercicios((prev) => [...prev, newTe]);
+      setAvailableExercises((prev) => prev.filter((e) => e.id !== exercicioId));
     } catch (error) {
       dependencies.logger.error('treino_detail.add_exercicio_failed', error, { exercicioId });
 
@@ -84,6 +91,34 @@ export function useTreinoDetailController(
       } else {
         setErrorMessage('Nao foi possivel adicionar o exercicio.');
       }
+    }
+  };
+
+  const onAddMultiplosExercicios = async (exercicioIds: string[]) => {
+    setErrorMessage(null);
+    setFeedbackMessage(null);
+
+    const novos: TreinoExercicioPrimitives[] = [];
+    const addedIds = new Set<string>();
+
+    for (const exercicioId of exercicioIds) {
+      try {
+        const newTe = await dependencies.addExercicioAoTreino.execute({ treinoId: treino.id, exercicioId });
+        novos.push(newTe);
+        addedIds.add(exercicioId);
+      } catch (error) {
+        dependencies.logger.error('treino_detail.add_exercicio_failed', error, { exercicioId });
+        if (error instanceof ExercicioJaNoTreinoError) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('Nao foi possivel adicionar alguns exercicios.');
+        }
+      }
+    }
+
+    if (novos.length > 0) {
+      setTreinoExercicios((prev) => [...prev, ...novos]);
+      setAvailableExercises((prev) => prev.filter((e) => !addedIds.has(e.id)));
     }
   };
 
@@ -133,28 +168,51 @@ export function useTreinoDetailController(
     await reorder(newIds);
   };
 
-  const onUpdateRecomendacoes = async (treinoExercicioId: string, series: number | null, execucoes: number | null) => {
+  const onUpdateRecomendacoes = async (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) => {
     try {
-      await dependencies.updateRecomendacoes(treinoExercicioId, series, execucoes);
-      await loadData();
+      await dependencies.updateRecomendacoes(treinoExercicioId, series, execucoes, cargaPadrao);
+      setTreinoExercicios((prev) =>
+        prev.map((te) =>
+          te.id === treinoExercicioId
+            ? { ...te, seriesRecomendadas: series, execucoesRecomendadas: execucoes, cargaPadrao }
+            : te
+        )
+      );
     } catch (error) {
       dependencies.logger.error('treino_detail.update_recomendacoes_failed', error);
       setErrorMessage('Nao foi possivel atualizar as recomendacoes.');
     }
   };
 
+  const onUpdateNome = async (novoNome: string) => {
+    setErrorMessage(null);
+    try {
+      const updated = await dependencies.updateTreino.execute({
+        id: treino.id,
+        name: novoNome,
+        objetivo: localTreino.objetivo,
+      });
+      setLocalTreino(updated);
+    } catch (error) {
+      dependencies.logger.error('treino_detail.update_nome_failed', error);
+      setErrorMessage('Nao foi possivel renomear o treino.');
+    }
+  };
+
   return {
-    treino,
+    treino: localTreino,
     treinoExercicios,
     availableExercises,
     exercisesById,
     errorMessage,
     feedbackMessage,
     onAddExercicio,
+    onAddMultiplosExercicios,
     onRemoveExercicio,
     onMoveUp,
     onMoveDown,
     onUpdateRecomendacoes,
+    onUpdateNome,
     onBack,
   };
 }

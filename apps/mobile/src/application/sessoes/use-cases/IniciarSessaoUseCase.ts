@@ -66,6 +66,9 @@ export class IniciarSessaoUseCase {
         categoriaSnapshot: ex.category,
         equipamentoSnapshot: ex.equipment,
         realizado: true,
+        seriesRecomendadas: p.seriesRecomendadas,
+        execucoesRecomendadas: p.execucoesRecomendadas,
+        cargaPadrao: p.cargaPadrao,
       });
 
       await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);

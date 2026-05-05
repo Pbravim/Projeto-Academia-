@@ -59,6 +59,9 @@ export class AddExercicioASessaoUseCase {
       categoriaSnapshot: ex.category,
       equipamentoSnapshot: ex.equipment,
       realizado: true,
+      seriesRecomendadas: null,
+      execucoesRecomendadas: null,
+      cargaPadrao: null,
     });
 
     await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { buildExerciseCatalogViewModel } from '../presenters/buildExerciseCatalogViewModel';
+import { buildExerciseCatalogViewModel, type ExerciseSectionViewModel, type ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 
 export function ExerciseCatalogScreen({
   draft,
@@ -26,10 +27,10 @@ export function ExerciseCatalogScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>MVP local e offline</Text>
-        <Text style={styles.title}>Catalogo de exercicios</Text>
+        <Text style={styles.eyebrow}>Catalogo de exercicios</Text>
+        <Text style={styles.title}>Exercicios</Text>
         <Text style={styles.description}>
-          Exercicios reutilizaveis, historico limpo e arquitetura pronta para TDD.
+          Organizados por grupo muscular. Toque no grupo para expandir.
         </Text>
       </View>
 
@@ -77,9 +78,7 @@ export function ExerciseCatalogScreen({
 
         <Pressable
           accessibilityRole="button"
-          onPress={() => {
-            void onSubmit();
-          }}
+          onPress={() => { void onSubmit(); }}
           style={({ pressed }) => [
             styles.primaryButton,
             pressed ? styles.primaryButtonPressed : null,
@@ -88,67 +87,125 @@ export function ExerciseCatalogScreen({
           disabled={isSubmitting}
         >
           <Text style={styles.primaryButtonText}>
-            {isSubmitting
-              ? isEditing
-                ? 'Salvando...'
-                : 'Salvando...'
-              : isEditing
-                ? 'Salvar alteracoes'
-                : 'Salvar exercicio'}
+            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alteracoes' : 'Salvar exercicio'}
           </Text>
         </Pressable>
       </View>
 
-      <View style={styles.listCard}>
-        <Text style={styles.sectionTitle}>Catalogo atual</Text>
-
-        {isLoading ? (
-          <ActivityIndicator size="small" color="#c96f2d" style={styles.loading} />
-        ) : viewModel.emptyStateMessage ? (
+      {isLoading ? (
+        <ActivityIndicator size="small" color="#c96f2d" style={styles.loading} />
+      ) : viewModel.emptyStateMessage ? (
+        <View style={styles.listCard}>
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
-        ) : (
-          viewModel.cards.map((card) => (
-            <View
-              key={card.id}
-              style={[styles.exerciseCard, editingExerciseId === card.id ? styles.exerciseCardEditing : null]}
-            >
-              <Text style={styles.exerciseTitle}>{card.title}</Text>
-              <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
-              <Text style={styles.exerciseMeta}>{card.meta}</Text>
-              {card.ultimoPeso ? (
-                <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
-              ) : null}
-
-              <View style={styles.cardActions}>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => onSelectEdit(exercises.find((e) => e.id === card.id)!)}
-                  style={({ pressed }) => [styles.actionButton, pressed ? styles.actionButtonPressed : null]}
-                >
-                  <Text style={styles.editButtonText}>Editar</Text>
-                </Pressable>
-
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => onViewHistorico(card.id, card.title)}
-                  style={({ pressed }) => [styles.actionButton, styles.historicoButton, pressed ? styles.actionButtonPressed : null]}
-                >
-                  <Text style={styles.historicoButtonText}>Historico</Text>
-                </Pressable>
-
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => { void onDelete(card.id); }}
-                  style={({ pressed }) => [styles.actionButton, styles.deleteButton, pressed ? styles.actionButtonPressed : null]}
-                >
-                  <Text style={styles.deleteButtonText}>Excluir</Text>
-                </Pressable>
-              </View>
-            </View>
-          ))
-        )}
-      </View>
+        </View>
+      ) : (
+        viewModel.sections.map((section) => (
+          <ExerciseSection
+            key={section.groupMuscle}
+            section={section}
+            exercises={exercises}
+            editingExerciseId={editingExerciseId}
+            onSelectEdit={onSelectEdit}
+            onViewHistorico={onViewHistorico}
+            onDelete={onDelete}
+          />
+        ))
+      )}
     </ScrollView>
+  );
+}
+
+interface ExerciseSectionProps {
+  section: ExerciseSectionViewModel;
+  exercises: ExercisePrimitives[];
+  editingExerciseId: string | null;
+  onSelectEdit: (exercise: ExercisePrimitives) => void;
+  onViewHistorico: (id: string, name: string) => void;
+  onDelete: (id: string) => Promise<void>;
+}
+
+function ExerciseSection({ section, exercises, editingExerciseId, onSelectEdit, onViewHistorico, onDelete }: ExerciseSectionProps) {
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Pressable
+        onPress={() => setExpanded((v) => !v)}
+        style={({ pressed }) => [styles.sectionHeader, pressed ? styles.sectionHeaderPressed : null]}
+      >
+        <View style={styles.sectionHeaderLeft}>
+          <Text style={styles.sectionHeaderTitle}>{section.groupMuscle}</Text>
+          <View style={styles.countBadge}>
+            <Text style={styles.countBadgeText}>{section.cards.length}</Text>
+          </View>
+        </View>
+        <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+      </Pressable>
+
+      {expanded ? (
+        <View style={styles.sectionBody}>
+          {section.cards.map((card) => (
+            <ExerciseCard
+              key={card.id}
+              card={card}
+              isEditing={editingExerciseId === card.id}
+              exercise={exercises.find((e) => e.id === card.id)!}
+              onSelectEdit={onSelectEdit}
+              onViewHistorico={onViewHistorico}
+              onDelete={onDelete}
+            />
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+interface ExerciseCardProps {
+  card: ExerciseCardViewModel;
+  isEditing: boolean;
+  exercise: ExercisePrimitives;
+  onSelectEdit: (exercise: ExercisePrimitives) => void;
+  onViewHistorico: (id: string, name: string) => void;
+  onDelete: (id: string) => Promise<void>;
+}
+
+function ExerciseCard({ card, isEditing, exercise, onSelectEdit, onViewHistorico, onDelete }: ExerciseCardProps) {
+  return (
+    <View style={[styles.exerciseCard, isEditing ? styles.exerciseCardEditing : null]}>
+      <Text style={styles.exerciseTitle}>{card.title}</Text>
+      <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
+      <Text style={styles.exerciseMeta}>{card.meta}</Text>
+      {card.ultimoPeso ? (
+        <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
+      ) : null}
+
+      <View style={styles.cardActions}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => onSelectEdit(exercise)}
+          style={({ pressed }) => [styles.actionButton, pressed ? styles.actionButtonPressed : null]}
+        >
+          <Text style={styles.editButtonText}>Editar</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => onViewHistorico(card.id, card.title)}
+          style={({ pressed }) => [styles.actionButton, styles.historicoButton, pressed ? styles.actionButtonPressed : null]}
+        >
+          <Text style={styles.historicoButtonText}>Historico</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => { void onDelete(card.id); }}
+          style={({ pressed }) => [styles.actionButton, styles.deleteButton, pressed ? styles.actionButtonPressed : null]}
+        >
+          <Text style={styles.deleteButtonText}>Excluir</Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -470,9 +527,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  sectionContainer: { gap: 0 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#20352c', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 2 },
+  sectionHeaderPressed: { opacity: 0.85 },
+  sectionHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  sectionHeaderTitle: { color: '#f8f4ea', fontSize: 15, fontWeight: '800' },
+  countBadge: { backgroundColor: '#c96f2d', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 },
+  countBadgeText: { color: '#fff8f2', fontSize: 12, fontWeight: '800' },
+  chevron: { color: '#b8c9a9', fontSize: 11, fontWeight: '700' },
+  sectionBody: { backgroundColor: '#fbf9f2', borderRadius: 16, padding: 12, gap: 10, borderWidth: 1, borderColor: '#e1dccd', borderTopLeftRadius: 4, borderTopRightRadius: 4 },
   exerciseCard: {
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     backgroundColor: '#eef1e7',
     gap: 4,
   },

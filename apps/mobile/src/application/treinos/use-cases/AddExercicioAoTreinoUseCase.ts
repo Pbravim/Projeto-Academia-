@@ -49,6 +49,7 @@ export class AddExercicioAoTreinoUseCase {
       ordem: count + 1,
       seriesRecomendadas: null,
       execucoesRecomendadas: null,
+      cargaPadrao: null,
     });
 
     await this.dependencies.treinoExercicioRepository.save(treinoExercicio);

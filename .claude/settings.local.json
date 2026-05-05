@@ -14,7 +14,10 @@
       "Bash(npx tsc *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"/Users/bravim/Documents/GitHub/Projeto Academia /apps/mobile/src/application/dashboard/use-cases\")",
+      "Bash(mkdir -p \"/Users/bravim/Documents/GitHub/Projeto Academia /apps/mobile/src/ui/dashboard/screens\")",
+      "Bash(mkdir -p \"/Users/bravim/Documents/GitHub/Projeto Academia /apps/mobile/src/ui/dashboard/hooks\")"
     ]
   }
 }
