@@ -72,13 +72,13 @@ const migrations: string[] = [
   `ALTER TABLE treino_exercicios ADD COLUMN series_recomendadas INTEGER;
    ALTER TABLE treino_exercicios ADD COLUMN execucoes_recomendadas INTEGER;`,
 
-  // v4: carga padrão em treino_exercicios; séries/execuções/carga em sessao_exercicios
+  // v3: carga padrao em treino_exercicios; series/execucoes/carga em sessao_exercicios
   `ALTER TABLE treino_exercicios ADD COLUMN carga_padrao REAL;
    ALTER TABLE sessao_exercicios ADD COLUMN series_recomendadas INTEGER;
    ALTER TABLE sessao_exercicios ADD COLUMN execucoes_recomendadas INTEGER;
    ALTER TABLE sessao_exercicios ADD COLUMN carga_padrao REAL;`,
 
-  // v5: exercicios basicos pre-cadastrados (INSERT OR IGNORE — nao sobrescreve dados do usuario)
+  // v4: exercicios basicos pre-cadastrados (INSERT OR IGNORE — nao sobrescreve dados do usuario)
   `INSERT OR IGNORE INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
   ('seed-ex-001', 'Supino Reto com Barra',         'supino reto com barra',         'Peito, Triceps, Ombros',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-002', 'Supino Inclinado com Barra',     'supino inclinado com barra',    'Peito, Ombros, Triceps',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
@@ -123,6 +123,13 @@ const migrations: string[] = [
   ('seed-ex-041', 'Abducao de Quadril',             'abducao de quadril',            'Gluteos',                        'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-042', 'Panturrilha em Pe',              'panturrilha em pe',             'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-043', 'Panturrilha Sentado',            'panturrilha sentado',           'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z');`,
+
+  // v5: safety-net for devices that skipped v3 carga_padrao migration (had old v3 = seeds)
+  // The migration runner ignores "duplicate column name" so this is safe to run on any device.
+  `ALTER TABLE treino_exercicios ADD COLUMN carga_padrao REAL;
+   ALTER TABLE sessao_exercicios ADD COLUMN series_recomendadas INTEGER;
+   ALTER TABLE sessao_exercicios ADD COLUMN execucoes_recomendadas INTEGER;
+   ALTER TABLE sessao_exercicios ADD COLUMN carga_padrao REAL;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
@@ -178,14 +185,57 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
     const currentVersion = versionRow?.user_version ?? 0;
 
     for (let i = currentVersion; i < migrations.length; i++) {
-      await database.execAsync(migrations[i]);
+      await this.runMigrationStep(database, migrations[i]);
       await database.execAsync(`PRAGMA user_version = ${i + 1}`);
       this.logger.info('database.migration_applied', { version: i + 1 });
     }
+
+    // Always verify critical columns exist — guards against any migration history on old devices.
+    await this.ensureColumns(database);
 
     this.logger.info('database.ready', {
       databaseName: this.databaseName,
       version: Math.max(currentVersion, migrations.length),
     });
+  }
+
+  private async runMigrationStep(database: SQLite.SQLiteDatabase, migration: string): Promise<void> {
+    const statements = migration
+      .split(';')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    for (const stmt of statements) {
+      try {
+        await database.execAsync(stmt + ';');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/duplicate column name/i.test(msg)) {
+          this.logger.info('database.migration_column_exists', { hint: stmt.slice(0, 80) });
+        } else {
+          throw err;
+        }
+      }
+    }
+  }
+
+  private async ensureColumns(database: SQLite.SQLiteDatabase): Promise<void> {
+    const required: { table: string; column: string; type: string }[] = [
+      { table: 'treino_exercicios', column: 'series_recomendadas',   type: 'INTEGER' },
+      { table: 'treino_exercicios', column: 'execucoes_recomendadas', type: 'INTEGER' },
+      { table: 'treino_exercicios', column: 'carga_padrao',           type: 'REAL'    },
+      { table: 'sessao_exercicios', column: 'series_recomendadas',    type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'execucoes_recomendadas', type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'carga_padrao',           type: 'REAL'    },
+    ];
+
+    for (const { table, column, type } of required) {
+      const info = await database.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      const exists = info.some((col) => col.name === column);
+      if (!exists) {
+        await database.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${type};`);
+        this.logger.info('database.column_added', { table, column });
+      }
+    }
   }
 }

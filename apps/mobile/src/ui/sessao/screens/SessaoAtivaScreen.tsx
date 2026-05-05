@@ -7,6 +7,37 @@ import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
 
+const SESSAO_GROUP_ORDER = [
+  'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
+  'Quadriceps', 'Posterior', 'Gluteos', 'Panturrilha',
+  'Abdomen', 'Trapezio', 'Antebraco',
+];
+
+function sessaoPrimaryGroup(groupMuscle: string): string {
+  return groupMuscle.split(',')[0].trim();
+}
+
+function sessaoGroupExercises(exercises: ExercisePrimitives[]): { group: string; items: ExercisePrimitives[] }[] {
+  const byGroup = new Map<string, ExercisePrimitives[]>();
+  for (const ex of exercises) {
+    const group = sessaoPrimaryGroup(ex.groupMuscle);
+    const list = byGroup.get(group) ?? [];
+    list.push(ex);
+    byGroup.set(group, list);
+  }
+  return Array.from(byGroup.entries())
+    .sort(([a], [b]) => {
+      const ai = SESSAO_GROUP_ORDER.indexOf(a), bi = SESSAO_GROUP_ORDER.indexOf(b);
+      const ao = ai === -1 ? SESSAO_GROUP_ORDER.length : ai;
+      const bo = bi === -1 ? SESSAO_GROUP_ORDER.length : bi;
+      return ao !== bo ? ao - bo : a.localeCompare(b);
+    })
+    .map(([group, items]) => ({
+      group,
+      items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
+    }));
+}
+
 export function SessaoAtivaScreen({
   detalhe,
   availableExercises,
@@ -124,8 +155,8 @@ function ExercicioCard({ sessaoExercicio, series, onRegistrarSerie, onDeleteSeri
       observacao: obs,
     });
 
-    // Mantém a carga como default para a próxima série
-    setReps('');
+    // Mantém carga e reps como default para a próxima série
+    setReps(sessaoExercicio.execucoesRecomendadas != null ? String(sessaoExercicio.execucoesRecomendadas) : '');
     setObs('');
   };
 
@@ -251,16 +282,51 @@ function AddExercicioSection({ availableExercises, onAdd }: AddExercicioSectionP
 
   return (
     <View style={styles.addExercicioList}>
-      {availableExercises.map((ex) => (
-        <Pressable
-          key={ex.id}
-          onPress={() => { void onAdd(ex.id); }}
-          style={({ pressed }) => [styles.availableCard, pressed ? { opacity: 0.7 } : null]}
-        >
-          <Text style={styles.availableName}>{ex.name}</Text>
-          <Text style={styles.availableMeta}>{ex.groupMuscle} · {ex.category}</Text>
-        </Pressable>
+      {sessaoGroupExercises(availableExercises).map(({ group, items }) => (
+        <SessaoExerciseGroup key={group} group={group} items={items} onAdd={onAdd} />
       ))}
+    </View>
+  );
+}
+
+interface SessaoExerciseGroupProps {
+  group: string;
+  items: ExercisePrimitives[];
+  onAdd: (id: string) => Promise<void>;
+}
+
+function SessaoExerciseGroup({ group, items, onAdd }: SessaoExerciseGroupProps) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <View>
+      <Pressable
+        onPress={() => setExpanded((v) => !v)}
+        style={({ pressed }) => [styles.sessaoGroupHeader, pressed ? { opacity: 0.85 } : null]}
+      >
+        <View style={styles.sessaoGroupHeaderLeft}>
+          <Text style={styles.sessaoGroupTitle}>{group}</Text>
+          <View style={styles.sessaoGroupBadge}>
+            <Text style={styles.sessaoGroupBadgeText}>{items.length}</Text>
+          </View>
+        </View>
+        <Text style={styles.sessaoGroupChevron}>{expanded ? '▲' : '▼'}</Text>
+      </Pressable>
+
+      {expanded ? (
+        <View style={styles.sessaoGroupBody}>
+          {items.map((ex) => (
+            <Pressable
+              key={ex.id}
+              onPress={() => { void onAdd(ex.id); }}
+              style={({ pressed }) => [styles.availableCard, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={styles.availableName}>{ex.name}</Text>
+              <Text style={styles.availableMeta}>{ex.groupMuscle} · {ex.category}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -313,8 +379,15 @@ const styles = StyleSheet.create({
   secondaryButton: { borderRadius: 14, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#20352c' },
   secondaryButtonPressed: { opacity: 0.7 },
   secondaryButtonText: { color: '#20352c', fontSize: 14, fontWeight: '700' },
-  addExercicioList: { gap: 8 },
+  addExercicioList: { gap: 4 },
   emptyAddText: { color: '#66725f', fontSize: 13 },
+  sessaoGroupHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#20352c', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9, marginBottom: 2 },
+  sessaoGroupHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  sessaoGroupTitle: { color: '#f8f4ea', fontSize: 13, fontWeight: '800' },
+  sessaoGroupBadge: { backgroundColor: '#c96f2d', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1 },
+  sessaoGroupBadgeText: { color: '#fff8f2', fontSize: 11, fontWeight: '800' },
+  sessaoGroupChevron: { color: '#b8c9a9', fontSize: 10, fontWeight: '700' },
+  sessaoGroupBody: { gap: 4, paddingBottom: 4 },
   availableCard: { borderRadius: 12, padding: 12, backgroundColor: '#eef1e7' },
   availableName: { color: '#20352c', fontSize: 14, fontWeight: '700' },
   availableMeta: { color: '#657062', fontSize: 12, marginTop: 2 },

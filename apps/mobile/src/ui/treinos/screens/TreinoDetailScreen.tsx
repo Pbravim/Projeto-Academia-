@@ -1,8 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+
+const GROUP_ORDER = [
+  'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
+  'Quadriceps', 'Posterior', 'Gluteos', 'Panturrilha',
+  'Abdomen', 'Trapezio', 'Antebraco',
+];
+
+function primaryGroup(groupMuscle: string): string {
+  return groupMuscle.split(',')[0].trim();
+}
+
+function groupExercises(exercises: ExercisePrimitives[]): { group: string; items: ExercisePrimitives[] }[] {
+  const byGroup = new Map<string, ExercisePrimitives[]>();
+  for (const ex of exercises) {
+    const group = primaryGroup(ex.groupMuscle);
+    const list = byGroup.get(group) ?? [];
+    list.push(ex);
+    byGroup.set(group, list);
+  }
+  return Array.from(byGroup.entries())
+    .sort(([a], [b]) => {
+      const ai = GROUP_ORDER.indexOf(a), bi = GROUP_ORDER.indexOf(b);
+      const ao = ai === -1 ? GROUP_ORDER.length : ai;
+      const bo = bi === -1 ? GROUP_ORDER.length : bi;
+      return ao !== bo ? ao - bo : a.localeCompare(b);
+    })
+    .map(([group, items]) => ({
+      group,
+      items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
+    }));
+}
 
 export function TreinoDetailScreen({
   treino,
@@ -29,6 +61,44 @@ export function TreinoDetailScreen({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editingNome, setEditingNome] = useState(false);
   const [nomeText, setNomeText] = useState(treino.name);
+
+  // Centralized recs state: tracks current field text for all exercises
+  const recsRef = useRef<Map<string, { series: string; execucoes: string; carga: string }>>(new Map());
+  useEffect(() => {
+    for (const te of treinoExercicios) {
+      if (!recsRef.current.has(te.id)) {
+        recsRef.current.set(te.id, {
+          series: te.seriesRecomendadas != null ? String(te.seriesRecomendadas) : '',
+          execucoes: te.execucoesRecomendadas != null ? String(te.execucoesRecomendadas) : '',
+          carga: te.cargaPadrao != null ? String(te.cargaPadrao) : '',
+        });
+      }
+    }
+  }, [treinoExercicios]);
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState(false);
+  const saveFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (saveFeedbackTimer.current) clearTimeout(saveFeedbackTimer.current); }, []);
+
+  const handleSaveAll = async () => {
+    setIsSaving(true);
+    for (const te of treinoExercicios) {
+      const vals = recsRef.current.get(te.id);
+      if (!vals) continue;
+      const s = parseInt(vals.series, 10);
+      const e = parseInt(vals.execucoes, 10);
+      const c = parseFloat(vals.carga.replace(',', '.'));
+      await onUpdateRecomendacoes(
+        te.id,
+        Number.isInteger(s) && s > 0 ? s : null,
+        Number.isInteger(e) && e > 0 ? e : null,
+        Number.isFinite(c) && c > 0 ? c : null,
+      );
+    }
+    setIsSaving(false);
+    onBack();
+  };
 
   const filteredExercises = notAddedExercises.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -116,11 +186,29 @@ export function TreinoDetailScreen({
                 onMoveUp={() => { void onMoveUp(item.treinoExercicioId); }}
                 onMoveDown={() => { void onMoveDown(item.treinoExercicioId); }}
                 onRemove={() => { void onRemoveExercicio(item.treinoExercicioId); }}
-                onUpdateRecomendacoes={(s, e, c) => { void onUpdateRecomendacoes(item.treinoExercicioId, s, e, c); }}
+                onChangeRecs={(series, execucoes, carga) => {
+                  recsRef.current.set(item.treinoExercicioId, { series, execucoes, carga });
+                }}
               />
             );
           })
         )}
+
+        {treinoExercicios.length > 0 ? (
+          <Pressable
+            onPress={() => { void handleSaveAll(); }}
+            disabled={isSaving}
+            style={({ pressed }) => [
+              styles.saveTreinoBtn,
+              pressed ? styles.saveTreinoBtnPressed : null,
+              isSaving ? styles.saveTreinoBtnDisabled : null,
+            ]}
+          >
+            <Text style={styles.saveTreinoBtnText}>
+              {isSaving ? 'Salvando...' : saveFeedback ? '✓ Treino salvo!' : 'Salvar treino'}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
 
       {notAddedExercises.length > 0 ? (
@@ -151,41 +239,90 @@ export function TreinoDetailScreen({
               {search ? 'Nenhum exercicio encontrado.' : 'Todos os exercicios ja estao no treino.'}
             </Text>
           ) : (
-            filteredExercises.map((exercise) => {
-              const isSelected = selected.has(exercise.id);
-              return (
-                <Pressable
-                  key={exercise.id}
-                  onPress={() => {
-                    if (selected.size === 0 && !isSelected) {
-                      void onAddExercicio(exercise.id);
-                    } else {
-                      toggleSelect(exercise.id);
-                    }
-                  }}
-                  onLongPress={() => toggleSelect(exercise.id)}
-                  style={({ pressed }) => [
-                    styles.availableCard,
-                    isSelected ? styles.availableCardSelected : null,
-                    pressed ? { opacity: 0.7 } : null,
-                  ]}
-                >
-                  <View style={styles.availableCardContent}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.availableName}>{exercise.name}</Text>
-                      <Text style={styles.availableMeta}>{exercise.groupMuscle} · {exercise.category}</Text>
-                    </View>
-                    {isSelected ? (
-                      <View style={styles.checkmark}><Text style={styles.checkmarkText}>✓</Text></View>
-                    ) : null}
-                  </View>
-                </Pressable>
-              );
-            })
+            groupExercises(filteredExercises).map(({ group, items }) => (
+              <ExercisePickerGroup
+                key={group}
+                group={group}
+                items={items}
+                selected={selected}
+                forceExpanded={search.length > 0}
+                onToggleSelect={toggleSelect}
+                onAdd={(id) => { void onAddExercicio(id); }}
+                hasSelection={selected.size > 0}
+              />
+            ))
           )}
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+interface ExercisePickerGroupProps {
+  group: string;
+  items: ExercisePrimitives[];
+  selected: Set<string>;
+  forceExpanded: boolean;
+  hasSelection: boolean;
+  onToggleSelect: (id: string) => void;
+  onAdd: (id: string) => void;
+}
+
+function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd }: ExercisePickerGroupProps) {
+  const [expanded, setExpanded] = useState(false);
+  const isOpen = expanded || forceExpanded;
+
+  return (
+    <View style={styles.pickerGroup}>
+      <Pressable
+        onPress={() => setExpanded((v) => !v)}
+        style={({ pressed }) => [styles.pickerGroupHeader, pressed ? { opacity: 0.85 } : null]}
+      >
+        <View style={styles.pickerGroupHeaderLeft}>
+          <Text style={styles.pickerGroupTitle}>{group}</Text>
+          <View style={styles.pickerCountBadge}>
+            <Text style={styles.pickerCountBadgeText}>{items.length}</Text>
+          </View>
+        </View>
+        <Text style={styles.pickerChevron}>{isOpen ? '▲' : '▼'}</Text>
+      </Pressable>
+
+      {isOpen ? (
+        <View style={styles.pickerGroupBody}>
+          {items.map((exercise) => {
+            const isSelected = selected.has(exercise.id);
+            return (
+              <Pressable
+                key={exercise.id}
+                onPress={() => {
+                  if (!hasSelection && !isSelected) {
+                    onAdd(exercise.id);
+                  } else {
+                    onToggleSelect(exercise.id);
+                  }
+                }}
+                onLongPress={() => onToggleSelect(exercise.id)}
+                style={({ pressed }) => [
+                  styles.availableCard,
+                  isSelected ? styles.availableCardSelected : null,
+                  pressed ? { opacity: 0.7 } : null,
+                ]}
+              >
+                <View style={styles.availableCardContent}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.availableName}>{exercise.name}</Text>
+                    <Text style={styles.availableMeta}>{exercise.groupMuscle} · {exercise.category}</Text>
+                  </View>
+                  {isSelected ? (
+                    <View style={styles.checkmark}><Text style={styles.checkmarkText}>✓</Text></View>
+                  ) : null}
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -197,24 +334,13 @@ interface ExercicioCardTreinoProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
-  onUpdateRecomendacoes: (series: number | null, execucoes: number | null, cargaPadrao: number | null) => void;
+  onChangeRecs: (series: string, execucoes: string, carga: string) => void;
 }
 
-function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, cargaPadrao, onMoveUp, onMoveDown, onRemove, onUpdateRecomendacoes }: ExercicioCardTreinoProps) {
+function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, cargaPadrao, onMoveUp, onMoveDown, onRemove, onChangeRecs }: ExercicioCardTreinoProps) {
   const [seriesText, setSeriesText] = useState(seriesRecomendadas != null ? String(seriesRecomendadas) : '');
   const [execucoesText, setExecucoesText] = useState(execucoesRecomendadas != null ? String(execucoesRecomendadas) : '');
   const [cargaText, setCargaText] = useState(cargaPadrao != null ? String(cargaPadrao) : '');
-
-  function handleBlur() {
-    const s = parseInt(seriesText, 10);
-    const e = parseInt(execucoesText, 10);
-    const c = parseFloat(cargaText.replace(',', '.'));
-    onUpdateRecomendacoes(
-      Number.isInteger(s) && s > 0 ? s : null,
-      Number.isInteger(e) && e > 0 ? e : null,
-      Number.isFinite(c) && c > 0 ? c : null,
-    );
-  }
 
   return (
     <View style={styles.exercicioCard}>
@@ -232,11 +358,11 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
           <TextInput
             style={styles.recomendacaoInput}
             value={seriesText}
-            onChangeText={setSeriesText}
-            onBlur={handleBlur}
+            onChangeText={(v) => { setSeriesText(v); onChangeRecs(v, execucoesText, cargaText); }}
             keyboardType="number-pad"
             placeholder="—"
             placeholderTextColor="#aab5a0"
+            returnKeyType="next"
           />
         </View>
         <Text style={styles.recomendacaoSep}>×</Text>
@@ -245,11 +371,11 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
           <TextInput
             style={styles.recomendacaoInput}
             value={execucoesText}
-            onChangeText={setExecucoesText}
-            onBlur={handleBlur}
+            onChangeText={(v) => { setExecucoesText(v); onChangeRecs(seriesText, v, cargaText); }}
             keyboardType="number-pad"
             placeholder="—"
             placeholderTextColor="#aab5a0"
+            returnKeyType="next"
           />
         </View>
         <Text style={styles.recomendacaoSep}>@</Text>
@@ -258,11 +384,11 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
           <TextInput
             style={[styles.recomendacaoInput, styles.recomendacaoInputCarga]}
             value={cargaText}
-            onChangeText={setCargaText}
-            onBlur={handleBlur}
+            onChangeText={(v) => { setCargaText(v); onChangeRecs(seriesText, execucoesText, v); }}
             keyboardType="decimal-pad"
             placeholder="—"
             placeholderTextColor="#aab5a0"
+            returnKeyType="next"
           />
         </View>
       </View>
@@ -347,4 +473,16 @@ const styles = StyleSheet.create({
   recomendacaoInput: { width: 52, height: 36, borderRadius: 10, borderWidth: 1, borderColor: '#d4cfbf', backgroundColor: '#fff', textAlign: 'center', color: '#1d271f', fontSize: 15, fontWeight: '700' },
   recomendacaoInputCarga: { width: 64 },
   recomendacaoSep: { color: '#8a9486', fontSize: 16, fontWeight: '700', marginTop: 14 },
+  saveTreinoBtn: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c96f2d', marginTop: 4 },
+  saveTreinoBtnPressed: { opacity: 0.9 },
+  saveTreinoBtnDisabled: { opacity: 0.6 },
+  saveTreinoBtnText: { color: '#fff8f2', fontSize: 16, fontWeight: '800' },
+  pickerGroup: { gap: 0 },
+  pickerGroupHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#20352c', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 2 },
+  pickerGroupHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  pickerGroupTitle: { color: '#f8f4ea', fontSize: 14, fontWeight: '800' },
+  pickerCountBadge: { backgroundColor: '#c96f2d', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 1 },
+  pickerCountBadgeText: { color: '#fff8f2', fontSize: 11, fontWeight: '800' },
+  pickerChevron: { color: '#b8c9a9', fontSize: 11, fontWeight: '700' },
+  pickerGroupBody: { gap: 6, paddingBottom: 4 },
 });

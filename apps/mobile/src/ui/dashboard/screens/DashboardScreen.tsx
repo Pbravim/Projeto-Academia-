@@ -1,17 +1,44 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { DashboardControllerState } from '../hooks/useDashboardController';
 import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 
-export function DashboardScreen({ stats, isLoading, errorMessage, onRefresh }: DashboardControllerState) {
+export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, onRefresh, onReset }: DashboardControllerState) {
+  const handleReset = () => {
+    Alert.alert(
+      'Resetar historico',
+      'Isso vai apagar todas as sessoes, series e registros de progresso. Os treinos e exercicios serao mantidos. Essa acao nao pode ser desfeita.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Resetar', style: 'destructive', onPress: () => { void onReset(); } },
+      ]
+    );
+  };
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Evolucao</Text>
+        <View style={styles.heroTopRow}>
+          <Text style={styles.eyebrow}>Evolucao</Text>
+          <Pressable
+            onPress={onRefresh}
+            disabled={isLoading || isResetting}
+            style={({ pressed }) => [styles.refreshIconBtn, pressed ? { opacity: 0.7 } : null]}
+          >
+            <Text style={[styles.refreshIconText, (isLoading || isResetting) ? styles.refreshIconLoading : null]}>↺</Text>
+          </Pressable>
+        </View>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.description}>Progresso real por treino, ultimas 10 sessoes de cada.</Text>
       </View>
+
+      <Pressable
+        onPress={handleReset}
+        disabled={isResetting || isLoading}
+        style={({ pressed }) => [styles.resetBtn, pressed ? { opacity: 0.8 } : null, (isResetting || isLoading) ? styles.resetBtnDisabled : null]}
+      >
+        <Text style={styles.resetBtnText}>{isResetting ? 'Resetando...' : 'Resetar historico'}</Text>
+      </Pressable>
 
       {errorMessage ? (
         <View style={styles.card}>
@@ -172,7 +199,14 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#f3f0e8' },
   content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 16 },
   heroCard: { backgroundColor: '#20352c', borderRadius: 24, padding: 22, gap: 8 },
+  heroTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   eyebrow: { color: '#b8c9a9', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  refreshIconBtn: { padding: 4 },
+  refreshIconText: { color: '#b8c9a9', fontSize: 20, fontWeight: '700' },
+  refreshIconLoading: { opacity: 0.4 },
+  resetBtn: { borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#a1362e' },
+  resetBtnDisabled: { opacity: 0.5 },
+  resetBtnText: { color: '#a1362e', fontSize: 14, fontWeight: '700' },
   title: { color: '#f8f4ea', fontSize: 30, fontWeight: '800' },
   description: { color: '#dde7d3', fontSize: 15, lineHeight: 22 },
   loader: { marginTop: 40 },

@@ -125,7 +125,7 @@ interface ExerciseSectionProps {
 }
 
 function ExerciseSection({ section, exercises, editingExerciseId, onSelectEdit, onViewHistorico, onDelete }: ExerciseSectionProps) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <View style={styles.sectionContainer}>

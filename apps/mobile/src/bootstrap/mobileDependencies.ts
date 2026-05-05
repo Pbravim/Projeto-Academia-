@@ -16,6 +16,7 @@ import { RemoveExercicioDoTreinoUseCase } from '../application/treinos/use-cases
 import { ReordenarExerciciosUseCase } from '../application/treinos/use-cases/ReordenarExerciciosUseCase';
 import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTreinoUseCase';
 import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { ResetHistoricoUseCase } from '../application/dashboard/use-cases/ResetHistoricoUseCase';
 import { AddExercicioASessaoUseCase } from '../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import { DeleteSerieUseCase } from '../application/sessoes/use-cases/DeleteSerieUseCase';
 import { FinalizarSessaoUseCase } from '../application/sessoes/use-cases/FinalizarSessaoUseCase';
@@ -160,6 +161,7 @@ export const mobileDependencies = {
 
   dashboard: {
     getDashboardStats: new GetDashboardStatsUseCase({ database: databaseClient }),
+    resetHistorico: new ResetHistoricoUseCase({ database: databaseClient }),
     logger,
   },
 };
