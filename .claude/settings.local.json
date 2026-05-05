@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path . -Force)",
+      "Bash(Select-Object -Property Name, Mode)",
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\pedro\\\\Desktop\\\\Programação\\\\VSCode\\\\Projeto-Academia-\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(cat vitest.config.ts)",
+      "Bash(cat vite.config.ts)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\pedro\\\\Desktop\\\\Programação\\\\VSCode\\\\Projeto-Academia-\" -Filter \"*.md\")",
+      "Bash(xargs grep *)",
+      "Bash(npm test *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npm install *)"
+    ]
+  }
+}
