@@ -130,6 +130,16 @@ const migrations: string[] = [
    ALTER TABLE sessao_exercicios ADD COLUMN series_recomendadas INTEGER;
    ALTER TABLE sessao_exercicios ADD COLUMN execucoes_recomendadas INTEGER;
    ALTER TABLE sessao_exercicios ADD COLUMN carga_padrao REAL;`,
+
+  // v6: tempo de descanso entre series configuravel por exercicio no treino
+  `ALTER TABLE treino_exercicios ADD COLUMN tempo_descanso_segundos INTEGER;
+   ALTER TABLE sessao_exercicios ADD COLUMN tempo_descanso_segundos INTEGER;`,
+
+  // v7: tabela de configuracoes do app (chave-valor)
+  `CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
+  );`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
@@ -160,6 +170,15 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   async getAll<T>(statement: string, params: SQLiteBindParams = []): Promise<T[]> {
     const database = await this.getReadyDatabase();
     return database.getAllAsync<T>(statement, params);
+  }
+
+  async getSetting(key: string): Promise<string | null> {
+    const row = await this.getFirst<{ value: string }>('SELECT value FROM settings WHERE key = ? LIMIT 1', [key]);
+    return row?.value ?? null;
+  }
+
+  async setSetting(key: string, value: string): Promise<void> {
+    await this.run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, value]);
   }
 
   private async getReadyDatabase(): Promise<SQLite.SQLiteDatabase> {
@@ -221,12 +240,14 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
 
   private async ensureColumns(database: SQLite.SQLiteDatabase): Promise<void> {
     const required: { table: string; column: string; type: string }[] = [
-      { table: 'treino_exercicios', column: 'series_recomendadas',   type: 'INTEGER' },
-      { table: 'treino_exercicios', column: 'execucoes_recomendadas', type: 'INTEGER' },
-      { table: 'treino_exercicios', column: 'carga_padrao',           type: 'REAL'    },
-      { table: 'sessao_exercicios', column: 'series_recomendadas',    type: 'INTEGER' },
-      { table: 'sessao_exercicios', column: 'execucoes_recomendadas', type: 'INTEGER' },
-      { table: 'sessao_exercicios', column: 'carga_padrao',           type: 'REAL'    },
+      { table: 'treino_exercicios', column: 'series_recomendadas',       type: 'INTEGER' },
+      { table: 'treino_exercicios', column: 'execucoes_recomendadas',    type: 'INTEGER' },
+      { table: 'treino_exercicios', column: 'carga_padrao',              type: 'REAL'    },
+      { table: 'treino_exercicios', column: 'tempo_descanso_segundos',   type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'series_recomendadas',       type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'execucoes_recomendadas',    type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'carga_padrao',              type: 'REAL'    },
+      { table: 'sessao_exercicios', column: 'tempo_descanso_segundos',   type: 'INTEGER' },
     ];
 
     for (const { table, column, type } of required) {

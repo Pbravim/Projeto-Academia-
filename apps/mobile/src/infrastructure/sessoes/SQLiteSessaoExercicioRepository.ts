@@ -15,6 +15,7 @@ interface SessaoExercicioRow {
   series_recomendadas: number | null;
   execucoes_recomendadas: number | null;
   carga_padrao: number | null;
+  tempo_descanso_segundos: number | null;
 }
 
 export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepository {
@@ -24,9 +25,9 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     const p = se.toPrimitives();
     await this.database.run(
       `INSERT OR REPLACE INTO sessao_exercicios
-        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null]
+        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null]
     );
   }
 
@@ -61,6 +62,10 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     );
     return row?.count ?? 0;
   }
+
+  async deleteBySessaoId(sessaoId: string): Promise<void> {
+    await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
+  }
 }
 
 function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {
@@ -77,5 +82,6 @@ function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {
     seriesRecomendadas: row.series_recomendadas ?? null,
     execucoesRecomendadas: row.execucoes_recomendadas ?? null,
     cargaPadrao: row.carga_padrao ?? null,
+    tempoDescansoSegundos: row.tempo_descanso_segundos ?? null,
   };
 }

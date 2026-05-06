@@ -11,6 +11,7 @@ export interface SessaoExercicioPrimitives {
   seriesRecomendadas: number | null;
   execucoesRecomendadas: number | null;
   cargaPadrao: number | null;
+  tempoDescansoSegundos: number | null;
 }
 
 export class SessaoExercicio {

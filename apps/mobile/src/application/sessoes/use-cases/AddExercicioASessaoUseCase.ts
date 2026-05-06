@@ -62,6 +62,7 @@ export class AddExercicioASessaoUseCase {
       seriesRecomendadas: null,
       execucoesRecomendadas: null,
       cargaPadrao: null,
+      tempoDescansoSegundos: null,
     });
 
     await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);

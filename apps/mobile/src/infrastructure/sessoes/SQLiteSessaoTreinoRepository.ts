@@ -37,6 +37,10 @@ export class SQLiteSessaoTreinoRepository implements SessaoTreinoRepository {
     );
     return row ? SessaoTreino.restore(mapRow(row)) : null;
   }
+
+  async delete(id: string): Promise<void> {
+    await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [id]);
+  }
 }
 
 function mapRow(row: SessaoTreinoRow): SessaoTreinoPrimitives {

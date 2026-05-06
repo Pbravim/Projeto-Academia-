@@ -26,6 +26,7 @@ export interface TreinoListControllerState {
   feedbackMessage: string | null;
   isLoading: boolean;
   isSubmitting: boolean;
+  deletingId: string | null;
   onChangeField: (field: keyof TreinoDraft, value: string) => void;
   onSubmit: () => Promise<void>;
   onDelete: (id: string) => Promise<void>;
@@ -44,6 +45,7 @@ export function useTreinoListController(
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadTreinos = async () => {
     try {
@@ -94,6 +96,8 @@ export function useTreinoListController(
   };
 
   const onDelete = async (id: string) => {
+    if (deletingId) return;
+    setDeletingId(id);
     setErrorMessage(null);
     setFeedbackMessage(null);
 
@@ -104,6 +108,8 @@ export function useTreinoListController(
     } catch (error) {
       dependencies.logger.error('treino_list.delete_failed', error, { id });
       setErrorMessage('Nao foi possivel excluir o treino.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -114,6 +120,7 @@ export function useTreinoListController(
     feedbackMessage,
     isLoading,
     isSubmitting,
+    deletingId,
     onChangeField,
     onSubmit,
     onDelete,

@@ -19,7 +19,7 @@ export interface TreinoDetailControllerDependencies {
   reordenarExercicios: ReordenarExerciciosUseCase;
   updateTreino: UpdateTreinoUseCase;
   listExercises: ListExercisesUseCase;
-  updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) => Promise<void>;
+  updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -35,7 +35,7 @@ export interface TreinoDetailControllerState {
   onRemoveExercicio: (treinoExercicioId: string) => Promise<void>;
   onMoveUp: (treinoExercicioId: string) => Promise<void>;
   onMoveDown: (treinoExercicioId: string) => Promise<void>;
-  onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) => Promise<void>;
+  onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
   onUpdateNome: (novoNome: string) => Promise<void>;
   onBack: () => void;
 }
@@ -168,13 +168,13 @@ export function useTreinoDetailController(
     await reorder(newIds);
   };
 
-  const onUpdateRecomendacoes = async (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) => {
+  const onUpdateRecomendacoes = async (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => {
     try {
-      await dependencies.updateRecomendacoes(treinoExercicioId, series, execucoes, cargaPadrao);
+      await dependencies.updateRecomendacoes(treinoExercicioId, series, execucoes, cargaPadrao, tempoDescansoSegundos);
       setTreinoExercicios((prev) =>
         prev.map((te) =>
           te.id === treinoExercicioId
-            ? { ...te, seriesRecomendadas: series, execucoesRecomendadas: execucoes, cargaPadrao }
+            ? { ...te, seriesRecomendadas: series, execucoesRecomendadas: execucoes, cargaPadrao, tempoDescansoSegundos }
             : te
         )
       );

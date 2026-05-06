@@ -27,6 +27,7 @@ export interface SessaoFeatureControllerState {
   isIniciando: boolean;
   onIniciarSessao: (treinoId: string) => Promise<void>;
   onSessaoFinalizada: (detalhe: SessaoDetalhe) => void;
+  onSessaoCancelada: () => void;
   onFecharResumo: () => void;
 }
 
@@ -90,6 +91,11 @@ export function useSessaoFeatureController(
     setView('resumo');
   };
 
+  const onSessaoCancelada = () => {
+    setSessaoAtiva(null);
+    setView('inicio');
+  };
+
   const onFecharResumo = () => {
     setSessaoResumo(null);
     setView('inicio');
@@ -105,6 +111,7 @@ export function useSessaoFeatureController(
     isIniciando,
     onIniciarSessao,
     onSessaoFinalizada,
+    onSessaoCancelada,
     onFecharResumo,
   };
 }

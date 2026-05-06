@@ -36,6 +36,7 @@ export interface ExerciseCatalogControllerState {
   feedbackMessage: string | null;
   isLoading: boolean;
   isSubmitting: boolean;
+  deletingId: string | null;
   editingExerciseId: string | null;
   onChangeField: (field: keyof ExerciseDraft, value: string) => void;
   onSubmit: () => Promise<void>;
@@ -63,6 +64,7 @@ export function useExerciseCatalogController(
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
 
   const applyExercises = (nextExercises: ExercisePrimitives[]) => {
@@ -161,6 +163,8 @@ export function useExerciseCatalogController(
   };
 
   const onDelete = async (id: string) => {
+    if (deletingId) return;
+    setDeletingId(id);
     setErrorMessage(null);
     setFeedbackMessage(null);
 
@@ -177,6 +181,8 @@ export function useExerciseCatalogController(
     } catch (error) {
       dependencies.logger.error('exercise_catalog.delete_failed', error, { id });
       setErrorMessage('Nao foi possivel excluir o exercicio.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -188,6 +194,7 @@ export function useExerciseCatalogController(
     feedbackMessage,
     isLoading,
     isSubmitting,
+    deletingId,
     editingExerciseId,
     onChangeField,
     onSubmit,

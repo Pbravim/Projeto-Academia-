@@ -9,15 +9,23 @@ export interface RegistroPesoCardViewModel {
   deltaPositivo: boolean;
 }
 
+export interface PesoChartPoint {
+  pesoKg: number;
+  label: string;
+}
+
 export interface PesoViewModel {
   cards: RegistroPesoCardViewModel[];
   emptyStateMessage: string | null;
   pesoAtual: string | null;
+  chartPoints: PesoChartPoint[];
 }
+
+const CHART_MAX_POINTS = 14;
 
 export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoViewModel {
   if (registros.length === 0) {
-    return { cards: [], emptyStateMessage: 'Nenhum registro ainda. Comece pesando-se hoje.', pesoAtual: null };
+    return { cards: [], emptyStateMessage: 'Nenhum registro ainda. Comece pesando-se hoje.', pesoAtual: null, chartPoints: [] };
   }
 
   const cards: RegistroPesoCardViewModel[] = registros.map((registro, index) => {
@@ -34,10 +42,20 @@ export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoVie
     };
   });
 
+  // registros vem do mais novo para o mais antigo — pega os últimos CHART_MAX_POINTS e reverte para cronológico
+  const chartPoints: PesoChartPoint[] = registros
+    .slice(0, CHART_MAX_POINTS)
+    .reverse()
+    .map((r) => ({
+      pesoKg: r.pesoKg,
+      label: formatShortDate(r.dataRegistro),
+    }));
+
   return {
     cards,
     emptyStateMessage: null,
     pesoAtual: `${registros[0].pesoKg} kg`,
+    chartPoints,
   };
 }
 
@@ -46,6 +64,13 @@ function formatDate(isoString: string): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+  });
+}
+
+function formatShortDate(isoString: string): string {
+  return new Date(isoString).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
   });
 }
 

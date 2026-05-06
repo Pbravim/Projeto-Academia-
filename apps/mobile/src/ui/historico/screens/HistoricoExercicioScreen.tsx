@@ -1,12 +1,18 @@
+import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
+import { LineChart } from '../../shared/LineChart';
+import { useTheme } from '../../shared/theme';
 
 export function HistoricoExercicioScreen({
   viewModel,
   isLoading,
   onBack,
 }: HistoricoExercicioControllerState) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
@@ -20,8 +26,31 @@ export function HistoricoExercicioScreen({
         <Text style={styles.title}>{viewModel.exercicioNome}</Text>
       </View>
 
+      {!isLoading && viewModel.plateau ? (
+        <View style={styles.plateauBanner}>
+          <Text style={styles.plateauTitle}>⚠ Plateau detectado</Text>
+          <Text style={styles.plateauText}>{viewModel.plateau.mensagem}</Text>
+        </View>
+      ) : null}
+
+      {!isLoading && viewModel.rm1ChartPoints.length >= 1 ? (
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Evolucao do 1RM estimado</Text>
+          {viewModel.rm1ChartPoints.length >= 2 ? (
+            <LineChart
+              points={viewModel.rm1ChartPoints}
+              formatValue={(v) => `${v} kg`}
+            />
+          ) : (
+            <Text style={styles.chartEmpty}>
+              Faca mais sessoes para visualizar a evolucao em grafico.
+            </Text>
+          )}
+        </View>
+      ) : null}
+
       {isLoading ? (
-        <ActivityIndicator size="large" color="#c96f2d" style={styles.loading} />
+        <ActivityIndicator size="large" color={c.accent} style={styles.loading} />
       ) : viewModel.emptyStateMessage ? (
         <View style={styles.listCard}>
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
@@ -60,125 +89,163 @@ export function HistoricoExercicioScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#f3f0e8',
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 40,
-    gap: 14,
-  },
-  header: {
-    paddingVertical: 4,
-  },
-  backText: {
-    color: '#c96f2d',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  backPressed: {
-    opacity: 0.6,
-  },
-  heroCard: {
-    backgroundColor: '#20352c',
-    borderRadius: 24,
-    padding: 22,
-    gap: 8,
-  },
-  eyebrow: {
-    color: '#b8c9a9',
-    fontSize: 12,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  title: {
-    color: '#f8f4ea',
-    fontSize: 26,
-    fontWeight: '800',
-  },
-  loading: {
-    marginTop: 40,
-  },
-  listCard: {
-    backgroundColor: '#fbf9f2',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#e1dccd',
-  },
-  emptyState: {
-    color: '#66725f',
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  execucaoCard: {
-    backgroundColor: '#fbf9f2',
-    borderRadius: 20,
-    padding: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#e1dccd',
-  },
-  execucaoHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  execucaoData: {
-    color: '#20352c',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  execucaoRm1: {
-    color: '#c96f2d',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  execucaoVolume: {
-    color: '#66725f',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  serieRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  serieValida: {
-    backgroundColor: '#e4ede7',
-  },
-  serieAquecimento: {
-    backgroundColor: '#f0ede4',
-  },
-  serieInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  serieTipo: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#66725f',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    minWidth: 44,
-  },
-  serieDescricao: {
-    color: '#20352c',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  serieRm1: {
-    color: '#40584d',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-});
+function makeStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 40,
+      gap: 14,
+    },
+    header: {
+      paddingVertical: 4,
+    },
+    backText: {
+      color: c.accent,
+      fontSize: 15,
+      fontWeight: '700',
+    },
+    backPressed: {
+      opacity: 0.6,
+    },
+    heroCard: {
+      backgroundColor: c.hero,
+      borderRadius: 24,
+      padding: 22,
+      gap: 8,
+    },
+    eyebrow: {
+      color: c.heroSubtext,
+      fontSize: 12,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+    title: {
+      color: c.heroText,
+      fontSize: 26,
+      fontWeight: '800',
+    },
+    loading: {
+      marginTop: 40,
+    },
+    chartCard: {
+      backgroundColor: c.card,
+      borderRadius: 24,
+      padding: 20,
+      gap: 12,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    chartTitle: {
+      color: c.textPrimary,
+      fontSize: 16,
+      fontWeight: '800',
+    },
+    chartEmpty: {
+      color: c.textSecondary,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    plateauBanner: {
+      backgroundColor: c.warningBg,
+      borderRadius: 20,
+      padding: 16,
+      gap: 6,
+      borderWidth: 1,
+      borderColor: c.warningBorder,
+    },
+    plateauTitle: {
+      color: c.warning,
+      fontSize: 14,
+      fontWeight: '800',
+    },
+    plateauText: {
+      color: c.warning,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    listCard: {
+      backgroundColor: c.card,
+      borderRadius: 24,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    emptyState: {
+      color: c.textSecondary,
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    execucaoCard: {
+      backgroundColor: c.card,
+      borderRadius: 20,
+      padding: 16,
+      gap: 10,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    execucaoHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    execucaoData: {
+      color: c.textPrimary,
+      fontSize: 15,
+      fontWeight: '800',
+    },
+    execucaoRm1: {
+      color: c.accent,
+      fontSize: 13,
+      fontWeight: '700',
+    },
+    execucaoVolume: {
+      color: c.textSecondary,
+      fontSize: 12,
+      fontWeight: '600',
+      marginTop: 2,
+    },
+    serieRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    serieValida: {
+      backgroundColor: c.cardAlt,
+    },
+    serieAquecimento: {
+      backgroundColor: c.background,
+    },
+    serieInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    serieTipo: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: c.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      minWidth: 44,
+    },
+    serieDescricao: {
+      color: c.textPrimary,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    serieRm1: {
+      color: c.textLabel,
+      fontSize: 12,
+      fontWeight: '600',
+    },
+  });
+}

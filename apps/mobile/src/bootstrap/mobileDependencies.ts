@@ -18,12 +18,14 @@ import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTrei
 import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { ResetHistoricoUseCase } from '../application/dashboard/use-cases/ResetHistoricoUseCase';
 import { AddExercicioASessaoUseCase } from '../application/sessoes/use-cases/AddExercicioASessaoUseCase';
+import { CancelarSessaoUseCase } from '../application/sessoes/use-cases/CancelarSessaoUseCase';
 import { DeleteSerieUseCase } from '../application/sessoes/use-cases/DeleteSerieUseCase';
 import { FinalizarSessaoUseCase } from '../application/sessoes/use-cases/FinalizarSessaoUseCase';
 import { GetSessaoAtivaUseCase } from '../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import { GetSessaoDetalheUseCase } from '../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { IniciarSessaoUseCase } from '../application/sessoes/use-cases/IniciarSessaoUseCase';
 import { RegistrarSerieUseCase } from '../application/sessoes/use-cases/RegistrarSerieUseCase';
+import { SugerirProgressaoUseCase } from '../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import { ToggleExercicioRealizadoUseCase } from '../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
 import { SQLiteHistoricoRepository } from '../infrastructure/historico/SQLiteHistoricoRepository';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
@@ -34,11 +36,10 @@ import { SQLiteSessaoTreinoRepository } from '../infrastructure/sessoes/SQLiteSe
 import { SQLiteSessaoExercicioRepository } from '../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
 import { SQLiteSerieRegistradaRepository } from '../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
 import { ConsoleAppLogger } from '../infrastructure/logging/AppLogger';
-import { ExpoSQLiteDatabaseClient } from '../infrastructure/persistence/sqlite/ExpoSQLiteDatabaseClient';
 import { generateId } from '../shared/utils/generateId';
+import { databaseClient } from './databaseClient';
 
 const logger = new ConsoleAppLogger();
-const databaseClient = new ExpoSQLiteDatabaseClient('academia.db', logger);
 
 const exerciseRepository = new SQLiteExerciseRepository(databaseClient);
 const treinoRepository = new SQLiteTreinoRepository(databaseClient);
@@ -95,8 +96,8 @@ export const mobileDependencies = {
       reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
       updateTreino: new UpdateTreinoUseCase({ treinoRepository, now: () => new Date() }),
       listExercises,
-      updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null) =>
-        treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao),
+      updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) =>
+        treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao, tempoDescansoSegundos),
       logger,
     },
   },
@@ -126,6 +127,7 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         sessaoExercicioRepository,
         serieRegistradaRepository,
+        treinoExercicioRepository,
         idGenerator: () => generateId('serie'),
       }),
       deleteSerie: new DeleteSerieUseCase({ serieRegistradaRepository }),
@@ -143,6 +145,12 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         now: () => new Date(),
       }),
+      cancelarSessao: new CancelarSessaoUseCase({
+        sessaoTreinoRepository,
+        sessaoExercicioRepository,
+        serieRegistradaRepository,
+      }),
+      sugerirProgressao: new SugerirProgressaoUseCase({ historicoRepository }),
       listExercises,
       logger,
     },

@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinos: TreinoPrimitives[];
@@ -10,6 +12,9 @@ interface Props {
 }
 
 export function SessaoInicioScreen({ treinos, errorMessage, isIniciando, onIniciar }: Props) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
@@ -61,24 +66,26 @@ export function SessaoInicioScreen({ treinos, errorMessage, isIniciando, onInici
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f3f0e8' },
-  content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 18 },
-  heroCard: { backgroundColor: '#20352c', borderRadius: 24, padding: 22, gap: 10 },
-  eyebrow: { color: '#b8c9a9', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  title: { color: '#f8f4ea', fontSize: 30, fontWeight: '800' },
-  description: { color: '#dde7d3', fontSize: 15, lineHeight: 22 },
-  errorMessage: { color: '#a1362e', fontSize: 14, fontWeight: '600', paddingHorizontal: 4 },
-  emptyCard: { backgroundColor: '#fbf9f2', borderRadius: 24, padding: 24, borderWidth: 1, borderColor: '#e1dccd', gap: 8 },
-  emptyTitle: { color: '#20352c', fontSize: 17, fontWeight: '800' },
-  emptyText: { color: '#66725f', fontSize: 14, lineHeight: 20 },
-  listCard: { backgroundColor: '#fbf9f2', borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: '#e1dccd' },
-  sectionTitle: { color: '#20352c', fontSize: 20, fontWeight: '800' },
-  treinoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#eef1e7', borderRadius: 16, padding: 16 },
-  treinoName: { color: '#20352c', fontSize: 15, fontWeight: '800' },
-  treinoObjetivo: { color: '#40584d', fontSize: 13, marginTop: 2 },
-  iniciarButton: { backgroundColor: '#c96f2d', paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12 },
-  iniciarButtonPressed: { opacity: 0.85 },
-  iniciarButtonDisabled: { opacity: 0.5 },
-  iniciarButtonText: { color: '#fff8f2', fontSize: 14, fontWeight: '800' },
-});
+function makeStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: c.background },
+    content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 18 },
+    heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 10 },
+    eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+    title: { color: c.heroText, fontSize: 30, fontWeight: '800' },
+    description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
+    errorMessage: { color: c.error, fontSize: 14, fontWeight: '600', paddingHorizontal: 4 },
+    emptyCard: { backgroundColor: c.card, borderRadius: 24, padding: 24, borderWidth: 1, borderColor: c.cardBorder, gap: 8 },
+    emptyTitle: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
+    emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    listCard: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
+    sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
+    treinoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: c.cardAlt, borderRadius: 16, padding: 16 },
+    treinoName: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
+    treinoObjetivo: { color: c.textLabel, fontSize: 13, marginTop: 2 },
+    iniciarButton: { backgroundColor: c.accent, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12 },
+    iniciarButtonPressed: { opacity: 0.85 },
+    iniciarButtonDisabled: { opacity: 0.5 },
+    iniciarButtonText: { color: c.accentText, fontSize: 14, fontWeight: '800' },
+  });
+}

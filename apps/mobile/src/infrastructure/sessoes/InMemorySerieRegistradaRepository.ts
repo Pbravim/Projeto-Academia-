@@ -29,4 +29,10 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
   async delete(id: string): Promise<void> {
     this.seriesById.delete(id);
   }
+
+  async deleteBySessaoExercicioId(sessaoExercicioId: string): Promise<void> {
+    for (const [id, serie] of this.seriesById.entries()) {
+      if (serie.toPrimitives().sessaoExercicioId === sessaoExercicioId) this.seriesById.delete(id);
+    }
+  }
 }

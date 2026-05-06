@@ -18,4 +18,8 @@ export class InMemorySessaoTreinoRepository implements SessaoTreinoRepository {
     }
     return null;
   }
+
+  async delete(id: string): Promise<void> {
+    this.sessoesById.delete(id);
+  }
 }

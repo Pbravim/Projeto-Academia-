@@ -36,4 +36,10 @@ export class InMemorySessaoExercicioRepository implements SessaoExercicioReposit
     }
     return count;
   }
+
+  async deleteBySessaoId(sessaoId: string): Promise<void> {
+    for (const [id, item] of this.itemsById.entries()) {
+      if (item.toPrimitives().sessaoTreinoId === sessaoId) this.itemsById.delete(id);
+    }
+  }
 }

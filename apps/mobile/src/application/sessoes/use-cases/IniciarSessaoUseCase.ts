@@ -69,6 +69,7 @@ export class IniciarSessaoUseCase {
         seriesRecomendadas: p.seriesRecomendadas,
         execucoesRecomendadas: p.execucoesRecomendadas,
         cargaPadrao: p.cargaPadrao,
+        tempoDescansoSegundos: p.tempoDescansoSegundos,
       });
 
       await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);

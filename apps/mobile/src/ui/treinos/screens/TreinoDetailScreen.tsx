@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { useTheme } from '../../shared/theme';
 
 const GROUP_ORDER = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
@@ -52,6 +53,9 @@ export function TreinoDetailScreen({
   onUpdateNome,
   onBack,
 }: TreinoDetailControllerState) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   const viewModel = buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById);
 
   const addedExercicioIds = new Set(treinoExercicios.map((te) => te.exercicioId));
@@ -63,7 +67,7 @@ export function TreinoDetailScreen({
   const [nomeText, setNomeText] = useState(treino.name);
 
   // Centralized recs state: tracks current field text for all exercises
-  const recsRef = useRef<Map<string, { series: string; execucoes: string; carga: string }>>(new Map());
+  const recsRef = useRef<Map<string, { series: string; execucoes: string; carga: string; descanso: string }>>(new Map());
   useEffect(() => {
     for (const te of treinoExercicios) {
       if (!recsRef.current.has(te.id)) {
@@ -71,6 +75,7 @@ export function TreinoDetailScreen({
           series: te.seriesRecomendadas != null ? String(te.seriesRecomendadas) : '',
           execucoes: te.execucoesRecomendadas != null ? String(te.execucoesRecomendadas) : '',
           carga: te.cargaPadrao != null ? String(te.cargaPadrao) : '',
+          descanso: te.tempoDescansoSegundos != null ? String(te.tempoDescansoSegundos) : '',
         });
       }
     }
@@ -88,12 +93,14 @@ export function TreinoDetailScreen({
       if (!vals) continue;
       const s = parseInt(vals.series, 10);
       const e = parseInt(vals.execucoes, 10);
-      const c = parseFloat(vals.carga.replace(',', '.'));
+      const cv = parseFloat(vals.carga.replace(',', '.'));
+      const d = parseInt(vals.descanso, 10);
       await onUpdateRecomendacoes(
         te.id,
         Number.isInteger(s) && s > 0 ? s : null,
         Number.isInteger(e) && e > 0 ? e : null,
-        Number.isFinite(c) && c > 0 ? c : null,
+        Number.isFinite(cv) && cv > 0 ? cv : null,
+        Number.isInteger(d) && d > 0 ? d : null,
       );
     }
     setIsSaving(false);
@@ -183,11 +190,12 @@ export function TreinoDetailScreen({
                 seriesRecomendadas={te?.seriesRecomendadas ?? null}
                 execucoesRecomendadas={te?.execucoesRecomendadas ?? null}
                 cargaPadrao={te?.cargaPadrao ?? null}
+                tempoDescansoSegundos={te?.tempoDescansoSegundos ?? null}
                 onMoveUp={() => { void onMoveUp(item.treinoExercicioId); }}
                 onMoveDown={() => { void onMoveDown(item.treinoExercicioId); }}
                 onRemove={() => { void onRemoveExercicio(item.treinoExercicioId); }}
-                onChangeRecs={(series, execucoes, carga) => {
-                  recsRef.current.set(item.treinoExercicioId, { series, execucoes, carga });
+                onChangeRecs={(series, execucoes, carga, descanso) => {
+                  recsRef.current.set(item.treinoExercicioId, { series, execucoes, carga, descanso });
                 }}
               />
             );
@@ -218,7 +226,7 @@ export function TreinoDetailScreen({
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar exercicio ou grupo muscular..."
-            placeholderTextColor="#7f856f"
+            placeholderTextColor={c.inputPlaceholder}
             value={search}
             onChangeText={(v) => { setSearch(v); setSelected(new Set()); }}
           />
@@ -269,6 +277,9 @@ interface ExercisePickerGroupProps {
 }
 
 function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd }: ExercisePickerGroupProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   const [expanded, setExpanded] = useState(false);
   const isOpen = expanded || forceExpanded;
 
@@ -331,16 +342,21 @@ interface ExercicioCardTreinoProps {
   seriesRecomendadas: number | null;
   execucoesRecomendadas: number | null;
   cargaPadrao: number | null;
+  tempoDescansoSegundos: number | null;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
-  onChangeRecs: (series: string, execucoes: string, carga: string) => void;
+  onChangeRecs: (series: string, execucoes: string, carga: string, descanso: string) => void;
 }
 
-function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, cargaPadrao, onMoveUp, onMoveDown, onRemove, onChangeRecs }: ExercicioCardTreinoProps) {
+function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, cargaPadrao, tempoDescansoSegundos, onMoveUp, onMoveDown, onRemove, onChangeRecs }: ExercicioCardTreinoProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   const [seriesText, setSeriesText] = useState(seriesRecomendadas != null ? String(seriesRecomendadas) : '');
   const [execucoesText, setExecucoesText] = useState(execucoesRecomendadas != null ? String(execucoesRecomendadas) : '');
   const [cargaText, setCargaText] = useState(cargaPadrao != null ? String(cargaPadrao) : '');
+  const [descansoText, setDescansoText] = useState(tempoDescansoSegundos != null ? String(tempoDescansoSegundos) : '');
 
   return (
     <View style={styles.exercicioCard}>
@@ -358,10 +374,10 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
           <TextInput
             style={styles.recomendacaoInput}
             value={seriesText}
-            onChangeText={(v) => { setSeriesText(v); onChangeRecs(v, execucoesText, cargaText); }}
+            onChangeText={(v) => { setSeriesText(v); onChangeRecs(v, execucoesText, cargaText, descansoText); }}
             keyboardType="number-pad"
             placeholder="—"
-            placeholderTextColor="#aab5a0"
+            placeholderTextColor={c.inputPlaceholder}
             returnKeyType="next"
           />
         </View>
@@ -371,10 +387,10 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
           <TextInput
             style={styles.recomendacaoInput}
             value={execucoesText}
-            onChangeText={(v) => { setExecucoesText(v); onChangeRecs(seriesText, v, cargaText); }}
+            onChangeText={(v) => { setExecucoesText(v); onChangeRecs(seriesText, v, cargaText, descansoText); }}
             keyboardType="number-pad"
             placeholder="—"
-            placeholderTextColor="#aab5a0"
+            placeholderTextColor={c.inputPlaceholder}
             returnKeyType="next"
           />
         </View>
@@ -384,11 +400,24 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
           <TextInput
             style={[styles.recomendacaoInput, styles.recomendacaoInputCarga]}
             value={cargaText}
-            onChangeText={(v) => { setCargaText(v); onChangeRecs(seriesText, execucoesText, v); }}
+            onChangeText={(v) => { setCargaText(v); onChangeRecs(seriesText, execucoesText, v, descansoText); }}
             keyboardType="decimal-pad"
             placeholder="—"
-            placeholderTextColor="#aab5a0"
+            placeholderTextColor={c.inputPlaceholder}
             returnKeyType="next"
+          />
+        </View>
+        <Text style={styles.recomendacaoSep}>·</Text>
+        <View style={styles.recomendacaoField}>
+          <Text style={styles.recomendacaoLabel}>Desc. (s)</Text>
+          <TextInput
+            style={styles.recomendacaoInput}
+            value={descansoText}
+            onChangeText={(v) => { setDescansoText(v); onChangeRecs(seriesText, execucoesText, cargaText, v); }}
+            keyboardType="number-pad"
+            placeholder="—"
+            placeholderTextColor={c.inputPlaceholder}
+            returnKeyType="done"
           />
         </View>
       </View>
@@ -419,70 +448,72 @@ function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, 
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f3f0e8' },
-  content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 18 },
-  header: { flexDirection: 'row', alignItems: 'center' },
-  backButton: { paddingVertical: 8, paddingRight: 12 },
-  backButtonPressed: { opacity: 0.6 },
-  backButtonText: { color: '#c96f2d', fontSize: 15, fontWeight: '700' },
-  heroCard: { backgroundColor: '#20352c', borderRadius: 24, padding: 22, gap: 10 },
-  eyebrow: { color: '#b8c9a9', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  nomeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  title: { color: '#f8f4ea', fontSize: 28, fontWeight: '800', flex: 1 },
-  editNomeBtn: { padding: 4 },
-  editNomeBtnText: { color: '#b8c9a9', fontSize: 20 },
-  editNomeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  editNomeInput: { flex: 1, backgroundColor: '#2d4a3e', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: '#f8f4ea', fontSize: 20, fontWeight: '800', borderWidth: 1, borderColor: '#4a6b5a' },
-  saveNomeBtn: { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#c96f2d', borderRadius: 10 },
-  saveNomeBtnText: { color: '#fff8f2', fontSize: 13, fontWeight: '700' },
-  description: { color: '#dde7d3', fontSize: 15, lineHeight: 22 },
-  card: { backgroundColor: '#fbf9f2', borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: '#e1dccd' },
-  sectionTitle: { color: '#20352c', fontSize: 20, fontWeight: '800' },
-  helperText: { color: '#66725f', fontSize: 13, lineHeight: 18 },
-  emptyState: { color: '#66725f', fontSize: 14, lineHeight: 20 },
-  errorMessage: { color: '#a1362e', fontSize: 14, fontWeight: '600' },
-  successMessage: { color: '#2c6b42', fontSize: 14, fontWeight: '600' },
-  searchInput: { height: 44, borderRadius: 14, borderWidth: 1, borderColor: '#d4cfbf', backgroundColor: '#fff', paddingHorizontal: 14, color: '#1d271f', fontSize: 14 },
-  addSelectedBtn: { backgroundColor: '#20352c', borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
-  addSelectedBtnText: { color: '#f8f4ea', fontSize: 14, fontWeight: '700' },
-  availableCard: { borderRadius: 14, padding: 14, backgroundColor: '#eef1e7', borderWidth: 1.5, borderColor: 'transparent' },
-  availableCardSelected: { backgroundColor: '#d4f0dc', borderColor: '#20352c' },
-  availableCardContent: { flexDirection: 'row', alignItems: 'center' },
-  availableName: { color: '#20352c', fontSize: 15, fontWeight: '700' },
-  availableMeta: { color: '#657062', fontSize: 13, marginTop: 2 },
-  checkmark: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#20352c', alignItems: 'center', justifyContent: 'center' },
-  checkmarkText: { color: '#f8f4ea', fontSize: 13, fontWeight: '800' },
-  exercicioCard: { borderRadius: 16, padding: 14, backgroundColor: '#eef1e7', gap: 10 },
-  exercicioInfo: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  exercicioOrdem: { color: '#c96f2d', fontSize: 16, fontWeight: '800', minWidth: 20 },
-  exercicioTexts: { flex: 1 },
-  exercicioName: { color: '#20352c', fontSize: 15, fontWeight: '800' },
-  exercicioMeta: { color: '#657062', fontSize: 13, marginTop: 2 },
-  exercicioActions: { flexDirection: 'row', gap: 8 },
-  orderButton: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#d9ddd0', alignItems: 'center', justifyContent: 'center' },
-  orderButtonDisabled: { opacity: 0.3 },
-  orderButtonPressed: { opacity: 0.7 },
-  orderButtonText: { color: '#20352c', fontSize: 16, fontWeight: '700' },
-  removeButton: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: '#f0dbd8' },
-  removeButtonPressed: { opacity: 0.75 },
-  removeButtonText: { color: '#a1362e', fontSize: 13, fontWeight: '700' },
-  recomendacoesRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  recomendacaoField: { alignItems: 'center', gap: 3 },
-  recomendacaoLabel: { color: '#657062', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-  recomendacaoInput: { width: 52, height: 36, borderRadius: 10, borderWidth: 1, borderColor: '#d4cfbf', backgroundColor: '#fff', textAlign: 'center', color: '#1d271f', fontSize: 15, fontWeight: '700' },
-  recomendacaoInputCarga: { width: 64 },
-  recomendacaoSep: { color: '#8a9486', fontSize: 16, fontWeight: '700', marginTop: 14 },
-  saveTreinoBtn: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c96f2d', marginTop: 4 },
-  saveTreinoBtnPressed: { opacity: 0.9 },
-  saveTreinoBtnDisabled: { opacity: 0.6 },
-  saveTreinoBtnText: { color: '#fff8f2', fontSize: 16, fontWeight: '800' },
-  pickerGroup: { gap: 0 },
-  pickerGroupHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#20352c', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 2 },
-  pickerGroupHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pickerGroupTitle: { color: '#f8f4ea', fontSize: 14, fontWeight: '800' },
-  pickerCountBadge: { backgroundColor: '#c96f2d', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 1 },
-  pickerCountBadgeText: { color: '#fff8f2', fontSize: 11, fontWeight: '800' },
-  pickerChevron: { color: '#b8c9a9', fontSize: 11, fontWeight: '700' },
-  pickerGroupBody: { gap: 6, paddingBottom: 4 },
-});
+function makeStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: c.background },
+    content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 18 },
+    header: { flexDirection: 'row', alignItems: 'center' },
+    backButton: { paddingVertical: 8, paddingRight: 12 },
+    backButtonPressed: { opacity: 0.6 },
+    backButtonText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 10 },
+    eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+    nomeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    title: { color: c.heroText, fontSize: 28, fontWeight: '800', flex: 1 },
+    editNomeBtn: { padding: 4 },
+    editNomeBtnText: { color: c.heroSubtext, fontSize: 20 },
+    editNomeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    editNomeInput: { flex: 1, backgroundColor: c.hero, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: c.heroText, fontSize: 20, fontWeight: '800', borderWidth: 1, borderColor: c.inputBorder },
+    saveNomeBtn: { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: c.accent, borderRadius: 10 },
+    saveNomeBtnText: { color: c.accentText, fontSize: 13, fontWeight: '700' },
+    description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
+    card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
+    sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
+    helperText: { color: c.textSecondary, fontSize: 13, lineHeight: 18 },
+    emptyState: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    errorMessage: { color: c.error, fontSize: 14, fontWeight: '600' },
+    successMessage: { color: c.success, fontSize: 14, fontWeight: '600' },
+    searchInput: { height: 44, borderRadius: 14, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 14, color: c.inputText, fontSize: 14 },
+    addSelectedBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
+    addSelectedBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },
+    availableCard: { borderRadius: 14, padding: 14, backgroundColor: c.cardAlt, borderWidth: 1.5, borderColor: 'transparent' },
+    availableCardSelected: { backgroundColor: c.accentLight, borderColor: c.textPrimary },
+    availableCardContent: { flexDirection: 'row', alignItems: 'center' },
+    availableName: { color: c.textPrimary, fontSize: 15, fontWeight: '700' },
+    availableMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
+    checkmark: { width: 24, height: 24, borderRadius: 12, backgroundColor: c.hero, alignItems: 'center', justifyContent: 'center' },
+    checkmarkText: { color: c.heroText, fontSize: 13, fontWeight: '800' },
+    exercicioCard: { borderRadius: 16, padding: 14, backgroundColor: c.cardAlt, gap: 10 },
+    exercicioInfo: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+    exercicioOrdem: { color: c.accent, fontSize: 16, fontWeight: '800', minWidth: 20 },
+    exercicioTexts: { flex: 1 },
+    exercicioName: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
+    exercicioMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
+    exercicioActions: { flexDirection: 'row', gap: 8 },
+    orderButton: { width: 36, height: 36, borderRadius: 10, backgroundColor: c.cardAlt, alignItems: 'center', justifyContent: 'center' },
+    orderButtonDisabled: { opacity: 0.3 },
+    orderButtonPressed: { opacity: 0.7 },
+    orderButtonText: { color: c.textPrimary, fontSize: 16, fontWeight: '700' },
+    removeButton: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: c.errorBg },
+    removeButtonPressed: { opacity: 0.75 },
+    removeButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },
+    recomendacoesRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    recomendacaoField: { alignItems: 'center', gap: 3 },
+    recomendacaoLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+    recomendacaoInput: { width: 52, height: 36, borderRadius: 10, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, textAlign: 'center', color: c.inputText, fontSize: 15, fontWeight: '700' },
+    recomendacaoInputCarga: { width: 64 },
+    recomendacaoSep: { color: c.textSecondary, fontSize: 16, fontWeight: '700', marginTop: 14 },
+    saveTreinoBtn: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent, marginTop: 4 },
+    saveTreinoBtnPressed: { opacity: 0.9 },
+    saveTreinoBtnDisabled: { opacity: 0.6 },
+    saveTreinoBtnText: { color: c.accentText, fontSize: 16, fontWeight: '800' },
+    pickerGroup: { gap: 0 },
+    pickerGroupHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.hero, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 2 },
+    pickerGroupHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+    pickerGroupTitle: { color: c.heroText, fontSize: 14, fontWeight: '800' },
+    pickerCountBadge: { backgroundColor: c.accent, borderRadius: 8, paddingHorizontal: 7, paddingVertical: 1 },
+    pickerCountBadgeText: { color: c.accentText, fontSize: 11, fontWeight: '800' },
+    pickerChevron: { color: c.heroSubtext, fontSize: 11, fontWeight: '700' },
+    pickerGroupBody: { gap: 6, paddingBottom: 4 },
+  });
+}

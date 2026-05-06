@@ -40,6 +40,7 @@ export function SessaoFeature({ dependencies }: Props) {
         sessao={controller.sessaoAtiva}
         dependencies={dependencies.ativa}
         onFinalizado={(detalhe: SessaoDetalhe) => controller.onSessaoFinalizada(detalhe)}
+        onCancelado={controller.onSessaoCancelada}
       />
     );
   }
@@ -58,9 +59,10 @@ interface SessaoAtivaViewProps {
   sessao: SessaoTreinoPrimitives;
   dependencies: SessaoAtivaControllerDependencies;
   onFinalizado: (detalhe: SessaoDetalhe) => void;
+  onCancelado: () => void;
 }
 
-function SessaoAtivaView({ sessao, dependencies, onFinalizado }: SessaoAtivaViewProps) {
-  const controller = useSessaoAtivaController(sessao, dependencies, onFinalizado);
+function SessaoAtivaView({ sessao, dependencies, onFinalizado, onCancelado }: SessaoAtivaViewProps) {
+  const controller = useSessaoAtivaController(sessao, dependencies, onFinalizado, onCancelado);
   return <SessaoAtivaScreen {...controller} />;
 }

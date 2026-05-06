@@ -50,6 +50,7 @@ export class AddExercicioAoTreinoUseCase {
       seriesRecomendadas: null,
       execucoesRecomendadas: null,
       cargaPadrao: null,
+      tempoDescansoSegundos: null,
     });
 
     await this.dependencies.treinoExercicioRepository.save(treinoExercicio);

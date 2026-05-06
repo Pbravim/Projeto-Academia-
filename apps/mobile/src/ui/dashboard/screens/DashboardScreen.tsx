@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { DashboardControllerState } from '../hooks/useDashboardController';
 import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { LineChart } from '../../shared/LineChart';
+import { useTheme } from '../../shared/theme';
 
 export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, onRefresh, onReset }: DashboardControllerState) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   const handleReset = () => {
     Alert.alert(
       'Resetar historico',
@@ -48,7 +53,7 @@ export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, o
           </Pressable>
         </View>
       ) : isLoading ? (
-        <ActivityIndicator size="large" color="#c96f2d" style={styles.loader} />
+        <ActivityIndicator size="large" color={c.accent} style={styles.loader} />
       ) : stats ? (
         <>
           <View style={styles.statsRow}>
@@ -91,6 +96,9 @@ export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, o
 }
 
 function TreinoEvolucaoCard({ grupo }: { grupo: EvolucaoPorTreino }) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   const [expanded, setExpanded] = useState(true);
 
   const sessoes = grupo.sessoes;
@@ -105,6 +113,14 @@ function TreinoEvolucaoCard({ grupo }: { grupo: EvolucaoPorTreino }) {
           ? 'down'
           : 'equal'
       : null;
+
+  // sessoes vem mais recente primeiro — inverte para cronológico
+  const volumeChartPoints = temVolume
+    ? [...sessoes].reverse().map((s) => ({
+        value: s.volumeTotal,
+        label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      }))
+    : [];
 
   return (
     <View style={styles.card}>
@@ -123,6 +139,15 @@ function TreinoEvolucaoCard({ grupo }: { grupo: EvolucaoPorTreino }) {
           <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
         </View>
       </Pressable>
+
+      {volumeChartPoints.length >= 2 ? (
+        <LineChart
+          points={volumeChartPoints}
+          color={c.success}
+          height={110}
+          formatValue={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`}
+        />
+      ) : null}
 
       {expanded ? (
         <View style={styles.sessoesList}>
@@ -149,6 +174,9 @@ function SessaoRow({
   prev: SessaoComVolume | null;
   temVolume: boolean;
 }) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   const data = new Date(sessao.dataHoraInicio);
   const dataStr = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
@@ -187,6 +215,9 @@ interface StatCardProps {
 }
 
 function StatCard({ label, value }: StatCardProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
   return (
     <View style={styles.statCard}>
       <Text style={styles.statValue}>{value}</Text>
@@ -195,58 +226,60 @@ function StatCard({ label, value }: StatCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f3f0e8' },
-  content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 16 },
-  heroCard: { backgroundColor: '#20352c', borderRadius: 24, padding: 22, gap: 8 },
-  heroTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  eyebrow: { color: '#b8c9a9', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  refreshIconBtn: { padding: 4 },
-  refreshIconText: { color: '#b8c9a9', fontSize: 20, fontWeight: '700' },
-  refreshIconLoading: { opacity: 0.4 },
-  resetBtn: { borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#a1362e' },
-  resetBtnDisabled: { opacity: 0.5 },
-  resetBtnText: { color: '#a1362e', fontSize: 14, fontWeight: '700' },
-  title: { color: '#f8f4ea', fontSize: 30, fontWeight: '800' },
-  description: { color: '#dde7d3', fontSize: 15, lineHeight: 22 },
-  loader: { marginTop: 40 },
-  statsRow: { flexDirection: 'row', gap: 12 },
-  statCard: { flex: 1, backgroundColor: '#fbf9f2', borderRadius: 20, padding: 18, alignItems: 'center', borderWidth: 1, borderColor: '#e1dccd' },
-  statValue: { color: '#20352c', fontSize: 32, fontWeight: '800' },
-  statLabel: { color: '#66725f', fontSize: 13, fontWeight: '600', marginTop: 4, textAlign: 'center' },
-  card: { backgroundColor: '#fbf9f2', borderRadius: 24, padding: 20, gap: 12, borderWidth: 1, borderColor: '#e1dccd' },
-  sectionTitle: { color: '#20352c', fontSize: 20, fontWeight: '800' },
-  helperText: { color: '#66725f', fontSize: 12, lineHeight: 17 },
-  emptyText: { color: '#66725f', fontSize: 14, lineHeight: 20 },
-  errorText: { color: '#a1362e', fontSize: 14, fontWeight: '600' },
-  refreshBtn: { backgroundColor: '#20352c', borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
-  refreshBtnText: { color: '#f8f4ea', fontSize: 14, fontWeight: '700' },
-  recordeRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eef1e7', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
-  recordeNome: { flex: 1, color: '#20352c', fontSize: 14, fontWeight: '700' },
-  recordeValor: { color: '#c96f2d', fontSize: 15, fontWeight: '800', marginLeft: 8 },
-  groupLabel: { color: '#40584d', fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 },
-  treinoHeader: { flexDirection: 'row', alignItems: 'flex-start' },
-  treinoNome: { color: '#20352c', fontSize: 17, fontWeight: '800' },
-  treinoMeta: { color: '#66725f', fontSize: 13, marginTop: 2 },
-  treinoHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },
-  trendUp: { color: '#2c6b42', fontSize: 16, fontWeight: '800' },
-  trendDown: { color: '#a1362e', fontSize: 16, fontWeight: '800' },
-  trendEqual: { color: '#66725f', fontSize: 16, fontWeight: '800' },
-  chevron: { color: '#8a9486', fontSize: 11, fontWeight: '700' },
-  sessoesList: { gap: 4 },
-  sessaoTableHeader: { flexDirection: 'row', paddingHorizontal: 4, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: '#e1dccd' },
-  sessaoTableCell: { fontSize: 12 },
-  sessaoTableDate: { flex: 2, color: '#31463d', fontWeight: '700' },
-  sessaoTableVol: { flex: 2, color: '#31463d', fontWeight: '700' },
-  sessaoTableVolContainer: { flex: 2 },
-  sessaoTableDur: { flex: 1, color: '#31463d', fontWeight: '700', textAlign: 'right' },
-  sessaoRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 6, borderRadius: 8, backgroundColor: '#f3f0e8' },
-  sessaoDataText: { color: '#20352c', fontWeight: '600', fontSize: 13 },
-  volCell: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  sessaoVolText: { color: '#20352c', fontWeight: '700', fontSize: 13 },
-  volDiff: { fontSize: 11, fontWeight: '700' },
-  volDiffUp: { color: '#2c6b42' },
-  volDiffDown: { color: '#a1362e' },
-  volDiffEqual: { color: '#8a9486' },
-  sessaoDurText: { color: '#66725f', fontSize: 12 },
-});
+function makeStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: c.background },
+    content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 16 },
+    heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 8 },
+    heroTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+    refreshIconBtn: { padding: 4 },
+    refreshIconText: { color: c.heroSubtext, fontSize: 20, fontWeight: '700' },
+    refreshIconLoading: { opacity: 0.4 },
+    resetBtn: { borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: c.error },
+    resetBtnDisabled: { opacity: 0.5 },
+    resetBtnText: { color: c.error, fontSize: 14, fontWeight: '700' },
+    title: { color: c.heroText, fontSize: 30, fontWeight: '800' },
+    description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
+    loader: { marginTop: 40 },
+    statsRow: { flexDirection: 'row', gap: 12 },
+    statCard: { flex: 1, backgroundColor: c.card, borderRadius: 20, padding: 18, alignItems: 'center', borderWidth: 1, borderColor: c.cardBorder },
+    statValue: { color: c.textPrimary, fontSize: 32, fontWeight: '800' },
+    statLabel: { color: c.textSecondary, fontSize: 13, fontWeight: '600', marginTop: 4, textAlign: 'center' },
+    card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
+    sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
+    helperText: { color: c.textSecondary, fontSize: 12, lineHeight: 17 },
+    emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    errorText: { color: c.error, fontSize: 14, fontWeight: '600' },
+    refreshBtn: { backgroundColor: c.hero, borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
+    refreshBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },
+    recordeRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.cardAlt, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+    recordeNome: { flex: 1, color: c.textPrimary, fontSize: 14, fontWeight: '700' },
+    recordeValor: { color: c.accent, fontSize: 15, fontWeight: '800', marginLeft: 8 },
+    groupLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 },
+    treinoHeader: { flexDirection: 'row', alignItems: 'flex-start' },
+    treinoNome: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
+    treinoMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
+    treinoHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },
+    trendUp: { color: c.success, fontSize: 16, fontWeight: '800' },
+    trendDown: { color: c.error, fontSize: 16, fontWeight: '800' },
+    trendEqual: { color: c.textSecondary, fontSize: 16, fontWeight: '800' },
+    chevron: { color: c.textSecondary, fontSize: 11, fontWeight: '700' },
+    sessoesList: { gap: 4 },
+    sessaoTableHeader: { flexDirection: 'row', paddingHorizontal: 4, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
+    sessaoTableCell: { fontSize: 12 },
+    sessaoTableDate: { flex: 2, color: c.textLabel, fontWeight: '700' },
+    sessaoTableVol: { flex: 2, color: c.textLabel, fontWeight: '700' },
+    sessaoTableVolContainer: { flex: 2 },
+    sessaoTableDur: { flex: 1, color: c.textLabel, fontWeight: '700', textAlign: 'right' },
+    sessaoRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 6, borderRadius: 8, backgroundColor: c.background },
+    sessaoDataText: { color: c.textPrimary, fontWeight: '600', fontSize: 13 },
+    volCell: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    sessaoVolText: { color: c.textPrimary, fontWeight: '700', fontSize: 13 },
+    volDiff: { fontSize: 11, fontWeight: '700' },
+    volDiffUp: { color: c.success },
+    volDiffDown: { color: c.error },
+    volDiffEqual: { color: c.textSecondary },
+    sessaoDurText: { color: c.textSecondary, fontSize: 12 },
+  });
+}

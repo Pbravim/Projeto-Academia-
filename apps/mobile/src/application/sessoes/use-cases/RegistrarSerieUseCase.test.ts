@@ -5,6 +5,7 @@ import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { RegistrarSerieUseCase } from './RegistrarSerieUseCase';
@@ -13,16 +14,19 @@ function makeDeps() {
   const sessaoTreinoRepository = new InMemorySessaoTreinoRepository();
   const sessaoExercicioRepository = new InMemorySessaoExercicioRepository();
   const serieRegistradaRepository = new InMemorySerieRegistradaRepository();
+  const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
   let counter = 0;
 
   return {
     sessaoTreinoRepository,
     sessaoExercicioRepository,
     serieRegistradaRepository,
+    treinoExercicioRepository,
     useCase: new RegistrarSerieUseCase({
       sessaoTreinoRepository,
       sessaoExercicioRepository,
       serieRegistradaRepository,
+      treinoExercicioRepository,
       idGenerator: () => `serie_${++counter}`,
     }),
   };
@@ -32,7 +36,7 @@ async function seedAtiva(deps: ReturnType<typeof makeDeps>) {
   const sessao = SessaoTreino.create({ id: 'sessao_1', treinoId: 't1', treinoNomeSnapshot: 'A', dataHoraInicio: new Date() });
   await deps.sessaoTreinoRepository.save(sessao);
 
-  const se = SessaoExercicio.create({ id: 'se_1', sessaoTreinoId: 'sessao_1', exercicioId: 'ex_1', ordem: 1, nomeSnapshot: 'Supino', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto', equipamentoSnapshot: null, realizado: true, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null });
+  const se = SessaoExercicio.create({ id: 'se_1', sessaoTreinoId: 'sessao_1', exercicioId: 'ex_1', ordem: 1, nomeSnapshot: 'Supino', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto', equipamentoSnapshot: null, realizado: true, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null });
   await deps.sessaoExercicioRepository.save(se);
 }
 

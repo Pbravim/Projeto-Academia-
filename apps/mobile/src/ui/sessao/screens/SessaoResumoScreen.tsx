@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { buildSessaoResumoViewModel } from '../presenters/buildSessaoResumoViewModel';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   detalhe: SessaoDetalhe;
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const vm = buildSessaoResumoViewModel(detalhe);
 
   return (
@@ -20,9 +24,9 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
       </View>
 
       <View style={styles.statsRow}>
-        <StatBox label="Exercicios" value={`${vm.exerciciosRealizados}/${vm.totalExercicios}`} />
-        <StatBox label="Series validas" value={String(vm.totalSeriesValidas)} />
-        <StatBox label="Volume" value={vm.volumeTotal} />
+        <StatBox label="Exercicios" value={`${vm.exerciciosRealizados}/${vm.totalExercicios}`} styles={styles} />
+        <StatBox label="Series validas" value={String(vm.totalSeriesValidas)} styles={styles} />
+        <StatBox label="Volume" value={vm.volumeTotal} styles={styles} />
       </View>
 
       <View style={styles.card}>
@@ -59,7 +63,7 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
   );
 }
 
-function StatBox({ label, value }: { label: string; value: string }) {
+function StatBox({ label, value, styles }: { label: string; value: string; styles: ReturnType<typeof makeStyles> }) {
   return (
     <View style={styles.statBox}>
       <Text style={styles.statValue}>{value}</Text>
@@ -68,27 +72,29 @@ function StatBox({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f3f0e8' },
-  content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 18 },
-  heroCard: { backgroundColor: '#20352c', borderRadius: 24, padding: 22, gap: 8 },
-  eyebrow: { color: '#b8c9a9', fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  title: { color: '#f8f4ea', fontSize: 28, fontWeight: '800' },
-  duracao: { color: '#dde7d3', fontSize: 16, fontWeight: '600' },
-  statsRow: { flexDirection: 'row', gap: 10 },
-  statBox: { flex: 1, backgroundColor: '#fbf9f2', borderRadius: 18, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: '#e1dccd', gap: 4 },
-  statValue: { color: '#c96f2d', fontSize: 22, fontWeight: '800' },
-  statLabel: { color: '#66725f', fontSize: 12, fontWeight: '600', textAlign: 'center' },
-  card: { backgroundColor: '#fbf9f2', borderRadius: 24, padding: 20, gap: 12, borderWidth: 1, borderColor: '#e1dccd' },
-  sectionTitle: { color: '#20352c', fontSize: 20, fontWeight: '800' },
-  exercicioRow: { backgroundColor: '#eef1e7', borderRadius: 14, padding: 14, gap: 4 },
-  exercicioRowNaoRealizado: { opacity: 0.5 },
-  exercicioInfo: { gap: 2 },
-  exercicioNome: { color: '#20352c', fontSize: 15, fontWeight: '800' },
-  exercicioStats: { color: '#40584d', fontSize: 13 },
-  exercicioMelhor: { color: '#c96f2d', fontSize: 13, fontWeight: '700' },
-  naoRealizadoLabel: { color: '#a1362e', fontSize: 13, fontWeight: '600' },
-  fecharButton: { backgroundColor: '#c96f2d', borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
-  fecharButtonPressed: { opacity: 0.9 },
-  fecharButtonText: { color: '#fff8f2', fontSize: 15, fontWeight: '800' },
-});
+function makeStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: c.background },
+    content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 18 },
+    heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 8 },
+    eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+    title: { color: c.heroText, fontSize: 28, fontWeight: '800' },
+    duracao: { color: c.heroDescription, fontSize: 16, fontWeight: '600' },
+    statsRow: { flexDirection: 'row', gap: 10 },
+    statBox: { flex: 1, backgroundColor: c.card, borderRadius: 18, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: c.cardBorder, gap: 4 },
+    statValue: { color: c.accent, fontSize: 22, fontWeight: '800' },
+    statLabel: { color: c.textSecondary, fontSize: 12, fontWeight: '600', textAlign: 'center' },
+    card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
+    sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
+    exercicioRow: { backgroundColor: c.cardAlt, borderRadius: 14, padding: 14, gap: 4 },
+    exercicioRowNaoRealizado: { opacity: 0.5 },
+    exercicioInfo: { gap: 2 },
+    exercicioNome: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
+    exercicioStats: { color: c.textLabel, fontSize: 13 },
+    exercicioMelhor: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    naoRealizadoLabel: { color: c.error, fontSize: 13, fontWeight: '600' },
+    fecharButton: { backgroundColor: c.accent, borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
+    fecharButtonPressed: { opacity: 0.9 },
+    fecharButtonText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
+  });
+}

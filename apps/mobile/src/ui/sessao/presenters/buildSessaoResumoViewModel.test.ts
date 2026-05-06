@@ -28,6 +28,7 @@ function makeSessaoExercicio(id: string, realizado = true) {
     seriesRecomendadas: null,
     execucoesRecomendadas: null,
     cargaPadrao: null,
+    tempoDescansoSegundos: null,
   };
 }
 
@@ -160,18 +161,18 @@ describe('buildSessaoResumoViewModel', () => {
   });
 
   describe('contagens', () => {
-    it('conta corretamente exercicios realizados vs total', () => {
+    it('conta como realizado apenas exercicio com realizado=true E ao menos uma serie valida', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            { sessaoExercicio: makeSessaoExercicio('se_1', true), series: [] },
+            { sessaoExercicio: makeSessaoExercicio('se_1', true), series: [makeSerie('s1', 'valida', 80, 8)] },
             { sessaoExercicio: makeSessaoExercicio('se_2', false), series: [] },
             { sessaoExercicio: makeSessaoExercicio('se_3', true), series: [] },
           ],
         })
       );
       expect(vm.totalExercicios).toBe(3);
-      expect(vm.exerciciosRealizados).toBe(2);
+      expect(vm.exerciciosRealizados).toBe(1);
     });
 
     it('conta apenas series validas no total de series', () => {

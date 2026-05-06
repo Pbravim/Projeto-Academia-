@@ -23,6 +23,7 @@ export interface PesoControllerState {
   feedbackMessage: string | null;
   isLoading: boolean;
   isSubmitting: boolean;
+  deletingId: string | null;
   onChangePesoKg: (value: string) => void;
   onChangeObservacao: (value: string) => void;
   onSubmit: () => Promise<void>;
@@ -37,6 +38,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadRegistros = async () => {
     try {
@@ -89,6 +91,8 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
   };
 
   const onDelete = async (id: string) => {
+    if (deletingId) return;
+    setDeletingId(id);
     setErrorMessage(null);
     setFeedbackMessage(null);
 
@@ -99,6 +103,8 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
     } catch (error) {
       dependencies.logger.error('peso.delete_failed', error, { id });
       setErrorMessage('Nao foi possivel excluir o registro.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -112,6 +118,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
     feedbackMessage,
     isLoading,
     isSubmitting,
+    deletingId,
     onChangePesoKg,
     onChangeObservacao,
     onSubmit,

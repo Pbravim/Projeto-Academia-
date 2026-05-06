@@ -1,7 +1,9 @@
 import { SerieRegistrada, type SerieRegistradaPrimitives, type TipoSerie } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
@@ -17,6 +19,7 @@ interface RegistrarSerieUseCaseDependencies {
   sessaoTreinoRepository: SessaoTreinoRepository;
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
+  treinoExercicioRepository: TreinoExercicioRepository;
   idGenerator: () => string;
 }
 
@@ -57,6 +60,39 @@ export class RegistrarSerieUseCase {
 
     await this.dependencies.serieRegistradaRepository.save(serie);
 
+    await this.atualizarCargaSeNecessario(input, sessaoExercicio.toPrimitives(), sessao.toPrimitives().treinoId);
+
     return serie.toPrimitives();
+  }
+
+  private async atualizarCargaSeNecessario(
+    input: RegistrarSerieInput,
+    se: SessaoExercicioPrimitives,
+    treinoId: string
+  ): Promise<void> {
+    if (input.tipoSerie !== 'valida') return;
+    if (se.execucoesRecomendadas == null) return;
+    if (input.repeticoes < se.execucoesRecomendadas) return;
+    if (se.cargaPadrao != null && input.cargaKg <= se.cargaPadrao) return;
+
+    // Atualiza snapshot da sessao para refletir imediatamente na UI
+    const seAtualizado = SessaoExercicio.restore({ ...se, cargaPadrao: input.cargaKg });
+    await this.dependencies.sessaoExercicioRepository.save(seAtualizado);
+
+    // Atualiza template do treino para pre-preencher proximas sessoes
+    const te = await this.dependencies.treinoExercicioRepository.findByTreinoIdAndExercicioId(
+      treinoId,
+      se.exercicioId
+    );
+    if (!te) return;
+
+    const tep = te.toPrimitives();
+    await this.dependencies.treinoExercicioRepository.updateRecomendacoes(
+      tep.id,
+      tep.seriesRecomendadas,
+      tep.execucoesRecomendadas,
+      input.cargaKg,
+      tep.tempoDescansoSegundos
+    );
   }
 }
