@@ -52,58 +52,71 @@ Relação M:N simétrica definida pelo usuário. Quando vazia, o app auto-sugere
 
 ---
 
-## Por que grupo muscular sozinho é insuficiente
+## Por que grupo muscular E padrão de movimento são insuficientes
 
-Supino reto e supino inclinado pertencem ao mesmo grupo muscular (Peito), mas **não são substitutos válidos** — o supino reto enfatiza peitoral médio, o inclinado enfatiza peitoral superior e ombros. Sugerir supino reto quando o inclinado está ocupado troca o estímulo pretendido pelo usuário.
+**Grupo muscular sozinho é coarse demais:**  
+Supino reto e supino inclinado são ambos "Peito", mas o reto enfatiza peitoral médio e o inclinado peitoral superior. Não são substitutos válidos.
 
-O mesmo problema aparece em:
-- Rosca direta vs. rosca martelo (bíceps longa vs. curta)
-- Leg press vs. agachamento livre (quadríceps com cargas e recrutamento diferentes)
-- Remada curvada vs. puxada (costas, mas padrões de movimento opostos)
+**Padrão de movimento sozinho também falha:**  
+Crossover polia baixa não é um movimento inclinado — o cabo vem de baixo em direção ao centro. Mas ele recruta **peitoral superior** da mesma forma que o supino inclinado. São substitutos válidos mesmo com padrões de movimento diferentes.
 
-**Conclusão:** grupo muscular é condição necessária mas não suficiente para uma substituição válida. É preciso um nível de granularidade a mais.
+**O critério correto é a região muscular alvo (`musculo_alvo`):**
+
+| Exercício | Musculo alvo | Substitutos válidos |
+|---|---|---|
+| Supino inclinado barra | Peitoral superior | Supino inclinado halteres, Crossover polia baixa, Crucifixo inclinado |
+| Supino reto barra | Peitoral médio | Supino reto halteres, Crossover polia média, Crucifixo plano |
+| Crossover polia baixa | Peitoral superior | Supino inclinado barra, Supino inclinado halteres, Crucifixo inclinado |
+| Remada curvada | Dorsal + rombóides | Remada haltere, Remada cabo sentado |
+| Puxada frente | Dorsal (comprimento) | Barra fixa, Puxada triângulo |
 
 ---
 
-## Solução: Padrão de Movimento (`padrao_movimento`)
-
-Adicionar um campo `padrao_movimento` aos exercícios. Exercícios do mesmo padrão são substitutos naturais porque recrutam as mesmas fibras com o mesmo ângulo de força.
-
-### Exemplos de padrões
-
-| Padrão | Exercícios |
-|---|---|
-| `press_inclinado` | Supino inclinado barra, Supino inclinado halteres, Crossover polia baixa, Crucifixo inclinado |
-| `press_plano` | Supino reto barra, Supino reto halteres, Crossover polia média, Crucifixo plano |
-| `press_declinado` | Supino declinado, Crossover polia alta, Mergulho entre barras |
-| `remada_horizontal` | Remada curvada, Remada sentado cabo, Remada haltere |
-| `puxada_vertical` | Puxada frente, Puxada atrás, Barra fixa |
-| `agachamento` | Agachamento livre, Leg press, Hack squat, Agachamento goblet |
-| `hip_hinge` | Levantamento terra, Stiff, Cadeira flexora |
-| `press_ombro` | Desenvolvimento barra, Desenvolvimento halteres, Arnold press |
-| `elevacao_lateral` | Elevação lateral haltere, Elevação lateral cabo |
-
-### Schema
+## Solução: Campo `musculo_alvo`
 
 ```sql
-ALTER TABLE exercises ADD COLUMN padrao_movimento TEXT;
+ALTER TABLE exercises ADD COLUMN musculo_alvo TEXT;
 ```
 
-Valor null = não classificado (exercícios customizados sem padrão definido).
+Granularidade maior que `group_muscle`, mas sem explodir em subclassificações infinitas.
 
-Os 43 exercícios seed do app devem ter `padrao_movimento` preenchido. Exercícios customizados criados pelo usuário podem deixar em branco ou escolher de uma lista.
+### Valores propostos (subset relevante)
+
+| `group_muscle` | `musculo_alvo` |
+|---|---|
+| Peito | `peitoral_superior` |
+| Peito | `peitoral_medio` |
+| Peito | `peitoral_inferior` |
+| Costas | `dorsal` |
+| Costas | `romboides_trapezio_medio` |
+| Ombros | `deltóide_anterior` |
+| Ombros | `deltóide_lateral` |
+| Ombros | `deltóide_posterior` |
+| Bíceps | `biceps_cabeca_longa` |
+| Bíceps | `biceps_cabeca_curta` |
+| Tríceps | `triceps_cabeca_longa` |
+| Tríceps | `triceps_lateral_medial` |
+| Quadríceps | `quadriceps_geral` |
+| Posterior | `isquiotibiais` |
+| Posterior | `gluteos` |
+| Panturrilha | `panturrilha` |
+
+Os 43 exercícios seed devem ter `musculo_alvo` preenchido. Exercícios customizados podem deixar em branco (cai na camada de fallback por grupo muscular).
+
+`padrao_movimento` pode existir como metadata opcional (útil para exibição no detalhe do exercício), mas **não é usado como critério de substituição**.
 
 ---
 
-## Como as Sugestões São Ordenadas (revisado)
+## Como as Sugestões São Ordenadas
 
 ```
 1. Alternativas explícitas em exercise_alternatives
        ↓
-2. Mesmo padrao_movimento (substituto real — mesmo músculo, mesmo ângulo)
+2. Mesmo musculo_alvo  ← critério principal
+       (ex: peitoral_superior → pega supino inclinado E crossover polia baixa)
        ↓
-3. Mesmo grupo muscular primário, padrao_movimento diferente
-       → exibidos com aviso: "⚠ Ênfase diferente"
+3. Mesmo group_muscle, musculo_alvo diferente
+       → exibidos com aviso "⚠ Ênfase diferente"
        ↓
 4. Busca livre no catálogo
 ```
@@ -176,10 +189,10 @@ Sim — "Voltar ao original" remove `substituido_por_exercicio_id` e apaga as s�
 
 | Componente | Complexidade |
 |---|---|
-| Migration v9 (`padrao_movimento` em exercises + 2 colunas em sessao_exercicios + nova tabela) | Baixa |
-| Preencher `padrao_movimento` nos 43 seeds | Baixa — edição pontual das migrations |
-| Picker de `padrao_movimento` no formulário de exercício | Baixa |
-| `SugerirSubstitutosUseCase` com padrão de movimento | Média |
+| Migration v9 (`musculo_alvo` em exercises + 2 colunas em sessao_exercicios + nova tabela) | Baixa |
+| Preencher `musculo_alvo` nos 43 seeds | Média — requer classificação cuidadosa |
+| Picker de `musculo_alvo` no formulário de exercício | Baixa |
+| `SugerirSubstitutosUseCase` por musculo_alvo | Média |
 | `SubstituirExercicioSessaoUseCase` | Média |
 | UI bottom sheet de sugestões com badges | Média |
 | Badge + resumo da sessão | Baixa |
@@ -187,7 +200,7 @@ Sim — "Voltar ao original" remove `substituido_por_exercicio_id` e apaga as s�
 
 **Caminho incremental recomendado:**
 
-1. Migration + `padrao_movimento` nos seeds (base obrigatória para sugestões corretas)
+1. Migration + `musculo_alvo` nos seeds (base obrigatória — sem isso as sugestões são inúteis)
 2. `SugerirSubstitutosUseCase` + `SubstituirExercicioSessaoUseCase`
 3. Bottom sheet na sessão ativa com as três camadas de sugestão
 4. Badge no card e resumo da sessão
@@ -201,12 +214,12 @@ Nenhuma. Tudo usa infraestrutura existente (SQLite, use case pattern, bottom she
 
 ---
 
-## Snapshot de `padrao_movimento` na Sessão
+## Snapshot de `musculo_alvo` na Sessão
 
-Um detalhe importante: `sessao_exercicios` já guarda snapshots de nome, grupo muscular, etc. Deve também guardar `padrao_movimento_snapshot` para que `SugerirSubstitutosUseCase` saiba o padrão original mesmo que o exercício seja editado depois.
+`sessao_exercicios` já guarda snapshots de nome, grupo muscular, etc. Deve também guardar `musculo_alvo_snapshot` para que `SugerirSubstitutosUseCase` conheça o alvo original mesmo que o exercício seja editado depois.
 
 ```sql
-ALTER TABLE sessao_exercicios ADD COLUMN padrao_movimento_snapshot TEXT;
+ALTER TABLE sessao_exercicios ADD COLUMN musculo_alvo_snapshot TEXT;
 ```
 
 Isso evita que uma edição futura no catálogo quebre sugestões de sessões em andamento.
