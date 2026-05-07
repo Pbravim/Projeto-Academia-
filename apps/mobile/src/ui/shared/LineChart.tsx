@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import { useTheme } from './theme';
 
@@ -16,7 +16,6 @@ interface LineChartProps {
 }
 
 const CHART_PAD_V = 18;
-const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export function LineChart({
   points,
@@ -26,6 +25,7 @@ export function LineChart({
 }: LineChartProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const { width } = useWindowDimensions();
 
   if (points.length < 2) return null;
 
@@ -37,8 +37,7 @@ export function LineChart({
   const maxVal = Math.max(...values);
   const range = maxVal === minVal ? 1 : maxVal - minVal;
 
-  // Subtrai padding padrão da tela (20) + card (20) em cada lado
-  const chartWidth = SCREEN_WIDTH - 80;
+  const chartWidth = width - 80;
 
   const getX = (i: number) => (i / (points.length - 1)) * chartWidth;
   const getY = (v: number) => CHART_PAD_V + (1 - (v - minVal) / range) * plotHeight;

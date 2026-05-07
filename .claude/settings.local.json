@@ -23,7 +23,10 @@
       "Bash(\"/Users/bravim/Documents/GitHub/Projeto Academia /apps/mobile/node_modules/.bin/vitest\" run --reporter=verbose)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\)]\")",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\)}; [print\\(k\\) for k in sorted\\(deps\\) if 'storage' in k.lower\\(\\) or 'async' in k.lower\\(\\) or 'mmkv' in k.lower\\(\\) or 'preference' in k.lower\\(\\)]\")",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in d.get\\('dependencies',{}\\).items\\(\\)]\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in d.get\\('dependencies',{}\\).items\\(\\)]\")",
+      "Bash(xargs cat *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:d[k] for k in ['scripts','dependencies','devDependencies'] if k in d}, indent=2\\)\\)\")",
+      "Bash(npx expo *)"
     ]
   }
 }

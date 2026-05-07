@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
+import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
+import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { useTheme } from '../../shared/theme';
 
@@ -66,7 +68,6 @@ export function TreinoDetailScreen({
   const [editingNome, setEditingNome] = useState(false);
   const [nomeText, setNomeText] = useState(treino.name);
 
-  // Centralized recs state: tracks current field text for all exercises
   const recsRef = useRef<Map<string, { series: string; execucoes: string; carga: string; descanso: string }>>(new Map());
   useEffect(() => {
     for (const te of treinoExercicios) {
@@ -82,7 +83,6 @@ export function TreinoDetailScreen({
   }, [treinoExercicios]);
 
   const [isSaving, setIsSaving] = useState(false);
-  const [saveFeedback, setSaveFeedback] = useState(false);
   const saveFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (saveFeedbackTimer.current) clearTimeout(saveFeedbackTimer.current); }, []);
 
@@ -213,7 +213,7 @@ export function TreinoDetailScreen({
             ]}
           >
             <Text style={styles.saveTreinoBtnText}>
-              {isSaving ? 'Salvando...' : saveFeedback ? '✓ Treino salvo!' : 'Salvar treino'}
+              {isSaving ? 'Salvando...' : 'Salvar treino'}
             </Text>
           </Pressable>
         ) : null}
@@ -266,188 +266,6 @@ export function TreinoDetailScreen({
   );
 }
 
-interface ExercisePickerGroupProps {
-  group: string;
-  items: ExercisePrimitives[];
-  selected: Set<string>;
-  forceExpanded: boolean;
-  hasSelection: boolean;
-  onToggleSelect: (id: string) => void;
-  onAdd: (id: string) => void;
-}
-
-function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd }: ExercisePickerGroupProps) {
-  const c = useTheme();
-  const styles = useMemo(() => makeStyles(c), [c]);
-
-  const [expanded, setExpanded] = useState(false);
-  const isOpen = expanded || forceExpanded;
-
-  return (
-    <View style={styles.pickerGroup}>
-      <Pressable
-        onPress={() => setExpanded((v) => !v)}
-        style={({ pressed }) => [styles.pickerGroupHeader, pressed ? { opacity: 0.85 } : null]}
-      >
-        <View style={styles.pickerGroupHeaderLeft}>
-          <Text style={styles.pickerGroupTitle}>{group}</Text>
-          <View style={styles.pickerCountBadge}>
-            <Text style={styles.pickerCountBadgeText}>{items.length}</Text>
-          </View>
-        </View>
-        <Text style={styles.pickerChevron}>{isOpen ? '▲' : '▼'}</Text>
-      </Pressable>
-
-      {isOpen ? (
-        <View style={styles.pickerGroupBody}>
-          {items.map((exercise) => {
-            const isSelected = selected.has(exercise.id);
-            return (
-              <Pressable
-                key={exercise.id}
-                onPress={() => {
-                  if (!hasSelection && !isSelected) {
-                    onAdd(exercise.id);
-                  } else {
-                    onToggleSelect(exercise.id);
-                  }
-                }}
-                onLongPress={() => onToggleSelect(exercise.id)}
-                style={({ pressed }) => [
-                  styles.availableCard,
-                  isSelected ? styles.availableCardSelected : null,
-                  pressed ? { opacity: 0.7 } : null,
-                ]}
-              >
-                <View style={styles.availableCardContent}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.availableName}>{exercise.name}</Text>
-                    <Text style={styles.availableMeta}>{exercise.groupMuscle} · {exercise.category}</Text>
-                  </View>
-                  {isSelected ? (
-                    <View style={styles.checkmark}><Text style={styles.checkmarkText}>✓</Text></View>
-                  ) : null}
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-interface ExercicioCardTreinoProps {
-  item: ReturnType<typeof buildTreinoDetailViewModel>['exercicios'][number];
-  seriesRecomendadas: number | null;
-  execucoesRecomendadas: number | null;
-  cargaPadrao: number | null;
-  tempoDescansoSegundos: number | null;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onRemove: () => void;
-  onChangeRecs: (series: string, execucoes: string, carga: string, descanso: string) => void;
-}
-
-function ExercicioCardTreino({ item, seriesRecomendadas, execucoesRecomendadas, cargaPadrao, tempoDescansoSegundos, onMoveUp, onMoveDown, onRemove, onChangeRecs }: ExercicioCardTreinoProps) {
-  const c = useTheme();
-  const styles = useMemo(() => makeStyles(c), [c]);
-
-  const [seriesText, setSeriesText] = useState(seriesRecomendadas != null ? String(seriesRecomendadas) : '');
-  const [execucoesText, setExecucoesText] = useState(execucoesRecomendadas != null ? String(execucoesRecomendadas) : '');
-  const [cargaText, setCargaText] = useState(cargaPadrao != null ? String(cargaPadrao) : '');
-  const [descansoText, setDescansoText] = useState(tempoDescansoSegundos != null ? String(tempoDescansoSegundos) : '');
-
-  return (
-    <View style={styles.exercicioCard}>
-      <View style={styles.exercicioInfo}>
-        <Text style={styles.exercicioOrdem}>{item.ordem}.</Text>
-        <View style={styles.exercicioTexts}>
-          <Text style={styles.exercicioName}>{item.name}</Text>
-          <Text style={styles.exercicioMeta}>{item.groupMuscle} · {item.category}</Text>
-        </View>
-      </View>
-
-      <View style={styles.recomendacoesRow}>
-        <View style={styles.recomendacaoField}>
-          <Text style={styles.recomendacaoLabel}>Series</Text>
-          <TextInput
-            style={styles.recomendacaoInput}
-            value={seriesText}
-            onChangeText={(v) => { setSeriesText(v); onChangeRecs(v, execucoesText, cargaText, descansoText); }}
-            keyboardType="number-pad"
-            placeholder="—"
-            placeholderTextColor={c.inputPlaceholder}
-            returnKeyType="next"
-          />
-        </View>
-        <Text style={styles.recomendacaoSep}>×</Text>
-        <View style={styles.recomendacaoField}>
-          <Text style={styles.recomendacaoLabel}>Reps</Text>
-          <TextInput
-            style={styles.recomendacaoInput}
-            value={execucoesText}
-            onChangeText={(v) => { setExecucoesText(v); onChangeRecs(seriesText, v, cargaText, descansoText); }}
-            keyboardType="number-pad"
-            placeholder="—"
-            placeholderTextColor={c.inputPlaceholder}
-            returnKeyType="next"
-          />
-        </View>
-        <Text style={styles.recomendacaoSep}>@</Text>
-        <View style={styles.recomendacaoField}>
-          <Text style={styles.recomendacaoLabel}>Carga kg</Text>
-          <TextInput
-            style={[styles.recomendacaoInput, styles.recomendacaoInputCarga]}
-            value={cargaText}
-            onChangeText={(v) => { setCargaText(v); onChangeRecs(seriesText, execucoesText, v, descansoText); }}
-            keyboardType="decimal-pad"
-            placeholder="—"
-            placeholderTextColor={c.inputPlaceholder}
-            returnKeyType="next"
-          />
-        </View>
-        <Text style={styles.recomendacaoSep}>·</Text>
-        <View style={styles.recomendacaoField}>
-          <Text style={styles.recomendacaoLabel}>Desc. (s)</Text>
-          <TextInput
-            style={styles.recomendacaoInput}
-            value={descansoText}
-            onChangeText={(v) => { setDescansoText(v); onChangeRecs(seriesText, execucoesText, cargaText, v); }}
-            keyboardType="number-pad"
-            placeholder="—"
-            placeholderTextColor={c.inputPlaceholder}
-            returnKeyType="done"
-          />
-        </View>
-      </View>
-
-      <View style={styles.exercicioActions}>
-        <Pressable
-          onPress={onMoveUp}
-          style={({ pressed }) => [styles.orderButton, item.isFirst ? styles.orderButtonDisabled : null, pressed ? styles.orderButtonPressed : null]}
-          disabled={item.isFirst}
-        >
-          <Text style={styles.orderButtonText}>↑</Text>
-        </Pressable>
-        <Pressable
-          onPress={onMoveDown}
-          style={({ pressed }) => [styles.orderButton, item.isLast ? styles.orderButtonDisabled : null, pressed ? styles.orderButtonPressed : null]}
-          disabled={item.isLast}
-        >
-          <Text style={styles.orderButtonText}>↓</Text>
-        </Pressable>
-        <Pressable
-          onPress={onRemove}
-          style={({ pressed }) => [styles.removeButton, pressed ? styles.removeButtonPressed : null]}
-        >
-          <Text style={styles.removeButtonText}>Remover</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
@@ -476,44 +294,9 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     searchInput: { height: 44, borderRadius: 14, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 14, color: c.inputText, fontSize: 14 },
     addSelectedBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
     addSelectedBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },
-    availableCard: { borderRadius: 14, padding: 14, backgroundColor: c.cardAlt, borderWidth: 1.5, borderColor: 'transparent' },
-    availableCardSelected: { backgroundColor: c.accentLight, borderColor: c.textPrimary },
-    availableCardContent: { flexDirection: 'row', alignItems: 'center' },
-    availableName: { color: c.textPrimary, fontSize: 15, fontWeight: '700' },
-    availableMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
-    checkmark: { width: 24, height: 24, borderRadius: 12, backgroundColor: c.hero, alignItems: 'center', justifyContent: 'center' },
-    checkmarkText: { color: c.heroText, fontSize: 13, fontWeight: '800' },
-    exercicioCard: { borderRadius: 16, padding: 14, backgroundColor: c.cardAlt, gap: 10 },
-    exercicioInfo: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-    exercicioOrdem: { color: c.accent, fontSize: 16, fontWeight: '800', minWidth: 20 },
-    exercicioTexts: { flex: 1 },
-    exercicioName: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
-    exercicioMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
-    exercicioActions: { flexDirection: 'row', gap: 8 },
-    orderButton: { width: 36, height: 36, borderRadius: 10, backgroundColor: c.cardAlt, alignItems: 'center', justifyContent: 'center' },
-    orderButtonDisabled: { opacity: 0.3 },
-    orderButtonPressed: { opacity: 0.7 },
-    orderButtonText: { color: c.textPrimary, fontSize: 16, fontWeight: '700' },
-    removeButton: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: c.errorBg },
-    removeButtonPressed: { opacity: 0.75 },
-    removeButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },
-    recomendacoesRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    recomendacaoField: { alignItems: 'center', gap: 3 },
-    recomendacaoLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-    recomendacaoInput: { width: 52, height: 36, borderRadius: 10, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, textAlign: 'center', color: c.inputText, fontSize: 15, fontWeight: '700' },
-    recomendacaoInputCarga: { width: 64 },
-    recomendacaoSep: { color: c.textSecondary, fontSize: 16, fontWeight: '700', marginTop: 14 },
     saveTreinoBtn: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent, marginTop: 4 },
     saveTreinoBtnPressed: { opacity: 0.9 },
     saveTreinoBtnDisabled: { opacity: 0.6 },
     saveTreinoBtnText: { color: c.accentText, fontSize: 16, fontWeight: '800' },
-    pickerGroup: { gap: 0 },
-    pickerGroupHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.hero, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 2 },
-    pickerGroupHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
-    pickerGroupTitle: { color: c.heroText, fontSize: 14, fontWeight: '800' },
-    pickerCountBadge: { backgroundColor: c.accent, borderRadius: 8, paddingHorizontal: 7, paddingVertical: 1 },
-    pickerCountBadgeText: { color: c.accentText, fontSize: 11, fontWeight: '800' },
-    pickerChevron: { color: c.heroSubtext, fontSize: 11, fontWeight: '700' },
-    pickerGroupBody: { gap: 6, paddingBottom: 4 },
   });
 }

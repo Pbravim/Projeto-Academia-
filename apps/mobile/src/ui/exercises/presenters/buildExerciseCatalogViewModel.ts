@@ -28,10 +28,6 @@ const GROUP_ORDER: string[] = [
   'Abdomen', 'Trapezio', 'Antebraco',
 ];
 
-function primaryGroup(groupMuscle: string): string {
-  return groupMuscle.split(',')[0].trim();
-}
-
 function groupOrder(group: string): number {
   const idx = GROUP_ORDER.indexOf(group);
   return idx === -1 ? GROUP_ORDER.length : idx;
@@ -52,18 +48,20 @@ export function buildExerciseCatalogViewModel(
   const byGroup = new Map<string, ExerciseCardViewModel[]>();
 
   for (const exercise of exercises) {
-    const group = primaryGroup(exercise.groupMuscle);
+    const groups = exercise.groupMuscle.split(',').map((g) => g.trim()).filter(Boolean);
     const ultima = ultimosPesos.get(exercise.id);
     const card: ExerciseCardViewModel = {
       id: exercise.id,
       title: exercise.name,
-      subtitle: `${exercise.groupMuscle} · ${exercise.category}`,
+      subtitle: exercise.category ? `${exercise.groupMuscle} · ${exercise.category}` : exercise.groupMuscle,
       meta: exercise.equipment ? `Equipamento: ${exercise.equipment}` : 'Equipamento livre',
       ultimoPeso: ultima ? `Ultimo: ${ultima.cargaKg} kg × ${ultima.repeticoes} rep` : null,
     };
-    const list = byGroup.get(group) ?? [];
-    list.push(card);
-    byGroup.set(group, list);
+    for (const group of groups) {
+      const list = byGroup.get(group) ?? [];
+      list.push(card);
+      byGroup.set(group, list);
+    }
   }
 
   const sections: ExerciseSectionViewModel[] = Array.from(byGroup.entries())

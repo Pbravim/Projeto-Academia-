@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../../../application/exercises/errors/ExerciseNotFoundError';
@@ -6,7 +6,7 @@ import type { CreateExerciseUseCase } from '../../../application/exercises/use-c
 import type { DeleteExerciseUseCase } from '../../../application/exercises/use-cases/DeleteExerciseUseCase';
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { UpdateExerciseUseCase } from '../../../application/exercises/use-cases/UpdateExerciseUseCase';
-import type { GetUltimaExecucaoValidaUseCase } from '../../../application/historico/use-cases/GetUltimaExecucaoValidaUseCase';
+import type { GetUltimasExecucoesValidasUseCase } from '../../../application/historico/use-cases/GetUltimasExecucoesValidasUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
@@ -24,7 +24,7 @@ export interface ExerciseCatalogControllerDependencies {
   updateExercise: UpdateExerciseUseCase;
   deleteExercise: DeleteExerciseUseCase;
   listExercises: ListExercisesUseCase;
-  getUltimaExecucaoValida: GetUltimaExecucaoValidaUseCase;
+  getUltimasExecucoesValidas: GetUltimasExecucoesValidasUseCase;
   logger: AppLogger;
 }
 
@@ -66,6 +66,15 @@ export function useExerciseCatalogController(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (feedbackTimer.current) clearTimeout(feedbackTimer.current); }, []);
+
+  const showFeedback = useCallback((message: string) => {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    setFeedbackMessage(message);
+    feedbackTimer.current = setTimeout(() => setFeedbackMessage(null), 2000);
+  }, []);
 
   const applyExercises = (nextExercises: ExercisePrimitives[]) => {
     startTransition(() => {
@@ -75,17 +84,14 @@ export function useExerciseCatalogController(
 
   const loadExercises = async () => {
     try {
-      const currentExercises = await dependencies.listExercises.execute();
-      applyExercises(currentExercises);
-
-      const pesosMap = new Map<string, UltimaExecucaoValida>();
-      await Promise.all(
-        currentExercises.map(async (exercise) => {
-          const ultima = await dependencies.getUltimaExecucaoValida.execute(exercise.id);
-          if (ultima) pesosMap.set(exercise.id, ultima);
-        })
-      );
-      startTransition(() => setUltimosPesos(pesosMap));
+      const [currentExercises, pesosMap] = await Promise.all([
+        dependencies.listExercises.execute(),
+        dependencies.getUltimasExecucoesValidas.execute(),
+      ]);
+      startTransition(() => {
+        applyExercises(currentExercises);
+        setUltimosPesos(pesosMap);
+      });
     } catch (error) {
       dependencies.logger.error('exercise_catalog.load_failed', error);
       setErrorMessage('Nao foi possivel carregar os exercicios.');
@@ -129,19 +135,27 @@ export function useExerciseCatalogController(
     setErrorMessage(null);
     setFeedbackMessage(null);
 
+    // '__outro__' é sentinela do ChipPicker (clicou "Outro" mas não digitou nada).
+    // Tratado como vazio para acionar a validação do domínio corretamente.
+    const cleanDraft = {
+      ...draft,
+      category: draft.category === '__outro__' ? '' : draft.category,
+      equipment: draft.equipment === '__outro__' ? '' : draft.equipment,
+    };
+
     try {
       if (editingExerciseId) {
         const updated = await dependencies.updateExercise.execute({
           id: editingExerciseId,
-          ...draft,
+          ...cleanDraft,
         });
         setEditingExerciseId(null);
         setDraft(initialDraft);
-        setFeedbackMessage(`"${updated.name}" atualizado com sucesso.`);
+        showFeedback(`"${updated.name}" atualizado com sucesso.`);
       } else {
-        const created = await dependencies.createExercise.execute(draft);
+        const created = await dependencies.createExercise.execute(cleanDraft);
         setDraft(initialDraft);
-        setFeedbackMessage(`"${created.name}" salvo com sucesso.`);
+        showFeedback(`"${created.name}" salvo com sucesso.`);
       }
 
       await loadExercises();
@@ -170,7 +184,7 @@ export function useExerciseCatalogController(
 
     try {
       await dependencies.deleteExercise.execute(id);
-      setFeedbackMessage('Exercicio excluido com sucesso.');
+      showFeedback('Exercicio excluido com sucesso.');
 
       if (editingExerciseId === id) {
         setEditingExerciseId(null);

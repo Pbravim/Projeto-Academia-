@@ -1,0 +1,398 @@
+import { useMemo, useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { useTheme } from '../../shared/theme';
+
+export const MUSCLE_GROUPS = [
+  'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
+  'Abdomen', 'Gluteos', 'Quadriceps', 'Posterior', 'Panturrilha',
+  'Antebraco', 'Trapezio',
+];
+
+export const CATEGORIES = ['Composto', 'Isolado', 'Cardio', 'Mobilidade', 'Alongamento'];
+
+export const EQUIPMENTS = [
+  'Barra olimpica', 'Haltere', 'Cabo', 'Maquina',
+  'Peso corporal', 'Elastico', 'Smith', 'Kettlebell',
+];
+
+// ─── Field simples ────────────────────────────────────────────────────────────
+
+interface FieldProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChangeText: (value: string) => void;
+  editable?: boolean;
+}
+
+export function Field({ label, placeholder, value, onChangeText, editable = true }: FieldProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        placeholderTextColor={c.inputPlaceholder}
+        value={value}
+        onChangeText={onChangeText}
+        editable={editable}
+      />
+    </View>
+  );
+}
+
+// ─── MultiChipPicker → MultiSelectField ──────────────────────────────────────
+
+interface MultiChipPickerProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const [open, setOpen] = useState(false);
+  const [customText, setCustomText] = useState('');
+
+  const toArray = (v: string) => v.split(',').map((s) => s.trim()).filter(Boolean);
+  const selected = toArray(value);
+  const predefined = selected.filter((s) => MUSCLE_GROUPS.includes(s));
+  const custom = selected.filter((s) => !MUSCLE_GROUPS.includes(s));
+
+  const displayValue = selected.length === 0
+    ? null
+    : selected.length <= 2
+      ? selected.join(', ')
+      : `${selected.slice(0, 2).join(', ')} +${selected.length - 2}`;
+
+  function buildValue(pred: string[], cust: string[]) {
+    return [...pred, ...cust].join(', ');
+  }
+
+  function toggle(group: string) {
+    const next = predefined.includes(group)
+      ? predefined.filter((g) => g !== group)
+      : [...predefined, group];
+    onChange(buildValue(next, custom));
+  }
+
+  function confirmCustom() {
+    const trimmed = customText.trim();
+    if (!trimmed) return;
+    if (!custom.includes(trimmed)) onChange(buildValue(predefined, [...custom, trimmed]));
+    setCustomText('');
+  }
+
+  function removeCustom(item: string) {
+    onChange(buildValue(predefined, custom.filter((c) => c !== item)));
+  }
+
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>Grupo muscular</Text>
+      <Pressable
+        onPress={() => setOpen(true)}
+        style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
+      >
+        <Text style={[styles.selectValue, !displayValue && styles.selectPlaceholder]}>
+          {displayValue ?? 'Selecionar grupos'}
+        </Text>
+        <Text style={styles.selectChevron}>▼</Text>
+      </Pressable>
+
+      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>Grupo muscular</Text>
+          <ScrollView style={styles.sheetScroll} showsVerticalScrollIndicator={false}>
+            {MUSCLE_GROUPS.map((group) => {
+              const active = predefined.includes(group);
+              return (
+                <Pressable
+                  key={group}
+                  onPress={() => toggle(group)}
+                  style={({ pressed }) => [styles.sheetRow, pressed ? styles.sheetRowPressed : null]}
+                >
+                  <Text style={styles.sheetRowText}>{group}</Text>
+                  <View style={[styles.checkbox, active ? styles.checkboxActive : null]}>
+                    {active ? <Text style={styles.checkmark}>✓</Text> : null}
+                  </View>
+                </Pressable>
+              );
+            })}
+
+            <View style={styles.sheetDivider} />
+            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+            {custom.map((item) => (
+              <View key={item} style={styles.sheetRow}>
+                <Text style={styles.sheetRowText}>{item}</Text>
+                <Pressable onPress={() => removeCustom(item)} hitSlop={8}>
+                  <Text style={styles.removeCustom}>✕</Text>
+                </Pressable>
+              </View>
+            ))}
+            <View style={styles.customInputRow}>
+              <TextInput
+                style={styles.customInput}
+                placeholder="Nome do grupo..."
+                placeholderTextColor={c.inputPlaceholder}
+                value={customText}
+                onChangeText={setCustomText}
+                onSubmitEditing={confirmCustom}
+                returnKeyType="done"
+              />
+              <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
+                <Text style={styles.addCustomBtnText}>Adicionar</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+          <Pressable onPress={() => setOpen(false)} style={styles.sheetConfirmBtn}>
+            <Text style={styles.sheetConfirmText}>Confirmar</Text>
+          </Pressable>
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+// ─── ChipPicker → SelectField ─────────────────────────────────────────────────
+
+interface ChipPickerProps {
+  label: string;
+  options?: string[];
+  customPlaceholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, value, onChange }: ChipPickerProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const [open, setOpen] = useState(false);
+  const [customText, setCustomText] = useState('');
+
+  const isCustom = value !== '' && value !== '__outro__' && !options.includes(value);
+  const displayValue = value === '__outro__' ? null : value || null;
+
+  function select(opt: string) {
+    onChange(opt);
+    setOpen(false);
+  }
+
+  function confirmCustom() {
+    const trimmed = customText.trim();
+    if (!trimmed) return;
+    onChange(trimmed);
+    setCustomText('');
+    setOpen(false);
+  }
+
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <Pressable
+        onPress={() => setOpen(true)}
+        style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
+      >
+        <Text style={[styles.selectValue, !displayValue && styles.selectPlaceholder]}>
+          {displayValue ?? `Selecionar ${label.toLowerCase()}`}
+        </Text>
+        <Text style={styles.selectChevron}>▼</Text>
+      </Pressable>
+
+      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>{label}</Text>
+          <ScrollView style={styles.sheetScroll} showsVerticalScrollIndicator={false}>
+            {options.map((opt) => {
+              const active = value === opt;
+              return (
+                <Pressable
+                  key={opt}
+                  onPress={() => select(opt)}
+                  style={({ pressed }) => [styles.sheetRow, pressed ? styles.sheetRowPressed : null]}
+                >
+                  <Text style={[styles.sheetRowText, active ? styles.sheetRowTextActive : null]}>{opt}</Text>
+                  {active ? <Text style={styles.radioCheck}>✓</Text> : null}
+                </Pressable>
+              );
+            })}
+
+            <View style={styles.sheetDivider} />
+            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+            {isCustom ? (
+              <View style={styles.sheetRow}>
+                <Text style={[styles.sheetRowText, styles.sheetRowTextActive]}>{value}</Text>
+                <Text style={styles.radioCheck}>✓</Text>
+              </View>
+            ) : null}
+            <View style={styles.customInputRow}>
+              <TextInput
+                style={styles.customInput}
+                placeholder={customPlaceholder}
+                placeholderTextColor={c.inputPlaceholder}
+                value={customText}
+                onChangeText={setCustomText}
+                onSubmitEditing={confirmCustom}
+                returnKeyType="done"
+              />
+              <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
+                <Text style={styles.addCustomBtnText}>OK</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
+function makeStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    field: { gap: 6 },
+    fieldLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
+    input: {
+      minHeight: 48,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: c.inputBorder,
+      backgroundColor: c.inputBg,
+      paddingHorizontal: 14,
+      color: c.inputText,
+      fontSize: 15,
+    },
+    // Trigger (looks like an input)
+    selectTrigger: {
+      height: 48,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: c.inputBorder,
+      backgroundColor: c.inputBg,
+      paddingHorizontal: 14,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    selectTriggerPressed: { opacity: 0.75 },
+    selectValue: { flex: 1, color: c.inputText, fontSize: 15 },
+    selectPlaceholder: { color: c.inputPlaceholder },
+    selectChevron: { color: c.textSecondary, fontSize: 12, marginLeft: 8 },
+    // Backdrop
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.45)',
+    },
+    // Sheet
+    sheet: {
+      backgroundColor: c.card,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      paddingBottom: 32,
+      maxHeight: '70%',
+    },
+    sheetHandle: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: c.cardBorder,
+      alignSelf: 'center',
+      marginTop: 10,
+      marginBottom: 4,
+    },
+    sheetTitle: {
+      color: c.textPrimary,
+      fontSize: 17,
+      fontWeight: '800',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: c.cardBorder,
+    },
+    sheetScroll: { flexGrow: 0 },
+    sheetRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: c.cardBorder,
+    },
+    sheetRowPressed: { backgroundColor: c.cardAlt },
+    sheetRowText: { flex: 1, color: c.textPrimary, fontSize: 15 },
+    sheetRowTextActive: { color: c.accent, fontWeight: '700' },
+    // Checkbox (multi-select)
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: c.inputBorder,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxActive: { backgroundColor: c.hero, borderColor: c.hero },
+    checkmark: { color: c.heroText, fontSize: 13, fontWeight: '800' },
+    // Radio (single-select)
+    radioCheck: { color: c.accent, fontSize: 16, fontWeight: '800' },
+    // Divider & custom section
+    sheetDivider: { height: 1, backgroundColor: c.cardBorder, marginVertical: 4 },
+    sheetSectionLabel: {
+      color: c.textSecondary,
+      fontSize: 11,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      paddingHorizontal: 20,
+      paddingTop: 10,
+      paddingBottom: 6,
+    },
+    removeCustom: { color: c.error, fontSize: 16, fontWeight: '700', paddingLeft: 8 },
+    customInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+    },
+    customInput: {
+      flex: 1,
+      height: 42,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: c.inputBorder,
+      backgroundColor: c.inputBg,
+      paddingHorizontal: 12,
+      color: c.inputText,
+      fontSize: 14,
+    },
+    addCustomBtn: {
+      height: 42,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      backgroundColor: c.hero,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    addCustomBtnText: { color: c.heroText, fontSize: 13, fontWeight: '700' },
+    // Confirm button (multi-select)
+    sheetConfirmBtn: {
+      marginHorizontal: 20,
+      marginTop: 8,
+      height: 48,
+      borderRadius: 14,
+      backgroundColor: c.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sheetConfirmText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
+  });
+}

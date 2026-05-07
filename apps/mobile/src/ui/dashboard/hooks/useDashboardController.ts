@@ -17,6 +17,7 @@ export interface DashboardControllerState {
   errorMessage: string | null;
   onRefresh: () => void;
   onReset: () => Promise<void>;
+  onVerEvolucao: (treinoId: string, treinoNome: string) => void;
 }
 
 export function useDashboardController(dependencies: DashboardControllerDependencies): DashboardControllerState {
@@ -64,5 +65,6 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     errorMessage,
     onRefresh: () => { void load(); },
     onReset,
+    onVerEvolucao: () => {},
   };
 }

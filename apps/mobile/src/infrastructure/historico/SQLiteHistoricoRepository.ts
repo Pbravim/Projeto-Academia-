@@ -27,6 +27,35 @@ interface HistoricoRow {
 export class SQLiteHistoricoRepository implements HistoricoRepository {
   constructor(private readonly database: SQLiteDatabaseClient) {}
 
+  async getUltimasExecucoesValidas(): Promise<Map<string, UltimaExecucaoValida>> {
+    const rows = await this.database.getAll<{ exercicio_id: string; carga_kg: number; repeticoes: number; data_hora_fim: string }>(
+      `SELECT se.exercicio_id, sr.carga_kg, sr.repeticoes, st.data_hora_fim
+       FROM (
+         SELECT se2.exercicio_id, MAX(st2.data_hora_fim) AS max_fim
+         FROM sessao_exercicios se2
+         JOIN sessao_treinos st2 ON se2.sessao_treino_id = st2.id
+         WHERE st2.status = 'finalizada' AND st2.data_hora_fim IS NOT NULL
+         GROUP BY se2.exercicio_id
+       ) latest
+       JOIN sessao_exercicios se ON se.exercicio_id = latest.exercicio_id
+       JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.data_hora_fim = latest.max_fim
+       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.tipo_serie = 'valida'
+       ORDER BY se.exercicio_id, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC`
+    );
+
+    const result = new Map<string, UltimaExecucaoValida>();
+    for (const row of rows) {
+      if (!result.has(row.exercicio_id)) {
+        result.set(row.exercicio_id, {
+          cargaKg: row.carga_kg,
+          repeticoes: row.repeticoes,
+          dataExecucao: row.data_hora_fim,
+        });
+      }
+    }
+    return result;
+  }
+
   async getUltimaExecucaoValida(exercicioId: string): Promise<UltimaExecucaoValida | null> {
     const row = await this.database.getFirst<UltimaRow>(
       `SELECT sr.carga_kg, sr.repeticoes, st.data_hora_fim

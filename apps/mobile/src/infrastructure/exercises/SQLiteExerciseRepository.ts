@@ -1,5 +1,5 @@
 import { Exercise, type ExercisePrimitives } from '../../domain/exercises/entities/Exercise';
-import type { ExerciseRepository } from '../../domain/exercises/repositories/ExerciseRepository';
+import type { ExerciseRepository, ListExercisesOptions } from '../../domain/exercises/repositories/ExerciseRepository';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface ExerciseRow {
@@ -51,23 +51,25 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     );
   }
 
-  async list(): Promise<Exercise[]> {
+  async list(options?: ListExercisesOptions): Promise<Exercise[]> {
+    const pagination = options?.limit != null
+      ? ` LIMIT ${options.limit} OFFSET ${options.offset ?? 0}`
+      : '';
+
     const rows = await this.database.getAll<ExerciseRow>(
-      `
-        SELECT
-          id,
-          name,
-          normalized_name,
-          group_muscle,
-          category,
-          equipment,
-          load_unit,
-          is_custom,
-          created_at,
-          updated_at
-        FROM exercises
-        ORDER BY name ASC
-      `
+      `SELECT
+         id,
+         name,
+         normalized_name,
+         group_muscle,
+         category,
+         equipment,
+         load_unit,
+         is_custom,
+         created_at,
+         updated_at
+       FROM exercises
+       ORDER BY name ASC${pagination}`
     );
 
     return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));

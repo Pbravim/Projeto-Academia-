@@ -22,5 +22,6 @@ export interface ExecucaoExercicio {
 
 export interface HistoricoRepository {
   getUltimaExecucaoValida(exercicioId: string): Promise<UltimaExecucaoValida | null>;
+  getUltimasExecucoesValidas(): Promise<Map<string, UltimaExecucaoValida>>;
   getHistoricoExercicio(exercicioId: string): Promise<ExecucaoExercicio[]>;
 }

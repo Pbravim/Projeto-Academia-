@@ -1,6 +1,6 @@
 # Roadmap — Features Futuras e Necessidades de Atualização
 
-> Atualizado em `2026-05-06`. MVP entregue. Prioridades baseadas em uso real.
+> Atualizado em `2026-05-07`. MVP entregue, dívida técnica zerada. Prioridades baseadas em uso real.
 
 ---
 
@@ -134,37 +134,20 @@ Features mais complexas ou que dependem de infraestrutura nova.
 
 ---
 
-## Dívida Técnica
+## Dívida Técnica — Resolvida
 
-Não são features, mas impactam manutenibilidade e escalabilidade.
+Todas as dívidas técnicas identificadas foram resolvidas. Resumo do que foi feito:
 
-### T1. Quebrar telas grandes em subcomponentes
-
-- `ExerciseCatalogScreen` (~604 linhas)
-- `TreinoDetailScreen` (~488 linhas)  
-- `SessaoAtivaScreen` (~428 linhas)
-
-Cada uma mistura layout, lógica de formulário e subcomponentes inline. Extrair em arquivos separados facilita testes de UI e reutilização.
-
-### T2. Abstrair queries do Dashboard em repositório
-
-`GetDashboardStatsUseCase` usa `database.getAll()` e `database.getFirst()` diretamente, pulando a camada de repositório. Criar `DashboardRepository` com as queries específicas.
-
-### T3. Testes para hook controllers
-
-`useSessaoAtivaController`, `useTreinoDetailController`, etc. têm lógica relevante mas zero cobertura de testes. Usar `renderHook` do React Testing Library.
-
-### T4. Componentes de UI compartilhados
-
-Botões, cards, badges e inputs são redefinidos em `StyleSheet.create` em cada arquivo. Criar pasta `ui/shared/components` com primitivos reutilizáveis e tokens de cor centralizados.
-
-### T5. Paginação na listagem de exercícios
-
-`ListExercises` carrega tudo de uma vez. Para catálogos grandes (>100 exercícios) isso começa a pesar. Adicionar `limit/offset` ao use case e lazy loading na UI.
-
-### T6. Race condition no submit
-
-Vários formulários não desabilitam o botão de submit imediatamente enquanto o use case está executando. Padronizar `isSubmitting` em todos os controllers que fazem mutação.
+- **Subcomponentes extraídos** das 3 telas grandes (`ExerciseCatalog`, `TreinoDetail`, `SessaoAtiva`) para pastas `components/` por feature
+- **DashboardRepository** criado na camada de domínio; `GetDashboardStatsUseCase` não importa mais `SQLiteDatabaseClient` diretamente
+- **Primitivos de UI** em `ui/shared/components/` (`PrimaryButton`, `SecondaryButton`, `DangerButton`, `HeroCard`, `ContentCard`, `SectionTitle`)
+- **Paginação** em `ExerciseRepository.list()` e `ListExercisesUseCase.execute()` via `{ limit?, offset? }`
+- **Race condition** no registro de série resolvida com `isSubmittingSerie` em `ExercicioCard`
+- **Testes** adicionados para `SugerirProgressaoUseCase`, `CancelarSessaoUseCase` e `detectarPlateau`
+- **`useWindowDimensions`** substituindo `Dimensions.get()` estático em `LineChart` e `PesoScreen`
+- **`PesoLineChart`** consolidado como wrapper do `LineChart` compartilhado
+- **Proteção de formulários** (`deletingId`, `isSubmitting`) já estavam OK nos controllers existentes
+- **Bug de grupos musculares** corrigido: exercícios com múltiplos grupos agora aparecem em todas as seções do catálogo
 
 ---
 

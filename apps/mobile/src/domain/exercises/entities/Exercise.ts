@@ -18,7 +18,7 @@ export interface CreateExerciseProps {
   id: string;
   name: string;
   groupMuscle: string;
-  category: string;
+  category?: string | null;
   equipment?: string | null;
   createdAt: Date;
   updatedAt?: Date;
@@ -28,7 +28,7 @@ export interface CreateExerciseProps {
 export interface UpdateExerciseProps {
   name: string;
   groupMuscle: string;
-  category: string;
+  category?: string | null;
   equipment?: string | null;
 }
 
@@ -38,7 +38,7 @@ export class Exercise {
   static create(input: CreateExerciseProps): Exercise {
     const name = requireText(input.name, 'Nome');
     const groupMuscle = requireText(input.groupMuscle, 'Grupo muscular');
-    const category = requireText(input.category, 'Categoria');
+    const category = normalizeOptionalText(input.category) ?? '';
     const equipment = normalizeOptionalText(input.equipment);
     const createdAt = input.createdAt.toISOString();
     const updatedAt = (input.updatedAt ?? input.createdAt).toISOString();
@@ -64,7 +64,7 @@ export class Exercise {
   static update(current: ExercisePrimitives, input: UpdateExerciseProps, updatedAt: Date): Exercise {
     const name = requireText(input.name, 'Nome');
     const groupMuscle = requireText(input.groupMuscle, 'Grupo muscular');
-    const category = requireText(input.category, 'Categoria');
+    const category = normalizeOptionalText(input.category) ?? '';
     const equipment = normalizeOptionalText(input.equipment);
 
     return new Exercise({

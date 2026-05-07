@@ -98,4 +98,61 @@ describe('buildHistoricoExercicioViewModel', () => {
       expect(vm.execucoes[0].melhorRm1).toBe('116.7 kg');
     });
   });
+
+  describe('detectarPlateau', () => {
+    function makeEx(sessaoId: string, date: string, series: ReturnType<typeof serie>[]): ExecucaoExercicio {
+      return { sessaoTreinoId: sessaoId, dataExecucao: date, nomeSnapshot: 'Supino', series };
+    }
+
+    it('retorna null com menos de 4 execucoes com series validas', () => {
+      const execucoes = [
+        makeEx('s1', '2026-05-04T10:00:00Z', [serie('sr1', 'valida', 80, 10)]),
+        makeEx('s2', '2026-05-03T10:00:00Z', [serie('sr2', 'valida', 80, 10)]),
+        makeEx('s3', '2026-05-02T10:00:00Z', [serie('sr3', 'valida', 80, 10)]),
+      ];
+      expect(buildHistoricoExercicioViewModel('Supino', execucoes).plateau).toBeNull();
+    });
+
+    it('retorna null quando ha melhora >= 1 kg no 1RM entre a mais antiga e qualquer recente', () => {
+      const execucoes = [
+        makeEx('s1', '2026-05-04T10:00:00Z', [serie('sr1', 'valida', 110, 10)]),
+        makeEx('s2', '2026-05-03T10:00:00Z', [serie('sr2', 'valida', 90, 10)]),
+        makeEx('s3', '2026-05-02T10:00:00Z', [serie('sr3', 'valida', 85, 10)]),
+        makeEx('s4', '2026-05-01T10:00:00Z', [serie('sr4', 'valida', 80, 10)]),
+      ];
+      expect(buildHistoricoExercicioViewModel('Supino', execucoes).plateau).toBeNull();
+    });
+
+    it('retorna PlateauInfo quando 1RM maximo nao supera o mais antigo em 1 kg', () => {
+      const execucoes = [
+        makeEx('s1', '2026-05-04T10:00:00Z', [serie('sr1', 'valida', 80, 10)]),
+        makeEx('s2', '2026-05-03T10:00:00Z', [serie('sr2', 'valida', 80, 10)]),
+        makeEx('s3', '2026-05-02T10:00:00Z', [serie('sr3', 'valida', 80, 10)]),
+        makeEx('s4', '2026-05-01T10:00:00Z', [serie('sr4', 'valida', 80, 10)]),
+      ];
+      const vm = buildHistoricoExercicioViewModel('Supino', execucoes);
+      expect(vm.plateau).not.toBeNull();
+      expect(vm.plateau!.sessoes).toBe(4);
+    });
+
+    it('ignora execucoes sem series validas na contagem', () => {
+      const execucoes = [
+        makeEx('s1', '2026-05-04T10:00:00Z', [serie('sr1', 'valida', 80, 10)]),
+        makeEx('s2', '2026-05-03T10:00:00Z', [serie('sr2', 'aquecimento', 40, 15)]),
+        makeEx('s3', '2026-05-02T10:00:00Z', [serie('sr3', 'valida', 80, 10)]),
+        makeEx('s4', '2026-05-01T10:00:00Z', [serie('sr4', 'valida', 80, 10)]),
+      ];
+      expect(buildHistoricoExercicioViewModel('Supino', execucoes).plateau).toBeNull();
+    });
+
+    it('retorna null quando execucoes tem apenas series de aquecimento', () => {
+      const execucoes = [
+        makeEx('s1', '2026-05-04T10:00:00Z', [serie('sr1', 'aquecimento', 40, 15)]),
+        makeEx('s2', '2026-05-03T10:00:00Z', [serie('sr2', 'aquecimento', 40, 15)]),
+        makeEx('s3', '2026-05-02T10:00:00Z', [serie('sr3', 'aquecimento', 40, 15)]),
+        makeEx('s4', '2026-05-01T10:00:00Z', [serie('sr4', 'aquecimento', 40, 15)]),
+      ];
+      expect(buildHistoricoExercicioViewModel('Supino', execucoes).plateau).toBeNull();
+    });
+  });
 });

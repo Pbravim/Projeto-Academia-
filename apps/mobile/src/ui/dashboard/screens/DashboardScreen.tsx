@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+type DashboardChartMode = 'orm' | 'volume';
+
 import type { DashboardControllerState } from '../hooks/useDashboardController';
 import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
 
-export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, onRefresh, onReset }: DashboardControllerState) {
+export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, onRefresh, onReset, onVerEvolucao }: DashboardControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -78,7 +80,11 @@ export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, o
             <>
               <Text style={styles.groupLabel}>Evolucao por treino</Text>
               {stats.evolucaoPorTreino.map((grupo) => (
-                <TreinoEvolucaoCard key={grupo.treinoNome} grupo={grupo} />
+                <TreinoEvolucaoCard
+                  key={grupo.treinoNome}
+                  grupo={grupo}
+                  onVerEvolucao={() => onVerEvolucao(grupo.treinoId, grupo.treinoNome)}
+                />
               ))}
             </>
           ) : (
@@ -95,58 +101,109 @@ export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, o
   );
 }
 
-function TreinoEvolucaoCard({ grupo }: { grupo: EvolucaoPorTreino }) {
+function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino; onVerEvolucao: () => void }) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [expanded, setExpanded] = useState(true);
+  const [chartMode, setChartMode] = useState<DashboardChartMode>('orm');
 
   const sessoes = grupo.sessoes;
+  const temOrm = sessoes.some((s) => s.melhorOrm > 0);
   const temVolume = sessoes.some((s) => s.volumeTotal > 0);
 
-  // Trend: compare first two (most recent)
-  const trend =
-    sessoes.length >= 2 && temVolume
-      ? sessoes[0].volumeTotal > sessoes[1].volumeTotal
-        ? 'up'
-        : sessoes[0].volumeTotal < sessoes[1].volumeTotal
-          ? 'down'
-          : 'equal'
-      : null;
+  const sessaoesAsc = [...sessoes].reverse();
 
-  // sessoes vem mais recente primeiro — inverte para cronológico
+  const ormChartPoints = temOrm
+    ? sessaoesAsc
+        .map((s) => ({
+          value: s.melhorOrm,
+          label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        }))
+        .filter((p) => p.value > 0)
+    : [];
+
   const volumeChartPoints = temVolume
-    ? [...sessoes].reverse().map((s) => ({
+    ? sessaoesAsc.map((s) => ({
         value: s.volumeTotal,
         label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
       }))
     : [];
 
+  const trend =
+    sessoes.length >= 2 && temOrm
+      ? sessoes[0].melhorOrm > sessoes[1].melhorOrm
+        ? 'up'
+        : sessoes[0].melhorOrm < sessoes[1].melhorOrm
+          ? 'down'
+          : 'equal'
+      : null;
+
+  const activePoints = chartMode === 'orm' ? ormChartPoints : volumeChartPoints;
+  const activeColor = chartMode === 'orm' ? undefined : c.success;
+  const activeFormat = chartMode === 'orm'
+    ? (v: number) => `${v} kg`
+    : (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`;
+
   return (
     <View style={styles.card}>
-      <Pressable
-        onPress={() => setExpanded((v) => !v)}
-        style={styles.treinoHeader}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
-          <Text style={styles.treinoMeta}>{sessoes.length} sessao{sessoes.length !== 1 ? 'es' : ''}</Text>
-        </View>
-        <View style={styles.treinoHeaderRight}>
-          {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
-          {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
-          {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
-          <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
-        </View>
-      </Pressable>
+      <View style={styles.treinoHeaderRow}>
+        <Pressable
+          onPress={() => setExpanded((v) => !v)}
+          style={[styles.treinoHeader, { flex: 1 }]}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
+            <Text style={styles.treinoMeta}>{sessoes.length} sessao{sessoes.length !== 1 ? 'es' : ''}</Text>
+          </View>
+          <View style={styles.treinoHeaderRight}>
+            {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
+            {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
+            {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
+            <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+          </View>
+        </Pressable>
+        <Pressable
+          onPress={onVerEvolucao}
+          style={({ pressed }) => [styles.verEvolucaoBtn, pressed ? styles.verEvolucaoBtnPressed : null]}
+        >
+          <Text style={styles.verEvolucaoBtnText}>Por exercicio →</Text>
+        </Pressable>
+      </View>
 
-      {volumeChartPoints.length >= 2 ? (
-        <LineChart
-          points={volumeChartPoints}
-          color={c.success}
-          height={110}
-          formatValue={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`}
-        />
+      {(ormChartPoints.length >= 2 || volumeChartPoints.length >= 2) ? (
+        <>
+          <View style={styles.chartToggleRow}>
+            {ormChartPoints.length >= 2 ? (
+              <Pressable
+                onPress={() => setChartMode('orm')}
+                style={[styles.chartToggleBtn, chartMode === 'orm' ? styles.chartToggleBtnActive : null]}
+              >
+                <Text style={[styles.chartToggleBtnText, chartMode === 'orm' ? styles.chartToggleBtnTextActive : null]}>
+                  1RM estimado
+                </Text>
+              </Pressable>
+            ) : null}
+            {volumeChartPoints.length >= 2 ? (
+              <Pressable
+                onPress={() => setChartMode('volume')}
+                style={[styles.chartToggleBtn, chartMode === 'volume' ? styles.chartToggleBtnActiveVolume : null]}
+              >
+                <Text style={[styles.chartToggleBtnText, chartMode === 'volume' ? styles.chartToggleBtnTextActive : null]}>
+                  Volume
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+          {activePoints.length >= 2 ? (
+            <LineChart
+              points={activePoints}
+              color={activeColor}
+              height={110}
+              formatValue={activeFormat}
+            />
+          ) : null}
+        </>
       ) : null}
 
       {expanded ? (
@@ -257,7 +314,17 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     recordeNome: { flex: 1, color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     recordeValor: { color: c.accent, fontSize: 15, fontWeight: '800', marginLeft: 8 },
     groupLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 },
+    treinoHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
     treinoHeader: { flexDirection: 'row', alignItems: 'flex-start' },
+    verEvolucaoBtn: { backgroundColor: c.cardAlt, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7, alignSelf: 'flex-start', marginTop: 2 },
+    verEvolucaoBtnPressed: { opacity: 0.7 },
+    verEvolucaoBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+    chartToggleRow: { flexDirection: 'row', gap: 8 },
+    chartToggleBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9, backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.cardBorder },
+    chartToggleBtnActive: { backgroundColor: c.hero, borderColor: c.hero },
+    chartToggleBtnActiveVolume: { backgroundColor: c.successBg, borderColor: c.success },
+    chartToggleBtnText: { color: c.textSecondary, fontSize: 12, fontWeight: '700' },
+    chartToggleBtnTextActive: { color: c.heroText },
     treinoNome: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     treinoMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
     treinoHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },

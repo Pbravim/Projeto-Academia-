@@ -14,13 +14,11 @@ import { ThemeContext, useTheme, useThemePreference, useThemeProvider, type Them
 
 type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'peso' | 'evolucao';
 
-const PREFERENCE_ICONS: Record<ThemePreference, string> = {
-  system: '⊙',
-  light:  '☀',
-  dark:   '🌙',
-};
-
-const PREFERENCE_CYCLE: ThemePreference[] = ['system', 'light', 'dark'];
+const THEME_OPTIONS: { value: ThemePreference; icon: string; label: string }[] = [
+  { value: 'system', icon: '⊙', label: 'Auto' },
+  { value: 'light',  icon: '☀', label: 'Claro' },
+  { value: 'dark',   icon: '🌙', label: 'Escuro' },
+];
 
 export function MobileApp() {
   const themeValue = useThemeProvider();
@@ -38,29 +36,17 @@ function AppContent() {
   const [activeModule, setActiveModule] = useState<ActiveModule>('sessao');
   const insets = useSafeAreaInsets();
   const c = useTheme();
-  const { preference, setPreference } = useThemePreference();
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
 
   const styles = useMemo(() => makeStyles(c), [c]);
-
-  const cyclePreference = () => {
-    const next = PREFERENCE_CYCLE[(PREFERENCE_CYCLE.indexOf(preference) + 1) % PREFERENCE_CYCLE.length];
-    setPreference(next);
-  };
 
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
 
       <View style={[styles.topBar, { paddingTop: insets.top }]}>
-        <Pressable
-          onPress={cyclePreference}
-          style={({ pressed }) => [styles.themeToggle, pressed ? styles.themeTogglePressed : null]}
-          accessibilityLabel={`Tema: ${preference}`}
-        >
-          <Text style={styles.themeToggleIcon}>{PREFERENCE_ICONS[preference]}</Text>
-        </Pressable>
+        <ThemeSegmentedControl />
       </View>
 
       <View style={styles.container}>
@@ -84,6 +70,36 @@ function AppContent() {
         <TabButton label="Peso"       active={activeModule === 'peso'}       onPress={() => setActiveModule('peso')} />
         <TabButton label="Evolucao"   active={activeModule === 'evolucao'}   onPress={() => setActiveModule('evolucao')} />
       </View>
+    </View>
+  );
+}
+
+function ThemeSegmentedControl() {
+  const c = useTheme();
+  const { preference, setPreference } = useThemePreference();
+  const styles = useMemo(() => makeSegmentedStyles(c), [c]);
+
+  return (
+    <View style={styles.track}>
+      {THEME_OPTIONS.map((opt) => {
+        const active = preference === opt.value;
+        return (
+          <Pressable
+            key={opt.value}
+            onPress={() => setPreference(opt.value)}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: active }}
+            accessibilityLabel={opt.label}
+            style={({ pressed }) => [
+              styles.option,
+              active ? styles.optionActive : null,
+              pressed && !active ? styles.optionPressed : null,
+            ]}
+          >
+            <Text style={styles.icon}>{opt.icon}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -115,13 +131,12 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     root: { flex: 1, backgroundColor: c.tabBar },
     topBar: {
-      width: '100%',
       backgroundColor: c.tabBar,
       flexDirection: 'row',
       justifyContent: 'flex-end',
       alignItems: 'center',
       paddingHorizontal: 14,
-      paddingBottom: 6,
+      paddingBottom: 4,
     },
     container: { flex: 1, backgroundColor: c.background },
     tabBar: {
@@ -132,16 +147,29 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       paddingTop: 6,
       gap: 2,
     },
-    themeToggle: {
-      width: 32,
-      height: 32,
-      borderRadius: 9,
+  });
+}
+
+function makeSegmentedStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    track: {
+      flexDirection: 'row',
+      backgroundColor: 'rgba(255,255,255,0.08)',
+      borderRadius: 8,
+      padding: 2,
+      gap: 1,
+    },
+    option: {
+      width: 30,
+      height: 26,
       alignItems: 'center',
       justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: c.tabText,
+      borderRadius: 6,
     },
-    themeTogglePressed: { opacity: 0.65 },
-    themeToggleIcon: { fontSize: 14 },
+    optionActive: {
+      backgroundColor: 'rgba(255,255,255,0.18)',
+    },
+    optionPressed: { opacity: 0.5 },
+    icon: { fontSize: 13 },
   });
 }

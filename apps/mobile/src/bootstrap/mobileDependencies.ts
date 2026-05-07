@@ -4,6 +4,7 @@ import { ListExercisesUseCase } from '../application/exercises/use-cases/ListExe
 import { UpdateExerciseUseCase } from '../application/exercises/use-cases/UpdateExerciseUseCase';
 import { GetHistoricoExercicioUseCase } from '../application/historico/use-cases/GetHistoricoExercicioUseCase';
 import { GetUltimaExecucaoValidaUseCase } from '../application/historico/use-cases/GetUltimaExecucaoValidaUseCase';
+import { GetUltimasExecucoesValidasUseCase } from '../application/historico/use-cases/GetUltimasExecucoesValidasUseCase';
 import { DeleteRegistroPesoUseCase } from '../application/peso/use-cases/DeleteRegistroPesoUseCase';
 import { ListRegistrosPesoUseCase } from '../application/peso/use-cases/ListRegistrosPesoUseCase';
 import { RegistrarPesoUseCase } from '../application/peso/use-cases/RegistrarPesoUseCase';
@@ -16,6 +17,7 @@ import { RemoveExercicioDoTreinoUseCase } from '../application/treinos/use-cases
 import { ReordenarExerciciosUseCase } from '../application/treinos/use-cases/ReordenarExerciciosUseCase';
 import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTreinoUseCase';
 import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { GetTreinoEvolucaoUseCase } from '../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import { ResetHistoricoUseCase } from '../application/dashboard/use-cases/ResetHistoricoUseCase';
 import { AddExercicioASessaoUseCase } from '../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import { CancelarSessaoUseCase } from '../application/sessoes/use-cases/CancelarSessaoUseCase';
@@ -30,6 +32,7 @@ import { ToggleExercicioRealizadoUseCase } from '../application/sessoes/use-case
 import { SQLiteHistoricoRepository } from '../infrastructure/historico/SQLiteHistoricoRepository';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
 import { SQLiteExerciseRepository } from '../infrastructure/exercises/SQLiteExerciseRepository';
+import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
 import { SQLiteSessaoTreinoRepository } from '../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
@@ -49,6 +52,7 @@ const sessaoExercicioRepository = new SQLiteSessaoExercicioRepository(databaseCl
 const serieRegistradaRepository = new SQLiteSerieRegistradaRepository(databaseClient);
 const historicoRepository = new SQLiteHistoricoRepository(databaseClient);
 const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
+const dashboardRepository = new SqliteDashboardRepository(databaseClient);
 
 const listExercises = new ListExercisesUseCase(exerciseRepository);
 const listTreinos = new ListTreinosUseCase(treinoRepository);
@@ -68,7 +72,7 @@ export const mobileDependencies = {
     }),
     deleteExercise: new DeleteExerciseUseCase({ exerciseRepository }),
     listExercises,
-    getUltimaExecucaoValida: new GetUltimaExecucaoValidaUseCase({ historicoRepository }),
+    getUltimasExecucoesValidas: new GetUltimasExecucoesValidasUseCase({ historicoRepository }),
     getHistoricoExercicio: new GetHistoricoExercicioUseCase({ historicoRepository }),
     logger,
   },
@@ -168,7 +172,8 @@ export const mobileDependencies = {
   },
 
   dashboard: {
-    getDashboardStats: new GetDashboardStatsUseCase({ database: databaseClient }),
+    getDashboardStats: new GetDashboardStatsUseCase({ dashboardRepository }),
+    getTreinoEvolucao: new GetTreinoEvolucaoUseCase({ dashboardRepository }),
     resetHistorico: new ResetHistoricoUseCase({ database: databaseClient }),
     logger,
   },
