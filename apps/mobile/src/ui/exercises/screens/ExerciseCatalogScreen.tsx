@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { buildExerciseCatalogViewModel } from '../presenters/buildExerciseCatalogViewModel';
+import { buildExerciseCatalogViewModel, type CatalogSortMode } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
 import { ExerciseSection } from '../components/ExerciseSection';
-import { Field, MultiChipPicker, ChipPicker, CATEGORIES, EQUIPMENTS } from '../components/ExerciseFormFields';
+import { Field, MultiChipPicker, ChipPicker, CATEGORIES, EQUIPMENTS, MediaFields } from '../components/ExerciseFormFields';
+import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
 import { useTheme } from '../../shared/theme';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
@@ -24,14 +25,28 @@ export function ExerciseCatalogScreen({
   onSelectEdit,
   onCancelEdit,
   onDelete,
+  onChangeMediaLocal,
   onViewHistorico,
 }: ExerciseCatalogControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [search, setSearch] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterEquipment, setFilterEquipment] = useState('');
+  const [sortMode, setSortMode] = useState<CatalogSortMode>('nome');
+  const [viewerExercise, setViewerExercise] = useState<ExercisePrimitives | null>(null);
 
-  const viewModel = buildExerciseCatalogViewModel(exercises, ultimosPesos);
   const isEditing = editingExerciseId !== null;
+
+  // Opções únicas derivadas do catálogo real
+  const availableCategories = useMemo(
+    () => [...new Set(exercises.map((e) => e.category).filter((c): c is string => !!c))].sort(),
+    [exercises]
+  );
+  const availableEquipments = useMemo(
+    () => [...new Set(exercises.map((e) => e.equipment).filter((eq): eq is string => !!eq))].sort(),
+    [exercises]
+  );
 
   // Sugestões de nomes similares ao criar (não ao editar)
   const normalizedDraftName = normalizeText(draft.name);
@@ -42,8 +57,19 @@ export function ExerciseCatalogScreen({
     : [];
   const exactMatch = nameSuggestions.find((e) => e.normalizedName === normalizedDraftName);
 
-  // Filtro de busca no catálogo
+  // Aplica filtros de categoria/equipamento antes de construir a view model
+  const preFilteredExercises = useMemo(
+    () => exercises
+      .filter((e) => !filterCategory || e.category === filterCategory)
+      .filter((e) => !filterEquipment || e.equipment === filterEquipment),
+    [exercises, filterCategory, filterEquipment]
+  );
+
+  const viewModel = buildExerciseCatalogViewModel(preFilteredExercises, ultimosPesos, sortMode);
+
+  // Aplica busca por texto sobre as sections já filtradas
   const activeSearch = search.trim();
+  const hasAnyFilter = activeSearch.length > 0 || !!filterCategory || !!filterEquipment;
   const filteredSections = activeSearch.length > 0
     ? viewModel.sections
         .map((section) => ({
@@ -141,6 +167,14 @@ export function ExerciseCatalogScreen({
           onChange={(value) => onChangeField('equipment', value)}
         />
 
+        <MediaFields
+          exercicioId={editingExerciseId}
+          mediaOnline={draft.mediaOnline}
+          mediaLocal={draft.mediaLocal}
+          onChangeOnline={(v) => onChangeField('mediaOnline', v)}
+          onChangeLocal={onChangeMediaLocal}
+        />
+
         <Text style={styles.helperText}>Carga sempre registrada em kg com valores decimais.</Text>
 
         {feedbackMessage ? <Text style={styles.successMessage}>{feedbackMessage}</Text> : null}
@@ -179,9 +213,76 @@ export function ExerciseCatalogScreen({
             clearButtonMode="while-editing"
           />
 
+          {/* Toggle de ordenação */}
+          <View style={styles.sortRow}>
+            <Text style={styles.filterLabel}>Ordem:</Text>
+            <Pressable
+              onPress={() => setSortMode('nome')}
+              style={[styles.filterChip, sortMode === 'nome' ? styles.filterChipActive : null]}
+            >
+              <Text style={[styles.filterChipText, sortMode === 'nome' ? styles.filterChipTextActive : null]}>
+                A–Z
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setSortMode('ultimo_uso')}
+              style={[styles.filterChip, sortMode === 'ultimo_uso' ? styles.filterChipActive : null]}
+            >
+              <Text style={[styles.filterChipText, sortMode === 'ultimo_uso' ? styles.filterChipTextActive : null]}>
+                Último uso
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Chips de filtro — categoria */}
+          {availableCategories.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+              <Text style={styles.filterLabel}>Cat:</Text>
+              {availableCategories.map((cat) => (
+                <Pressable
+                  key={cat}
+                  onPress={() => setFilterCategory(filterCategory === cat ? '' : cat)}
+                  style={[styles.filterChip, filterCategory === cat ? styles.filterChipActive : null]}
+                >
+                  <Text style={[styles.filterChipText, filterCategory === cat ? styles.filterChipTextActive : null]}>
+                    {cat}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          ) : null}
+
+          {/* Chips de filtro — equipamento */}
+          {availableEquipments.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+              <Text style={styles.filterLabel}>Equip:</Text>
+              {availableEquipments.map((eq) => (
+                <Pressable
+                  key={eq}
+                  onPress={() => setFilterEquipment(filterEquipment === eq ? '' : eq)}
+                  style={[styles.filterChip, filterEquipment === eq ? styles.filterChipActive : null]}
+                >
+                  <Text style={[styles.filterChipText, filterEquipment === eq ? styles.filterChipTextActive : null]}>
+                    {eq}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          ) : null}
+
+          {/* Botão limpar filtros */}
+          {(filterCategory || filterEquipment) ? (
+            <Pressable
+              onPress={() => { setFilterCategory(''); setFilterEquipment(''); }}
+              style={({ pressed }) => [styles.clearFiltersBtn, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={styles.clearFiltersBtnText}>✕ Limpar filtros</Text>
+            </Pressable>
+          ) : null}
+
           {filteredSections.length === 0 ? (
             <View style={styles.listCard}>
-              <Text style={styles.emptyState}>Nenhum exercicio encontrado para "{activeSearch}".</Text>
+              <Text style={styles.emptyState}>Nenhum exercicio encontrado.</Text>
             </View>
           ) : (
             filteredSections.map((section) => (
@@ -191,15 +292,26 @@ export function ExerciseCatalogScreen({
                 exercises={exercises}
                 editingExerciseId={editingExerciseId}
                 deletingId={deletingId}
-                forceExpanded={activeSearch.length > 0}
+                forceExpanded={hasAnyFilter}
                 onSelectEdit={onSelectEdit}
                 onViewHistorico={onViewHistorico}
+                onViewMedia={(id) => setViewerExercise(exercises.find((e) => e.id === id) ?? null)}
                 onDelete={onDelete}
               />
             ))
           )}
         </>
       )}
+
+      {viewerExercise ? (
+        <ExerciseMediaViewer
+          visible
+          exercicioNome={viewerExercise.name}
+          mediaOnline={viewerExercise.mediaOnline}
+          mediaLocal={viewerExercise.mediaLocal}
+          onClose={() => setViewerExercise(null)}
+        />
+      ) : null}
     </ScrollView>
   );
 }
@@ -237,6 +349,16 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       color: c.inputText,
       fontSize: 14,
     },
+    // Sort + filter chips
+    sortRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    filterRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
+    filterLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5, marginRight: 2 },
+    filterChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: c.card, borderWidth: 1, borderColor: c.cardBorder },
+    filterChipActive: { backgroundColor: c.hero, borderColor: c.hero },
+    filterChipText: { color: c.textSecondary, fontSize: 13, fontWeight: '600' },
+    filterChipTextActive: { color: c.heroText, fontWeight: '700' },
+    clearFiltersBtn: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: c.errorBg, borderWidth: 1, borderColor: c.error },
+    clearFiltersBtnText: { color: c.error, fontSize: 12, fontWeight: '700' },
     // Name suggestions
     suggestionsBlock: {
       gap: 8,

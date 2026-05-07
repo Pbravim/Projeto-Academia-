@@ -12,6 +12,8 @@ export interface ExercisePrimitives {
   isCustom: boolean;
   createdAt: string;
   updatedAt: string;
+  mediaOnline: string | null;
+  mediaLocal: string | null;
 }
 
 export interface CreateExerciseProps {
@@ -23,6 +25,8 @@ export interface CreateExerciseProps {
   createdAt: Date;
   updatedAt?: Date;
   isCustom?: boolean;
+  mediaOnline?: string | null;
+  mediaLocal?: string | null;
 }
 
 export interface UpdateExerciseProps {
@@ -30,6 +34,8 @@ export interface UpdateExerciseProps {
   groupMuscle: string;
   category?: string | null;
   equipment?: string | null;
+  mediaOnline?: string | null;
+  mediaLocal?: string | null;
 }
 
 export class Exercise {
@@ -54,6 +60,8 @@ export class Exercise {
       isCustom: input.isCustom ?? true,
       createdAt,
       updatedAt,
+      mediaOnline: normalizeOptionalText(input.mediaOnline),
+      mediaLocal: normalizeOptionalText(input.mediaLocal),
     });
   }
 
@@ -78,6 +86,8 @@ export class Exercise {
       isCustom: current.isCustom,
       createdAt: current.createdAt,
       updatedAt: updatedAt.toISOString(),
+      mediaOnline: 'mediaOnline' in input ? normalizeOptionalText(input.mediaOnline) : current.mediaOnline,
+      mediaLocal: 'mediaLocal' in input ? normalizeOptionalText(input.mediaLocal) : current.mediaLocal,
     });
   }
 

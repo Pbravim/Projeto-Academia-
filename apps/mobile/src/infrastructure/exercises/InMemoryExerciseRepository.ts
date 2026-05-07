@@ -1,4 +1,4 @@
-import type { Exercise } from '../../domain/exercises/entities/Exercise';
+import { Exercise } from '../../domain/exercises/entities/Exercise';
 import type { ExerciseRepository } from '../../domain/exercises/repositories/ExerciseRepository';
 
 export class InMemoryExerciseRepository implements ExerciseRepository {
@@ -28,5 +28,13 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
 
   async delete(id: string): Promise<void> {
     this.exercisesById.delete(id);
+  }
+
+  async updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void> {
+    const ex = this.exercisesById.get(id);
+    if (!ex) return;
+    const p = ex.toPrimitives();
+    const updated = Exercise.restore({ ...p, mediaOnline, mediaLocal });
+    this.exercisesById.set(id, updated);
   }
 }

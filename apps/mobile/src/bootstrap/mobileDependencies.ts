@@ -8,14 +8,18 @@ import { GetUltimasExecucoesValidasUseCase } from '../application/historico/use-
 import { DeleteRegistroPesoUseCase } from '../application/peso/use-cases/DeleteRegistroPesoUseCase';
 import { ListRegistrosPesoUseCase } from '../application/peso/use-cases/ListRegistrosPesoUseCase';
 import { RegistrarPesoUseCase } from '../application/peso/use-cases/RegistrarPesoUseCase';
+import { BaixarMidiaExercicioUseCase } from '../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
+import { BaixarMidiasTreinoUseCase } from '../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
 import { AddExercicioAoTreinoUseCase } from '../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
 import { CreateTreinoUseCase } from '../application/treinos/use-cases/CreateTreinoUseCase';
 import { DeleteTreinoUseCase } from '../application/treinos/use-cases/DeleteTreinoUseCase';
+import { DuplicarTreinoUseCase } from '../application/treinos/use-cases/DuplicarTreinoUseCase';
 import { ListTreinoExerciciosUseCase } from '../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import { ListTreinosUseCase } from '../application/treinos/use-cases/ListTreinosUseCase';
 import { RemoveExercicioDoTreinoUseCase } from '../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import { ReordenarExerciciosUseCase } from '../application/treinos/use-cases/ReordenarExerciciosUseCase';
 import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTreinoUseCase';
+import { ExportarHistoricoUseCase } from '../application/dashboard/use-cases/ExportarHistoricoUseCase';
 import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { GetTreinoEvolucaoUseCase } from '../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import { ResetHistoricoUseCase } from '../application/dashboard/use-cases/ResetHistoricoUseCase';
@@ -55,6 +59,12 @@ const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
 const dashboardRepository = new SqliteDashboardRepository(databaseClient);
 
 const listExercises = new ListExercisesUseCase(exerciseRepository);
+const baixarMidiaExercicio = new BaixarMidiaExercicioUseCase({ exerciseRepository });
+const baixarMidiasTreino = new BaixarMidiasTreinoUseCase({
+  exerciseRepository,
+  treinoExercicioRepository,
+  baixarMidia: baixarMidiaExercicio,
+});
 const listTreinos = new ListTreinosUseCase(treinoRepository);
 
 export const mobileDependencies = {
@@ -74,6 +84,7 @@ export const mobileDependencies = {
     listExercises,
     getUltimasExecucoesValidas: new GetUltimasExecucoesValidasUseCase({ historicoRepository }),
     getHistoricoExercicio: new GetHistoricoExercicioUseCase({ historicoRepository }),
+    exerciseRepository,
     logger,
   },
 
@@ -86,6 +97,12 @@ export const mobileDependencies = {
       }),
       listTreinos,
       deleteTreino: new DeleteTreinoUseCase({ treinoRepository, treinoExercicioRepository }),
+      duplicarTreino: new DuplicarTreinoUseCase({
+        treinoRepository,
+        treinoExercicioRepository,
+        idGenerator: () => generateId('treino'),
+        now: () => new Date(),
+      }),
       logger,
     },
     detail: {
@@ -100,6 +117,7 @@ export const mobileDependencies = {
       reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
       updateTreino: new UpdateTreinoUseCase({ treinoRepository, now: () => new Date() }),
       listExercises,
+      baixarMidiasTreino,
       updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) =>
         treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao, tempoDescansoSegundos),
       logger,
@@ -175,6 +193,7 @@ export const mobileDependencies = {
     getDashboardStats: new GetDashboardStatsUseCase({ dashboardRepository }),
     getTreinoEvolucao: new GetTreinoEvolucaoUseCase({ dashboardRepository }),
     resetHistorico: new ResetHistoricoUseCase({ database: databaseClient }),
+    exportarHistorico: new ExportarHistoricoUseCase({ database: databaseClient }),
     logger,
   },
 };

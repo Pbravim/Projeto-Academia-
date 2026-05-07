@@ -2,6 +2,7 @@ import { startTransition, useEffect, useState } from 'react';
 
 import type { CreateTreinoUseCase } from '../../../application/treinos/use-cases/CreateTreinoUseCase';
 import type { DeleteTreinoUseCase } from '../../../application/treinos/use-cases/DeleteTreinoUseCase';
+import type { DuplicarTreinoUseCase } from '../../../application/treinos/use-cases/DuplicarTreinoUseCase';
 import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
@@ -16,6 +17,7 @@ export interface TreinoListControllerDependencies {
   createTreino: CreateTreinoUseCase;
   listTreinos: ListTreinosUseCase;
   deleteTreino: DeleteTreinoUseCase;
+  duplicarTreino: DuplicarTreinoUseCase;
   logger: AppLogger;
 }
 
@@ -27,9 +29,11 @@ export interface TreinoListControllerState {
   isLoading: boolean;
   isSubmitting: boolean;
   deletingId: string | null;
+  duplicandoId: string | null;
   onChangeField: (field: keyof TreinoDraft, value: string) => void;
   onSubmit: () => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onDuplicate: (id: string) => Promise<void>;
   onSelectTreino: (treino: TreinoPrimitives) => void;
 }
 
@@ -46,6 +50,7 @@ export function useTreinoListController(
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [duplicandoId, setDuplicandoId] = useState<string | null>(null);
 
   const loadTreinos = async () => {
     try {
@@ -113,6 +118,24 @@ export function useTreinoListController(
     }
   };
 
+  const onDuplicate = async (id: string) => {
+    if (duplicandoId) return;
+    setDuplicandoId(id);
+    setErrorMessage(null);
+    setFeedbackMessage(null);
+
+    try {
+      const copia = await dependencies.duplicarTreino.execute(id);
+      await loadTreinos();
+      onSelectTreino(copia);
+    } catch (error) {
+      dependencies.logger.error('treino_list.duplicate_failed', error, { id });
+      setErrorMessage('Nao foi possivel duplicar o treino.');
+    } finally {
+      setDuplicandoId(null);
+    }
+  };
+
   return {
     draft,
     treinos,
@@ -121,9 +144,11 @@ export function useTreinoListController(
     isLoading,
     isSubmitting,
     deletingId,
+    duplicandoId,
     onChangeField,
     onSubmit,
     onDelete,
+    onDuplicate,
     onSelectTreino,
   };
 }

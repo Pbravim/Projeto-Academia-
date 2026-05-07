@@ -1,12 +1,13 @@
 import type {
   DashboardRepository,
   DashboardStats,
+  DiaAderencia,
   EvolucaoPorTreino,
   RecordeItem,
   SessaoComVolume,
 } from '../../../domain/dashboard/repositories/DashboardRepository';
 
-export type { DashboardStats, EvolucaoPorTreino, RecordeItem, SessaoComVolume };
+export type { DashboardStats, DiaAderencia, EvolucaoPorTreino, RecordeItem, SessaoComVolume };
 
 interface GetDashboardStatsDependencies {
   dashboardRepository: DashboardRepository;

@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import type { PesoControllerState } from '../hooks/usePesoController';
 import type { PesoChartPoint } from '../presenters/buildPesoViewModel';
@@ -10,6 +11,7 @@ export function PesoScreen({
   viewModel,
   pesoKgInput,
   observacaoInput,
+  selectedDate,
   errorMessage,
   feedbackMessage,
   isLoading,
@@ -17,11 +19,18 @@ export function PesoScreen({
   deletingId,
   onChangePesoKg,
   onChangeObservacao,
+  onChangeDate,
   onSubmit,
   onDelete,
 }: PesoControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const [pickerStep, setPickerStep] = useState<'date' | 'time' | null>(null);
+
+  const now = new Date();
+  const isToday = now.toDateString() === selectedDate.toDateString();
+  const timeStr = selectedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const dateLabel = (isToday ? 'Hoje' : selectedDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })) + ', ' + timeStr;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -66,6 +75,46 @@ export function PesoScreen({
             onChangeText={onChangeObservacao}
             editable={!isSubmitting}
           />
+        </View>
+
+        <View style={styles.field}>
+          <Text style={styles.fieldLabel}>Data e hora</Text>
+          <Pressable
+            onPress={() => setPickerStep('date')}
+            style={styles.dateTrigger}
+            disabled={isSubmitting}
+          >
+            <Text style={[styles.dateTriggerText, !isToday ? styles.dateTriggerTextPast : null]}>
+              {dateLabel}
+            </Text>
+            <Text style={styles.dateCalIcon}>📅</Text>
+          </Pressable>
+
+          {pickerStep !== null ? (
+            Platform.OS === 'ios' ? (
+              <DateTimePicker
+                value={selectedDate}
+                mode="datetime"
+                display="spinner"
+                maximumDate={now}
+                onChange={(_event, date) => {
+                  if (date) onChangeDate(date);
+                }}
+              />
+            ) : (
+              <DateTimePicker
+                value={selectedDate}
+                mode={pickerStep}
+                display="default"
+                maximumDate={pickerStep === 'date' ? now : undefined}
+                onChange={(_event, date) => {
+                  if (!date) { setPickerStep(null); return; }
+                  onChangeDate(date);
+                  setPickerStep(pickerStep === 'date' ? 'time' : null);
+                }}
+              />
+            )
+          ) : null}
         </View>
 
         {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
@@ -231,6 +280,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       color: c.inputText,
       fontSize: 15,
     },
+    dateTrigger: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    dateTriggerText: { color: c.inputText, fontSize: 15 },
+    dateTriggerTextPast: { color: c.accent, fontWeight: '700' },
+    dateCalIcon: { fontSize: 18 },
     errorMessage: {
       color: c.error,
       fontSize: 14,

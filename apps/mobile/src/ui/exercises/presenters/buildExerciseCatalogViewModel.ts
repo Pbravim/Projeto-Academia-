@@ -33,9 +33,12 @@ function groupOrder(group: string): number {
   return idx === -1 ? GROUP_ORDER.length : idx;
 }
 
+export type CatalogSortMode = 'nome' | 'ultimo_uso';
+
 export function buildExerciseCatalogViewModel(
   exercises: ExercisePrimitives[],
-  ultimosPesos: Map<string, UltimaExecucaoValida> = new Map()
+  ultimosPesos: Map<string, UltimaExecucaoValida> = new Map(),
+  sortMode: CatalogSortMode = 'nome'
 ): ExerciseCatalogViewModel {
   if (exercises.length === 0) {
     return {
@@ -71,7 +74,16 @@ export function buildExerciseCatalogViewModel(
     })
     .map(([groupMuscle, cards]) => ({
       groupMuscle,
-      cards: [...cards].sort((a, b) => a.title.localeCompare(b.title)),
+      cards: sortMode === 'ultimo_uso'
+        ? [...cards].sort((a, b) => {
+            const da = ultimosPesos.get(a.id)?.dataExecucao ?? '';
+            const db = ultimosPesos.get(b.id)?.dataExecucao ?? '';
+            if (!da && !db) return a.title.localeCompare(b.title);
+            if (!da) return 1;
+            if (!db) return -1;
+            return db.localeCompare(da);
+          })
+        : [...cards].sort((a, b) => a.title.localeCompare(b.title)),
     }));
 
   return {

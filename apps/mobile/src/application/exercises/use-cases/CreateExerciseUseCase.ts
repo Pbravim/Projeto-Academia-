@@ -8,6 +8,8 @@ export interface CreateExerciseInput {
   groupMuscle: string;
   category: string;
   equipment?: string;
+  mediaOnline?: string;
+  mediaLocal?: string;
 }
 
 interface CreateExerciseUseCaseDependencies {
@@ -31,6 +33,8 @@ export class CreateExerciseUseCase {
       groupMuscle: input.groupMuscle,
       category: input.category,
       equipment: input.equipment,
+      mediaOnline: input.mediaOnline,
+      mediaLocal: input.mediaLocal,
       createdAt: this.dependencies.now(),
     });
 

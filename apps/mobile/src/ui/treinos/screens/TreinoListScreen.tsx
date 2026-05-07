@@ -13,9 +13,11 @@ export function TreinoListScreen({
   isLoading,
   isSubmitting,
   deletingId,
+  duplicandoId,
   onChangeField,
   onSubmit,
   onDelete,
+  onDuplicate,
   onSelectTreino,
 }: TreinoListControllerState) {
   const c = useTheme();
@@ -93,20 +95,36 @@ export function TreinoListScreen({
                 <Text style={styles.treinoArrow}>›</Text>
               </View>
 
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => { void onDelete(card.id); }}
-                disabled={deletingId !== null}
-                style={({ pressed }) => [
-                  styles.deleteButton,
-                  pressed ? styles.deleteButtonPressed : null,
-                  deletingId === card.id ? styles.deleteButtonLoading : null,
-                ]}
-              >
-                <Text style={styles.deleteButtonText}>
-                  {deletingId === card.id ? 'Excluindo...' : 'Excluir'}
-                </Text>
-              </Pressable>
+              <View style={styles.cardActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => { void onDuplicate(card.id); }}
+                  disabled={duplicandoId !== null || deletingId !== null}
+                  style={({ pressed }) => [
+                    styles.duplicateButton,
+                    pressed ? styles.duplicateButtonPressed : null,
+                    duplicandoId === card.id ? styles.duplicateButtonLoading : null,
+                  ]}
+                >
+                  <Text style={styles.duplicateButtonText}>
+                    {duplicandoId === card.id ? 'Duplicando...' : 'Duplicar'}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => { void onDelete(card.id); }}
+                  disabled={deletingId !== null || duplicandoId !== null}
+                  style={({ pressed }) => [
+                    styles.deleteButton,
+                    pressed ? styles.deleteButtonPressed : null,
+                    deletingId === card.id ? styles.deleteButtonLoading : null,
+                  ]}
+                >
+                  <Text style={styles.deleteButtonText}>
+                    {deletingId === card.id ? 'Excluindo...' : 'Excluir'}
+                  </Text>
+                </Pressable>
+              </View>
             </Pressable>
           ))
         )}
@@ -283,7 +301,12 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     treinoTitle: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
     treinoSubtitle: { color: c.textLabel, fontSize: 14, fontWeight: '600', marginTop: 2 },
     treinoArrow: { color: c.textLabel, fontSize: 22, fontWeight: '700' },
-    deleteButton: { alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: c.errorBg },
+    cardActions: { flexDirection: 'row', gap: 8 },
+    duplicateButton: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.cardBorder },
+    duplicateButtonPressed: { opacity: 0.75 },
+    duplicateButtonLoading: { opacity: 0.5 },
+    duplicateButtonText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
+    deleteButton: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: c.errorBg },
     deleteButtonPressed: { opacity: 0.75 },
     deleteButtonLoading: { opacity: 0.5 },
     deleteButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },

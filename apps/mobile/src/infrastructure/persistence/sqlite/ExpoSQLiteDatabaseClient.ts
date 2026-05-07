@@ -140,6 +140,10 @@ const migrations: string[] = [
     key TEXT PRIMARY KEY NOT NULL,
     value TEXT NOT NULL
   );`,
+
+  // v8: midia por exercicio — URL online e arquivo local (opcional)
+  `ALTER TABLE exercises ADD COLUMN media_online TEXT;
+   ALTER TABLE exercises ADD COLUMN media_local TEXT;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {

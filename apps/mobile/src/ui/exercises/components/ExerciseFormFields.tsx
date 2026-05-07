@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystemLegacy from 'expo-file-system/legacy';
 
 import { useTheme } from '../../shared/theme';
 
@@ -394,5 +396,108 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       justifyContent: 'center',
     },
     sheetConfirmText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
+  });
+}
+
+// ─── Campos de mídia ──────────────────────────────────────────────────────────
+
+interface MediaFieldsProps {
+  exercicioId: string | null;
+  mediaOnline: string;
+  mediaLocal: string | null;
+  onChangeOnline: (value: string) => void;
+  onChangeLocal: (value: string | null) => void;
+}
+
+export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnline, onChangeLocal }: MediaFieldsProps) {
+  const c = useTheme();
+  const styles = useMemo(() => makeMediaStyles(c), [c]);
+  const [picking, setPicking] = useState(false);
+
+  const localFileName = mediaLocal ? mediaLocal.split('/').pop() ?? 'arquivo' : null;
+
+  const handlePickFile = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Permissao necessaria', 'Permita o acesso a galeria nas configuracoes do dispositivo.');
+      return;
+    }
+    setPicking(true);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['videos', 'images'],
+        videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
+        videoMaxDuration: 30,
+      });
+      if (result.canceled || !result.assets[0]) return;
+
+      const asset = result.assets[0];
+      const ext = asset.uri.split('.').pop()?.toLowerCase() ?? 'mp4';
+      const dir = FileSystemLegacy.documentDirectory + 'exercises/';
+      await FileSystemLegacy.makeDirectoryAsync(dir, { intermediates: true }).catch(() => {});
+      const id = exercicioId ?? ('tmp_' + Date.now());
+      const dest = dir + id + '_local.' + ext;
+      await FileSystemLegacy.copyAsync({ from: asset.uri, to: dest });
+      onChangeLocal(dest);
+    } finally {
+      setPicking(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionLabel}>Mídia de referência</Text>
+
+      <View style={styles.field}>
+        <Text style={styles.label}>URL online <Text style={styles.hint}>(YouTube, GIF, MP4…)</Text></Text>
+        <TextInput
+          style={styles.input}
+          placeholder="https://..."
+          placeholderTextColor={c.inputPlaceholder}
+          value={mediaOnline}
+          onChangeText={onChangeOnline}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+        />
+      </View>
+
+      <View style={styles.field}>
+        <Text style={styles.label}>Arquivo offline <Text style={styles.hint}>(da galeria, comprimido)</Text></Text>
+        {localFileName ? (
+          <View style={styles.localRow}>
+            <Text style={styles.localFile} numberOfLines={1}>📁 {localFileName}</Text>
+            <Pressable onPress={() => onChangeLocal(null)} style={styles.removeBtn}>
+              <Text style={styles.removeBtnText}>Remover</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable
+            onPress={() => { void handlePickFile(); }}
+            disabled={picking}
+            style={({ pressed }) => [styles.pickBtn, pressed ? { opacity: 0.8 } : null, picking ? { opacity: 0.5 } : null]}
+          >
+            <Text style={styles.pickBtnText}>{picking ? 'Selecionando...' : '📂 Selecionar da galeria'}</Text>
+          </Pressable>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function makeMediaStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    container: { gap: 10 },
+    sectionLabel: { color: c.textLabel, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
+    field: { gap: 6 },
+    label: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
+    hint: { color: c.textSecondary, fontWeight: '400' },
+    input: { minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 14 },
+    localRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: c.cardAlt, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 },
+    localFile: { flex: 1, color: c.textPrimary, fontSize: 13, fontWeight: '600' },
+    removeBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: c.errorBg },
+    removeBtnText: { color: c.error, fontSize: 12, fontWeight: '700' },
+    pickBtn: { height: 44, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, alignItems: 'center', justifyContent: 'center' },
+    pickBtnText: { color: c.textSecondary, fontSize: 14, fontWeight: '600' },
   });
 }

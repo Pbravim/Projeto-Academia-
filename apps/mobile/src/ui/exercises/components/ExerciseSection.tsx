@@ -13,10 +13,11 @@ interface SectionProps {
   forceExpanded?: boolean;
   onSelectEdit: (exercise: ExercisePrimitives) => void;
   onViewHistorico: (id: string, name: string) => void;
+  onViewMedia: (id: string) => void;
   onDelete: (id: string) => Promise<void>;
 }
 
-export function ExerciseSection({ section, exercises, editingExerciseId, deletingId, forceExpanded, onSelectEdit, onViewHistorico, onDelete }: SectionProps) {
+export function ExerciseSection({ section, exercises, editingExerciseId, deletingId, forceExpanded, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: SectionProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(false);
@@ -49,6 +50,7 @@ export function ExerciseSection({ section, exercises, editingExerciseId, deletin
               exercise={exercises.find((e) => e.id === card.id)!}
               onSelectEdit={onSelectEdit}
               onViewHistorico={onViewHistorico}
+              onViewMedia={onViewMedia}
               onDelete={onDelete}
             />
           ))}
@@ -66,10 +68,11 @@ interface CardProps {
   exercise: ExercisePrimitives;
   onSelectEdit: (exercise: ExercisePrimitives) => void;
   onViewHistorico: (id: string, name: string) => void;
+  onViewMedia: (id: string) => void;
   onDelete: (id: string) => Promise<void>;
 }
 
-function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onDelete }: CardProps) {
+function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: CardProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -83,6 +86,16 @@ function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSe
       ) : null}
 
       <View style={styles.cardActions}>
+        {(exercise.mediaOnline || exercise.mediaLocal) ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => onViewMedia(card.id)}
+            style={({ pressed }) => [styles.actionButton, styles.mediaButton, pressed ? styles.actionButtonPressed : null]}
+          >
+            <Text style={styles.mediaButtonText}>▶ Ver</Text>
+          </Pressable>
+        ) : null}
+
         <Pressable
           accessibilityRole="button"
           onPress={() => onSelectEdit(exercise)}
@@ -140,6 +153,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteButton: { backgroundColor: c.errorBg },
     historicoButton: { backgroundColor: c.cardAlt },
     deleteButtonLoading: { opacity: 0.6 },
+    mediaButton: { backgroundColor: c.hero },
+    mediaButtonText: { color: c.heroText, fontSize: 13, fontWeight: '700' },
     editButtonText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
     deleteButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },
     historicoButtonText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },

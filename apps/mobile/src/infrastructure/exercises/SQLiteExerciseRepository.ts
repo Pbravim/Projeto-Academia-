@@ -13,6 +13,8 @@ interface ExerciseRow {
   is_custom: number;
   created_at: string;
   updated_at: string;
+  media_online: string | null;
+  media_local: string | null;
 }
 
 export class SQLiteExerciseRepository implements ExerciseRepository {
@@ -22,20 +24,10 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     const currentExercise = exercise.toPrimitives();
 
     await this.database.run(
-      `
-        INSERT OR REPLACE INTO exercises (
-          id,
-          name,
-          normalized_name,
-          group_muscle,
-          category,
-          equipment,
-          load_unit,
-          is_custom,
-          created_at,
-          updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
+      `INSERT OR REPLACE INTO exercises (
+         id, name, normalized_name, group_muscle, category, equipment,
+         load_unit, is_custom, created_at, updated_at, media_online, media_local
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         currentExercise.id,
         currentExercise.name,
@@ -47,6 +39,8 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
         currentExercise.isCustom ? 1 : 0,
         currentExercise.createdAt,
         currentExercise.updatedAt,
+        currentExercise.mediaOnline,
+        currentExercise.mediaLocal,
       ]
     );
   }
@@ -57,19 +51,9 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
       : '';
 
     const rows = await this.database.getAll<ExerciseRow>(
-      `SELECT
-         id,
-         name,
-         normalized_name,
-         group_muscle,
-         category,
-         equipment,
-         load_unit,
-         is_custom,
-         created_at,
-         updated_at
-       FROM exercises
-       ORDER BY name ASC${pagination}`
+      `SELECT id, name, normalized_name, group_muscle, category, equipment,
+              load_unit, is_custom, created_at, updated_at, media_online, media_local
+       FROM exercises ORDER BY name ASC${pagination}`
     );
 
     return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
@@ -77,22 +61,9 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async findById(id: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
-      `
-        SELECT
-          id,
-          name,
-          normalized_name,
-          group_muscle,
-          category,
-          equipment,
-          load_unit,
-          is_custom,
-          created_at,
-          updated_at
-        FROM exercises
-        WHERE id = ?
-        LIMIT 1
-      `,
+      `SELECT id, name, normalized_name, group_muscle, category, equipment,
+              load_unit, is_custom, created_at, updated_at, media_online, media_local
+       FROM exercises WHERE id = ? LIMIT 1`,
       [id]
     );
 
@@ -101,22 +72,9 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
-      `
-        SELECT
-          id,
-          name,
-          normalized_name,
-          group_muscle,
-          category,
-          equipment,
-          load_unit,
-          is_custom,
-          created_at,
-          updated_at
-        FROM exercises
-        WHERE normalized_name = ?
-        LIMIT 1
-      `,
+      `SELECT id, name, normalized_name, group_muscle, category, equipment,
+              load_unit, is_custom, created_at, updated_at, media_online, media_local
+       FROM exercises WHERE normalized_name = ? LIMIT 1`,
       [normalizedName]
     );
 
@@ -125,6 +83,13 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async delete(id: string): Promise<void> {
     await this.database.run('DELETE FROM exercises WHERE id = ?', [id]);
+  }
+
+  async updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void> {
+    await this.database.run(
+      'UPDATE exercises SET media_online = ?, media_local = ? WHERE id = ?',
+      [mediaOnline, mediaLocal, id]
+    );
   }
 }
 
@@ -140,5 +105,7 @@ function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {
     isCustom: row.is_custom === 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    mediaOnline: row.media_online,
+    mediaLocal: row.media_local,
   };
 }

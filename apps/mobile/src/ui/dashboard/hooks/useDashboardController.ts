@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import type { DashboardStats, GetDashboardStatsUseCase } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import type { ExportarHistoricoUseCase } from '../../../application/dashboard/use-cases/ExportarHistoricoUseCase';
 import type { ResetHistoricoUseCase } from '../../../application/dashboard/use-cases/ResetHistoricoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 
 export interface DashboardControllerDependencies {
   getDashboardStats: GetDashboardStatsUseCase;
   resetHistorico: ResetHistoricoUseCase;
+  exportarHistorico: ExportarHistoricoUseCase;
   logger: AppLogger;
 }
 
@@ -14,9 +16,11 @@ export interface DashboardControllerState {
   stats: DashboardStats | null;
   isLoading: boolean;
   isResetting: boolean;
+  isExporting: boolean;
   errorMessage: string | null;
   onRefresh: () => void;
   onReset: () => Promise<void>;
+  onExportar: () => Promise<void>;
   onVerEvolucao: (treinoId: string, treinoNome: string) => void;
 }
 
@@ -24,6 +28,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -58,13 +63,29 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     }
   };
 
+  const onExportar = async () => {
+    setIsExporting(true);
+    setErrorMessage(null);
+    try {
+      await dependencies.exportarHistorico.execute();
+    } catch (error) {
+      dependencies.logger.error('dashboard.export_failed', error);
+      const msg = error instanceof Error ? error.message : 'Nao foi possivel exportar o historico.';
+      setErrorMessage(msg);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return {
     stats,
     isLoading,
     isResetting,
+    isExporting,
     errorMessage,
     onRefresh: () => { void load(); },
     onReset,
+    onExportar,
     onVerEvolucao: () => {},
   };
 }

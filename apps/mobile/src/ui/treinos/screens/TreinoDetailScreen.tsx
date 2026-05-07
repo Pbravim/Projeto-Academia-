@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
@@ -53,6 +53,9 @@ export function TreinoDetailScreen({
   onMoveDown,
   onUpdateRecomendacoes,
   onUpdateNome,
+  onUpdateObjetivo,
+  progressoBaixarMidias,
+  onBaixarMidias,
   onBack,
 }: TreinoDetailControllerState) {
   const c = useTheme();
@@ -169,7 +172,12 @@ export function TreinoDetailScreen({
             </Pressable>
           </View>
         )}
-        <Text style={styles.description}>{viewModel.objetivo}</Text>
+        <ObjetivoInlineField
+          value={treino.objetivo ?? ''}
+          onChange={(v) => { void onUpdateObjetivo(v || null); }}
+          styles={styles}
+          placeholderTextColor={c.heroDescription}
+        />
       </View>
 
       <View style={styles.card}>
@@ -203,19 +211,32 @@ export function TreinoDetailScreen({
         )}
 
         {treinoExercicios.length > 0 ? (
-          <Pressable
-            onPress={() => { void handleSaveAll(); }}
-            disabled={isSaving}
-            style={({ pressed }) => [
-              styles.saveTreinoBtn,
-              pressed ? styles.saveTreinoBtnPressed : null,
-              isSaving ? styles.saveTreinoBtnDisabled : null,
-            ]}
-          >
-            <Text style={styles.saveTreinoBtnText}>
-              {isSaving ? 'Salvando...' : 'Salvar treino'}
-            </Text>
-          </Pressable>
+          <View style={styles.saveRow}>
+            <Pressable
+              onPress={() => { void onBaixarMidias(); }}
+              disabled={!!progressoBaixarMidias || isSaving}
+              style={({ pressed }) => [styles.downloadMidiasBtn, pressed ? { opacity: 0.8 } : null, progressoBaixarMidias ? { opacity: 0.6 } : null]}
+            >
+              <Text style={styles.downloadMidiasBtnText}>
+                {progressoBaixarMidias
+                  ? `⬇ ${progressoBaixarMidias.concluido}/${progressoBaixarMidias.total}`
+                  : '⬇ Midias offline'}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => { void handleSaveAll(); }}
+              disabled={isSaving}
+              style={({ pressed }) => [
+                styles.saveTreinoBtn,
+                pressed ? styles.saveTreinoBtnPressed : null,
+                isSaving ? styles.saveTreinoBtnDisabled : null,
+              ]}
+            >
+              <Text style={styles.saveTreinoBtnText}>
+                {isSaving ? 'Salvando...' : 'Salvar treino'}
+              </Text>
+            </Pressable>
+          </View>
         ) : null}
       </View>
 
@@ -266,6 +287,112 @@ export function TreinoDetailScreen({
   );
 }
 
+const OBJETIVOS = [
+  'Hipertrofia', 'Forca', 'Resistencia', 'Emagrecimento',
+  'Mobilidade', 'Reabilitacao', 'Condicionamento',
+];
+
+interface ObjetivoInlineFieldProps {
+  value: string;
+  onChange: (value: string) => void;
+  styles: ReturnType<typeof makeStyles>;
+  placeholderTextColor: string;
+}
+
+function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: ObjetivoInlineFieldProps) {
+  const c = useTheme();
+  const [open, setOpen] = useState(false);
+  const [customText, setCustomText] = useState('');
+
+  const isCustom = value !== '' && !OBJETIVOS.includes(value);
+  const displayValue = value || null;
+
+  function select(opt: string) {
+    onChange(opt);
+    setOpen(false);
+  }
+
+  function confirmCustom() {
+    const trimmed = customText.trim();
+    if (!trimmed) return;
+    onChange(trimmed);
+    setCustomText('');
+    setOpen(false);
+  }
+
+  function clear() {
+    onChange('');
+    setOpen(false);
+  }
+
+  return (
+    <>
+      <Pressable
+        onPress={() => setOpen(true)}
+        style={styles.objetivoTrigger}
+      >
+        <Text style={[styles.description, !displayValue ? styles.objetivoPlaceholder : null]}>
+          {displayValue ?? 'Definir objetivo...'}
+        </Text>
+        <Text style={styles.objetivoEditIcon}>✎</Text>
+      </Pressable>
+
+      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>Objetivo do treino</Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Pressable
+              onPress={clear}
+              style={({ pressed }) => [styles.sheetRow, pressed ? { backgroundColor: c.cardAlt } : null]}
+            >
+              <Text style={[styles.sheetRowText, !value ? styles.sheetRowActive : null]}>Sem objetivo</Text>
+              {!value ? <Text style={styles.sheetCheck}>✓</Text> : null}
+            </Pressable>
+            <View style={styles.sheetDivider} />
+            {OBJETIVOS.map((opt) => {
+              const active = value === opt;
+              return (
+                <Pressable
+                  key={opt}
+                  onPress={() => select(opt)}
+                  style={({ pressed }) => [styles.sheetRow, pressed ? { backgroundColor: c.cardAlt } : null]}
+                >
+                  <Text style={[styles.sheetRowText, active ? styles.sheetRowActive : null]}>{opt}</Text>
+                  {active ? <Text style={styles.sheetCheck}>✓</Text> : null}
+                </Pressable>
+              );
+            })}
+            <View style={styles.sheetDivider} />
+            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+            {isCustom ? (
+              <View style={styles.sheetRow}>
+                <Text style={[styles.sheetRowText, styles.sheetRowActive]}>{value}</Text>
+                <Text style={styles.sheetCheck}>✓</Text>
+              </View>
+            ) : null}
+            <View style={styles.customInputRow}>
+              <TextInput
+                style={styles.customInput}
+                placeholder="Digite o objetivo..."
+                placeholderTextColor={placeholderTextColor}
+                value={customText}
+                onChangeText={setCustomText}
+                onSubmitEditing={confirmCustom}
+                returnKeyType="done"
+              />
+              <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
+                <Text style={styles.addCustomBtnText}>OK</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+    </>
+  );
+}
+
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
@@ -284,7 +411,24 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     editNomeInput: { flex: 1, backgroundColor: c.hero, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: c.heroText, fontSize: 20, fontWeight: '800', borderWidth: 1, borderColor: c.inputBorder },
     saveNomeBtn: { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: c.accent, borderRadius: 10 },
     saveNomeBtnText: { color: c.accentText, fontSize: 13, fontWeight: '700' },
-    description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
+    description: { color: c.heroDescription, fontSize: 15, lineHeight: 22, flex: 1 },
+    objetivoTrigger: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    objetivoPlaceholder: { opacity: 0.5 },
+    objetivoEditIcon: { color: c.heroSubtext, fontSize: 16 },
+    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' },
+    sheet: { backgroundColor: c.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 32, maxHeight: '60%' },
+    sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.cardBorder, alignSelf: 'center', marginTop: 10, marginBottom: 4 },
+    sheetTitle: { color: c.textPrimary, fontSize: 17, fontWeight: '800', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
+    sheetRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
+    sheetRowText: { flex: 1, color: c.textPrimary, fontSize: 15 },
+    sheetRowActive: { color: c.accent, fontWeight: '700' },
+    sheetCheck: { color: c.accent, fontSize: 16, fontWeight: '800' },
+    sheetDivider: { height: 1, backgroundColor: c.cardBorder, marginVertical: 4 },
+    sheetSectionLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 6 },
+    customInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 12 },
+    customInput: { flex: 1, height: 42, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 14 },
+    addCustomBtn: { height: 42, paddingHorizontal: 16, borderRadius: 12, backgroundColor: c.hero, alignItems: 'center', justifyContent: 'center' },
+    addCustomBtnText: { color: c.heroText, fontSize: 13, fontWeight: '700' },
     card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
     helperText: { color: c.textSecondary, fontSize: 13, lineHeight: 18 },
@@ -294,7 +438,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     searchInput: { height: 44, borderRadius: 14, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 14, color: c.inputText, fontSize: 14 },
     addSelectedBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
     addSelectedBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },
-    saveTreinoBtn: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent, marginTop: 4 },
+    saveRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
+    downloadMidiasBtn: { paddingHorizontal: 14, paddingVertical: 12, borderRadius: 16, borderWidth: 1.5, borderColor: c.accent, alignItems: 'center', justifyContent: 'center' },
+    downloadMidiasBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    saveTreinoBtn: { flex: 1, minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent },
     saveTreinoBtnPressed: { opacity: 0.9 },
     saveTreinoBtnDisabled: { opacity: 0.6 },
     saveTreinoBtnText: { color: c.accentText, fontSize: 16, fontWeight: '800' },

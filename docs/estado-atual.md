@@ -1,250 +1,198 @@
-# Estado Atual do App — Academia
+# Estado Atual — App Academia
 
-> Atualizado em `2026-05-06`. MVP entregue e em fase de iteração pós-MVP.
+> Atualizado em `2026-05-07` (sessão 3). Todas as features de prioridade alta e média concluídas.
 
 ---
 
 ## Visão Geral
 
-App mobile de acompanhamento de treino de musculação. Foco em registro rápido durante o treino e consulta confiável do histórico. Uso pessoal, sem backend, dados 100% locais.
+App mobile de acompanhamento de treino de musculação. Registro rápido durante o treino, histórico confiável, análise de evolução. Uso pessoal, sem backend, dados 100% locais.
 
 ---
 
-## Stack Tecnológico
+## Stack
 
 | Camada | Tecnologia |
 |---|---|
 | Framework | React Native 0.81.5 + React 19.1 |
-| Plataforma | Expo 54 |
+| Plataforma | Expo SDK 54 |
 | Linguagem | TypeScript 5.9 (strict) |
-| Banco local | SQLite via expo-sqlite 16 |
-| Testes | Vitest 4.1 |
-| Estado | React Hooks (sem Redux/Context global) |
+| Banco local | SQLite via expo-sqlite 16 (schema v7) |
+| Testes | Vitest 4.1 — 126 testes passando |
 
 ---
 
 ## Arquitetura
 
-Clean Architecture em 4 camadas. Dependências apontam sempre para dentro.
+Clean Architecture em 4 camadas. Dependências sempre apontam para dentro.
 
 ```
-src/
-├── domain/          # Entities, value objects, interfaces de repositório, erros de domínio
+apps/mobile/src/
+├── domain/          # Entidades, interfaces de repositório, erros de domínio
 ├── application/     # Use cases (classes com execute())
-├── infrastructure/  # Repositórios SQLite, InMemory, logger, cliente SQLite
-├── ui/              # Screens, hooks controllers, presenters, componentes
-├── bootstrap/       # Wiring de dependências (mobileDependencies.ts)
-└── shared/          # generateId, utils
+├── infrastructure/  # Repos SQLite + InMemory, logger, cliente SQLite
+├── ui/              # Screens, hook controllers, presenters, componentes
+├── bootstrap/       # mobileDependencies.ts — wiring de DI
+└── shared/          # generateId, normalizeText, utils
 ```
 
-**Padrões em uso:**
-- Use Cases como classes com `execute()` e JSDoc (`@throws`, `@returns`)
-- Entities com factory methods `create()` e `restore()`
-- Repository interfaces no domain, implementações na infrastructure
-- Feature modules autocontidos (cada módulo tem sua pasta em `ui/`)
-- Hook controllers (`useXxxController`) isolam lógica de state da renderização
-- Presenters transformam primitives em view models para a UI
-- Snapshots imutáveis nas sessões (dados congelados no momento do início)
-- Migrations versionadas com `PRAGMA user_version` (v1→v4, nunca editar step passado)
+**Convenções:**
+- Use cases como classes com `execute()` e JSDoc `@throws`
+- Entities com `create()` e `restore()`
+- Hook controllers (`useXxxController`) isolam state da renderização
+- Presenters transformam primitives em view models
+- Snapshots imutáveis nas sessões (dados congelados no início)
+- Migrations versionadas: array em `ExpoSQLiteDatabaseClient`, nunca editar step passado
 
 ---
 
-## Módulos Implementados
+## Módulos
 
 ### Exercícios
 
-Catálogo de exercícios cadastrados pelo usuário.
+**Use cases:** `CreateExercise`, `UpdateExercise`, `DeleteExercise`, `ListExercises`
 
-**Use cases:** `CreateExercise`, `ListExercises`, `UpdateExercise`, `DeleteExercise`
-
-**Funcionalidades:**
-- Cadastro com nome, grupo muscular (multi-select), categoria e equipamento
-- Edição com prevenção de nome duplicado (via `normalized_name`)
-- Exclusão
-- Filtro por nome ou grupo muscular (busca com `LIKE` no SQLite)
-- Exibe último peso válido no card (via `GetUltimaExecucaoValida`)
+- Cadastro com nome (obrigatório), grupo muscular (obrigatório, multi-select), categoria (opcional) e equipamento (opcional)
+- Prevenção de nome duplicado via `normalized_name` (`UNIQUE`)
+- **Busca por texto** no catálogo (filtra seções e exibe exercícios com matches)
+- **Filtro por categoria e equipamento** via chips derivados dos valores reais do catálogo
+- **Ordenação**: A–Z (padrão) ou por último uso (`dataExecucao` decrescente, nunca usados ao final)
+- Sugestões ao criar: exercícios com nome similar aparecem em tempo real; match exato mostra aviso "já existe"
+- Último peso válido exibido no card (via `GetUltimaExecucaoValida`)
 - Navegação para histórico individual do exercício
-
-**Validações:** nome obrigatório, mínimo 2 chars, ao menos 1 grupo muscular
-
----
 
 ### Treinos
 
-Templates de treino que servem de base para iniciar sessões.
+**Use cases:** `CreateTreino`, `UpdateTreino`, `DeleteTreino`, `ListTreinos`, `AddExercicioAoTreino`, `RemoveExercicioDoTreino`, `ReordenarExercicios`, `ListTreinoExercicios`, `DuplicarTreino`
 
-**Use cases:** `CreateTreino`, `ListTreinos`, `DeleteTreino`, `UpdateTreino`, `AddExercicioAoTreino`, `RemoveExercicioDoTreino`, `ReordenarExercicios`, `ListTreinoExercicios`
-
-**Funcionalidades:**
-- Criação com nome e objetivo opcional
-- Listagem e exclusão (com cascata nos exercícios do treino)
+- Criação com nome + objetivo (selecionável via bottom sheet, opcional)
+- Edição inline do nome no detalhe do treino
+- **Objetivo editável** inline no detalhe do treino via bottom sheet (mesmos valores do formulário de criação)
+- **Duplicar treino**: cópia com nome "Copia de {nome}", preserva todos os exercícios e recomendações; navega direto para o detalhe da cópia
 - Adição de exercícios com multiselect e busca por nome/grupo
-- Remoção e reordenação de exercícios
-- Prevenção de exercício duplicado no mesmo treino (`UNIQUE(treino_id, exercicio_id)`)
-- Recomendações por exercício: séries × reps × carga padrão (usadas na sessão)
-- Edição inline do nome do treino
-
----
+- Recomendações por exercício: séries × reps × carga × tempo de descanso
+- Exclusão em cascata (exercícios do treino removidos junto)
 
 ### Sessões de Treino
 
-Execução de um treino template. Coração do app.
-
 **Use cases:** `IniciarSessao`, `GetSessaoAtiva`, `GetSessaoDetalhe`, `RegistrarSerie`, `DeleteSerie`, `ToggleExercicioRealizado`, `AddExercicioASessao`, `FinalizarSessao`, `CancelarSessao`
 
-**Funcionalidades:**
-- Início a partir de um treino template (snapshot completo dos exercícios)
-- Apenas uma sessão ativa por vez; sessão persiste entre fechamentos do app
-- Registro de séries com tipo (aquecimento / válida), carga (decimal), reps e observação
+- Início a partir de um treino template (snapshot completo e imutável)
+- Apenas uma sessão ativa por vez; persiste entre fechamentos do app
+- Registro de séries: tipo (aquecimento / válida), carga decimal, reps, observação
 - Campos pré-preenchidos com recomendações do treino
-- Badge "Meta: N × N @ Nkg" por exercício
-- Exclusão de série, toggle de realizado, adição de exercício extra
-- Cancelar sessão com confirmação (apaga todos os dados da sessão)
-- Finalizar sessão com tela de resumo: duração, volume total, melhor série por 1RM
-- Exercícios sem séries válidas **não contam** como realizados no resumo
-
-**Regras:**
-- Snapshot congela nome, grupo muscular, categoria e equipamento no momento do início
-- Edições futuras no treino não afetam sessões passadas
-- `realizado` só é verdadeiro se o exercício tem ao menos 1 série válida
-
----
+- Cronômetro de descanso automático com vibração ao terminar
+- Sugestão de progressão de carga (+2,5 kg quando meta atingida nas 2 últimas sessões)
+- Cancelar com confirmação; finalizar com tela de resumo
+- `realizado` só é verdadeiro com ≥ 1 série válida
 
 ### Histórico
 
-Consulta de execuções passadas por exercício.
+**Use cases:** `GetHistoricoExercicio`, `GetUltimaExecucaoValida`, `GetUltimasExecucoesValidas` (bulk)
 
-**Use cases:** `GetHistoricoExercicio`, `GetUltimaExecucaoValida`
-
-**Funcionalidades:**
-- Lista todas as execuções de um exercício em sessões finalizadas, ordem decrescente
-- Por execução: data, volume total, melhor 1RM estimado, séries com tipo e carga
-- `GetUltimaExecucaoValida` alimenta o card de exercício com a última carga usada
-
-**Implementação:** `SQLiteHistoricoRepository` com query JOIN triplo entre `sessao_treinos`, `sessao_exercicios` e `series_registradas`
-
----
+- Lista de execuções por exercício: data, 1RM estimado, volume, séries
+- Gráfico de linha do 1RM ao longo das sessões
+- Detecção de plateau (1RM estagnado em 4 sessões consecutivas)
+- `GetUltimasExecucoesValidas` usa uma única query bulk (evita crash Android)
 
 ### Peso Corporal
 
-Tracking de peso ao longo do tempo.
-
 **Use cases:** `RegistrarPeso`, `ListRegistrosPeso`, `DeleteRegistroPeso`
 
-**Funcionalidades:**
-- Registro com valor e observação opcional
-- Histórico em ordem decrescente com delta (+/- kg) entre entradas
-- Exclusão de registros
+- Registro com valor, observação opcional e **data/hora retroativa**
+- **Date picker nativo** (`@react-native-community/datetimepicker`): no Android dois passos (data → hora), no iOS spinner datetime único; `maximumDate` bloqueia datas futuras
+- Label do campo mostra "Hoje, HH:MM" ou "DD/MM/AAAA, HH:MM" quando retroativo (em destaque accent)
+- Histórico decrescente com delta (+/- kg) entre entradas
+- Gráfico de linha com evolução ao longo do tempo
 
-**Validações:** peso > 0
+### Dashboard
 
----
+**Use cases:** `GetDashboardStats`, `GetTreinoEvolucao`, `ResetHistorico`, `ExportarHistorico`
 
-### Dashboard / Evolução
-
-Visão analítica do histórico de treinos.
-
-**Use case:** `GetDashboardStats`, `ResetHistorico`
-
-**Funcionalidades:**
-- Total de sessões finalizadas
-- Sessões no último mês
-- Top 10 recordes pessoais (melhor 1RM estimado por exercício)
-- Histórico das últimas 10 sessões finalizadas por treino
-- Reset completo do histórico com confirmação (preserva treinos e exercícios)
+- Total de sessões e sessões no último mês
+- Top 10 recordes pessoais por 1RM estimado
+- Cards por treino com gráfico de 1RM ou volume (toggle) — padrão: 1RM
+- **Tela de evolução por treino:** gráfico de 1RM + volume (toggle), séries reais com chips `"3× 80×10"` por sessão
+- **Aderência** (card com 3 modos):
+  - **Semanal**: barras dos 7 dias da semana atual (Seg–Dom), dia atual destacado
+  - **Mensal**: calendário real com dias 1–31 alinhados por dia da semana; células com sessão em accent com contagem; hoje com borda
+  - **Anual**: barras dos 12 meses do ano atual, mês atual destacado
+- **Exportar CSV**: botão no Dashboard; gera `historico_treinos.csv` com todas as séries finalizadas (`Data, Treino, Exercicio, Serie, Tipo, Carga, Repeticoes, Observacao`) e abre diálogo de compartilhamento nativo via `expo-sharing`
 
 ---
 
-## Schema do Banco de Dados (v4)
+## Schema SQLite (v7)
 
 ```sql
-exercises (
-  id, name, normalized_name, group_muscle, category, equipment, created_at
-)
-
-treinos (
-  id, nome, objetivo, created_at
-)
-
-treino_exercicios (
-  id, treino_id, exercicio_id, ordem,
-  series_recomendadas, execucoes_recomendadas, carga_padrao
-  -- UNIQUE(treino_id, exercicio_id)
-)
-
-sessao_treinos (
-  id, treino_id, treino_nome_snapshot,
-  data_hora_inicio, data_hora_fim, status  -- 'em_andamento' | 'finalizada'
-)
-
-sessao_exercicios (
-  id, sessao_treino_id, exercicio_id, ordem,
-  nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot,
-  realizado, series_recomendadas, execucoes_recomendadas, carga_padrao
-)
-
-series_registradas (
-  id, sessao_exercicio_id, tipo_serie,  -- 'aquecimento' | 'valida'
-  ordem, carga_kg, repeticoes, observacao
-)
-
-registros_peso (
-  id, peso_kg, data_hora, observacao
-)
+exercises       (id, name, normalized_name, group_muscle, category, equipment, ...)
+treinos         (id, nome, objetivo, ...)
+treino_exercicios (id, treino_id, exercicio_id, ordem,
+                   series_recomendadas, execucoes_recomendadas,
+                   carga_padrao, tempo_descanso_segundos)
+sessao_treinos  (id, treino_id, treino_nome_snapshot,
+                 data_hora_inicio, data_hora_fim, status)
+sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem,
+                   nome_snapshot, grupo_muscular_snapshot,
+                   categoria_snapshot, equipamento_snapshot,
+                   realizado, series_recomendadas,
+                   execucoes_recomendadas, carga_padrao,
+                   tempo_descanso_segundos)
+series_registradas (id, sessao_exercicio_id, tipo_serie,
+                    ordem, carga_kg, repeticoes, observacao)
+registros_peso  (id, peso_kg, data_hora, observacao)
+settings        (key TEXT PRIMARY KEY, value TEXT)
 ```
 
 ---
 
-## Cobertura de Testes
+## Testes
 
-- **111 testes** passando (Vitest)
-- **Estratégia:** InMemory repos para testes de unidade; SQLite real para integração
-- **Cobertura:** entities, use cases, repositórios, presenters
-- **Fórmula de 1RM:** `carga * (1 + repeticoes / 30)` — consistente em todos os presenters
-- **Sem cobertura:** hook controllers, screens, fluxos E2E
-
----
-
-## Erros de Domínio Mapeados
-
-| Erro | Quando |
-|---|---|
-| `TreinoValidationError` | Nome inválido ao criar/editar treino |
-| `ExerciseNotFoundError` | Exercício não encontrado |
-| `ExerciseDuplicateError` | Nome já existe no catálogo |
-| `SessaoJaAtivaError` | Tentar iniciar sessão com outra ativa |
-| `SessaoNotFoundError` | Sessão não encontrada |
-| `SessaoEncerradaError` | Tentar modificar sessão já finalizada |
-| `SessaoValidationError` | Carga ou reps inválidos na série |
-| `ExercicioJaNaSessaoError` | Exercício já presente na sessão ativa |
-| `SerieNotFoundError` | Série não encontrada |
+- **126 testes** passando (Vitest, ambiente node)
+- **Estratégia:** InMemory repos para use cases, SQLite real para integração
+- **Cobertos:** entities, use cases, repositórios, presenters
+- **Sem cobertura:** hook controllers, screens, E2E
 
 ---
 
-## Navegação
+## Fórmulas
 
-Tab bar com 4 abas fixas:
-
-1. **Sessão** — tela inicial (escolher treino → sessão ativa → resumo)
-2. **Treinos** — lista de treinos + detalhe com exercícios
-3. **Exercícios** — catálogo com busca e histórico por exercício
-4. **Evolução** — dashboard com stats e recordes
-5. **Peso** — registro e histórico de peso corporal (5ª aba)
+- **1RM estimado:** `carga_kg * (1 + repeticoes / 30)` — consistente em todos os presenters e queries SQL
+- **Volume:** `SUM(carga_kg * repeticoes)` para séries válidas
 
 ---
 
 ## Como Rodar
 
 ```bash
-# Instalar dependências
+# Instalar dependências (raiz do repositório)
 npm install
 
-# Iniciar app (Expo Go no celular ou simulador)
-npm run mobile:start
+# Iniciar servidor Expo
+yarn mobile:start
+# → escaneie QR code com Expo Go, pressione 'a' para Android, 'i' para iOS
 
 # Testes
-npm run mobile:test
+npm --prefix apps/mobile test
 
-# Validar tipos
-npm run mobile:typecheck
+# Verificar tipos
+npm --prefix apps/mobile run typecheck
+```
+
+## Exportar como APK / IPA
+
+```bash
+# Instalar EAS CLI (uma vez)
+npm install -g eas-cli && eas login
+
+# Entrar na pasta do app
+cd apps/mobile
+
+# Android APK (instalável direto no device)
+eas build --platform android --profile preview
+
+# Android AAB (Play Store)
+eas build --platform android --profile production
+
+# iOS (requer Apple Developer Program)
+eas build --platform ios --profile production
 ```

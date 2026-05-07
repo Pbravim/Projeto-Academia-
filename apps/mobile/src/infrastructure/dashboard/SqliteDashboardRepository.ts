@@ -2,6 +2,7 @@ import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseC
 import type {
   DashboardRepository,
   DashboardStats,
+  DiaAderencia,
   EvolucaoPorTreino,
   ExercicioEvolucao,
   SessaoComVolume,
@@ -9,11 +10,36 @@ import type {
   SerieEvolucao,
 } from '../../domain/dashboard/repositories/DashboardRepository';
 
+function getMondayOfWeek(date: Date): string {
+  const d = new Date(date);
+  d.setHours(12, 0, 0, 0);
+  const day = d.getDay();
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  return d.toISOString().split('T')[0]!;
+}
+
 export class SqliteDashboardRepository implements DashboardRepository {
   constructor(private readonly database: SQLiteDatabaseClient) {}
 
   async getStats(): Promise<DashboardStats> {
-    const [total, sessoes, records, ultimoMes] = await Promise.all([
+    const now = new Date();
+    const todayKey = now.toISOString().split('T')[0]!;
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const monday = getMondayOfWeek(now);
+    const mondayDate = new Date(monday + 'T12:00:00');
+    const sundayDate = new Date(mondayDate);
+    sundayDate.setDate(sundayDate.getDate() + 6);
+    const sundayKey = sundayDate.toISOString().split('T')[0]!;
+
+    const firstOfMonth = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const lastOfMonth = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+
+    const yearStr = String(year);
+
+    const [total, sessoes, records, ultimoMes, weekRows, monthRows, yearRows] = await Promise.all([
       this.database.getFirst<{ count: number }>(
         "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada'"
       ),
@@ -56,6 +82,27 @@ export class SqliteDashboardRepository implements DashboardRepository {
         "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND data_hora_inicio >= ?",
         [new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()]
       ),
+      this.database.getAll<{ dia: string; total: number }>(
+        `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
+         FROM sessao_treinos
+         WHERE status = 'finalizada' AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         GROUP BY dia`,
+        [monday, sundayKey]
+      ),
+      this.database.getAll<{ dia: string; total: number }>(
+        `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
+         FROM sessao_treinos
+         WHERE status = 'finalizada' AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         GROUP BY dia`,
+        [firstOfMonth, lastOfMonth]
+      ),
+      this.database.getAll<{ mes: string; total: number }>(
+        `SELECT strftime('%Y-%m', data_hora_inicio) AS mes, COUNT(*) AS total
+         FROM sessao_treinos
+         WHERE status = 'finalizada' AND strftime('%Y', data_hora_inicio) = ?
+         GROUP BY mes`,
+        [yearStr]
+      ),
     ]);
 
     const byTreino = new Map<string, { treinoId: string; sessoes: SessaoComVolume[] }>();
@@ -87,9 +134,38 @@ export class SqliteDashboardRepository implements DashboardRepository {
         sessoes: sessoes.slice(0, 10),
       }));
 
+    const DIAS_PT = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
+    const MESES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+    const weekMap = new Map(weekRows.map((r) => [r.dia, r.total]));
+    const aderenciaSemanal: DiaAderencia[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(mondayDate);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().split('T')[0]!;
+      aderenciaSemanal.push({ label: DIAS_PT[i]!, totalSessoes: weekMap.get(key) ?? 0, isToday: key === todayKey });
+    }
+
+    const monthMap = new Map(monthRows.map((r) => [r.dia, r.total]));
+    const aderenciaMensal: DiaAderencia[] = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      aderenciaMensal.push({ label: String(d).padStart(2, '0'), totalSessoes: monthMap.get(key) ?? 0, isToday: key === todayKey });
+    }
+
+    const yearMap = new Map(yearRows.map((r) => [r.mes, r.total]));
+    const aderenciaAnual: DiaAderencia[] = [];
+    for (let m = 0; m < 12; m++) {
+      const key = `${year}-${String(m + 1).padStart(2, '0')}`;
+      aderenciaAnual.push({ label: MESES_PT[m]!, totalSessoes: yearMap.get(key) ?? 0, isToday: m === month });
+    }
+
     return {
       totalSessoes: total?.count ?? 0,
       sessoesUltimoMes: ultimoMes?.count ?? 0,
+      aderenciaSemanal,
+      aderenciaMensal,
+      aderenciaAnual,
       evolucaoPorTreino,
       recordesPessoais: records.map((r) => ({
         exercicioNome: r.exercicio_nome,

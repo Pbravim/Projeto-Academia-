@@ -4,11 +4,11 @@ import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View
 type DashboardChartMode = 'orm' | 'volume';
 
 import type { DashboardControllerState } from '../hooks/useDashboardController';
-import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import type { DiaAderencia, EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
 
-export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, onRefresh, onReset, onVerEvolucao }: DashboardControllerState) {
+export function DashboardScreen({ stats, isLoading, isResetting, isExporting, errorMessage, onRefresh, onReset, onExportar, onVerEvolucao }: DashboardControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -39,13 +39,22 @@ export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, o
         <Text style={styles.description}>Progresso real por treino, ultimas 10 sessoes de cada.</Text>
       </View>
 
-      <Pressable
-        onPress={handleReset}
-        disabled={isResetting || isLoading}
-        style={({ pressed }) => [styles.resetBtn, pressed ? { opacity: 0.8 } : null, (isResetting || isLoading) ? styles.resetBtnDisabled : null]}
-      >
-        <Text style={styles.resetBtnText}>{isResetting ? 'Resetando...' : 'Resetar historico'}</Text>
-      </Pressable>
+      <View style={styles.actionRow}>
+        <Pressable
+          onPress={() => { void onExportar(); }}
+          disabled={isExporting || isLoading || isResetting}
+          style={({ pressed }) => [styles.exportBtn, pressed ? { opacity: 0.8 } : null, (isExporting || isLoading || isResetting) ? styles.exportBtnDisabled : null]}
+        >
+          <Text style={styles.exportBtnText}>{isExporting ? 'Exportando...' : 'Exportar CSV'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={handleReset}
+          disabled={isResetting || isLoading || isExporting}
+          style={({ pressed }) => [styles.resetBtn, pressed ? { opacity: 0.8 } : null, (isResetting || isLoading || isExporting) ? styles.resetBtnDisabled : null]}
+        >
+          <Text style={styles.resetBtnText}>{isResetting ? 'Resetando...' : 'Resetar historico'}</Text>
+        </Pressable>
+      </View>
 
       {errorMessage ? (
         <View style={styles.card}>
@@ -62,6 +71,12 @@ export function DashboardScreen({ stats, isLoading, isResetting, errorMessage, o
             <StatCard label="Total de sessoes" value={String(stats.totalSessoes)} />
             <StatCard label="Ultimo mes" value={String(stats.sessoesUltimoMes)} />
           </View>
+
+          <AderenciaCard
+            semanal={stats.aderenciaSemanal}
+            mensal={stats.aderenciaMensal}
+            anual={stats.aderenciaAnual}
+          />
 
           {stats.recordesPessoais.length > 0 ? (
             <View style={styles.card}>
@@ -283,6 +298,160 @@ function StatCard({ label, value }: StatCardProps) {
   );
 }
 
+type AderenciaMode = 'semanal' | 'mensal' | 'anual';
+
+const CAL_HEADERS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
+
+function CalendarMonthView({ dias, c, styles }: {
+  dias: DiaAderencia[];
+  c: ReturnType<typeof useTheme>;
+  styles: ReturnType<typeof makeStyles>;
+}) {
+  const now = new Date();
+  const firstWeekday = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  // Convert Sunday=0 to Monday-first offset
+  const startOffset = firstWeekday === 0 ? 6 : firstWeekday - 1;
+
+  const totalCells = Math.ceil((startOffset + dias.length) / 7) * 7;
+  const cells: (DiaAderencia | null)[] = [
+    ...Array<null>(startOffset).fill(null),
+    ...dias,
+    ...Array<null>(totalCells - startOffset - dias.length).fill(null),
+  ];
+
+  const rows: (DiaAderencia | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+
+  return (
+    <View style={styles.calendarGrid}>
+      {/* Weekday header */}
+      <View style={styles.calendarRow}>
+        {CAL_HEADERS.map((h) => (
+          <View key={h} style={styles.calendarCell}>
+            <Text style={styles.calendarHeaderText}>{h}</Text>
+          </View>
+        ))}
+      </View>
+      {/* Day rows */}
+      {rows.map((row, ri) => (
+        <View key={ri} style={styles.calendarRow}>
+          {row.map((day, ci) => {
+            if (!day) return <View key={ci} style={[styles.calendarCell, styles.calendarCellGhost]} />;
+            const active = day.totalSessoes > 0;
+            return (
+              <View
+                key={ci}
+                style={[
+                  styles.calendarCell,
+                  styles.calendarCellDay,
+                  active ? styles.calendarCellActive : null,
+                  day.isToday ? styles.calendarCellToday : null,
+                ]}
+              >
+                <Text style={[styles.calendarDayNum, active ? styles.calendarDayNumActive : null]}>
+                  {String(parseInt(day.label, 10))}
+                </Text>
+                {active ? (
+                  <Text style={styles.calendarCount}>{day.totalSessoes}</Text>
+                ) : null}
+              </View>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function AderenciaCard({
+  semanal,
+  mensal,
+  anual,
+}: {
+  semanal: DiaAderencia[];
+  mensal: DiaAderencia[];
+  anual: DiaAderencia[];
+}) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const [mode, setMode] = useState<AderenciaMode>('semanal');
+
+  const dados = mode === 'semanal' ? semanal : mode === 'mensal' ? mensal : anual;
+  const maxSessoes = Math.max(...dados.map((d) => d.totalSessoes), 1);
+  const totalAtivas = dados.filter((d) => d.totalSessoes > 0).length;
+  const totalSessoes = dados.reduce((sum, d) => sum + d.totalSessoes, 0);
+
+  const MAX_BAR_H = 56;
+  const MIN_BAR_H = 3;
+
+  const subtitle = mode === 'semanal' ? 'Semana atual' : mode === 'mensal' ? 'Mes atual' : 'Ano atual';
+  const footerUnit = mode === 'anual' ? 'meses ativos' : 'dias ativos';
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.adherenceHeader}>
+        <Text style={styles.sectionTitle}>Aderencia</Text>
+        <View style={styles.adherenceModeToggle}>
+          {(['semanal', 'mensal', 'anual'] as AderenciaMode[]).map((m) => (
+            <Pressable
+              key={m}
+              onPress={() => setMode(m)}
+              style={[styles.adherenceModeBtn, mode === m ? styles.adherenceModeBtnActive : null]}
+            >
+              <Text style={[styles.adherenceModeBtnText, mode === m ? styles.adherenceModeBtnTextActive : null]}>
+                {m.charAt(0).toUpperCase() + m.slice(1)}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+      <Text style={styles.helperText}>{subtitle}</Text>
+
+      {mode === 'mensal' ? (
+        <CalendarMonthView dias={mensal} c={c} styles={styles} />
+      ) : (
+        <View style={styles.adherenceChart}>
+          <View style={styles.adherenceBarRow}>
+            {dados.map((d, i) => {
+              const barH = d.totalSessoes === 0
+                ? MIN_BAR_H
+                : Math.max(MIN_BAR_H + 6, Math.round((d.totalSessoes / maxSessoes) * MAX_BAR_H));
+              return (
+                <View key={i} style={styles.adherenceBarCol}>
+                  <Text style={styles.adherenceCount}>
+                    {d.totalSessoes > 0 ? String(d.totalSessoes) : ''}
+                  </Text>
+                  <View
+                    style={[
+                      styles.adherenceBar,
+                      { height: barH },
+                      d.totalSessoes === 0 ? styles.adherenceBarEmpty : null,
+                      d.isToday ? styles.adherenceBarToday : null,
+                    ]}
+                  />
+                </View>
+              );
+            })}
+          </View>
+          <View style={styles.adherenceLabelRow}>
+            {dados.map((d, i) => (
+              <View key={i} style={styles.adherenceLabelCol}>
+                <Text style={styles.adherenceLabel} numberOfLines={1}>{d.label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      <View style={styles.adherenceFooter}>
+        <Text style={styles.adherenceFooterText}>{totalSessoes} treinos</Text>
+        <Text style={styles.adherenceFooterDot}>·</Text>
+        <Text style={styles.adherenceFooterText}>{totalAtivas} {footerUnit}</Text>
+      </View>
+    </View>
+  );
+}
+
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
@@ -293,7 +462,11 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     refreshIconBtn: { padding: 4 },
     refreshIconText: { color: c.heroSubtext, fontSize: 20, fontWeight: '700' },
     refreshIconLoading: { opacity: 0.4 },
-    resetBtn: { borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: c.error },
+    actionRow: { flexDirection: 'row', gap: 10 },
+    exportBtn: { flex: 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: c.accent },
+    exportBtnDisabled: { opacity: 0.5 },
+    exportBtnText: { color: c.accent, fontSize: 14, fontWeight: '700' },
+    resetBtn: { flex: 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: c.error },
     resetBtnDisabled: { opacity: 0.5 },
     resetBtnText: { color: c.error, fontSize: 14, fontWeight: '700' },
     title: { color: c.heroText, fontSize: 30, fontWeight: '800' },
@@ -348,5 +521,38 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     volDiffDown: { color: c.error },
     volDiffEqual: { color: c.textSecondary },
     sessaoDurText: { color: c.textSecondary, fontSize: 12 },
+    adherenceHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    adherenceModeToggle: { flexDirection: 'row', backgroundColor: c.cardAlt, borderRadius: 10, padding: 2, gap: 2 },
+    adherenceModeBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
+    adherenceModeBtnActive: { backgroundColor: c.card, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+    adherenceModeBtnText: { color: c.textSecondary, fontSize: 11, fontWeight: '700' },
+    adherenceModeBtnTextActive: { color: c.textPrimary },
+    // bar chart (semanal / anual)
+    adherenceChart: { gap: 0 },
+    adherenceBarRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 72 },
+    adherenceBarCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 2 },
+    adherenceCount: { color: c.accent, fontSize: 9, fontWeight: '800', height: 12, textAlign: 'center' },
+    adherenceBar: { width: '100%', borderRadius: 3, backgroundColor: c.accent, opacity: 0.6 },
+    adherenceBarEmpty: { backgroundColor: c.cardBorder, opacity: 1 },
+    adherenceBarToday: { opacity: 1 },
+    adherenceLabelRow: { flexDirection: 'row', gap: 3, marginTop: 3 },
+    adherenceLabelCol: { flex: 1, alignItems: 'center' },
+    adherenceLabel: { color: c.textSecondary, fontSize: 9, fontWeight: '600', textAlign: 'center' },
+    // calendar (mensal)
+    calendarGrid: { gap: 3 },
+    calendarRow: { flexDirection: 'row', gap: 3 },
+    calendarCell: { flex: 1, aspectRatio: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+    calendarCellGhost: { backgroundColor: 'transparent' },
+    calendarCellDay: { backgroundColor: c.cardAlt },
+    calendarCellActive: { backgroundColor: c.accent },
+    calendarCellToday: { borderWidth: 2, borderColor: c.accent },
+    calendarHeaderText: { color: c.textSecondary, fontSize: 9, fontWeight: '700', textAlign: 'center' },
+    calendarDayNum: { color: c.textSecondary, fontSize: 10, fontWeight: '600' },
+    calendarDayNumActive: { color: c.accentText, fontSize: 9 },
+    calendarCount: { color: c.accentText, fontSize: 13, fontWeight: '800', lineHeight: 14 },
+    // footer
+    adherenceFooter: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+    adherenceFooterText: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },
+    adherenceFooterDot: { color: c.cardBorder, fontSize: 14, fontWeight: '800' },
   });
 }

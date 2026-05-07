@@ -1,6 +1,7 @@
 import { startTransition, useEffect, useState } from 'react';
 
 import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
+import type { BaixarMidiasTreinoUseCase, ProgressoBaixarMidias } from '../../../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { RemoveExercicioDoTreinoUseCase } from '../../../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import type { ReordenarExerciciosUseCase } from '../../../application/treinos/use-cases/ReordenarExerciciosUseCase';
@@ -20,6 +21,7 @@ export interface TreinoDetailControllerDependencies {
   updateTreino: UpdateTreinoUseCase;
   listExercises: ListExercisesUseCase;
   updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
+  baixarMidiasTreino: BaixarMidiasTreinoUseCase;
   logger: AppLogger;
 }
 
@@ -37,6 +39,9 @@ export interface TreinoDetailControllerState {
   onMoveDown: (treinoExercicioId: string) => Promise<void>;
   onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
   onUpdateNome: (novoNome: string) => Promise<void>;
+  onUpdateObjetivo: (novoObjetivo: string | null) => Promise<void>;
+  progressoBaixarMidias: ProgressoBaixarMidias | null;
+  onBaixarMidias: () => Promise<void>;
   onBack: () => void;
 }
 
@@ -199,6 +204,41 @@ export function useTreinoDetailController(
     }
   };
 
+  const [progressoBaixarMidias, setProgressoBaixarMidias] = useState<ProgressoBaixarMidias | null>(null);
+
+  const onBaixarMidias = async () => {
+    setErrorMessage(null);
+    setProgressoBaixarMidias({ total: 0, concluido: 0, nomeAtual: 'Preparando...' });
+    try {
+      const { baixados } = await dependencies.baixarMidiasTreino.execute(
+        treino.id,
+        (p) => setProgressoBaixarMidias(p)
+      );
+      setFeedbackMessage(baixados > 0 ? `${baixados} midia(s) baixada(s) com sucesso.` : 'Nenhuma midia nova para baixar.');
+      await loadData();
+    } catch (error) {
+      dependencies.logger.error('treino_detail.baixar_midias_failed', error);
+      setErrorMessage('Nao foi possivel baixar as midias.');
+    } finally {
+      setProgressoBaixarMidias(null);
+    }
+  };
+
+  const onUpdateObjetivo = async (novoObjetivo: string | null) => {
+    setErrorMessage(null);
+    try {
+      const updated = await dependencies.updateTreino.execute({
+        id: treino.id,
+        name: localTreino.name,
+        objetivo: novoObjetivo,
+      });
+      setLocalTreino(updated);
+    } catch (error) {
+      dependencies.logger.error('treino_detail.update_objetivo_failed', error);
+      setErrorMessage('Nao foi possivel atualizar o objetivo.');
+    }
+  };
+
   return {
     treino: localTreino,
     treinoExercicios,
@@ -213,6 +253,9 @@ export function useTreinoDetailController(
     onMoveDown,
     onUpdateRecomendacoes,
     onUpdateNome,
+    onUpdateObjetivo,
+    progressoBaixarMidias,
+    onBaixarMidias,
     onBack,
   };
 }

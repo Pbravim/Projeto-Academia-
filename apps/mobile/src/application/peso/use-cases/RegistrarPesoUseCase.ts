@@ -4,6 +4,7 @@ import type { RegistroPesoRepository } from '../../../domain/peso/repositories/R
 export interface RegistrarPesoInput {
   pesoKg: number;
   observacao?: string;
+  dataRegistro?: Date;
 }
 
 interface RegistrarPesoUseCaseDependencies {
@@ -21,7 +22,7 @@ export class RegistrarPesoUseCase {
     const registro = RegistroPeso.create({
       id: this.dependencies.idGenerator(),
       pesoKg: input.pesoKg,
-      dataRegistro: this.dependencies.now(),
+      dataRegistro: input.dataRegistro ?? this.dependencies.now(),
       observacao: input.observacao,
     });
 

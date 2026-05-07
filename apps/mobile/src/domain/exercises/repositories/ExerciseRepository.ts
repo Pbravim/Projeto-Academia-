@@ -11,4 +11,5 @@ export interface ExerciseRepository {
   findById(id: string): Promise<Exercise | null>;
   findByNormalizedName(normalizedName: string): Promise<Exercise | null>;
   delete(id: string): Promise<void>;
+  updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void>;
 }

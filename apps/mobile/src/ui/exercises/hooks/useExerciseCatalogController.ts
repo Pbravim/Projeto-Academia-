@@ -1,4 +1,5 @@
 import { startTransition, useCallback, useEffect, useRef, useState } from 'react';
+import * as FileSystemLegacy from 'expo-file-system/legacy';
 
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../../../application/exercises/errors/ExerciseNotFoundError';
@@ -7,6 +8,7 @@ import type { DeleteExerciseUseCase } from '../../../application/exercises/use-c
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { UpdateExerciseUseCase } from '../../../application/exercises/use-cases/UpdateExerciseUseCase';
 import type { GetUltimasExecucoesValidasUseCase } from '../../../application/historico/use-cases/GetUltimasExecucoesValidasUseCase';
+import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
@@ -17,6 +19,8 @@ export interface ExerciseDraft {
   groupMuscle: string;
   category: string;
   equipment: string;
+  mediaOnline: string;
+  mediaLocal: string | null;
 }
 
 export interface ExerciseCatalogControllerDependencies {
@@ -25,6 +29,7 @@ export interface ExerciseCatalogControllerDependencies {
   deleteExercise: DeleteExerciseUseCase;
   listExercises: ListExercisesUseCase;
   getUltimasExecucoesValidas: GetUltimasExecucoesValidasUseCase;
+  exerciseRepository: ExerciseRepository;
   logger: AppLogger;
 }
 
@@ -39,6 +44,7 @@ export interface ExerciseCatalogControllerState {
   deletingId: string | null;
   editingExerciseId: string | null;
   onChangeField: (field: keyof ExerciseDraft, value: string) => void;
+  onChangeMediaLocal: (value: string | null) => void;
   onSubmit: () => Promise<void>;
   onSelectEdit: (exercise: ExercisePrimitives) => void;
   onCancelEdit: () => void;
@@ -51,6 +57,8 @@ const initialDraft: ExerciseDraft = {
   groupMuscle: '',
   category: '',
   equipment: '',
+  mediaOnline: '',
+  mediaLocal: null,
 };
 
 export function useExerciseCatalogController(
@@ -118,6 +126,8 @@ export function useExerciseCatalogController(
       groupMuscle: exercise.groupMuscle,
       category: exercise.category,
       equipment: exercise.equipment ?? '',
+      mediaOnline: exercise.mediaOnline ?? '',
+      mediaLocal: exercise.mediaLocal ?? null,
     });
     setErrorMessage(null);
     setFeedbackMessage(null);
@@ -141,6 +151,8 @@ export function useExerciseCatalogController(
       ...draft,
       category: draft.category === '__outro__' ? '' : draft.category,
       equipment: draft.equipment === '__outro__' ? '' : draft.equipment,
+      mediaOnline: draft.mediaOnline.trim() || undefined,
+      mediaLocal: draft.mediaLocal ?? undefined,
     };
 
     try {
@@ -154,6 +166,21 @@ export function useExerciseCatalogController(
         showFeedback(`"${updated.name}" atualizado com sucesso.`);
       } else {
         const created = await dependencies.createExercise.execute(cleanDraft);
+
+        // Se o usuário selecionou um arquivo local antes de criar o exercício,
+        // ele foi salvo com caminho temporário (tmp_). Agora que temos o ID real,
+        // movemos para o caminho canônico e atualizamos o banco.
+        if (cleanDraft.mediaLocal && cleanDraft.mediaLocal.includes('tmp_')) {
+          try {
+            const ext = cleanDraft.mediaLocal.split('.').pop() ?? 'mp4';
+            const canonicalPath = (FileSystemLegacy.documentDirectory ?? '') + `exercises/${created.id}.${ext}`;
+            await FileSystemLegacy.moveAsync({ from: cleanDraft.mediaLocal, to: canonicalPath });
+            await dependencies.exerciseRepository.updateMedia(created.id, created.mediaOnline, canonicalPath);
+          } catch {
+            // Falha silenciosa — o arquivo tmp ainda funciona enquanto existir
+          }
+        }
+
         setDraft(initialDraft);
         showFeedback(`"${created.name}" salvo com sucesso.`);
       }
@@ -211,6 +238,7 @@ export function useExerciseCatalogController(
     deletingId,
     editingExerciseId,
     onChangeField,
+    onChangeMediaLocal: (value: string | null) => setDraft((d) => ({ ...d, mediaLocal: value })),
     onSubmit,
     onSelectEdit,
     onCancelEdit,

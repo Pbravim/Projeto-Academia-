@@ -19,6 +19,7 @@ export interface PesoControllerState {
   viewModel: PesoViewModel;
   pesoKgInput: string;
   observacaoInput: string;
+  selectedDate: Date;
   errorMessage: string | null;
   feedbackMessage: string | null;
   isLoading: boolean;
@@ -26,6 +27,7 @@ export interface PesoControllerState {
   deletingId: string | null;
   onChangePesoKg: (value: string) => void;
   onChangeObservacao: (value: string) => void;
+  onChangeDate: (date: Date) => void;
   onSubmit: () => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
@@ -34,6 +36,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
   const [registros, setRegistros] = useState<RegistroPesoPrimitives[]>([]);
   const [pesoKgInput, setPesoKgInput] = useState('');
   const [observacaoInput, setObservacaoInput] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,9 +76,10 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
 
     try {
       const pesoKg = parseFloat(pesoKgInput.replace(',', '.'));
-      await dependencies.registrarPeso.execute({ pesoKg, observacao: observacaoInput || undefined });
+      await dependencies.registrarPeso.execute({ pesoKg, observacao: observacaoInput || undefined, dataRegistro: selectedDate });
       setPesoKgInput('');
       setObservacaoInput('');
+      setSelectedDate(new Date());
       setFeedbackMessage('Peso registrado com sucesso.');
       await loadRegistros();
     } catch (error) {
@@ -114,6 +118,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
     viewModel,
     pesoKgInput,
     observacaoInput,
+    selectedDate,
     errorMessage,
     feedbackMessage,
     isLoading,
@@ -121,6 +126,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
     deletingId,
     onChangePesoKg,
     onChangeObservacao,
+    onChangeDate: setSelectedDate,
     onSubmit,
     onDelete,
   };

@@ -9,6 +9,8 @@ export interface UpdateExerciseInput {
   groupMuscle: string;
   category: string;
   equipment?: string;
+  mediaOnline?: string;
+  mediaLocal?: string;
 }
 
 interface UpdateExerciseUseCaseDependencies {

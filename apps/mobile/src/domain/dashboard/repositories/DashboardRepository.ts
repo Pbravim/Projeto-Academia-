@@ -18,9 +18,18 @@ export interface RecordeItem {
   melhorOrmKg: number;
 }
 
+export interface DiaAderencia {
+  label: string;
+  totalSessoes: number;
+  isToday: boolean;
+}
+
 export interface DashboardStats {
   totalSessoes: number;
   sessoesUltimoMes: number;
+  aderenciaSemanal: DiaAderencia[];  // 7 dias da semana atual
+  aderenciaMensal: DiaAderencia[];   // dias do mês atual
+  aderenciaAnual: DiaAderencia[];    // 12 meses do ano atual
   evolucaoPorTreino: EvolucaoPorTreino[];
   recordesPessoais: RecordeItem[];
 }
