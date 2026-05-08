@@ -8,9 +8,12 @@ import type { GetSessaoDetalheUseCase, SessaoDetalhe } from '../../../applicatio
 import type { RegistrarSerieInput, RegistrarSerieUseCase } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { ToggleExercicioRealizadoUseCase } from '../../../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
 import type { SugestaoProgressao, SugerirProgressaoUseCase } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
+import type { SugerirSubstitutosUseCase, CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
+import type { SubstituirExercicioSessaoUseCase } from '../../../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
+import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
@@ -24,6 +27,8 @@ export interface SessaoAtivaControllerDependencies {
   finalizarSessao: FinalizarSessaoUseCase;
   cancelarSessao: CancelarSessaoUseCase;
   sugerirProgressao: SugerirProgressaoUseCase;
+  sugerirSubstitutos: SugerirSubstitutosUseCase;
+  substituirExercicio: SubstituirExercicioSessaoUseCase;
   listExercises: ListExercisesUseCase;
   logger: AppLogger;
 }
@@ -37,6 +42,8 @@ export interface SessaoAtivaControllerState {
   feedbackMessage: string | null;
   isFinalizing: boolean;
   isCanceling: boolean;
+  candidatosSubstituicao: CandidatoSubstituto[];
+  sessaoExercicioSubstituindo: string | null;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onDeleteSerie: (serieId: string) => Promise<void>;
   onToggleRealizado: (sessaoExercicioId: string) => Promise<void>;
@@ -44,6 +51,9 @@ export interface SessaoAtivaControllerState {
   onToggleShowAddExercise: () => void;
   onFinalizar: () => Promise<void>;
   onCancelar: () => Promise<void>;
+  onAbrirSubstituicao: (sessaoExercicioId: string) => Promise<void>;
+  onConfirmarSubstituicao: (novoExercicioId: string, motivo: SubstituicaoMotivo | null) => Promise<void>;
+  onFecharSubstituicao: () => void;
 }
 
 export function useSessaoAtivaController(
@@ -60,6 +70,8 @@ export function useSessaoAtivaController(
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [candidatosSubstituicao, setCandidatosSubstituicao] = useState<CandidatoSubstituto[]>([]);
+  const [sessaoExercicioSubstituindo, setSessaoExercicioSubstituindo] = useState<string | null>(null);
 
   const loadDetalhe = useCallback(async () => {
     try {
@@ -177,6 +189,41 @@ export function useSessaoAtivaController(
     }
   };
 
+  const onAbrirSubstituicao = async (sessaoExercicioId: string) => {
+    setSessaoExercicioSubstituindo(sessaoExercicioId);
+    setCandidatosSubstituicao([]);
+    try {
+      const candidatos = await dependencies.sugerirSubstitutos.execute(sessaoExercicioId);
+      setCandidatosSubstituicao(candidatos);
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.sugerir_substitutos_failed', error);
+      setErrorMessage('Nao foi possivel carregar substitutos.');
+    }
+  };
+
+  const onConfirmarSubstituicao = async (novoExercicioId: string, motivo: SubstituicaoMotivo | null) => {
+    if (!sessaoExercicioSubstituindo) return;
+    setErrorMessage(null);
+    try {
+      await dependencies.substituirExercicio.execute({
+        sessaoExercicioId: sessaoExercicioSubstituindo,
+        novoExercicioId,
+        motivo,
+      });
+      setSessaoExercicioSubstituindo(null);
+      setCandidatosSubstituicao([]);
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.substituir_exercicio_failed', error);
+      setErrorMessage('Nao foi possivel substituir o exercicio.');
+    }
+  };
+
+  const onFecharSubstituicao = () => {
+    setSessaoExercicioSubstituindo(null);
+    setCandidatosSubstituicao([]);
+  };
+
   return {
     detalhe,
     sugestoes,
@@ -186,6 +233,8 @@ export function useSessaoAtivaController(
     feedbackMessage,
     isFinalizing,
     isCanceling,
+    candidatosSubstituicao,
+    sessaoExercicioSubstituindo,
     onRegistrarSerie,
     onDeleteSerie,
     onToggleRealizado,
@@ -193,5 +242,8 @@ export function useSessaoAtivaController(
     onToggleShowAddExercise: () => setShowAddExercise((v) => !v),
     onFinalizar,
     onCancelar,
+    onAbrirSubstituicao,
+    onConfirmarSubstituicao,
+    onFecharSubstituicao,
   };
 }

@@ -28,6 +28,11 @@ export function ExercicioCard({ sessaoExercicio, series, onPress }: Props) {
         <Text style={styles.meta}>
           {sessaoExercicio.grupoMuscularSnapshot} · {sessaoExercicio.categoriaSnapshot}
         </Text>
+        {sessaoExercicio.nomeOriginalSnapshot ? (
+          <Text style={styles.substituicaoBadge} numberOfLines={1}>
+            ↔ {sessaoExercicio.nomeOriginalSnapshot}
+          </Text>
+        ) : null}
       </View>
       <View style={styles.right}>
         <Text style={[styles.seriesCount, validCount > 0 ? styles.seriesCountDone : null]}>
@@ -47,6 +52,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     info: { flex: 1, gap: 3 },
     name: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
     meta: { color: c.textSecondary, fontSize: 13 },
+    substituicaoBadge: { color: c.accent, fontSize: 11, fontWeight: '600' },
     right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     seriesCount: { color: c.textLabel, fontSize: 13, fontWeight: '600' },
     seriesCountDone: { color: c.accent },

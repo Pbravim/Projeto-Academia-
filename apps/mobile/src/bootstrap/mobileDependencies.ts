@@ -32,6 +32,8 @@ import { GetSessaoDetalheUseCase } from '../application/sessoes/use-cases/GetSes
 import { IniciarSessaoUseCase } from '../application/sessoes/use-cases/IniciarSessaoUseCase';
 import { RegistrarSerieUseCase } from '../application/sessoes/use-cases/RegistrarSerieUseCase';
 import { SugerirProgressaoUseCase } from '../application/sessoes/use-cases/SugerirProgressaoUseCase';
+import { SugerirSubstitutosUseCase } from '../application/sessoes/use-cases/SugerirSubstitutosUseCase';
+import { SubstituirExercicioSessaoUseCase } from '../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
 import { ToggleExercicioRealizadoUseCase } from '../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
 import { SQLiteHistoricoRepository } from '../infrastructure/historico/SQLiteHistoricoRepository';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
@@ -173,6 +175,16 @@ export const mobileDependencies = {
         serieRegistradaRepository,
       }),
       sugerirProgressao: new SugerirProgressaoUseCase({ historicoRepository }),
+      sugerirSubstitutos: new SugerirSubstitutosUseCase({
+        sessaoExercicioRepository,
+        exerciseRepository,
+        historicoRepository,
+      }),
+      substituirExercicio: new SubstituirExercicioSessaoUseCase({
+        sessaoTreinoRepository,
+        sessaoExercicioRepository,
+        exerciseRepository,
+      }),
       listExercises,
       logger,
     },

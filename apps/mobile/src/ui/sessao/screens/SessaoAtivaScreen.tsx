@@ -5,6 +5,7 @@ import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaControll
 import { ExercicioCard } from '../components/ExercicioCard';
 import { AddExercicioSection } from '../components/AddExercicioSection';
 import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
+import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { useTheme } from '../../shared/theme';
 
 export function SessaoAtivaScreen({
@@ -15,6 +16,8 @@ export function SessaoAtivaScreen({
   errorMessage,
   isFinalizing,
   isCanceling,
+  candidatosSubstituicao,
+  sessaoExercicioSubstituindo,
   onRegistrarSerie,
   onDeleteSerie,
   onToggleRealizado,
@@ -22,6 +25,9 @@ export function SessaoAtivaScreen({
   onToggleShowAddExercise,
   onFinalizar,
   onCancelar,
+  onAbrirSubstituicao,
+  onConfirmarSubstituicao,
+  onFecharSubstituicao,
 }: SessaoAtivaControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -51,15 +57,27 @@ export function SessaoAtivaScreen({
     const item = detalhe.exercicios.find((e) => e.sessaoExercicio.id === selectedExercicioId);
     if (item) {
       return (
-        <ExercicioDetalheScreen
-          sessaoExercicio={item.sessaoExercicio}
-          series={item.series}
-          sugestao={sugestoes[selectedExercicioId] ?? null}
-          onRegistrarSerie={onRegistrarSerie}
-          onDeleteSerie={onDeleteSerie}
-          onToggleRealizado={onToggleRealizado}
-          onBack={() => setSelectedExercicioId(null)}
-        />
+        <>
+          <ExercicioDetalheScreen
+            sessaoExercicio={item.sessaoExercicio}
+            series={item.series}
+            sugestao={sugestoes[selectedExercicioId] ?? null}
+            onRegistrarSerie={onRegistrarSerie}
+            onDeleteSerie={onDeleteSerie}
+            onToggleRealizado={onToggleRealizado}
+            onAbrirSubstituicao={onAbrirSubstituicao}
+            onBack={() => setSelectedExercicioId(null)}
+          />
+          <SubstituirExercicioModal
+            visible={sessaoExercicioSubstituindo === selectedExercicioId}
+            candidatos={candidatosSubstituicao}
+            onConfirmar={(novoId, motivo) => {
+              void onConfirmarSubstituicao(novoId, motivo);
+              setSelectedExercicioId(null);
+            }}
+            onFechar={onFecharSubstituicao}
+          />
+        </>
       );
     }
   }

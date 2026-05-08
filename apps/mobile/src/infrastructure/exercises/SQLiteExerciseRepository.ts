@@ -15,6 +15,7 @@ interface ExerciseRow {
   updated_at: string;
   media_online: string | null;
   media_local: string | null;
+  musculo_alvo: string | null;
 }
 
 export class SQLiteExerciseRepository implements ExerciseRepository {
@@ -26,8 +27,8 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     await this.database.run(
       `INSERT OR REPLACE INTO exercises (
          id, name, normalized_name, group_muscle, category, equipment,
-         load_unit, is_custom, created_at, updated_at, media_online, media_local
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         currentExercise.id,
         currentExercise.name,
@@ -41,6 +42,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
         currentExercise.updatedAt,
         currentExercise.mediaOnline,
         currentExercise.mediaLocal,
+        currentExercise.musculoAlvo,
       ]
     );
   }
@@ -52,7 +54,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
     const rows = await this.database.getAll<ExerciseRow>(
       `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local
+              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
        FROM exercises ORDER BY name ASC${pagination}`
     );
 
@@ -62,7 +64,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
   async findById(id: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
       `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local
+              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
        FROM exercises WHERE id = ? LIMIT 1`,
       [id]
     );
@@ -73,7 +75,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
       `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local
+              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
        FROM exercises WHERE normalized_name = ? LIMIT 1`,
       [normalizedName]
     );
@@ -107,5 +109,6 @@ function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {
     updatedAt: row.updated_at,
     mediaOnline: row.media_online,
     mediaLocal: row.media_local,
+    musculoAlvo: row.musculo_alvo ?? null,
   };
 }

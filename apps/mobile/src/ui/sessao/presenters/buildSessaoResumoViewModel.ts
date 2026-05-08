@@ -45,7 +45,7 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumo
 
     return {
       nome: sessaoExercicio.nomeSnapshot,
-      realizado: sessaoExercicio.realizado && validas.length > 0,
+      realizado: validas.length > 0,
       totalSeriesValidas: validas.length,
       volume,
       melhorSerie: melhor ? `${melhor.cargaKg}kg × ${melhor.repeticoes}` : null,
@@ -56,8 +56,8 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumo
     treinoNome: sessao.treinoNomeSnapshot,
     duracao,
     totalExercicios: exercicios.length,
-    exerciciosRealizados: exercicios.filter(({ sessaoExercicio, series }) =>
-      sessaoExercicio.realizado && series.some((s) => s.tipoSerie === 'valida')
+    exerciciosRealizados: exercicios.filter(({ series }) =>
+      series.some((s) => s.tipoSerie === 'valida')
     ).length,
     totalSeriesValidas,
     volumeTotal: formatVolume(volumeTotalKg),

@@ -65,11 +65,15 @@ export class IniciarSessaoUseCase {
         grupoMuscularSnapshot: ex.groupMuscle,
         categoriaSnapshot: ex.category,
         equipamentoSnapshot: ex.equipment,
+        musculoAlvoSnapshot: ex.musculoAlvo,
         realizado: false,
         seriesRecomendadas: p.seriesRecomendadas,
         execucoesRecomendadas: p.execucoesRecomendadas,
         cargaPadrao: p.cargaPadrao,
         tempoDescansoSegundos: p.tempoDescansoSegundos,
+        substituidoPorExercicioId: null,
+        substituicaoMotivo: null,
+        nomeOriginalSnapshot: null,
       });
 
       await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);

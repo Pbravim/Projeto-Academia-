@@ -14,6 +14,7 @@ export interface ExercisePrimitives {
   updatedAt: string;
   mediaOnline: string | null;
   mediaLocal: string | null;
+  musculoAlvo: string | null;
 }
 
 export interface CreateExerciseProps {
@@ -27,6 +28,7 @@ export interface CreateExerciseProps {
   isCustom?: boolean;
   mediaOnline?: string | null;
   mediaLocal?: string | null;
+  musculoAlvo?: string | null;
 }
 
 export interface UpdateExerciseProps {
@@ -62,6 +64,7 @@ export class Exercise {
       updatedAt,
       mediaOnline: normalizeOptionalText(input.mediaOnline),
       mediaLocal: normalizeOptionalText(input.mediaLocal),
+      musculoAlvo: normalizeOptionalText(input.musculoAlvo),
     });
   }
 
@@ -88,6 +91,7 @@ export class Exercise {
       updatedAt: updatedAt.toISOString(),
       mediaOnline: 'mediaOnline' in input ? normalizeOptionalText(input.mediaOnline) : current.mediaOnline,
       mediaLocal: 'mediaLocal' in input ? normalizeOptionalText(input.mediaLocal) : current.mediaLocal,
+      musculoAlvo: current.musculoAlvo,
     });
   }
 

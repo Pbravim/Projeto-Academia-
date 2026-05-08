@@ -161,18 +161,20 @@ describe('buildSessaoResumoViewModel', () => {
   });
 
   describe('contagens', () => {
-    it('conta como realizado apenas exercicio com realizado=true E ao menos uma serie valida', () => {
+    it('conta como realizado qualquer exercicio com ao menos uma serie valida, independente do flag realizado', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            { sessaoExercicio: makeSessaoExercicio('se_1', true), series: [makeSerie('s1', 'valida', 80, 8)] },
-            { sessaoExercicio: makeSessaoExercicio('se_2', false), series: [] },
-            { sessaoExercicio: makeSessaoExercicio('se_3', true), series: [] },
+            { sessaoExercicio: makeSessaoExercicio('se_1', true),  series: [makeSerie('s1', 'valida', 80, 8)] },
+            { sessaoExercicio: makeSessaoExercicio('se_2', false), series: [makeSerie('s2', 'valida', 60, 10)] },
+            { sessaoExercicio: makeSessaoExercicio('se_3', false), series: [] },
+            { sessaoExercicio: makeSessaoExercicio('se_4', true),  series: [] },
           ],
         })
       );
-      expect(vm.totalExercicios).toBe(3);
-      expect(vm.exerciciosRealizados).toBe(1);
+      expect(vm.totalExercicios).toBe(4);
+      // se_1 and se_2 have valid series → both count, regardless of realizado flag
+      expect(vm.exerciciosRealizados).toBe(2);
     });
 
     it('conta apenas series validas no total de series', () => {

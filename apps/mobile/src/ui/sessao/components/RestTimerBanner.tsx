@@ -7,10 +7,12 @@ interface Props {
   nome: string;
   restante: number;
   total: number;
+  minimized: boolean;
+  onToggleMinimized: () => void;
   onSkip: () => void;
 }
 
-export function RestTimerBanner({ nome, restante, total, onSkip }: Props) {
+export function RestTimerBanner({ nome, restante, total, minimized, onToggleMinimized, onSkip }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -19,33 +21,83 @@ export function RestTimerBanner({ nome, restante, total, onSkip }: Props) {
   const label = mins > 0 ? `${mins}:${String(secs).padStart(2, '0')}` : `${secs}s`;
   const progress = restante / total;
 
+  if (minimized) {
+    return (
+      <Pressable onPress={onToggleMinimized} style={styles.pill}>
+        <Text style={styles.pillText}>⏱ {label}</Text>
+      </Pressable>
+    );
+  }
+
   return (
-    <View style={styles.timerBanner}>
-      <View style={styles.timerBannerTop}>
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
         <View>
-          <Text style={styles.timerLabel}>Descanso — {nome}</Text>
-          <Text style={styles.timerCountdown}>{label}</Text>
+          <Text style={styles.eyebrow}>Descanso</Text>
+          <Text style={styles.exercicioLabel} numberOfLines={1}>{nome}</Text>
         </View>
-        <Pressable onPress={onSkip} style={({ pressed }) => [styles.timerSkipBtn, pressed ? { opacity: 0.7 } : null]}>
-          <Text style={styles.timerSkipText}>Pular</Text>
+        <Pressable onPress={onToggleMinimized} style={({ pressed }) => [styles.iconBtn, pressed ? { opacity: 0.6 } : null]}>
+          <Text style={styles.iconBtnText}>−</Text>
         </Pressable>
       </View>
-      <View style={styles.timerBarTrack}>
-        <View style={[styles.timerBarFill, { width: `${progress * 100}%` as `${number}%` }]} />
+
+      <Text style={styles.countdown}>{label}</Text>
+
+      <View style={styles.barTrack}>
+        <View style={[styles.barFill, { width: `${progress * 100}%` as `${number}%` }]} />
       </View>
+
+      <Pressable onPress={onSkip} style={({ pressed }) => [styles.skipBtn, pressed ? { opacity: 0.8 } : null]}>
+        <Text style={styles.skipBtnText}>Pular descanso</Text>
+      </Pressable>
     </View>
   );
 }
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    timerBanner: { backgroundColor: c.hero, borderRadius: 20, padding: 16, gap: 10 },
-    timerBannerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    timerLabel: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
-    timerCountdown: { color: c.heroText, fontSize: 32, fontWeight: '800', marginTop: 2 },
-    timerSkipBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12, borderWidth: 1.5, borderColor: c.inputBorder },
-    timerSkipText: { color: c.heroSubtext, fontSize: 13, fontWeight: '700' },
-    timerBarTrack: { height: 6, borderRadius: 3, backgroundColor: c.cardBorder, overflow: 'hidden' },
-    timerBarFill: { height: 6, borderRadius: 3, backgroundColor: c.accent },
+    // Minimised pill — bottom-right corner
+    pill: {
+      position: 'absolute',
+      bottom: 32,
+      right: 20,
+      backgroundColor: c.accent,
+      borderRadius: 24,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    pillText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
+
+    // Expanded card — bottom of screen
+    card: {
+      position: 'absolute',
+      bottom: 24,
+      left: 16,
+      right: 16,
+      backgroundColor: c.accent,
+      borderRadius: 20,
+      padding: 18,
+      gap: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.28,
+      shadowRadius: 12,
+      elevation: 10,
+    },
+    cardHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+    eyebrow: { color: c.accentText, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, opacity: 0.75 },
+    exercicioLabel: { color: c.accentText, fontSize: 14, fontWeight: '700', marginTop: 2, maxWidth: 220 },
+    iconBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
+    iconBtnText: { color: c.accentText, fontSize: 20, fontWeight: '300', lineHeight: 22 },
+    countdown: { color: c.accentText, fontSize: 42, fontWeight: '800', letterSpacing: -1 },
+    barTrack: { height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.25)', overflow: 'hidden' },
+    barFill: { height: 5, borderRadius: 3, backgroundColor: c.accentText },
+    skipBtn: { backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
+    skipBtnText: { color: c.accentText, fontSize: 14, fontWeight: '700' },
   });
 }

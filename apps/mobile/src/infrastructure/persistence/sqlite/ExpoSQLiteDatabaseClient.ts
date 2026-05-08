@@ -144,6 +144,35 @@ const migrations: string[] = [
   // v8: midia por exercicio — URL online e arquivo local (opcional)
   `ALTER TABLE exercises ADD COLUMN media_online TEXT;
    ALTER TABLE exercises ADD COLUMN media_local TEXT;`,
+
+  // v9: substituição de exercícios durante sessão + musculo_alvo para matching de substitutos
+  `ALTER TABLE exercises ADD COLUMN musculo_alvo TEXT;
+   ALTER TABLE sessao_exercicios ADD COLUMN substituido_por_exercicio_id TEXT;
+   ALTER TABLE sessao_exercicios ADD COLUMN substituicao_motivo TEXT;
+   ALTER TABLE sessao_exercicios ADD COLUMN musculo_alvo_snapshot TEXT;
+   ALTER TABLE sessao_exercicios ADD COLUMN nome_original_snapshot TEXT;
+   CREATE TABLE IF NOT EXISTS exercise_alternatives (
+     exercicio_id   TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+     alternativa_id TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+     PRIMARY KEY (exercicio_id, alternativa_id)
+   );
+   UPDATE exercises SET musculo_alvo = 'peitoral_medio'          WHERE id IN ('seed-ex-001','seed-ex-004','seed-ex-005','seed-ex-006','seed-ex-007');
+   UPDATE exercises SET musculo_alvo = 'peitoral_superior'       WHERE id = 'seed-ex-002';
+   UPDATE exercises SET musculo_alvo = 'peitoral_inferior'       WHERE id = 'seed-ex-003';
+   UPDATE exercises SET musculo_alvo = 'dorsal'                  WHERE id IN ('seed-ex-008','seed-ex-009','seed-ex-010','seed-ex-014');
+   UPDATE exercises SET musculo_alvo = 'romboides_trapezio_medio' WHERE id IN ('seed-ex-011','seed-ex-012','seed-ex-013');
+   UPDATE exercises SET musculo_alvo = 'deltoide_anterior'       WHERE id IN ('seed-ex-015','seed-ex-016','seed-ex-018');
+   UPDATE exercises SET musculo_alvo = 'deltoide_lateral'        WHERE id = 'seed-ex-017';
+   UPDATE exercises SET musculo_alvo = 'deltoide_posterior'      WHERE id = 'seed-ex-019';
+   UPDATE exercises SET musculo_alvo = 'trapezio'                WHERE id = 'seed-ex-020';
+   UPDATE exercises SET musculo_alvo = 'biceps'                  WHERE id IN ('seed-ex-021','seed-ex-022','seed-ex-023','seed-ex-024');
+   UPDATE exercises SET musculo_alvo = 'triceps_cabeca_longa'    WHERE id IN ('seed-ex-025','seed-ex-028');
+   UPDATE exercises SET musculo_alvo = 'triceps_lateral_medial'  WHERE id IN ('seed-ex-026','seed-ex-027','seed-ex-029');
+   UPDATE exercises SET musculo_alvo = 'abdomen'                 WHERE id IN ('seed-ex-030','seed-ex-031','seed-ex-032','seed-ex-033');
+   UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036','seed-ex-037');
+   UPDATE exercises SET musculo_alvo = 'isquiotibiais'           WHERE id IN ('seed-ex-038','seed-ex-039');
+   UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id IN ('seed-ex-040','seed-ex-041');
+   UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043');`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
@@ -251,7 +280,12 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
       { table: 'sessao_exercicios', column: 'series_recomendadas',       type: 'INTEGER' },
       { table: 'sessao_exercicios', column: 'execucoes_recomendadas',    type: 'INTEGER' },
       { table: 'sessao_exercicios', column: 'carga_padrao',              type: 'REAL'    },
-      { table: 'sessao_exercicios', column: 'tempo_descanso_segundos',   type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'tempo_descanso_segundos',      type: 'INTEGER' },
+      { table: 'exercises',         column: 'musculo_alvo',                type: 'TEXT'    },
+      { table: 'sessao_exercicios', column: 'substituido_por_exercicio_id', type: 'TEXT'    },
+      { table: 'sessao_exercicios', column: 'substituicao_motivo',          type: 'TEXT'    },
+      { table: 'sessao_exercicios', column: 'musculo_alvo_snapshot',        type: 'TEXT'    },
+      { table: 'sessao_exercicios', column: 'nome_original_snapshot',       type: 'TEXT'    },
     ];
 
     for (const { table, column, type } of required) {

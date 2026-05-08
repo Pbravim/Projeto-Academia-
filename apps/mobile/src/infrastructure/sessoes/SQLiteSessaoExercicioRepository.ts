@@ -1,4 +1,4 @@
-import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoExercicio, type SessaoExercicioPrimitives, type SubstituicaoMotivo } from '../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoExercicioRepository } from '../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
@@ -11,11 +11,15 @@ interface SessaoExercicioRow {
   grupo_muscular_snapshot: string;
   categoria_snapshot: string;
   equipamento_snapshot: string | null;
+  musculo_alvo_snapshot: string | null;
   realizado: number;
   series_recomendadas: number | null;
   execucoes_recomendadas: number | null;
   carga_padrao: number | null;
   tempo_descanso_segundos: number | null;
+  substituido_por_exercicio_id: string | null;
+  substituicao_motivo: string | null;
+  nome_original_snapshot: string | null;
 }
 
 export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepository {
@@ -25,9 +29,9 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     const p = se.toPrimitives();
     await this.database.run(
       `INSERT OR REPLACE INTO sessao_exercicios
-        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null]
+        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, substituido_por_exercicio_id, substituicao_motivo, nome_original_snapshot)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.musculoAlvoSnapshot ?? null, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.substituidoPorExercicioId ?? null, p.substituicaoMotivo ?? null, p.nomeOriginalSnapshot ?? null]
     );
   }
 
@@ -78,10 +82,14 @@ function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {
     grupoMuscularSnapshot: row.grupo_muscular_snapshot,
     categoriaSnapshot: row.categoria_snapshot,
     equipamentoSnapshot: row.equipamento_snapshot,
+    musculoAlvoSnapshot: row.musculo_alvo_snapshot ?? null,
     realizado: row.realizado === 1,
     seriesRecomendadas: row.series_recomendadas ?? null,
     execucoesRecomendadas: row.execucoes_recomendadas ?? null,
     cargaPadrao: row.carga_padrao ?? null,
     tempoDescansoSegundos: row.tempo_descanso_segundos ?? null,
+    substituidoPorExercicioId: row.substituido_por_exercicio_id ?? null,
+    substituicaoMotivo: (row.substituicao_motivo as SessaoExercicioPrimitives['substituicaoMotivo']) ?? null,
+    nomeOriginalSnapshot: row.nome_original_snapshot ?? null,
   };
 }

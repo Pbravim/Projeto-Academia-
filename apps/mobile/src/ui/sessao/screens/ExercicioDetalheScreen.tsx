@@ -1,10 +1,11 @@
-import { useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
-import type { SerieRegistradaPrimitives, TipoSerie } from '../../../domain/sessoes/entities/SerieRegistrada';
+import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
 import { useTheme } from '../../shared/theme';
 
@@ -15,12 +16,27 @@ interface Props {
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onDeleteSerie: (id: string) => Promise<void>;
   onToggleRealizado: (id: string) => Promise<void>;
+  onAbrirSubstituicao: (id: string) => Promise<void>;
   onBack: () => void;
 }
 
-interface TimerState {
-  total: number;
-  restante: number;
+interface TimerState { total: number; restante: number }
+
+// 0, 2.5, 5, …, 200 kg
+const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
+
+const DESCANSO_PRESETS: { label: string; value: number | null }[] = [
+  { label: 'Off', value: null },
+  { label: '30s', value: 30 },
+  { label: '45s', value: 45 },
+  { label: '1min', value: 60 },
+  { label: '90s', value: 90 },
+  { label: '2min', value: 120 },
+  { label: '3min', value: 180 },
+];
+
+function kgIndexFor(kg: number): number {
+  return Math.max(0, Math.min(Math.round(kg / 2.5), KG_VALUES.length - 1));
 }
 
 export function ExercicioDetalheScreen({
@@ -30,6 +46,7 @@ export function ExercicioDetalheScreen({
   onRegistrarSerie,
   onDeleteSerie,
   onToggleRealizado,
+  onAbrirSubstituicao,
   onBack,
 }: Props) {
   const c = useTheme();
@@ -37,20 +54,39 @@ export function ExercicioDetalheScreen({
 
   const finalizado = sessaoExercicio.realizado;
 
-  const defaultDescanso = sessaoExercicio.tempoDescansoSegundos != null ? String(sessaoExercicio.tempoDescansoSegundos) : '';
-  const [tipoSerie, setTipoSerie] = useState<TipoSerie>('valida');
-  const [carga, setCarga] = useState(sessaoExercicio.cargaPadrao != null ? String(sessaoExercicio.cargaPadrao) : '');
-  const [reps, setReps] = useState(sessaoExercicio.execucoesRecomendadas != null ? String(sessaoExercicio.execucoesRecomendadas) : '');
+  // --- form state ---
+  const [mediaVisible, setMediaVisible] = useState(false);
+
+  const [cargaMode, setCargaMode] = useState<'carousel' | 'text'>('carousel');
+  const [cargaIndex, setCargaIndex] = useState(
+    sessaoExercicio.cargaPadrao != null ? kgIndexFor(sessaoExercicio.cargaPadrao) : 0,
+  );
+  const [cargaText, setCargaText] = useState(
+    sessaoExercicio.cargaPadrao != null ? String(sessaoExercicio.cargaPadrao) : '',
+  );
+
+  const [repsIndex, setRepsIndex] = useState(
+    Math.max(0, Math.min((sessaoExercicio.execucoesRecomendadas ?? 8) - 1, 29)),
+  );
+
+  const [descanso, setDescanso] = useState<number | null>(sessaoExercicio.tempoDescansoSegundos ?? null);
+  const [customDescansoOpen, setCustomDescansoOpen] = useState(false);
+  const [customDescansoText, setCustomDescansoText] = useState('');
+
   const [obs, setObs] = useState('');
-  const [descanso, setDescanso] = useState(defaultDescanso);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmittingSerie, setIsSubmittingSerie] = useState(false);
 
+  // --- timer ---
   const [timer, setTimer] = useState<TimerState | null>(null);
+  const [timerMinimized, setTimerMinimized] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
   const startTimer = (segundos: number) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    setTimerMinimized(false); // always expand when a new timer starts
     setTimer({ total: segundos, restante: segundos });
     intervalRef.current = setInterval(() => {
       setTimer((prev) => {
@@ -72,21 +108,65 @@ export function ExercicioDetalheScreen({
     setTimer(null);
   };
 
+  // --- kg mode toggle ---
+  const switchToText = () => {
+    setCargaText(String(KG_VALUES[cargaIndex]));
+    setCargaMode('text');
+  };
+
+  const switchToCarousel = () => {
+    const num = parseFloat(cargaText.replace(',', '.'));
+    if (Number.isFinite(num) && num >= 0) setCargaIndex(kgIndexFor(num));
+    setCargaMode('carousel');
+  };
+
+  // sugestao fills text mode (exact decimal values may not be in carousel steps)
+  const handleSugestao = () => {
+    setCargaText(String(sugestao!.cargaSugerida));
+    setCargaMode('text');
+  };
+
+  const sugestaoLabel = (() => {
+    if (!sugestao) return '';
+    const ref = sessaoExercicio.cargaPadrao;
+    if (ref != null) {
+      const delta = sugestao.cargaSugerida - ref;
+      return delta !== 0 ? `${delta > 0 ? '+' : ''}${delta}kg` : `${sugestao.cargaSugerida}kg`;
+    }
+    return `${sugestao.cargaSugerida}kg`;
+  })();
+
+  const adjustCarga = (delta: number) => {
+    const current = parseFloat(cargaText.replace(',', '.'));
+    const base = Number.isFinite(current) && current >= 0 ? current : 0;
+    const result = Math.max(0, Math.round((base + delta) * 10) / 10);
+    setCargaText(String(result));
+  };
+
+  // --- custom rest ---
+  const handleConfirmCustomDescanso = () => {
+    const num = parseInt(customDescansoText, 10);
+    if (Number.isInteger(num) && num > 0) {
+      setDescanso(num);
+      setCustomDescansoOpen(false);
+      setCustomDescansoText('');
+    }
+  };
+
+  const isCustomDescanso = descanso !== null && !DESCANSO_PRESETS.some(p => p.value === descanso);
+
+  // --- submit ---
   const handleAdd = async () => {
     if (isSubmittingSerie) return;
     setIsSubmittingSerie(true);
     setFormError(null);
 
-    const cargaNum = parseFloat(carga.replace(',', '.'));
-    const repsNum = parseInt(reps, 10);
+    const cargaNum = cargaMode === 'carousel'
+      ? KG_VALUES[cargaIndex]
+      : parseFloat(cargaText.replace(',', '.'));
 
     if (!Number.isFinite(cargaNum) || cargaNum < 0) {
       setFormError('Carga invalida. Use um numero como 80 ou 102,5.');
-      setIsSubmittingSerie(false);
-      return;
-    }
-    if (!Number.isInteger(repsNum) || repsNum < 1) {
-      setFormError('Repeticoes deve ser um numero inteiro maior que 0.');
       setIsSubmittingSerie(false);
       return;
     }
@@ -94,19 +174,13 @@ export function ExercicioDetalheScreen({
     try {
       await onRegistrarSerie({
         sessaoExercicioId: sessaoExercicio.id,
-        tipoSerie,
+        tipoSerie: 'valida',
         cargaKg: cargaNum,
-        repeticoes: repsNum,
+        repeticoes: repsIndex + 1,
         observacao: obs,
       });
 
-      const descansoNum = parseInt(descanso, 10);
-      if (Number.isInteger(descansoNum) && descansoNum > 0) {
-        startTimer(descansoNum);
-      }
-
-      setReps(sessaoExercicio.execucoesRecomendadas != null ? String(sessaoExercicio.execucoesRecomendadas) : '');
-      setDescanso(defaultDescanso);
+      if (descanso != null) startTimer(descanso);
       setObs('');
     } finally {
       setIsSubmittingSerie(false);
@@ -114,11 +188,38 @@ export function ExercicioDetalheScreen({
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={() => { if (timer) setTimerMinimized(true); }}
+    >
+      {/* Header — back arrow + exercise name + substituir + finalizar */}
       <View style={styles.header}>
         <Pressable onPress={onBack} style={({ pressed }) => [styles.backBtn, pressed ? { opacity: 0.6 } : null]}>
-          <Text style={styles.backBtnText}>← Voltar</Text>
+          <Text style={styles.backBtnText}>←</Text>
         </Pressable>
+        <View style={styles.headerMeta}>
+          <Text style={styles.headerTitle} numberOfLines={1}>{sessaoExercicio.nomeSnapshot}</Text>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>
+            {sessaoExercicio.grupoMuscularSnapshot}
+            {sessaoExercicio.equipamentoSnapshot ? ` · ${sessaoExercicio.equipamentoSnapshot}` : ''}
+          </Text>
+          {sessaoExercicio.nomeOriginalSnapshot ? (
+            <Text style={styles.substituicaoBadge} numberOfLines={1}>
+              ↔ {sessaoExercicio.nomeOriginalSnapshot}
+            </Text>
+          ) : null}
+        </View>
+        {!finalizado ? (
+          <Pressable
+            onPress={() => { void onAbrirSubstituicao(sessaoExercicio.id); }}
+            style={({ pressed }) => [styles.substituirBtn, pressed ? { opacity: 0.7 } : null]}
+          >
+            <Text style={styles.substituirBtnText}>↔</Text>
+          </Pressable>
+        ) : null}
         <Pressable
           onPress={() => { void onToggleRealizado(sessaoExercicio.id); }}
           style={[styles.finalizadoToggle, finalizado ? styles.finalizadoToggleOn : styles.finalizadoToggleOff]}
@@ -129,133 +230,158 @@ export function ExercicioDetalheScreen({
         </Pressable>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.exercicioName}>{sessaoExercicio.nomeSnapshot}</Text>
-        <Text style={styles.exercicioMeta}>
-          {sessaoExercicio.grupoMuscularSnapshot} · {sessaoExercicio.categoriaSnapshot}
-        </Text>
-        {(sessaoExercicio.seriesRecomendadas != null || sessaoExercicio.execucoesRecomendadas != null) ? (
-          <Text style={styles.metaRecs}>
-            Meta: {sessaoExercicio.seriesRecomendadas ?? '?'} × {sessaoExercicio.execucoesRecomendadas ?? '?'}
-            {sessaoExercicio.cargaPadrao != null ? ` @ ${sessaoExercicio.cargaPadrao}kg` : ''}
-          </Text>
-        ) : null}
-      </View>
-
-      <View style={styles.mediaPlaceholder}>
-        <Text style={styles.mediaPlaceholderText}>Video de execucao</Text>
-        <Text style={styles.mediaPlaceholderSub}>Em breve</Text>
-      </View>
-
-      {timer ? (
-        <RestTimerBanner
-          nome={sessaoExercicio.nomeSnapshot}
-          restante={timer.restante}
-          total={timer.total}
-          onSkip={skipTimer}
-        />
-      ) : null}
-
-      {!finalizado && sugestao ? (
-        <Pressable
-          onPress={() => setCarga(String(sugestao.cargaSugerida))}
-          style={({ pressed }) => [styles.sugestaoChip, pressed ? { opacity: 0.75 } : null]}
-        >
-          <Text style={styles.sugestaoText}>
-            ↑ Sugestao: {sugestao.cargaSugerida} kg — {sugestao.motivo}
-          </Text>
-        </Pressable>
-      ) : null}
-
-      {series.length > 0 ? (
-        <View style={styles.seriesCard}>
-          <Text style={styles.seriesTitle}>Series registradas</Text>
-          <View style={styles.seriesList}>
-            {series.map((serie) => (
-              <View key={serie.id} style={styles.serieRow}>
-                <View style={[styles.tipoBadge, serie.tipoSerie === 'aquecimento' ? styles.tipoBadgeAquec : styles.tipoBadgeValida]}>
-                  <Text style={styles.tipoBadgeText}>
-                    {serie.tipoSerie === 'aquecimento' ? 'Aquec.' : 'Valida'}
-                  </Text>
-                </View>
-                <Text style={styles.serieLabel}>
-                  {serie.cargaKg}kg × {serie.repeticoes}
-                </Text>
-                {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
-                {!finalizado ? (
-                  <Pressable
-                    onPress={() => { void onDeleteSerie(serie.id); }}
-                    style={({ pressed }) => [styles.deleteSerieBtn, pressed ? { opacity: 0.6 } : null]}
-                  >
-                    <Text style={styles.deleteSerieBtnText}>✕</Text>
-                  </Pressable>
-                ) : null}
-              </View>
-            ))}
-          </View>
+      {/* Media — compact highlighted button, revealed on request */}
+      <Pressable
+        onPress={() => setMediaVisible((v) => !v)}
+        style={({ pressed }) => [styles.mediaToggleBtn, pressed ? { opacity: 0.8 } : null]}
+      >
+        <Text style={styles.mediaToggleBtnIcon}>{mediaVisible ? '✕' : '▶'}</Text>
+        <Text style={styles.mediaToggleBtnText}>{mediaVisible ? 'Fechar video' : 'Ver execucao'}</Text>
+      </Pressable>
+      {mediaVisible ? (
+        <View style={styles.mediaPlaceholder}>
+          <Text style={styles.mediaPlaceholderText}>Video de execucao</Text>
+          <Text style={styles.mediaPlaceholderSub}>Em breve</Text>
         </View>
       ) : null}
 
+      {/* Registration form */}
       {!finalizado ? (
         <View style={styles.formCard}>
           <Text style={styles.formTitle}>Registrar serie</Text>
 
-          <View style={styles.tipoToggle}>
-            <Pressable
-              onPress={() => setTipoSerie('aquecimento')}
-              style={[styles.tipoBtn, tipoSerie === 'aquecimento' ? styles.tipoBtnActive : null]}
-            >
-              <Text style={[styles.tipoBtnText, tipoSerie === 'aquecimento' ? styles.tipoBtnTextActive : null]}>Aquecimento</Text>
+          {/* Suggestion — full-width above both carousels so alignment is unaffected */}
+          {!finalizado && sugestao ? (
+            <Pressable onPress={handleSugestao} style={({ pressed }) => [styles.sugestaoChip, pressed ? { opacity: 0.75 } : null]}>
+              <Text style={styles.sugestaoText}>↑ {sugestaoLabel} — {sugestao.motivo}</Text>
             </Pressable>
-            <Pressable
-              onPress={() => setTipoSerie('valida')}
-              style={[styles.tipoBtn, tipoSerie === 'valida' ? styles.tipoBtnActive : null]}
-            >
-              <Text style={[styles.tipoBtnText, tipoSerie === 'valida' ? styles.tipoBtnTextActive : null]}>Valida</Text>
-            </Pressable>
+          ) : null}
+
+          {/* Pickers row */}
+          {cargaMode === 'carousel' ? (
+            <View style={styles.pickersRow}>
+              <View style={styles.pickerCol}>
+                <View style={styles.pickerLabelRow}>
+                  <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                  <Pressable onPress={switchToText}>
+                    <Text style={styles.modeToggleText}>Digitar</Text>
+                  </Pressable>
+                </View>
+                <PickerCarousel
+                  count={KG_VALUES.length}
+                  selectedIndex={cargaIndex}
+                  onChangeIndex={setCargaIndex}
+                  formatItem={(i) => String(KG_VALUES[i])}
+                />
+              </View>
+
+              <View style={styles.pickerCol}>
+                <View style={styles.pickerLabelRow}>
+                  <Text style={styles.pickerLabel}>Reps</Text>
+                </View>
+                <PickerCarousel
+                  count={30}
+                  selectedIndex={repsIndex}
+                  onChangeIndex={setRepsIndex}
+                  formatItem={(i) => String(i + 1)}
+                />
+              </View>
+            </View>
+          ) : (
+            <View style={styles.textModeRow}>
+              <View style={styles.textModeCol}>
+                <View style={styles.pickerLabelRow}>
+                  <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                  <Pressable onPress={switchToCarousel}>
+                    <Text style={styles.modeToggleText}>Rolar</Text>
+                  </Pressable>
+                </View>
+                <TextInput
+                  style={styles.cargaInput}
+                  value={cargaText}
+                  onChangeText={setCargaText}
+                  keyboardType="decimal-pad"
+                  placeholder="0"
+                  placeholderTextColor={c.inputPlaceholder}
+                  textAlign="center"
+                  editable={!isSubmittingSerie}
+                  autoFocus
+                />
+                <View style={styles.adjustRow}>
+                  {([-5, -2.5, 2.5, 5] as const).map((delta) => (
+                    <Pressable
+                      key={delta}
+                      onPress={() => adjustCarga(delta)}
+                      disabled={isSubmittingSerie}
+                      style={({ pressed }) => [styles.adjustBtn, pressed ? { opacity: 0.6 } : null]}
+                    >
+                      <Text style={styles.adjustBtnText}>{delta > 0 ? `+${delta}` : delta}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.pickerCol}>
+                <View style={styles.pickerLabelRow}>
+                  <Text style={styles.pickerLabel}>Reps</Text>
+                </View>
+                <PickerCarousel
+                  count={30}
+                  selectedIndex={repsIndex}
+                  onChangeIndex={setRepsIndex}
+                  formatItem={(i) => String(i + 1)}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* Rest options */}
+          <View style={styles.descansoSection}>
+            <Text style={styles.pickerLabel}>Descanso</Text>
+            <View style={styles.chipsRow}>
+              {DESCANSO_PRESETS.map((preset) => {
+                const active = descanso === preset.value && !isCustomDescanso;
+                return (
+                  <Pressable
+                    key={String(preset.value)}
+                    onPress={() => { setDescanso(preset.value); setCustomDescansoOpen(false); }}
+                    style={[styles.chip, active ? styles.chipActive : null]}
+                  >
+                    <Text style={[styles.chipText, active ? styles.chipTextActive : null]}>{preset.label}</Text>
+                  </Pressable>
+                );
+              })}
+              <Pressable
+                onPress={() => setCustomDescansoOpen((v) => !v)}
+                style={[styles.chip, (customDescansoOpen || isCustomDescanso) ? styles.chipActive : null]}
+              >
+                <Text style={[styles.chipText, (customDescansoOpen || isCustomDescanso) ? styles.chipTextActive : null]}>
+                  {isCustomDescanso ? `${descanso}s` : '+ Custom'}
+                </Text>
+              </Pressable>
+            </View>
+
+            {customDescansoOpen ? (
+              <View style={styles.customDescansoRow}>
+                <TextInput
+                  style={styles.customDescansoInput}
+                  value={customDescansoText}
+                  onChangeText={setCustomDescansoText}
+                  keyboardType="number-pad"
+                  placeholder="Segundos"
+                  placeholderTextColor={c.inputPlaceholder}
+                  autoFocus
+                />
+                <Pressable onPress={handleConfirmCustomDescanso} style={styles.customDescansoOk}>
+                  <Text style={styles.customDescansoOkText}>OK</Text>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
 
-          <View style={styles.formRow}>
-            <View style={styles.formField}>
-              <Text style={styles.formLabel}>Carga (kg)</Text>
-              <TextInput
-                style={styles.formInput}
-                placeholder="0"
-                placeholderTextColor={c.inputPlaceholder}
-                value={carga}
-                onChangeText={setCarga}
-                keyboardType="decimal-pad"
-                editable={!isSubmittingSerie}
-              />
-            </View>
-            <View style={styles.formField}>
-              <Text style={styles.formLabel}>Reps</Text>
-              <TextInput
-                style={styles.formInput}
-                placeholder="0"
-                placeholderTextColor={c.inputPlaceholder}
-                value={reps}
-                onChangeText={setReps}
-                keyboardType="number-pad"
-                editable={!isSubmittingSerie}
-              />
-            </View>
-            <View style={styles.formField}>
-              <Text style={styles.formLabel}>Descanso (s)</Text>
-              <TextInput
-                style={styles.formInput}
-                placeholder="60"
-                placeholderTextColor={c.inputPlaceholder}
-                value={descanso}
-                onChangeText={setDescanso}
-                keyboardType="number-pad"
-                editable={!isSubmittingSerie}
-              />
-            </View>
-          </View>
-
+          {/* Observation */}
           <TextInput
-            style={[styles.formInput, styles.formInputObs]}
+            style={styles.obsInput}
             placeholder="Observacao (opcional)"
             placeholderTextColor={c.inputPlaceholder}
             value={obs}
@@ -280,7 +406,44 @@ export function ExercicioDetalheScreen({
           </Pressable>
         </View>
       ) : null}
+
+      {/* Series list — reference, below the form */}
+      {series.length > 0 ? (
+        <View style={styles.seriesCard}>
+          <Text style={styles.seriesTitle}>Series registradas</Text>
+          <View style={styles.seriesList}>
+            {series.map((serie) => (
+              <View key={serie.id} style={styles.serieRow}>
+                <View style={[styles.tipoBadge, serie.tipoSerie === 'aquecimento' ? styles.tipoBadgeAquec : styles.tipoBadgeValida]}>
+                  <Text style={styles.tipoBadgeText}>{serie.tipoSerie === 'aquecimento' ? 'Aquec.' : 'Valida'}</Text>
+                </View>
+                <Text style={styles.serieLabel}>{serie.cargaKg}kg × {serie.repeticoes}</Text>
+                {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
+                {!finalizado ? (
+                  <Pressable
+                    onPress={() => { void onDeleteSerie(serie.id); }}
+                    style={({ pressed }) => [styles.deleteSerieBtn, pressed ? { opacity: 0.6 } : null]}
+                  >
+                    <Text style={styles.deleteSerieBtnText}>✕</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
     </ScrollView>
+    {timer ? (
+      <RestTimerBanner
+        nome={sessaoExercicio.nomeSnapshot}
+        restante={timer.restante}
+        total={timer.total}
+        minimized={timerMinimized}
+        onToggleMinimized={() => setTimerMinimized((v) => !v)}
+        onSkip={skipTimer}
+      />
+    ) : null}
+    </KeyboardAvoidingView>
   );
 }
 
@@ -288,24 +451,33 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
     content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 48, gap: 16 },
-    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    backBtn: { paddingVertical: 8, paddingRight: 16 },
-    backBtnText: { color: c.accent, fontSize: 15, fontWeight: '700' },
-    finalizadoToggle: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 12 },
+
+    header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    backBtn: { padding: 6 },
+    backBtnText: { color: c.accent, fontSize: 20, fontWeight: '700', lineHeight: 22 },
+    headerMeta: { flex: 1, gap: 2 },
+    headerTitle: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
+    headerSubtitle: { color: c.textSecondary, fontSize: 12 },
+    substituicaoBadge: { color: c.accent, fontSize: 11, fontWeight: '600' },
+    substituirBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.cardAlt, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: c.cardBorder },
+    substituirBtnText: { color: c.textPrimary, fontSize: 16 },
+    finalizadoToggle: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
     finalizadoToggleOff: { backgroundColor: c.hero },
     finalizadoToggleOn: { backgroundColor: c.cardAlt },
-    finalizadoToggleText: { fontSize: 13, fontWeight: '700' },
+    finalizadoToggleText: { fontSize: 12, fontWeight: '700' },
     finalizadoToggleTextOff: { color: c.heroText },
     finalizadoToggleTextOn: { color: c.textSecondary },
-    infoCard: { backgroundColor: c.card, borderRadius: 20, padding: 18, gap: 6, borderWidth: 1, borderColor: c.cardBorder },
-    exercicioName: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
-    exercicioMeta: { color: c.textSecondary, fontSize: 14 },
-    metaRecs: { color: c.accent, fontSize: 13, fontWeight: '700', marginTop: 2 },
-    mediaPlaceholder: { backgroundColor: c.cardAlt, borderRadius: 20, height: 180, alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: c.cardBorder, borderStyle: 'dashed' },
+
+    mediaToggleBtn: { flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: c.accentLight, borderWidth: 1, borderColor: c.accent },
+    mediaToggleBtnIcon: { color: c.accent, fontSize: 12, fontWeight: '800' },
+    mediaToggleBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    mediaPlaceholder: { backgroundColor: c.cardAlt, borderRadius: 16, height: 180, alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: c.cardBorder, borderStyle: 'dashed' },
     mediaPlaceholderText: { color: c.textSecondary, fontSize: 15, fontWeight: '700' },
     mediaPlaceholderSub: { color: c.textLabel, fontSize: 12 },
-    sugestaoChip: { backgroundColor: c.accentLight, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
-    sugestaoText: { color: c.inputText, fontSize: 13, fontWeight: '700' },
+
+    sugestaoChip: { backgroundColor: c.accentLight, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: c.accent },
+    sugestaoText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+
     seriesCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
     seriesTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     seriesList: { gap: 8 },
@@ -318,20 +490,36 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     serieObs: { color: c.textSecondary, fontSize: 12, flexShrink: 1 },
     deleteSerieBtn: { padding: 4 },
     deleteSerieBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
-    formCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
+
+    formCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     formTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
-    tipoToggle: { flexDirection: 'row', gap: 8 },
-    tipoBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center', backgroundColor: c.cardAlt },
-    tipoBtnActive: { backgroundColor: c.accent },
-    tipoBtnText: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
-    tipoBtnTextActive: { color: c.accentText },
-    formRow: { flexDirection: 'row', gap: 10 },
-    formField: { flex: 1, gap: 4 },
-    formLabel: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },
-    formInput: { height: 48, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 15 },
-    formInputObs: { height: 44 },
+
+    pickersRow: { flexDirection: 'row', gap: 12 },
+    textModeRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+    pickerCol: { flex: 1, gap: 6 },
+    textModeCol: { flex: 1, gap: 8 },
+    pickerLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 20 },
+    pickerLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+    modeToggleText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+    cargaInput: { height: 72, borderRadius: 14, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, color: c.inputText, fontSize: 30, fontWeight: '700' },
+    adjustRow: { flexDirection: 'row', gap: 6 },
+    adjustBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.cardBorder },
+    adjustBtnText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
+
+    descansoSection: { gap: 8 },
+    chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: c.card, borderWidth: 1, borderColor: c.cardBorder },
+    chipActive: { backgroundColor: c.hero, borderColor: c.hero },
+    chipText: { color: c.textSecondary, fontSize: 13, fontWeight: '600' },
+    chipTextActive: { color: c.heroText, fontWeight: '700' },
+    customDescansoRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+    customDescansoInput: { flex: 1, height: 44, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 15 },
+    customDescansoOk: { backgroundColor: c.accent, borderRadius: 12, paddingHorizontal: 18, paddingVertical: 10 },
+    customDescansoOkText: { color: c.accentText, fontSize: 14, fontWeight: '700' },
+
+    obsInput: { height: 44, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 14 },
     formError: { color: c.error, fontSize: 13 },
-    addSerieBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 13, alignItems: 'center' },
+    addSerieBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
     addSerieBtnDisabled: { opacity: 0.6 },
     addSerieBtnText: { color: c.heroText, fontSize: 15, fontWeight: '800' },
   });
