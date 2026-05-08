@@ -1,17 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, Vibration, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
 import { ExercicioCard } from '../components/ExercicioCard';
-import { RestTimerBanner } from '../components/RestTimerBanner';
 import { AddExercicioSection } from '../components/AddExercicioSection';
+import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
 import { useTheme } from '../../shared/theme';
-
-interface TimerState {
-  exercicioNome: string;
-  total: number;
-  restante: number;
-}
 
 export function SessaoAtivaScreen({
   detalhe,
@@ -32,33 +26,7 @@ export function SessaoAtivaScreen({
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
-  const [timer, setTimer] = useState<TimerState | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const startTimer = (exercicioNome: string, segundos: number) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    setTimer({ exercicioNome, total: segundos, restante: segundos });
-    intervalRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (!prev) return null;
-        if (prev.restante <= 1) {
-          clearInterval(intervalRef.current!);
-          intervalRef.current = null;
-          Vibration.vibrate([0, 400, 100, 400]);
-          return null;
-        }
-        return { ...prev, restante: prev.restante - 1 };
-      });
-    }, 1000);
-  };
-
-  const skipTimer = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    setTimer(null);
-  };
-
-  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
+  const [selectedExercicioId, setSelectedExercicioId] = useState<string | null>(null);
 
   const handleCancelar = () => {
     Alert.alert(
@@ -79,6 +47,23 @@ export function SessaoAtivaScreen({
     );
   }
 
+  if (selectedExercicioId) {
+    const item = detalhe.exercicios.find((e) => e.sessaoExercicio.id === selectedExercicioId);
+    if (item) {
+      return (
+        <ExercicioDetalheScreen
+          sessaoExercicio={item.sessaoExercicio}
+          series={item.series}
+          sugestao={sugestoes[selectedExercicioId] ?? null}
+          onRegistrarSerie={onRegistrarSerie}
+          onDeleteSerie={onDeleteSerie}
+          onToggleRealizado={onToggleRealizado}
+          onBack={() => setSelectedExercicioId(null)}
+        />
+      );
+    }
+  }
+
   const inicio = new Date(detalhe.sessao.dataHoraInicio);
   const horaInicio = inicio.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
@@ -92,27 +77,12 @@ export function SessaoAtivaScreen({
 
       {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
 
-      {timer ? (
-        <RestTimerBanner
-          nome={timer.exercicioNome}
-          restante={timer.restante}
-          total={timer.total}
-          onSkip={skipTimer}
-        />
-      ) : null}
-
       {detalhe.exercicios.map(({ sessaoExercicio, series }) => (
         <ExercicioCard
           key={sessaoExercicio.id}
           sessaoExercicio={sessaoExercicio}
           series={series}
-          sugestao={sugestoes[sessaoExercicio.id] ?? null}
-          onRegistrarSerie={onRegistrarSerie}
-          onDeleteSerie={onDeleteSerie}
-          onToggleRealizado={onToggleRealizado}
-          onSerieRegistrada={(tempoDescanso) => {
-            if (tempoDescanso) startTimer(sessaoExercicio.nomeSnapshot, tempoDescanso);
-          }}
+          onPress={() => setSelectedExercicioId(sessaoExercicio.id)}
         />
       ))}
 
