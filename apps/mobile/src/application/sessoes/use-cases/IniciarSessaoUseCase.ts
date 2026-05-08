@@ -65,7 +65,7 @@ export class IniciarSessaoUseCase {
         grupoMuscularSnapshot: ex.groupMuscle,
         categoriaSnapshot: ex.category,
         equipamentoSnapshot: ex.equipment,
-        realizado: true,
+        realizado: false,
         seriesRecomendadas: p.seriesRecomendadas,
         execucoesRecomendadas: p.execucoesRecomendadas,
         cargaPadrao: p.cargaPadrao,

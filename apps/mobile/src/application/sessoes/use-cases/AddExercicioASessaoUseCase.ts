@@ -58,7 +58,7 @@ export class AddExercicioASessaoUseCase {
       grupoMuscularSnapshot: ex.groupMuscle,
       categoriaSnapshot: ex.category,
       equipamentoSnapshot: ex.equipment,
-      realizado: true,
+      realizado: false,
       seriesRecomendadas: null,
       execucoesRecomendadas: null,
       cargaPadrao: null,
