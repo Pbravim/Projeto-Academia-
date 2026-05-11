@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
@@ -12,6 +12,15 @@ export function HistoricoExercicioScreen({
 }: HistoricoExercicioControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const [expandedIndexes, setExpandedIndexes] = useState<Set<number>>(new Set());
+
+  const toggleExpanded = (index: number) => {
+    setExpandedIndexes((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) { next.delete(index); } else { next.add(index); }
+      return next;
+    });
+  };
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -56,34 +65,43 @@ export function HistoricoExercicioScreen({
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
         </View>
       ) : (
-        viewModel.execucoes.map((execucao, index) => (
-          <View key={index} style={styles.execucaoCard}>
-            <View style={styles.execucaoHeader}>
-              <View>
-                <Text style={styles.execucaoData}>{execucao.data}</Text>
-                <Text style={styles.execucaoVolume}>Volume: {execucao.volumeTotal}</Text>
-              </View>
-              <Text style={styles.execucaoRm1}>Melhor 1RM: {execucao.melhorRm1}</Text>
-            </View>
-
-            {execucao.series.map((serie, serieIndex) => (
-              <View
-                key={serieIndex}
-                style={[styles.serieRow, serie.tipo === 'aquecimento' ? styles.serieAquecimento : styles.serieValida]}
+        viewModel.execucoes.map((execucao, index) => {
+          const isExpanded = expandedIndexes.has(index);
+          return (
+            <View key={index} style={styles.execucaoCard}>
+              <Pressable
+                onPress={() => toggleExpanded(index)}
+                style={({ pressed }) => [styles.execucaoHeader, pressed ? { opacity: 0.7 } : null]}
               >
-                <View style={styles.serieInfo}>
-                  <Text style={styles.serieTipo}>
-                    {serie.tipo === 'valida' ? 'Valida' : 'Aquec.'}
-                  </Text>
-                  <Text style={styles.serieDescricao}>{serie.descricao}</Text>
+                <View>
+                  <Text style={styles.execucaoData}>{execucao.data}</Text>
+                  <Text style={styles.execucaoVolume}>Volume: {execucao.volumeTotal}</Text>
                 </View>
-                {serie.rm1Estimado ? (
-                  <Text style={styles.serieRm1}>{serie.rm1Estimado}</Text>
-                ) : null}
-              </View>
-            ))}
-          </View>
-        ))
+                <View style={styles.execucaoHeaderRight}>
+                  <Text style={styles.execucaoRm1}>Melhor 1RM: {execucao.melhorRm1}</Text>
+                  <Text style={styles.execucaoChevron}>{isExpanded ? '▲' : '▼'}</Text>
+                </View>
+              </Pressable>
+
+              {isExpanded ? execucao.series.map((serie, serieIndex) => (
+                <View
+                  key={serieIndex}
+                  style={[styles.serieRow, serie.tipo === 'aquecimento' ? styles.serieAquecimento : styles.serieValida]}
+                >
+                  <View style={styles.serieInfo}>
+                    <Text style={styles.serieTipo}>
+                      {serie.tipo === 'valida' ? 'Valida' : 'Aquec.'}
+                    </Text>
+                    <Text style={styles.serieDescricao}>{serie.descricao}</Text>
+                  </View>
+                  {serie.rm1Estimado ? (
+                    <Text style={styles.serieRm1}>{serie.rm1Estimado}</Text>
+                  ) : null}
+                </View>
+              )) : null}
+            </View>
+          );
+        })
       )}
     </ScrollView>
   );
@@ -193,6 +211,15 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    execucaoHeaderRight: {
+      alignItems: 'flex-end',
+      gap: 4,
+    },
+    execucaoChevron: {
+      color: c.textSecondary,
+      fontSize: 10,
+      fontWeight: '700',
     },
     execucaoData: {
       color: c.textPrimary,

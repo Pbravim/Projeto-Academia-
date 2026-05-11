@@ -61,6 +61,7 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
 function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const [expanded, setExpanded] = useState(false);
 
   const sessoes = exercicio.sessoes;
   const temDados = sessoes.some((s) => s.melhorOrm > 0);
@@ -94,58 +95,75 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
 
   return (
     <View style={styles.card}>
-      {/* Cabeçalho do exercício */}
-      <View style={styles.cardHeader}>
+      {/* Cabeçalho — sempre visível, toque para expandir */}
+      <Pressable
+        onPress={() => setExpanded((v) => !v)}
+        style={({ pressed }) => [styles.cardHeader, pressed ? { opacity: 0.7 } : null]}
+      >
         <View style={{ flex: 1 }}>
           <Text style={styles.exercicioNome}>{exercicio.exercicioNome}</Text>
           <Text style={styles.exercicioMeta}>{exercicio.groupMuscle}</Text>
+          {!expanded && ultima && temDados ? (
+            <Text style={styles.collapsedHint}>
+              1RM: {ultima.melhorOrm} kg
+              {ormDiff !== null ? (ormDiff > 0 ? ` ↑ +${ormDiff}` : ormDiff < 0 ? ` ↓ ${ormDiff}` : '') : ''}
+              {' · '}{sessoes.length} sessão{sessoes.length !== 1 ? 'oes' : ''}
+            </Text>
+          ) : null}
+          {!expanded && !(ultima && temDados) ? (
+            <Text style={styles.collapsedHint}>{sessoes.length} sessão{sessoes.length !== 1 ? 'oes' : ''}</Text>
+          ) : null}
         </View>
         <View style={styles.cardHeaderRight}>
           {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
           {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
           {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
-          <Text style={styles.sessaoCount}>{sessoes.length} sessão{sessoes.length !== 1 ? 'oes' : ''}</Text>
+          <Text style={styles.cardChevron}>{expanded ? '▲' : '▼'}</Text>
         </View>
-      </View>
+      </Pressable>
 
-      {/* Pills de resumo */}
-      {ultima && temDados ? (
-        <View style={styles.summaryRow}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Melhor 1RM</Text>
-            <Text style={styles.summaryValue}>{ultima.melhorOrm} kg</Text>
-          </View>
-          {ormDiff !== null ? (
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>vs anterior</Text>
-              <Text style={[
-                styles.summaryDiff,
-                ormDiff > 0 ? styles.diffUp : ormDiff < 0 ? styles.diffDown : styles.diffEqual,
-              ]}>
-                {ormDiff > 0 ? `+${ormDiff}` : String(ormDiff)} kg
-              </Text>
+      {expanded ? (
+        <>
+          {/* Pills de resumo */}
+          {ultima && temDados ? (
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Melhor 1RM</Text>
+                <Text style={styles.summaryValue}>{ultima.melhorOrm} kg</Text>
+              </View>
+              {ormDiff !== null ? (
+                <View style={styles.summaryItem}>
+                  <Text style={styles.summaryLabel}>vs anterior</Text>
+                  <Text style={[
+                    styles.summaryDiff,
+                    ormDiff > 0 ? styles.diffUp : ormDiff < 0 ? styles.diffDown : styles.diffEqual,
+                  ]}>
+                    {ormDiff > 0 ? `+${ormDiff}` : String(ormDiff)} kg
+                  </Text>
+                </View>
+              ) : null}
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Series (ult.)</Text>
+                <Text style={styles.summaryValue}>{ultima.series.length}</Text>
+              </View>
             </View>
           ) : null}
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Series (ult.)</Text>
-            <Text style={styles.summaryValue}>{ultima.series.length}</Text>
-          </View>
-        </View>
-      ) : null}
 
-      {/* Gráfico com toggle */}
-      <ChartToggle
-        ormPoints={ormChartPoints}
-        volumePoints={volumeChartPoints}
-      />
+          {/* Gráfico com toggle */}
+          <ChartToggle
+            ormPoints={ormChartPoints}
+            volumePoints={volumeChartPoints}
+          />
 
-      {/* Lista de sessões com séries reais */}
-      {sessoes.length > 0 ? (
-        <View style={styles.sessoesList}>
-          {sessoes.map((s, i) => (
-            <SessaoSeriesRow key={s.sessaoId} sessao={s} isFirst={i === 0} />
-          ))}
-        </View>
+          {/* Lista de sessões com séries reais */}
+          {sessoes.length > 0 ? (
+            <View style={styles.sessoesList}>
+              {sessoes.map((s, i) => (
+                <SessaoSeriesRow key={s.sessaoId} sessao={s} isFirst={i === 0} />
+              ))}
+            </View>
+          ) : null}
+        </>
       ) : null}
     </View>
   );
@@ -272,6 +290,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     // Card header
     cardHeader: { flexDirection: 'row', alignItems: 'flex-start' },
     cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },
+    cardChevron: { color: c.textSecondary, fontSize: 10, fontWeight: '700' },
+    collapsedHint: { color: c.accent, fontSize: 12, fontWeight: '600', marginTop: 3 },
     exercicioNome: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
     exercicioMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
     sessaoCount: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },

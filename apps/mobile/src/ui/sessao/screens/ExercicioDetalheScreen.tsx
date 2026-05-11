@@ -13,10 +13,13 @@ interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;
   series: SerieRegistradaPrimitives[];
   sugestao: SugestaoProgressao | null;
+  isLastExercicio: boolean;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onDeleteSerie: (id: string) => Promise<void>;
   onToggleRealizado: (id: string) => Promise<void>;
   onAbrirSubstituicao: (id: string) => Promise<void>;
+  onProximoExercicio: () => void;
+  onFinalizarSessao: () => void;
   onBack: () => void;
 }
 
@@ -43,16 +46,17 @@ export function ExercicioDetalheScreen({
   sessaoExercicio,
   series,
   sugestao,
+  isLastExercicio,
   onRegistrarSerie,
   onDeleteSerie,
   onToggleRealizado,
   onAbrirSubstituicao,
+  onProximoExercicio,
+  onFinalizarSessao,
   onBack,
 }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
-
-  const finalizado = sessaoExercicio.realizado;
 
   // --- form state ---
   const [mediaVisible, setMediaVisible] = useState(false);
@@ -212,7 +216,7 @@ export function ExercicioDetalheScreen({
             </Text>
           ) : null}
         </View>
-        {!finalizado ? (
+        {!sessaoExercicio.realizado ? (
           <Pressable
             onPress={() => { void onAbrirSubstituicao(sessaoExercicio.id); }}
             style={({ pressed }) => [styles.substituirBtn, pressed ? { opacity: 0.7 } : null]}
@@ -222,36 +226,145 @@ export function ExercicioDetalheScreen({
         ) : null}
         <Pressable
           onPress={() => { void onToggleRealizado(sessaoExercicio.id); }}
-          style={[styles.finalizadoToggle, finalizado ? styles.finalizadoToggleOn : styles.finalizadoToggleOff]}
+          style={[styles.finalizadoToggle, sessaoExercicio.realizado ? styles.finalizadoToggleOn : styles.finalizadoToggleOff]}
         >
-          <Text style={[styles.finalizadoToggleText, finalizado ? styles.finalizadoToggleTextOn : styles.finalizadoToggleTextOff]}>
-            {finalizado ? 'Retomar' : 'Finalizar'}
+          <Text style={[styles.finalizadoToggleText, sessaoExercicio.realizado ? styles.finalizadoToggleTextOn : styles.finalizadoToggleTextOff]}>
+            {sessaoExercicio.realizado ? 'Retomar' : 'Finalizar'}
           </Text>
         </Pressable>
       </View>
 
-      {/* Media — compact highlighted button, revealed on request */}
-      <Pressable
-        onPress={() => setMediaVisible((v) => !v)}
-        style={({ pressed }) => [styles.mediaToggleBtn, pressed ? { opacity: 0.8 } : null]}
-      >
-        <Text style={styles.mediaToggleBtnIcon}>{mediaVisible ? '✕' : '▶'}</Text>
-        <Text style={styles.mediaToggleBtnText}>{mediaVisible ? 'Fechar video' : 'Ver execucao'}</Text>
-      </Pressable>
-      {mediaVisible ? (
-        <View style={styles.mediaPlaceholder}>
-          <Text style={styles.mediaPlaceholderText}>Video de execucao</Text>
-          <Text style={styles.mediaPlaceholderSub}>Em breve</Text>
-        </View>
+      {/* Media — only shown while exercise is active */}
+      {!sessaoExercicio.realizado ? (
+        <>
+          <Pressable
+            onPress={() => setMediaVisible((v) => !v)}
+            style={({ pressed }) => [styles.mediaToggleBtn, pressed ? { opacity: 0.8 } : null]}
+          >
+            <Text style={styles.mediaToggleBtnIcon}>{mediaVisible ? '✕' : '▶'}</Text>
+            <Text style={styles.mediaToggleBtnText}>{mediaVisible ? 'Fechar video' : 'Ver execucao'}</Text>
+          </Pressable>
+          {mediaVisible ? (
+            <View style={styles.mediaPlaceholder}>
+              <Text style={styles.mediaPlaceholderText}>Video de execucao</Text>
+              <Text style={styles.mediaPlaceholderSub}>Em breve</Text>
+            </View>
+          ) : null}
+        </>
       ) : null}
 
+      {/* Stats — shown when exercise is done and has series */}
+      {sessaoExercicio.realizado && series.filter(s => s.tipoSerie === 'valida').length > 0 ? (() => {
+        const validSeries = series.filter(s => s.tipoSerie === 'valida');
+        const totalVolume = validSeries.reduce((sum, s) => sum + s.cargaKg * s.repeticoes, 0);
+        const maxCarga = Math.max(...validSeries.map(s => s.cargaKg));
+        const totalReps = validSeries.reduce((sum, s) => sum + s.repeticoes, 0);
+        const avgReps = Math.round(totalReps / validSeries.length);
+        const volumes = validSeries.map(s => s.cargaKg * s.repeticoes);
+        const maxVolume = Math.max(...volumes, 1);
+        const BARS_H = 80;
+
+        const hasMeta = sessaoExercicio.seriesRecomendadas != null
+          || sessaoExercicio.execucoesRecomendadas != null
+          || sessaoExercicio.cargaPadrao != null;
+
+        return (
+          <View style={styles.statsCard}>
+
+            {/* Meta / objetivo */}
+            {hasMeta ? (
+              <>
+                <Text style={styles.statsSectionLabel}>Objetivo</Text>
+                <View style={styles.statsPillsMuted}>
+                  {sessaoExercicio.seriesRecomendadas != null ? (
+                    <View style={styles.statPill}>
+                      <Text style={styles.statValueMuted}>{sessaoExercicio.seriesRecomendadas}</Text>
+                      <Text style={styles.statLabel}>Series</Text>
+                    </View>
+                  ) : null}
+                  {sessaoExercicio.seriesRecomendadas != null && (sessaoExercicio.execucoesRecomendadas != null || sessaoExercicio.cargaPadrao != null) ? (
+                    <View style={styles.statDivider} />
+                  ) : null}
+                  {sessaoExercicio.execucoesRecomendadas != null ? (
+                    <View style={styles.statPill}>
+                      <Text style={styles.statValueMuted}>{sessaoExercicio.execucoesRecomendadas}</Text>
+                      <Text style={styles.statLabel}>Reps/serie</Text>
+                    </View>
+                  ) : null}
+                  {sessaoExercicio.execucoesRecomendadas != null && sessaoExercicio.cargaPadrao != null ? (
+                    <View style={styles.statDivider} />
+                  ) : null}
+                  {sessaoExercicio.cargaPadrao != null ? (
+                    <View style={styles.statPill}>
+                      <Text style={styles.statValueMuted}>{sessaoExercicio.cargaPadrao}kg</Text>
+                      <Text style={styles.statLabel}>Carga</Text>
+                    </View>
+                  ) : null}
+                </View>
+                <View style={styles.statsSeparator} />
+              </>
+            ) : null}
+
+            {/* Realizado */}
+            <Text style={styles.statsSectionLabel}>Realizado</Text>
+            <View style={styles.statsPills}>
+              <View style={styles.statPill}>
+                <Text style={styles.statValue}>{validSeries.length}</Text>
+                <Text style={styles.statLabel}>Series</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statPill}>
+                <Text style={styles.statValue}>{avgReps}</Text>
+                <Text style={styles.statLabel}>Reps/serie</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statPill}>
+                <Text style={styles.statValue}>{maxCarga}kg</Text>
+                <Text style={styles.statLabel}>Max</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statPill}>
+                <Text style={styles.statValue}>{totalVolume.toLocaleString('pt-BR')}kg</Text>
+                <Text style={styles.statLabel}>Volume</Text>
+              </View>
+            </View>
+
+            <View style={styles.statsSeparator} />
+
+            {/* Volume bar chart */}
+            <Text style={styles.statsSectionLabel}>Volume por serie</Text>
+            <View style={{ height: BARS_H, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+              {validSeries.map((serie, i) => {
+                const vol = serie.cargaKg * serie.repeticoes;
+                const barH = Math.max(12, (vol / maxVolume) * BARS_H);
+                return (
+                  <View key={serie.id} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                    <Text style={styles.chartBarTopLabel}>{serie.cargaKg}kg</Text>
+                    <View style={[styles.chartBar, { height: barH }]} />
+                  </View>
+                );
+              })}
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {validSeries.map((serie, i) => (
+                <View key={serie.id} style={{ flex: 1, alignItems: 'center', gap: 2 }}>
+                  <Text style={styles.chartBarBotLabel}>×{serie.repeticoes}</Text>
+                  <Text style={styles.chartBarXLabel}>S{i + 1}</Text>
+                </View>
+              ))}
+            </View>
+
+          </View>
+        );
+      })() : null}
+
       {/* Registration form */}
-      {!finalizado ? (
+      {!sessaoExercicio.realizado ? (
         <View style={styles.formCard}>
           <Text style={styles.formTitle}>Registrar serie</Text>
 
           {/* Suggestion — full-width above both carousels so alignment is unaffected */}
-          {!finalizado && sugestao ? (
+          {sugestao ? (
             <Pressable onPress={handleSugestao} style={({ pressed }) => [styles.sugestaoChip, pressed ? { opacity: 0.75 } : null]}>
               <Text style={styles.sugestaoText}>↑ {sugestaoLabel} — {sugestao.motivo}</Text>
             </Pressable>
@@ -404,11 +517,33 @@ export function ExercicioDetalheScreen({
               {isSubmittingSerie ? 'Registrando...' : '+ Registrar serie'}
             </Text>
           </Pressable>
+
+          <Pressable
+            onPress={async () => {
+              if (!sessaoExercicio.realizado) {
+                await onToggleRealizado(sessaoExercicio.id);
+              }
+              if (isLastExercicio) {
+                onFinalizarSessao();
+              } else {
+                onProximoExercicio();
+              }
+            }}
+            style={({ pressed }) => [
+              styles.navegacaoBtn,
+              isLastExercicio ? styles.navegacaoBtnFinalizar : styles.navegacaoBtnProximo,
+              pressed ? { opacity: 0.85 } : null,
+            ]}
+          >
+            <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
+              {isLastExercicio ? 'Finalizar sessao' : 'Proximo exercicio →'}
+            </Text>
+          </Pressable>
         </View>
       ) : null}
 
-      {/* Series list — reference, below the form */}
-      {series.length > 0 ? (
+      {/* Series list — only shown while exercise is not yet finalized */}
+      {!sessaoExercicio.realizado && series.length > 0 ? (
         <View style={styles.seriesCard}>
           <Text style={styles.seriesTitle}>Series registradas</Text>
           <View style={styles.seriesList}>
@@ -419,7 +554,7 @@ export function ExercicioDetalheScreen({
                 </View>
                 <Text style={styles.serieLabel}>{serie.cargaKg}kg × {serie.repeticoes}</Text>
                 {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
-                {!finalizado ? (
+                {!sessaoExercicio.realizado ? (
                   <Pressable
                     onPress={() => { void onDeleteSerie(serie.id); }}
                     style={({ pressed }) => [styles.deleteSerieBtn, pressed ? { opacity: 0.6 } : null]}
@@ -450,7 +585,7 @@ export function ExercicioDetalheScreen({
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
-    content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 48, gap: 16 },
+    content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, gap: 14 },
 
     header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     backBtn: { padding: 6 },
@@ -478,6 +613,22 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     sugestaoChip: { backgroundColor: c.accentLight, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: c.accent },
     sugestaoText: { color: c.accent, fontSize: 13, fontWeight: '700' },
 
+    // Stats card
+    statsCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 10, borderWidth: 1, borderColor: c.cardBorder },
+    statsSectionLabel: { color: c.textSecondary, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
+    statsSeparator: { height: 1, backgroundColor: c.cardBorder },
+    statsPills: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
+    statsPillsMuted: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4, backgroundColor: c.cardAlt, borderRadius: 12 },
+    statPill: { flex: 1, alignItems: 'center', gap: 2 },
+    statDivider: { width: 1, height: 28, backgroundColor: c.cardBorder },
+    statValue: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
+    statValueMuted: { color: c.textSecondary, fontSize: 18, fontWeight: '700' },
+    statLabel: { color: c.textSecondary, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.4 },
+    chartBarTopLabel: { color: c.textSecondary, fontSize: 10, fontWeight: '700' },
+    chartBar: { width: '100%', backgroundColor: c.accent, borderRadius: 5 },
+    chartBarBotLabel: { color: c.textSecondary, fontSize: 10 },
+    chartBarXLabel: { color: c.textLabel, fontSize: 10, fontWeight: '700' },
+
     seriesCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
     seriesTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     seriesList: { gap: 8 },
@@ -491,7 +642,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteSerieBtn: { padding: 4 },
     deleteSerieBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
 
-    formCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
+    formCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 10, borderWidth: 1, borderColor: c.cardBorder },
     formTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
 
     pickersRow: { flexDirection: 'row', gap: 12 },
@@ -517,10 +668,16 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     customDescansoOk: { backgroundColor: c.accent, borderRadius: 12, paddingHorizontal: 18, paddingVertical: 10 },
     customDescansoOkText: { color: c.accentText, fontSize: 14, fontWeight: '700' },
 
-    obsInput: { height: 44, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 14 },
+    obsInput: { height: 36, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 14 },
     formError: { color: c.error, fontSize: 13 },
-    addSerieBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
+    addSerieBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 11, alignItems: 'center' },
     addSerieBtnDisabled: { opacity: 0.6 },
     addSerieBtnText: { color: c.heroText, fontSize: 15, fontWeight: '800' },
+    navegacaoBtn: { borderRadius: 14, paddingVertical: 11, alignItems: 'center' },
+    navegacaoBtnProximo: { backgroundColor: c.cardAlt, borderWidth: 1.5, borderColor: c.accent },
+    navegacaoBtnFinalizar: { backgroundColor: c.accent },
+    navegacaoBtnText: { fontSize: 15, fontWeight: '800' },
+    navegacaoBtnTextProximo: { color: c.accent },
+    navegacaoBtnTextFinalizar: { color: c.accentText },
   });
 }

@@ -56,16 +56,23 @@ export function SessaoAtivaScreen({
   if (selectedExercicioId) {
     const item = detalhe.exercicios.find((e) => e.sessaoExercicio.id === selectedExercicioId);
     if (item) {
+      const exercicioIds = detalhe.exercicios.map((e) => e.sessaoExercicio.id);
+      const currentIndex = exercicioIds.indexOf(selectedExercicioId);
+      const isLastExercicio = currentIndex === exercicioIds.length - 1;
+
       return (
         <>
           <ExercicioDetalheScreen
             sessaoExercicio={item.sessaoExercicio}
             series={item.series}
             sugestao={sugestoes[selectedExercicioId] ?? null}
+            isLastExercicio={isLastExercicio}
             onRegistrarSerie={onRegistrarSerie}
             onDeleteSerie={onDeleteSerie}
             onToggleRealizado={onToggleRealizado}
             onAbrirSubstituicao={onAbrirSubstituicao}
+            onProximoExercicio={() => setSelectedExercicioId(exercicioIds[currentIndex + 1])}
+            onFinalizarSessao={() => { void onFinalizar(); }}
             onBack={() => setSelectedExercicioId(null)}
           />
           <SubstituirExercicioModal

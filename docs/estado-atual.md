@@ -1,6 +1,6 @@
 # Estado Atual — App Academia
 
-> Atualizado em `2026-05-07` (sessão 3). Todas as features de prioridade alta e média concluídas.
+> Atualizado em `2026-05-11` (sessão 4). Feature Perfil planejada — ver `docs/plano-perfil.md`.
 
 ---
 
@@ -95,6 +95,13 @@ apps/mobile/src/
 - Detecção de plateau (1RM estagnado em 4 sessões consecutivas)
 - `GetUltimasExecucoesValidas` usa uma única query bulk (evita crash Android)
 
+### Perfil *(planejado — ver `docs/plano-perfil.md`)*
+
+Tab que substituirá **Peso** na navegação inferior. Exibe:
+- Avatar circular com iniciais e nome editável (persistido em `AsyncStorage`)
+- Badge com último peso registrado
+- Toda a funcionalidade de Peso Corporal embutida abaixo
+
 ### Peso Corporal
 
 **Use cases:** `RegistrarPeso`, `ListRegistrosPeso`, `DeleteRegistroPeso`
@@ -104,6 +111,7 @@ apps/mobile/src/
 - Label do campo mostra "Hoje, HH:MM" ou "DD/MM/AAAA, HH:MM" quando retroativo (em destaque accent)
 - Histórico decrescente com delta (+/- kg) entre entradas
 - Gráfico de linha com evolução ao longo do tempo
+- **Navegação:** atualmente tab "Peso" própria → será movido para dentro do tab **Perfil**
 
 ### Dashboard
 

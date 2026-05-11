@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../shared/theme';
 
-export const PICKER_ITEM_H = 44;
+export const PICKER_ITEM_H = 36;
 const VISIBLE = 3;
 const SIDE = 1;
 
