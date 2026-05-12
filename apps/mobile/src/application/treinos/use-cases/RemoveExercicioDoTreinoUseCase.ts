@@ -15,9 +15,17 @@ export class RemoveExercicioDoTreinoUseCase {
    */
   async execute(treinoExercicioId: string): Promise<void> {
     const item = await this.dependencies.treinoExercicioRepository.findById(treinoExercicioId);
-
     if (!item) throw new TreinoExercicioNotFoundError(treinoExercicioId);
 
+    const { treinoId } = item.toPrimitives();
     await this.dependencies.treinoExercicioRepository.delete(treinoExercicioId);
+
+    // Re-index remaining exercises to close the gap left by the removed one
+    const remaining = await this.dependencies.treinoExercicioRepository.listByTreinoId(treinoId);
+    await Promise.all(
+      remaining.map((te, index) =>
+        this.dependencies.treinoExercicioRepository.updateOrdem(te.toPrimitives().id, index + 1)
+      )
+    );
   }
 }

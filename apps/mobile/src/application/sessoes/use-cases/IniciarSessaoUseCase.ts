@@ -10,6 +10,7 @@ import type { TreinoRepository } from '../../../domain/treinos/repositories/Trei
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { TreinoNotFoundError } from '../../treinos/errors/TreinoNotFoundError';
 import { SessaoJaAtivaError } from '../errors/SessaoJaAtivaError';
+import { TreinoSemExerciciosError } from '../errors/TreinoSemExerciciosError';
 
 interface IniciarSessaoUseCaseDependencies {
   sessaoTreinoRepository: SessaoTreinoRepository;
@@ -42,6 +43,7 @@ export class IniciarSessaoUseCase {
     if (!treino) throw new TreinoNotFoundError(treinoId);
 
     const treinoExercicios = await this.dependencies.treinoExercicioRepository.listByTreinoId(treinoId);
+    if (treinoExercicios.length === 0) throw new TreinoSemExerciciosError();
 
     const sessao = SessaoTreino.create({
       id: this.dependencies.idGenerator(),

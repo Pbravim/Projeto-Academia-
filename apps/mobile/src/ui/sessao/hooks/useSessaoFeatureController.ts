@@ -7,6 +7,7 @@ import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJaAtivaError';
+import { TreinoSemExerciciosError } from '../../../application/sessoes/errors/TreinoSemExerciciosError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 
 type SessaoView = 'loading' | 'inicio' | 'ativa' | 'resumo';
@@ -75,7 +76,7 @@ export function useSessaoFeatureController(
     } catch (error) {
       dependencies.logger.error('sessao_feature.iniciar_failed', error);
 
-      if (error instanceof SessaoJaAtivaError) {
+      if (error instanceof SessaoJaAtivaError || error instanceof TreinoSemExerciciosError) {
         setErrorMessage(error.message);
       } else {
         setErrorMessage('Nao foi possivel iniciar a sessao.');
