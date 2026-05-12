@@ -19,6 +19,9 @@ import { ListTreinosUseCase } from '../application/treinos/use-cases/ListTreinos
 import { RemoveExercicioDoTreinoUseCase } from '../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import { ReordenarExerciciosUseCase } from '../application/treinos/use-cases/ReordenarExerciciosUseCase';
 import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTreinoUseCase';
+import { ArquivarSessaoUseCase } from '../application/dashboard/use-cases/ArquivarSessaoUseCase';
+import { DesarquivarSessaoUseCase } from '../application/dashboard/use-cases/DesarquivarSessaoUseCase';
+import { DeletarSessaoUseCase } from '../application/dashboard/use-cases/DeletarSessaoUseCase';
 import { ExportarHistoricoUseCase } from '../application/dashboard/use-cases/ExportarHistoricoUseCase';
 import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { GetTreinoEvolucaoUseCase } from '../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
@@ -211,6 +214,9 @@ export const mobileDependencies = {
     getTreinoEvolucao: new GetTreinoEvolucaoUseCase({ dashboardRepository }),
     resetHistorico: new ResetHistoricoUseCase({ database: databaseClient }),
     exportarHistorico: new ExportarHistoricoUseCase({ database: databaseClient }),
+    arquivarSessao: new ArquivarSessaoUseCase({ dashboardRepository }),
+    desarquivarSessao: new DesarquivarSessaoUseCase({ dashboardRepository }),
+    deletarSessao: new DeletarSessaoUseCase({ dashboardRepository }),
     logger,
   },
 };

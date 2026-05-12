@@ -16,6 +16,8 @@ interface HistoricoRow {
   sessao_treino_id: string;
   nome_snapshot: string;
   data_hora_fim: string;
+  nome_original_snapshot: string | null;
+  substituicao_motivo: string | null;
   serie_id: string | null;
   tipo_serie: string | null;
   carga_kg: number | null;
@@ -74,6 +76,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
   async getHistoricoExercicio(exercicioId: string): Promise<ExecucaoExercicio[]> {
     const rows = await this.database.getAll<HistoricoRow>(
       `SELECT se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
+              se.nome_original_snapshot, se.substituicao_motivo,
               sr.id as serie_id, sr.tipo_serie, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
        FROM sessao_exercicios se
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
@@ -97,6 +100,9 @@ function groupBySession(rows: HistoricoRow[]): ExecucaoExercicio[] {
         dataExecucao: row.data_hora_fim,
         nomeSnapshot: row.nome_snapshot,
         series: [],
+        substituiuExercicio: row.nome_original_snapshot
+          ? { nomeOriginal: row.nome_original_snapshot, motivo: row.substituicao_motivo }
+          : null,
       });
       sessaoOrder.push(row.sessao_treino_id);
     }

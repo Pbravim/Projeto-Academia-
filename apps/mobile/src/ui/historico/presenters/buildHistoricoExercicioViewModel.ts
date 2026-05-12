@@ -12,6 +12,7 @@ export interface ExecucaoHistoricoViewModel {
   melhorRm1: string;
   volumeTotal: string;
   series: SerieHistoricoViewModel[];
+  substituiuLabel: string | null;
 }
 
 export interface PlateauInfo {
@@ -96,6 +97,11 @@ function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   return null;
 }
 
+const MOTIVO_LABEL: Record<string, string> = {
+  equipamento_indisponivel: 'equipamento indisponível',
+  variacao: 'variação',
+};
+
 function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoViewModel {
   const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
   const melhorRm1 = validas.reduce((max, s) => {
@@ -103,6 +109,13 @@ function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoV
     return rm1 > max ? rm1 : max;
   }, 0);
   const volumeKg = validas.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
+
+  let substituiuLabel: string | null = null;
+  if (execucao.substituiuExercicio ?? null) {
+    const { nomeOriginal, motivo } = execucao.substituiuExercicio!;
+    const motivoTexto = motivo ? ` · ${MOTIVO_LABEL[motivo] ?? motivo}` : '';
+    substituiuLabel = `Substituiu: ${nomeOriginal}${motivoTexto}`;
+  }
 
   return {
     data: formatDate(execucao.dataExecucao),
@@ -116,6 +129,7 @@ function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoV
           ? `1RM ~${(s.cargaKg * (1 + s.repeticoes / 30)).toFixed(1)} kg`
           : null,
     })),
+    substituiuLabel,
   };
 }
 

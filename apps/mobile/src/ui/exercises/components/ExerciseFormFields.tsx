@@ -26,15 +26,18 @@ interface FieldProps {
   value: string;
   onChangeText: (value: string) => void;
   editable?: boolean;
+  required?: boolean;
 }
 
-export function Field({ label, placeholder, value, onChangeText, editable = true }: FieldProps) {
+export function Field({ label, placeholder, value, onChangeText, editable = true, required }: FieldProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={styles.fieldLabel}>
+        {label}{required ? <Text style={styles.requiredMark}> *</Text> : null}
+      </Text>
       <TextInput
         style={styles.input}
         placeholder={placeholder}
@@ -95,7 +98,7 @@ export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
 
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>Grupo muscular</Text>
+      <Text style={styles.fieldLabel}>Grupo muscular<Text style={styles.requiredMark}> *</Text></Text>
       <Pressable
         onPress={() => setOpen(true)}
         style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
@@ -262,6 +265,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     field: { gap: 6 },
     fieldLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
+    requiredMark: { color: c.error, fontSize: 13, fontWeight: '700' },
     input: {
       minHeight: 48,
       borderRadius: 14,

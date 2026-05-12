@@ -173,6 +173,74 @@ const migrations: string[] = [
    UPDATE exercises SET musculo_alvo = 'isquiotibiais'           WHERE id IN ('seed-ex-038','seed-ex-039');
    UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id IN ('seed-ex-040','seed-ex-041');
    UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043');`,
+
+  // v10: re-seed any exercises deleted before cascade-delete was introduced (pre-commit 3aaa4f2).
+  // INSERT OR IGNORE is a no-op when the row already exists, so this is safe to run unconditionally.
+  // The musculo_alvo UPDATEs are idempotent and cover any rows that missed the v9 pass.
+  `INSERT OR IGNORE INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
+  ('seed-ex-001', 'Supino Reto com Barra',         'supino reto com barra',         'Peito, Triceps, Ombros',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-002', 'Supino Inclinado com Barra',     'supino inclinado com barra',    'Peito, Ombros, Triceps',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-003', 'Supino Declinado com Barra',     'supino declinado com barra',    'Peito, Triceps',                 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-004', 'Supino Reto com Haltere',        'supino reto com haltere',       'Peito, Triceps',                 'Composto',  'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-005', 'Crucifixo com Haltere',          'crucifixo com haltere',         'Peito',                          'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-006', 'Crossover no Cabo',              'crossover no cabo',             'Peito',                          'Isolado',   'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-007', 'Flexao de Braco',                'flexao de braco',               'Peito, Triceps, Ombros',         'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-008', 'Pullover com Haltere',           'pullover com haltere',          'Costas, Peito',                  'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-009', 'Barra Fixa',                     'barra fixa',                    'Costas, Biceps',                 'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-010', 'Puxada Frontal',                 'puxada frontal',                'Costas, Biceps',                 'Composto',  'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-011', 'Remada Curvada com Barra',       'remada curvada com barra',      'Costas, Biceps',                 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-012', 'Remada Unilateral com Haltere',  'remada unilateral com haltere', 'Costas, Biceps',                 'Composto',  'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-013', 'Remada Baixa no Cabo',           'remada baixa no cabo',          'Costas, Biceps',                 'Composto',  'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-014', 'Levantamento Terra',             'levantamento terra',            'Costas, Gluteos, Posterior',     'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-015', 'Desenvolvimento com Barra',      'desenvolvimento com barra',     'Ombros, Triceps',                'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-016', 'Desenvolvimento com Haltere',    'desenvolvimento com haltere',   'Ombros, Triceps',                'Composto',  'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-017', 'Elevacao Lateral com Haltere',   'elevacao lateral com haltere',  'Ombros',                         'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-018', 'Elevacao Frontal com Haltere',   'elevacao frontal com haltere',  'Ombros',                         'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-019', 'Elevacao Posterior com Haltere', 'elevacao posterior com haltere','Ombros, Trapezio',               'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-020', 'Encolhimento com Haltere',       'encolhimento com haltere',      'Trapezio',                       'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-021', 'Rosca Direta com Barra',         'rosca direta com barra',        'Biceps',                         'Isolado',   'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-022', 'Rosca Alternada com Haltere',    'rosca alternada com haltere',   'Biceps',                         'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-023', 'Rosca Concentrada com Haltere',  'rosca concentrada com haltere', 'Biceps',                         'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-024', 'Rosca no Cabo',                  'rosca no cabo',                 'Biceps',                         'Isolado',   'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-025', 'Triceps Testa com Barra',        'triceps testa com barra',       'Triceps',                        'Isolado',   'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-026', 'Triceps Pulley',                 'triceps pulley',                'Triceps',                        'Isolado',   'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-027', 'Triceps Coice com Haltere',      'triceps coice com haltere',     'Triceps',                        'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-028', 'Triceps Frances com Haltere',    'triceps frances com haltere',   'Triceps',                        'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-029', 'Mergulho entre Bancos',          'mergulho entre bancos',         'Triceps, Peito, Ombros',         'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-030', 'Abdominal Crunch',               'abdominal crunch',              'Abdomen',                        'Isolado',   'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-031', 'Prancha Abdominal',              'prancha abdominal',             'Abdomen',                        'Isolado',   'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-032', 'Elevacao de Pernas',             'elevacao de pernas',            'Abdomen',                        'Isolado',   'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-033', 'Abdominal Obliquo',              'abdominal obliquo',             'Abdomen',                        'Isolado',   'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-034', 'Agachamento Livre',              'agachamento livre',             'Quadriceps, Gluteos, Posterior', 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-035', 'Leg Press 45',                   'leg press 45',                  'Quadriceps, Gluteos',            'Composto',  'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-036', 'Afundo com Haltere',             'afundo com haltere',            'Quadriceps, Gluteos',            'Composto',  'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-037', 'Extensao de Joelhos',            'extensao de joelhos',           'Quadriceps',                     'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-038', 'Leg Curl',                       'leg curl',                      'Posterior',                      'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-039', 'Stiff com Barra',                'stiff com barra',               'Posterior, Gluteos',             'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-040', 'Hip Thrust com Barra',           'hip thrust com barra',          'Gluteos, Posterior',             'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-041', 'Abducao de Quadril',             'abducao de quadril',            'Gluteos',                        'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-042', 'Panturrilha em Pe',              'panturrilha em pe',             'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
+  ('seed-ex-043', 'Panturrilha Sentado',            'panturrilha sentado',           'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z');
+  UPDATE exercises SET musculo_alvo = 'peitoral_medio'          WHERE id IN ('seed-ex-001','seed-ex-004','seed-ex-005','seed-ex-006','seed-ex-007') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'peitoral_superior'       WHERE id = 'seed-ex-002' AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'peitoral_inferior'       WHERE id = 'seed-ex-003' AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'dorsal'                  WHERE id IN ('seed-ex-008','seed-ex-009','seed-ex-010','seed-ex-014') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'romboides_trapezio_medio' WHERE id IN ('seed-ex-011','seed-ex-012','seed-ex-013') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'deltoide_anterior'       WHERE id IN ('seed-ex-015','seed-ex-016','seed-ex-018') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'deltoide_lateral'        WHERE id = 'seed-ex-017' AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'deltoide_posterior'      WHERE id = 'seed-ex-019' AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'trapezio'                WHERE id = 'seed-ex-020' AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'biceps'                  WHERE id IN ('seed-ex-021','seed-ex-022','seed-ex-023','seed-ex-024') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'triceps_cabeca_longa'    WHERE id IN ('seed-ex-025','seed-ex-028') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'triceps_lateral_medial'  WHERE id IN ('seed-ex-026','seed-ex-027','seed-ex-029') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'abdomen'                 WHERE id IN ('seed-ex-030','seed-ex-031','seed-ex-032','seed-ex-033') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036','seed-ex-037') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'isquiotibiais'           WHERE id IN ('seed-ex-038','seed-ex-039') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id IN ('seed-ex-040','seed-ex-041') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043') AND musculo_alvo IS NULL`,
+
+  // v11: sessões podem ser arquivadas (soft-delete) — ocultas da evolução mas não apagadas
+  `ALTER TABLE sessao_treinos ADD COLUMN arquivado INTEGER NOT NULL DEFAULT 0`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {

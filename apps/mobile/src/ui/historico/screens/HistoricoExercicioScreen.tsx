@@ -81,6 +81,9 @@ function ExecucaoCard({ execucao, isFirst }: { execucao: ExecucaoHistoricoViewMo
       >
         <View style={{ flex: 1 }}>
           <Text style={styles.execucaoData}>{execucao.data}</Text>
+          {execucao.substituiuLabel ? (
+            <Text style={styles.substituiuLabel}>{execucao.substituiuLabel}</Text>
+          ) : null}
           <Text style={styles.execucaoVolume}>{execucao.volumeTotal}</Text>
         </View>
         <View style={styles.cardHeaderRight}>
@@ -198,6 +201,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 2 },
     cardChevron: { color: c.textSecondary, fontSize: 10, fontWeight: '700' },
     execucaoData: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
+    substituiuLabel: { color: c.accent, fontSize: 12, fontWeight: '600', marginTop: 2 },
     execucaoVolume: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
     execucaoRm1: { color: c.accent, fontSize: 13, fontWeight: '700' },
     // Summary pills (same as TreinoEvolucaoScreen)

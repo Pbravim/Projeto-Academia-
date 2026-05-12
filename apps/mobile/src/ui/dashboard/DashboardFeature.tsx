@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { BackHandler } from 'react-native';
 
 import type { DashboardControllerDependencies } from './hooks/useDashboardController';
 import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoController';
@@ -22,6 +23,15 @@ type ActiveView = { type: 'dashboard' } | { type: 'recordes' } | { type: 'evoluc
 export function DashboardFeature({ dependencies }: Props) {
   const [view, setView] = useState<ActiveView>({ type: 'dashboard' });
   const controller = useDashboardController(dependencies);
+
+  useEffect(() => {
+    if (view.type === 'dashboard') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setView({ type: 'dashboard' });
+      return true;
+    });
+    return () => sub.remove();
+  }, [view.type]);
 
   if (view.type === 'recordes') {
     return (

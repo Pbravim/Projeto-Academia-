@@ -37,6 +37,7 @@ export function ExerciseCatalogScreen({
   const [viewerExercise, setViewerExercise] = useState<ExercisePrimitives | null>(null);
 
   const isEditing = editingExerciseId !== null;
+  const canSubmit = draft.name.trim().length > 0 && draft.groupMuscle.trim().length > 0 && !isSubmitting;
 
   // Opções únicas derivadas do catálogo real
   const availableCategories = useMemo(
@@ -116,6 +117,7 @@ export function ExerciseCatalogScreen({
           value={draft.name}
           onChangeText={(value) => onChangeField('name', value)}
           editable={!isSubmitting}
+          required
         />
 
         {/* Sugestões de exercícios similares */}
@@ -185,9 +187,9 @@ export function ExerciseCatalogScreen({
           style={({ pressed }) => [
             styles.primaryButton,
             pressed ? styles.primaryButtonPressed : null,
-            isSubmitting ? styles.primaryButtonDisabled : null,
+            !canSubmit ? styles.primaryButtonDisabled : null,
           ]}
-          disabled={isSubmitting}
+          disabled={!canSubmit}
         >
           <Text style={styles.primaryButtonText}>
             {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alteracoes' : 'Salvar exercicio'}

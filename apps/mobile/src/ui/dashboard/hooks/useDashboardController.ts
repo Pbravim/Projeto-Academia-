@@ -3,12 +3,18 @@ import { useCallback, useEffect, useState } from 'react';
 import type { DashboardStats, GetDashboardStatsUseCase } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import type { ExportarHistoricoUseCase } from '../../../application/dashboard/use-cases/ExportarHistoricoUseCase';
 import type { ResetHistoricoUseCase } from '../../../application/dashboard/use-cases/ResetHistoricoUseCase';
+import type { ArquivarSessaoUseCase } from '../../../application/dashboard/use-cases/ArquivarSessaoUseCase';
+import type { DesarquivarSessaoUseCase } from '../../../application/dashboard/use-cases/DesarquivarSessaoUseCase';
+import type { DeletarSessaoUseCase } from '../../../application/dashboard/use-cases/DeletarSessaoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 
 export interface DashboardControllerDependencies {
   getDashboardStats: GetDashboardStatsUseCase;
   resetHistorico: ResetHistoricoUseCase;
   exportarHistorico: ExportarHistoricoUseCase;
+  arquivarSessao: ArquivarSessaoUseCase;
+  desarquivarSessao: DesarquivarSessaoUseCase;
+  deletarSessao: DeletarSessaoUseCase;
   logger: AppLogger;
 }
 
@@ -23,6 +29,11 @@ export interface DashboardControllerState {
   onExportar: () => Promise<void>;
   onVerEvolucao: (treinoId: string, treinoNome: string) => void;
   onVerRecordes: () => void;
+  onArquivarSessao: (sessaoId: string) => Promise<void>;
+  onDesarquivarSessao: (sessaoId: string) => Promise<void>;
+  onDeletarSessao: (sessaoId: string) => Promise<void>;
+  onArquivarTodasSessoesTreino: (sessaoIds: string[]) => Promise<void>;
+  onDeletarTodasSessoesTreino: (sessaoIds: string[]) => Promise<void>;
 }
 
 export function useDashboardController(dependencies: DashboardControllerDependencies): DashboardControllerState {
@@ -78,6 +89,55 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     }
   };
 
+  const onArquivarSessao = async (sessaoId: string) => {
+    try {
+      await dependencies.arquivarSessao.execute(sessaoId);
+      await load();
+    } catch (error) {
+      dependencies.logger.error('dashboard.arquivar_sessao_failed', error);
+    }
+  };
+
+  const onDesarquivarSessao = async (sessaoId: string) => {
+    try {
+      await dependencies.desarquivarSessao.execute(sessaoId);
+      await load();
+    } catch (error) {
+      dependencies.logger.error('dashboard.desarquivar_sessao_failed', error);
+    }
+  };
+
+  const onDeletarSessao = async (sessaoId: string) => {
+    try {
+      await dependencies.deletarSessao.execute(sessaoId);
+      await load();
+    } catch (error) {
+      dependencies.logger.error('dashboard.deletar_sessao_failed', error);
+    }
+  };
+
+  const onArquivarTodasSessoesTreino = async (sessaoIds: string[]) => {
+    try {
+      for (const id of sessaoIds) {
+        await dependencies.arquivarSessao.execute(id);
+      }
+      await load();
+    } catch (error) {
+      dependencies.logger.error('dashboard.arquivar_todas_failed', error);
+    }
+  };
+
+  const onDeletarTodasSessoesTreino = async (sessaoIds: string[]) => {
+    try {
+      for (const id of sessaoIds) {
+        await dependencies.deletarSessao.execute(id);
+      }
+      await load();
+    } catch (error) {
+      dependencies.logger.error('dashboard.deletar_todas_failed', error);
+    }
+  };
+
   return {
     stats,
     isLoading,
@@ -89,5 +149,10 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     onExportar,
     onVerEvolucao: () => {},
     onVerRecordes: () => {},
+    onArquivarSessao,
+    onDesarquivarSessao,
+    onDeletarSessao,
+    onArquivarTodasSessoesTreino,
+    onDeletarTodasSessoesTreino,
   };
 }

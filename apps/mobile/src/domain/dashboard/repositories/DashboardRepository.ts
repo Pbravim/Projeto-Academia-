@@ -5,12 +5,14 @@ export interface SessaoComVolume {
   volumeTotal: number;
   melhorOrm: number;
   duracaoMin: number | null;
+  arquivado: boolean;
 }
 
 export interface EvolucaoPorTreino {
   treinoId: string;
   treinoNome: string;
   sessoes: SessaoComVolume[];
+  sessoesArquivadas: SessaoComVolume[];
 }
 
 export interface RecordeItem {
@@ -56,4 +58,7 @@ export interface ExercicioEvolucao {
 export interface DashboardRepository {
   getStats(): Promise<DashboardStats>;
   getEvolucaoExercicios(treinoId: string): Promise<ExercicioEvolucao[]>;
+  arquivarSessao(sessaoId: string): Promise<void>;
+  desarquivarSessao(sessaoId: string): Promise<void>;
+  deletarSessao(sessaoId: string): Promise<void>;
 }

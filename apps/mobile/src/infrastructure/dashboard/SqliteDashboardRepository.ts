@@ -41,7 +41,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
 
     const [total, sessoes, records, ultimoMes, weekRows, monthRows, yearRows] = await Promise.all([
       this.database.getFirst<{ count: number }>(
-        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada'"
+        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND arquivado = 0"
       ),
       this.database.getAll<{
         id: string;
@@ -49,6 +49,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
         treino_nome_snapshot: string;
         data_hora_inicio: string;
         data_hora_fim: string | null;
+        arquivado: number;
         volume_total: number;
         melhor_orm: number;
       }>(
@@ -58,6 +59,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
            st.treino_nome_snapshot,
            st.data_hora_inicio,
            st.data_hora_fim,
+           st.arquivado,
            COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes ELSE 0 END), 0) AS volume_total,
            COALESCE(MAX(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * (1.0 + sr.repeticoes / 30.0) ELSE 0 END), 0) AS melhor_orm
          FROM sessao_treinos st
@@ -73,40 +75,41 @@ export class SqliteDashboardRepository implements DashboardRepository {
                 MAX(sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) AS melhor_orm
          FROM series_registradas sr
          JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id
+         JOIN sessao_treinos st ON se.sessao_treino_id = st.id
          JOIN exercises e ON se.exercicio_id = e.id
-         WHERE sr.tipo_serie = 'valida'
+         WHERE sr.tipo_serie = 'valida' AND st.arquivado = 0
          GROUP BY se.exercicio_id
          ORDER BY melhor_orm DESC
          LIMIT 10`
       ),
       this.database.getFirst<{ count: number }>(
-        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND data_hora_inicio >= ?",
+        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND arquivado = 0 AND data_hora_inicio >= ?",
         [new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()]
       ),
       this.database.getAll<{ dia: string; total: number }>(
         `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
          GROUP BY dia`,
         [monday, sundayKey]
       ),
       this.database.getAll<{ dia: string; total: number }>(
         `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
          GROUP BY dia`,
         [firstOfMonth, lastOfMonth]
       ),
       this.database.getAll<{ mes: string; total: number }>(
         `SELECT strftime('%Y-%m', data_hora_inicio) AS mes, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND strftime('%Y', data_hora_inicio) = ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND strftime('%Y', data_hora_inicio) = ?
          GROUP BY mes`,
         [yearStr]
       ),
     ]);
 
-    const byTreino = new Map<string, { treinoId: string; sessoes: SessaoComVolume[] }>();
+    const byTreino = new Map<string, { treinoId: string; sessoes: SessaoComVolume[]; sessoesArquivadas: SessaoComVolume[] }>();
     for (const row of sessoes) {
       const entry: SessaoComVolume = {
         id: row.id,
@@ -120,19 +123,25 @@ export class SqliteDashboardRepository implements DashboardRepository {
                 60000
             )
           : null,
+        arquivado: row.arquivado === 1,
       };
       const key = row.treino_nome_snapshot;
-      const existing = byTreino.get(key) ?? { treinoId: row.treino_id, sessoes: [] };
-      existing.sessoes.push(entry);
+      const existing = byTreino.get(key) ?? { treinoId: row.treino_id, sessoes: [], sessoesArquivadas: [] };
+      if (entry.arquivado) {
+        existing.sessoesArquivadas.push(entry);
+      } else {
+        existing.sessoes.push(entry);
+      }
       byTreino.set(key, existing);
     }
 
     const evolucaoPorTreino: EvolucaoPorTreino[] = Array.from(byTreino.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([treinoNome, { treinoId, sessoes }]) => ({
+      .map(([treinoNome, { treinoId, sessoes, sessoesArquivadas }]) => ({
         treinoId,
         treinoNome,
         sessoes: sessoes.slice(0, 10),
+        sessoesArquivadas,
       }));
 
     const DIAS_PT = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
@@ -197,7 +206,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
        JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
        JOIN series_registradas sr
          ON sr.sessao_exercicio_id = se.id AND sr.tipo_serie = 'valida'
-       WHERE st.treino_id = ? AND st.status = 'finalizada'
+       WHERE st.treino_id = ? AND st.status = 'finalizada' AND st.arquivado = 0
        ORDER BY se.nome_snapshot ASC, st.data_hora_inicio DESC, sr.ordem ASC`,
       [treinoId]
     );
@@ -243,5 +252,30 @@ export class SqliteDashboardRepository implements DashboardRepository {
       });
       return { exercicioId, exercicioNome: ex.nome, groupMuscle: ex.group, sessoes };
     });
+  }
+
+  async arquivarSessao(sessaoId: string): Promise<void> {
+    await this.database.run('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
+  }
+
+  async desarquivarSessao(sessaoId: string): Promise<void> {
+    await this.database.run('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
+  }
+
+  async deletarSessao(sessaoId: string): Promise<void> {
+    const exercicioIds = await this.database.getAll<{ id: string }>(
+      'SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?',
+      [sessaoId]
+    );
+    if (exercicioIds.length > 0) {
+      const placeholders = exercicioIds.map(() => '?').join(',');
+      const ids = exercicioIds.map((r) => r.id);
+      await this.database.run(
+        `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
+        ids
+      );
+    }
+    await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
+    await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [sessaoId]);
   }
 }

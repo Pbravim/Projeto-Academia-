@@ -34,7 +34,9 @@
       "Bash(npm --prefix /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile test)",
       "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
       "WebFetch(domain:)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(xargs ls *)",
+      "Bash(git -C /Users/bravim/Documents/GitHub/projeto-academia diff apps/mobile/src/ui/treinos/TreinoFeature.tsx)"
     ]
   }
 }

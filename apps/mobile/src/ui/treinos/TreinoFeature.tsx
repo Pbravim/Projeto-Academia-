@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { BackHandler } from 'react-native';
 
 import type { TreinoPrimitives } from '../../domain/treinos/entities/Treino';
 import type { TreinoDetailControllerDependencies } from './hooks/useTreinoDetailController';
@@ -21,6 +22,15 @@ export function TreinoFeature({ dependencies }: Props) {
   const [selectedTreino, setSelectedTreino] = useState<TreinoPrimitives | null>(null);
 
   const listController = useTreinoListController(dependencies.list, setSelectedTreino);
+
+  useEffect(() => {
+    if (!selectedTreino) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setSelectedTreino(null);
+      return true;
+    });
+    return () => sub.remove();
+  }, [selectedTreino]);
 
   if (selectedTreino) {
     return (

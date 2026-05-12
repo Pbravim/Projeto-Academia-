@@ -18,6 +18,7 @@ export interface ExecucaoExercicio {
   dataExecucao: string;
   nomeSnapshot: string;
   series: ExecucaoExercicioSerie[];
+  substituiuExercicio?: { nomeOriginal: string; motivo: string | null } | null;
 }
 
 export interface HistoricoRepository {

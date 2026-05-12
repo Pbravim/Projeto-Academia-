@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Storage } from 'expo-sqlite/kv-store';
 
@@ -53,6 +53,21 @@ function AppContent() {
   const styles = useMemo(() => makeStyles(c), [c]);
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (activeModule === 'perfil') {
+        setActiveModule(lastTabRef.current);
+        return true;
+      }
+      // Consume the event at tab root so Expo Go doesn't intercept it.
+      // Returning true here prevents the Expo launcher from appearing;
+      // the OS default (minimize app) is triggered only when nothing consumes it,
+      // which in a standalone/dev-client build would just minimize the app.
+      return true;
+    });
+    return () => sub.remove();
+  }, [activeModule]);
 
   useEffect(() => {
     void Promise.all([

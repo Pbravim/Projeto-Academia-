@@ -8,7 +8,23 @@ import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/da
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
 
-export function DashboardScreen({ stats, isLoading, isResetting, isExporting, errorMessage, onRefresh, onReset, onExportar, onVerEvolucao, onVerRecordes }: DashboardControllerState) {
+export function DashboardScreen({
+  stats,
+  isLoading,
+  isResetting,
+  isExporting,
+  errorMessage,
+  onRefresh,
+  onReset,
+  onExportar,
+  onVerEvolucao,
+  onVerRecordes,
+  onArquivarSessao,
+  onDesarquivarSessao,
+  onDeletarSessao,
+  onArquivarTodasSessoesTreino,
+  onDeletarTodasSessoesTreino,
+}: DashboardControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -22,6 +38,7 @@ export function DashboardScreen({ stats, isLoading, isResetting, isExporting, er
       ]
     );
   };
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
@@ -111,6 +128,11 @@ export function DashboardScreen({ stats, isLoading, isResetting, isExporting, er
                   key={grupo.treinoNome}
                   grupo={grupo}
                   onVerEvolucao={() => onVerEvolucao(grupo.treinoId, grupo.treinoNome)}
+                  onArquivar={(id) => { void onArquivarSessao(id); }}
+                  onDesarquivar={(id) => { void onDesarquivarSessao(id); }}
+                  onDeletar={(id) => { void onDeletarSessao(id); }}
+                  onArquivarTodas={(ids) => { void onArquivarTodasSessoesTreino(ids); }}
+                  onDeletarTodas={(ids) => { void onDeletarTodasSessoesTreino(ids); }}
                 />
               ))}
             </>
@@ -128,11 +150,29 @@ export function DashboardScreen({ stats, isLoading, isResetting, isExporting, er
   );
 }
 
-function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino; onVerEvolucao: () => void }) {
+function TreinoEvolucaoCard({
+  grupo,
+  onVerEvolucao,
+  onArquivar,
+  onDesarquivar,
+  onDeletar,
+  onArquivarTodas,
+  onDeletarTodas,
+}: {
+  grupo: EvolucaoPorTreino;
+  onVerEvolucao: () => void;
+  onArquivar: (id: string) => void;
+  onDesarquivar: (id: string) => void;
+  onDeletar: (id: string) => void;
+  onArquivarTodas: (ids: string[]) => void;
+  onDeletarTodas: (ids: string[]) => void;
+}) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [expanded, setExpanded] = useState(false);
+  const [arqExpanded, setArqExpanded] = useState(false);
+  const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
   const [chartMode, setChartMode] = useState<DashboardChartMode>('orm');
 
   const sessoes = grupo.sessoes;
@@ -172,24 +212,119 @@ function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino
     ? (v: number) => `${v} kg`
     : (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`;
 
+  const handleDeletar = (id: string) => {
+    Alert.alert(
+      'Excluir sessao',
+      'Isso vai apagar permanentemente esta sessao e todas as series registradas. Essa acao nao pode ser desfeita.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Excluir', style: 'destructive', onPress: () => onDeletar(id) },
+      ]
+    );
+  };
+
+  const handleArquivarTodas = () => {
+    const ids = sessoes.map((s) => s.id);
+    Alert.alert(
+      'Arquivar todas as sessoes',
+      `Isso vai arquivar ${ids.length} sessao${ids.length !== 1 ? 'ões' : ''} de "${grupo.treinoNome}". Elas ficam ocultas mas podem ser restauradas.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Arquivar todas', onPress: () => onArquivarTodas(ids) },
+      ]
+    );
+  };
+
+  const handleDeletarTodas = () => {
+    const ids = [...sessoes.map((s) => s.id), ...grupo.sessoesArquivadas.map((s) => s.id)];
+    Alert.alert(
+      'Excluir todo o historico',
+      `Isso vai apagar permanentemente todas as ${ids.length} sessao${ids.length !== 1 ? 'ões' : ''} de "${grupo.treinoNome}" (incluindo arquivadas). Essa acao nao pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Excluir tudo', style: 'destructive', onPress: () => onDeletarTodas(ids) },
+      ]
+    );
+  };
+
+  const handleDeletarArquivadas = () => {
+    const ids = grupo.sessoesArquivadas.map((s) => s.id);
+    Alert.alert(
+      'Excluir sessoes arquivadas',
+      `Isso vai apagar permanentemente ${ids.length} sessao${ids.length !== 1 ? 'ões' : ''} arquivada${ids.length !== 1 ? 's' : ''} de "${grupo.treinoNome}". Essa acao nao pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Excluir', style: 'destructive', onPress: () => onDeletarTodas(ids) },
+      ]
+    );
+  };
+
   return (
     <View style={styles.card}>
-      {/* Header: tapping collapses/expands the session list */}
-      <Pressable
-        onPress={() => setExpanded((v) => !v)}
-        style={({ pressed }) => [styles.treinoHeader, pressed ? { opacity: 0.7 } : null]}
-      >
-        <View style={{ flex: 1 }}>
+      {/* Header row — expand area + separate bulk menu button */}
+      <View style={styles.treinoHeader}>
+        <Pressable
+          onPress={() => { setExpanded((v) => !v); setBulkMenuOpen(false); }}
+          style={({ pressed }) => [styles.treinoHeaderMain, pressed ? { opacity: 0.7 } : null]}
+        >
           <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
           <Text style={styles.treinoMeta}>{sessoes.length} sessão{sessoes.length !== 1 ? 'ões' : ''}</Text>
-        </View>
+        </Pressable>
         <View style={styles.treinoHeaderRight}>
           {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
           {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
           {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
-          <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+          <Pressable
+            onPress={() => { setBulkMenuOpen((v) => !v); }}
+            hitSlop={8}
+            style={({ pressed }) => [styles.treinoMenuBtn, bulkMenuOpen ? styles.treinoMenuBtnActive : null, pressed ? { opacity: 0.7 } : null]}
+          >
+            <Text style={[styles.treinoMenuBtnDot, bulkMenuOpen ? styles.treinoMenuBtnDotActive : null]}>•</Text>
+            <Text style={[styles.treinoMenuBtnDot, bulkMenuOpen ? styles.treinoMenuBtnDotActive : null]}>•</Text>
+            <Text style={[styles.treinoMenuBtnDot, bulkMenuOpen ? styles.treinoMenuBtnDotActive : null]}>•</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => { setExpanded((v) => !v); setBulkMenuOpen(false); }}
+            hitSlop={8}
+          >
+            <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+          </Pressable>
         </View>
-      </Pressable>
+      </View>
+
+      {/* Bulk action menu */}
+      {bulkMenuOpen ? (
+        <View style={styles.bulkMenu}>
+          {sessoes.length > 0 ? (
+            <Pressable
+              onPress={() => { setBulkMenuOpen(false); handleArquivarTodas(); }}
+              style={({ pressed }) => [styles.bulkMenuItem, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={styles.bulkMenuItemText}>Arquivar todas as ativas ({sessoes.length})</Text>
+            </Pressable>
+          ) : null}
+          {grupo.sessoesArquivadas.length > 0 ? (
+            <Pressable
+              onPress={() => { setBulkMenuOpen(false); handleDeletarArquivadas(); }}
+              style={({ pressed }) => [styles.bulkMenuItem, styles.bulkMenuItemDanger, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={[styles.bulkMenuItemText, styles.bulkMenuItemTextDanger]}>
+                Excluir arquivadas ({grupo.sessoesArquivadas.length})
+              </Text>
+            </Pressable>
+          ) : null}
+          {(sessoes.length + grupo.sessoesArquivadas.length) > 0 ? (
+            <Pressable
+              onPress={() => { setBulkMenuOpen(false); handleDeletarTodas(); }}
+              style={({ pressed }) => [styles.bulkMenuItem, styles.bulkMenuItemDanger, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={[styles.bulkMenuItemText, styles.bulkMenuItemTextDanger]}>
+                Excluir todo o historico ({sessoes.length + grupo.sessoesArquivadas.length})
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
 
       {(ormChartPoints.length >= 2 || volumeChartPoints.length >= 2) ? (
         <View style={styles.chartSection}>
@@ -229,8 +364,45 @@ function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino
       {expanded ? (
         <View style={styles.sessoesList}>
           {sessoes.map((s, i) => (
-            <SessaoRow key={s.id} sessao={s} prev={sessoes[i + 1] ?? null} temVolume={temVolume} isFirst={i === 0} />
+            <SessaoRow
+              key={s.id}
+              sessao={s}
+              prev={sessoes[i + 1] ?? null}
+              temVolume={temVolume}
+              isFirst={i === 0}
+              onArquivar={() => onArquivar(s.id)}
+              onDeletar={() => handleDeletar(s.id)}
+            />
           ))}
+        </View>
+      ) : null}
+
+      {/* Archived sessions section */}
+      {grupo.sessoesArquivadas.length > 0 ? (
+        <View style={styles.arqSection}>
+          <Pressable
+            onPress={() => setArqExpanded((v) => !v)}
+            style={({ pressed }) => [styles.arqToggle, pressed ? { opacity: 0.7 } : null]}
+          >
+            <Text style={styles.arqToggleText}>
+              {grupo.sessoesArquivadas.length} sessão{grupo.sessoesArquivadas.length !== 1 ? 'ões' : ''} arquivada{grupo.sessoesArquivadas.length !== 1 ? 's' : ''} {arqExpanded ? '▲' : '▼'}
+            </Text>
+          </Pressable>
+          {arqExpanded ? (
+            <View style={styles.sessoesList}>
+              {grupo.sessoesArquivadas.map((s) => (
+                <SessaoRow
+                  key={s.id}
+                  sessao={s}
+                  prev={null}
+                  temVolume={grupo.sessoesArquivadas.some((a) => a.volumeTotal > 0)}
+                  isFirst={false}
+                  onDesarquivar={() => onDesarquivar(s.id)}
+                  onDeletar={() => handleDeletar(s.id)}
+                />
+              ))}
+            </View>
+          ) : null}
         </View>
       ) : null}
 
@@ -250,14 +422,21 @@ function SessaoRow({
   prev,
   temVolume,
   isFirst,
+  onArquivar,
+  onDesarquivar,
+  onDeletar,
 }: {
   sessao: SessaoComVolume;
   prev: SessaoComVolume | null;
   temVolume: boolean;
   isFirst: boolean;
+  onArquivar?: () => void;
+  onDesarquivar?: () => void;
+  onDeletar: () => void;
 }) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   const data = new Date(sessao.dataHoraInicio);
   const dataStr = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
@@ -274,19 +453,59 @@ function SessaoRow({
     : null;
 
   return (
-    <View style={[styles.sessaoRow, isFirst ? styles.sessaoRowFirst : null]}>
-      <Text style={[styles.sessaoDataText, { flex: 2 }]}>{dataStr}</Text>
-      {temVolume ? (
-        <View style={[styles.volCell, { flex: 2 }]}>
-          <Text style={styles.sessaoVolText}>{sessao.volumeTotal > 0 ? `${sessao.volumeTotal.toLocaleString('pt-BR')}kg` : '—'}</Text>
-          {volDiff != null ? (
-            <Text style={[styles.volDiff, volDiff > 0 ? styles.volDiffUp : volDiff < 0 ? styles.volDiffDown : styles.volDiffEqual]}>
-              {volDiff > 0 ? `+${volDiff}` : String(volDiff)}
+    <View style={[styles.sessaoRow, isFirst ? styles.sessaoRowFirst : null, sessao.arquivado ? styles.sessaoRowArquivada : null]}>
+      <View style={styles.sessaoMainRow}>
+        <Text style={[styles.sessaoDataText, { flex: 2 }, sessao.arquivado ? styles.sessaoTextArquivada : null]}>{dataStr}</Text>
+        {temVolume ? (
+          <View style={[styles.volCell, { flex: 2 }]}>
+            <Text style={[styles.sessaoVolText, sessao.arquivado ? styles.sessaoTextArquivada : null]}>
+              {sessao.volumeTotal > 0 ? `${sessao.volumeTotal.toLocaleString('pt-BR')}kg` : '—'}
             </Text>
+            {volDiff != null ? (
+              <Text style={[styles.volDiff, volDiff > 0 ? styles.volDiffUp : volDiff < 0 ? styles.volDiffDown : styles.volDiffEqual]}>
+                {volDiff > 0 ? `+${volDiff}` : String(volDiff)}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
+        <Text style={[styles.sessaoDurText, { flex: 1 }, sessao.arquivado ? styles.sessaoTextArquivada : null]}>{durStr}</Text>
+        <Pressable
+          onPress={() => setActionsOpen((v) => !v)}
+          hitSlop={8}
+          style={({ pressed }) => [styles.sessaoMenuBtn, actionsOpen ? styles.sessaoMenuBtnActive : null, pressed ? { opacity: 0.7 } : null]}
+        >
+          <Text style={[styles.sessaoMenuDot, actionsOpen ? styles.sessaoMenuDotActive : null]}>•</Text>
+          <Text style={[styles.sessaoMenuDot, actionsOpen ? styles.sessaoMenuDotActive : null]}>•</Text>
+          <Text style={[styles.sessaoMenuDot, actionsOpen ? styles.sessaoMenuDotActive : null]}>•</Text>
+        </Pressable>
+      </View>
+
+      {actionsOpen ? (
+        <View style={styles.sessaoActions}>
+          {onArquivar ? (
+            <Pressable
+              onPress={() => { setActionsOpen(false); onArquivar(); }}
+              style={({ pressed }) => [styles.sessaoActionBtn, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={styles.sessaoActionBtnText}>Arquivar</Text>
+            </Pressable>
           ) : null}
+          {onDesarquivar ? (
+            <Pressable
+              onPress={() => { setActionsOpen(false); onDesarquivar(); }}
+              style={({ pressed }) => [styles.sessaoActionBtn, styles.sessaoActionBtnRestore, pressed ? { opacity: 0.7 } : null]}
+            >
+              <Text style={[styles.sessaoActionBtnText, styles.sessaoActionBtnRestoreText]}>Restaurar</Text>
+            </Pressable>
+          ) : null}
+          <Pressable
+            onPress={() => { setActionsOpen(false); onDeletar(); }}
+            style={({ pressed }) => [styles.sessaoActionBtn, styles.sessaoActionBtnDelete, pressed ? { opacity: 0.7 } : null]}
+          >
+            <Text style={[styles.sessaoActionBtnText, styles.sessaoActionBtnDeleteText]}>Excluir</Text>
+          </Pressable>
         </View>
       ) : null}
-      <Text style={[styles.sessaoDurText, { flex: 1, textAlign: 'right' }]}>{durStr}</Text>
     </View>
   );
 }
@@ -348,14 +567,48 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     verTodosRow: { alignItems: 'center', paddingVertical: 6 },
     verTodosRowText: { color: c.accent, fontSize: 13, fontWeight: '700' },
     groupLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 },
-    treinoHeader: { flexDirection: 'row', alignItems: 'flex-start' },
+    // Treino card header — flex row, main area pressable, buttons separate
+    treinoHeader: { flexDirection: 'row', alignItems: 'center' },
+    treinoHeaderMain: { flex: 1 },
     treinoNome: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     treinoMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
-    treinoHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },
+    treinoHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     trendUp: { color: c.success, fontSize: 16, fontWeight: '800' },
     trendDown: { color: c.error, fontSize: 16, fontWeight: '800' },
     trendEqual: { color: c.textSecondary, fontSize: 16, fontWeight: '800' },
     chevron: { color: c.textSecondary, fontSize: 11, fontWeight: '700' },
+    // Treino card bulk action button
+    treinoMenuBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+      paddingHorizontal: 8,
+      paddingVertical: 5,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+      backgroundColor: c.cardAlt,
+    },
+    treinoMenuBtnActive: { backgroundColor: c.hero, borderColor: c.hero },
+    treinoMenuBtnDot: { color: c.textSecondary, fontSize: 8 },
+    treinoMenuBtnDotActive: { color: c.heroText },
+    // Bulk action menu
+    bulkMenu: {
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+      overflow: 'hidden',
+    },
+    bulkMenuItem: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: c.cardBorder,
+    },
+    bulkMenuItemDanger: { backgroundColor: c.errorBg },
+    bulkMenuItemText: { color: c.textPrimary, fontSize: 14, fontWeight: '600' },
+    bulkMenuItemTextDanger: { color: c.error },
+    // Chart
     chartSection: { gap: 10 },
     chartToggleRow: { flexDirection: 'row', gap: 8 },
     chartToggleBtn: {
@@ -370,24 +623,69 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     chartToggleBtnActiveVolume: { backgroundColor: c.successBg, borderColor: c.success },
     chartToggleBtnText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
     chartToggleBtnTextActive: { color: c.heroText },
+    // Session list
     sessoesList: { gap: 6 },
     sessaoRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
       backgroundColor: c.cardAlt,
       borderRadius: 12,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
+      overflow: 'hidden',
     },
     sessaoRowFirst: { borderWidth: 1.5, borderColor: c.accent },
+    sessaoRowArquivada: { opacity: 0.55 },
+    sessaoMainRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      gap: 4,
+    },
     sessaoDataText: { color: c.textPrimary, fontWeight: '700', fontSize: 13 },
+    sessaoTextArquivada: { color: c.textSecondary },
     volCell: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     sessaoVolText: { color: c.textPrimary, fontWeight: '700', fontSize: 13 },
     volDiff: { fontSize: 11, fontWeight: '700' },
     volDiffUp: { color: c.success },
     volDiffDown: { color: c.error },
     volDiffEqual: { color: c.textSecondary },
-    sessaoDurText: { color: c.textSecondary, fontSize: 12 },
+    sessaoDurText: { color: c.textSecondary, fontSize: 12, textAlign: 'right' },
+    // Session row menu button (three-dot pill)
+    sessaoMenuBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+      paddingHorizontal: 7,
+      paddingVertical: 4,
+      borderRadius: 7,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+      marginLeft: 6,
+    },
+    sessaoMenuBtnActive: { backgroundColor: c.hero, borderColor: c.hero },
+    sessaoMenuDot: { color: c.textSecondary, fontSize: 7 },
+    sessaoMenuDotActive: { color: c.heroText },
+    // Session row expanded actions
+    sessaoActions: {
+      flexDirection: 'row',
+      borderTopWidth: 1,
+      borderTopColor: c.cardBorder,
+    },
+    sessaoActionBtn: {
+      flex: 1,
+      paddingVertical: 9,
+      alignItems: 'center',
+      borderRightWidth: 1,
+      borderRightColor: c.cardBorder,
+    },
+    sessaoActionBtnText: { color: c.textSecondary, fontSize: 12, fontWeight: '700' },
+    sessaoActionBtnRestore: { backgroundColor: c.successBg },
+    sessaoActionBtnRestoreText: { color: c.success },
+    sessaoActionBtnDelete: { backgroundColor: c.errorBg, borderRightWidth: 0 },
+    sessaoActionBtnDeleteText: { color: c.error },
+    // Archived sessions toggle
+    arqSection: { gap: 8 },
+    arqToggle: { paddingVertical: 6 },
+    arqToggleText: { color: c.textSecondary, fontSize: 12, fontWeight: '700', textAlign: 'center' },
+    // Bottom CTA
     verEvolucaoBtn: {
       borderRadius: 14,
       paddingVertical: 12,
