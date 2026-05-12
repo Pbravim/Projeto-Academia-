@@ -70,6 +70,10 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
   async deleteBySessaoId(sessaoId: string): Promise<void> {
     await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
   }
+
+  async deleteByExercicioId(exercicioId: string): Promise<void> {
+    await this.database.run('DELETE FROM sessao_exercicios WHERE exercicio_id = ?', [exercicioId]);
+  }
 }
 
 function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {

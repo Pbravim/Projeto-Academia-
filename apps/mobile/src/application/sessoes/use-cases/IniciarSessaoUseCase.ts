@@ -2,7 +2,9 @@ import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercici
 import { SessaoTreino, type SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
@@ -48,14 +50,20 @@ export class IniciarSessaoUseCase {
       dataHoraInicio: this.dependencies.now(),
     });
 
-    await this.dependencies.sessaoTreinoRepository.save(sessao);
-
+    // Validate all exercises exist before writing anything to the DB.
+    // If we saved the session first and then threw, we'd leave a zombie 'em_andamento' session
+    // that blocks every subsequent start attempt.
+    const exerciseSnapshots: Array<{ p: TreinoExercicioPrimitives; ex: ExercisePrimitives }> = [];
     for (const te of treinoExercicios) {
       const p = te.toPrimitives();
       const exercise = await this.dependencies.exerciseRepository.findById(p.exercicioId);
       if (!exercise) throw new ExerciseNotFoundError(p.exercicioId);
+      exerciseSnapshots.push({ p, ex: exercise.toPrimitives() });
+    }
 
-      const ex = exercise.toPrimitives();
+    await this.dependencies.sessaoTreinoRepository.save(sessao);
+
+    for (const { p, ex } of exerciseSnapshots) {
       const sessaoExercicio = SessaoExercicio.create({
         id: this.dependencies.idGenerator(),
         sessaoTreinoId: sessao.toPrimitives().id,

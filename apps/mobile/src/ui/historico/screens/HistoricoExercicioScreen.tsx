@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
+import type { ExecucaoHistoricoViewModel } from '../presenters/buildHistoricoExercicioViewModel';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
 
@@ -12,15 +13,6 @@ export function HistoricoExercicioScreen({
 }: HistoricoExercicioControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const [expandedIndexes, setExpandedIndexes] = useState<Set<number>>(new Set());
-
-  const toggleExpanded = (index: number) => {
-    setExpandedIndexes((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) { next.delete(index); } else { next.add(index); }
-      return next;
-    });
-  };
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -31,7 +23,7 @@ export function HistoricoExercicioScreen({
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Historico</Text>
+        <Text style={styles.eyebrow}>Histórico</Text>
         <Text style={styles.title}>{viewModel.exercicioNome}</Text>
       </View>
 
@@ -44,7 +36,7 @@ export function HistoricoExercicioScreen({
 
       {!isLoading && viewModel.rm1ChartPoints.length >= 1 ? (
         <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Evolucao do 1RM estimado</Text>
+          <Text style={styles.chartTitle}>Evolução do 1RM estimado</Text>
           {viewModel.rm1ChartPoints.length >= 2 ? (
             <LineChart
               points={viewModel.rm1ChartPoints}
@@ -52,7 +44,7 @@ export function HistoricoExercicioScreen({
             />
           ) : (
             <Text style={styles.chartEmpty}>
-              Faca mais sessoes para visualizar a evolucao em grafico.
+              Faça mais sessões para visualizar a evolução em gráfico.
             </Text>
           )}
         </View>
@@ -61,81 +53,108 @@ export function HistoricoExercicioScreen({
       {isLoading ? (
         <ActivityIndicator size="large" color={c.accent} style={styles.loading} />
       ) : viewModel.emptyStateMessage ? (
-        <View style={styles.listCard}>
+        <View style={styles.card}>
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
         </View>
       ) : (
-        viewModel.execucoes.map((execucao, index) => {
-          const isExpanded = expandedIndexes.has(index);
-          return (
-            <View key={index} style={styles.execucaoCard}>
-              <Pressable
-                onPress={() => toggleExpanded(index)}
-                style={({ pressed }) => [styles.execucaoHeader, pressed ? { opacity: 0.7 } : null]}
-              >
-                <View>
-                  <Text style={styles.execucaoData}>{execucao.data}</Text>
-                  <Text style={styles.execucaoVolume}>Volume: {execucao.volumeTotal}</Text>
-                </View>
-                <View style={styles.execucaoHeaderRight}>
-                  <Text style={styles.execucaoRm1}>Melhor 1RM: {execucao.melhorRm1}</Text>
-                  <Text style={styles.execucaoChevron}>{isExpanded ? '▲' : '▼'}</Text>
-                </View>
-              </Pressable>
-
-              {isExpanded ? execucao.series.map((serie, serieIndex) => (
-                <View
-                  key={serieIndex}
-                  style={[styles.serieRow, serie.tipo === 'aquecimento' ? styles.serieAquecimento : styles.serieValida]}
-                >
-                  <View style={styles.serieInfo}>
-                    <Text style={styles.serieTipo}>
-                      {serie.tipo === 'valida' ? 'Valida' : 'Aquec.'}
-                    </Text>
-                    <Text style={styles.serieDescricao}>{serie.descricao}</Text>
-                  </View>
-                  {serie.rm1Estimado ? (
-                    <Text style={styles.serieRm1}>{serie.rm1Estimado}</Text>
-                  ) : null}
-                </View>
-              )) : null}
-            </View>
-          );
-        })
+        viewModel.execucoes.map((execucao, index) => (
+          <ExecucaoCard key={index} execucao={execucao} isFirst={index === 0} />
+        ))
       )}
     </ScrollView>
   );
 }
 
+function ExecucaoCard({ execucao, isFirst }: { execucao: ExecucaoHistoricoViewModel; isFirst: boolean }) {
+  const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const [expanded, setExpanded] = useState(isFirst);
+
+  const seriesValidas = execucao.series.filter((s) => s.tipo === 'valida');
+  const seriesAquec = execucao.series.filter((s) => s.tipo === 'aquecimento');
+
+  return (
+    <View style={styles.card}>
+      <Pressable
+        onPress={() => setExpanded((v) => !v)}
+        style={({ pressed }) => [styles.cardHeader, pressed ? { opacity: 0.7 } : null]}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={styles.execucaoData}>{execucao.data}</Text>
+          <Text style={styles.execucaoVolume}>{execucao.volumeTotal}</Text>
+        </View>
+        <View style={styles.cardHeaderRight}>
+          <Text style={styles.execucaoRm1}>{execucao.melhorRm1}</Text>
+          <Text style={styles.cardChevron}>{expanded ? '▲' : '▼'}</Text>
+        </View>
+      </Pressable>
+
+      {expanded ? (
+        <>
+          {/* Summary pills */}
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>Volume</Text>
+              <Text style={styles.summaryValue}>{execucao.volumeTotal}</Text>
+            </View>
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>Melhor 1RM</Text>
+              <Text style={[styles.summaryValue, styles.summaryAccent]}>{execucao.melhorRm1}</Text>
+            </View>
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>Séries</Text>
+              <Text style={styles.summaryValue}>{seriesValidas.length}</Text>
+            </View>
+          </View>
+
+          {/* Warming-up chips */}
+          {seriesAquec.length > 0 ? (
+            <View style={styles.seriesGroup}>
+              <Text style={styles.seriesGroupLabel}>Aquecimento</Text>
+              <View style={styles.seriesChips}>
+                {seriesAquec.map((serie, i) => (
+                  <View key={i} style={[styles.serieChip, styles.serieChipAquec]}>
+                    <Text style={styles.serieChipTextAquec}>{serie.descricao}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {/* Working set chips */}
+          {seriesValidas.length > 0 ? (
+            <View style={styles.seriesGroup}>
+              <Text style={styles.seriesGroupLabel}>Séries</Text>
+              <View style={styles.seriesChips}>
+                {seriesValidas.map((serie, i) => (
+                  <View key={i} style={styles.serieChip}>
+                    <Text style={styles.serieChipText}>{serie.descricao}</Text>
+                    {serie.rm1Estimado ? (
+                      <Text style={styles.serieRm1}>{serie.rm1Estimado}</Text>
+                    ) : null}
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {execucao.series.length === 0 ? (
+            <Text style={styles.semSeries}>Sem séries registradas</Text>
+          ) : null}
+        </>
+      ) : null}
+    </View>
+  );
+}
+
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    screen: {
-      flex: 1,
-      backgroundColor: c.background,
-    },
-    content: {
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 40,
-      gap: 14,
-    },
-    header: {
-      paddingVertical: 4,
-    },
-    backText: {
-      color: c.accent,
-      fontSize: 15,
-      fontWeight: '700',
-    },
-    backPressed: {
-      opacity: 0.6,
-    },
-    heroCard: {
-      backgroundColor: c.hero,
-      borderRadius: 24,
-      padding: 22,
-      gap: 8,
-    },
+    screen: { flex: 1, backgroundColor: c.background },
+    content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 16 },
+    header: { paddingVertical: 4 },
+    backText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backPressed: { opacity: 0.6 },
+    heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 8 },
     eyebrow: {
       color: c.heroSubtext,
       fontSize: 12,
@@ -143,14 +162,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       textTransform: 'uppercase',
       letterSpacing: 1,
     },
-    title: {
-      color: c.heroText,
-      fontSize: 26,
-      fontWeight: '800',
-    },
-    loading: {
-      marginTop: 40,
-    },
+    title: { color: c.heroText, fontSize: 26, fontWeight: '800' },
+    loading: { marginTop: 40 },
     chartCard: {
       backgroundColor: c.card,
       borderRadius: 24,
@@ -159,16 +172,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: c.cardBorder,
     },
-    chartTitle: {
-      color: c.textPrimary,
-      fontSize: 16,
-      fontWeight: '800',
-    },
-    chartEmpty: {
-      color: c.textSecondary,
-      fontSize: 13,
-      lineHeight: 18,
-    },
+    chartTitle: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
+    chartEmpty: { color: c.textSecondary, fontSize: 13, lineHeight: 18 },
     plateauBanner: {
       backgroundColor: c.warningBg,
       borderRadius: 20,
@@ -177,102 +182,70 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: c.warningBorder,
     },
-    plateauTitle: {
-      color: c.warning,
-      fontSize: 14,
-      fontWeight: '800',
-    },
-    plateauText: {
-      color: c.warning,
-      fontSize: 13,
-      lineHeight: 18,
-    },
-    listCard: {
+    plateauTitle: { color: c.warning, fontSize: 14, fontWeight: '800' },
+    plateauText: { color: c.warning, fontSize: 13, lineHeight: 18 },
+    card: {
       backgroundColor: c.card,
       borderRadius: 24,
-      padding: 20,
+      padding: 18,
+      gap: 14,
       borderWidth: 1,
       borderColor: c.cardBorder,
     },
-    emptyState: {
-      color: c.textSecondary,
-      fontSize: 14,
-      lineHeight: 20,
-    },
-    execucaoCard: {
-      backgroundColor: c.card,
-      borderRadius: 20,
-      padding: 16,
-      gap: 10,
-      borderWidth: 1,
-      borderColor: c.cardBorder,
-    },
-    execucaoHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    execucaoHeaderRight: {
-      alignItems: 'flex-end',
-      gap: 4,
-    },
-    execucaoChevron: {
-      color: c.textSecondary,
-      fontSize: 10,
-      fontWeight: '700',
-    },
-    execucaoData: {
-      color: c.textPrimary,
-      fontSize: 15,
-      fontWeight: '800',
-    },
-    execucaoRm1: {
-      color: c.accent,
-      fontSize: 13,
-      fontWeight: '700',
-    },
-    execucaoVolume: {
-      color: c.textSecondary,
-      fontSize: 12,
-      fontWeight: '600',
-      marginTop: 2,
-    },
-    serieRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      borderRadius: 12,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-    },
-    serieValida: {
+    emptyState: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    // Card header (same pattern as TreinoEvolucaoScreen)
+    cardHeader: { flexDirection: 'row', alignItems: 'flex-start' },
+    cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 2 },
+    cardChevron: { color: c.textSecondary, fontSize: 10, fontWeight: '700' },
+    execucaoData: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
+    execucaoVolume: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
+    execucaoRm1: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    // Summary pills (same as TreinoEvolucaoScreen)
+    summaryRow: { flexDirection: 'row', gap: 10 },
+    summaryItem: {
+      flex: 1,
       backgroundColor: c.cardAlt,
-    },
-    serieAquecimento: {
-      backgroundColor: c.background,
-    },
-    serieInfo: {
-      flexDirection: 'row',
+      borderRadius: 12,
+      padding: 10,
       alignItems: 'center',
-      gap: 10,
     },
-    serieTipo: {
-      fontSize: 11,
-      fontWeight: '700',
+    summaryLabel: {
       color: c.textSecondary,
+      fontSize: 11,
+      fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: 0.5,
-      minWidth: 44,
     },
-    serieDescricao: {
-      color: c.textPrimary,
-      fontSize: 14,
-      fontWeight: '600',
-    },
-    serieRm1: {
+    summaryValue: { color: c.textPrimary, fontSize: 15, fontWeight: '800', marginTop: 4 },
+    summaryAccent: { color: c.accent },
+    // Series chips (same as TreinoEvolucaoScreen)
+    seriesGroup: { gap: 8 },
+    seriesGroupLabel: {
       color: c.textLabel,
-      fontSize: 12,
-      fontWeight: '600',
+      fontSize: 11,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
     },
+    seriesChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    serieChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: c.cardAlt,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    serieChipAquec: {
+      backgroundColor: c.background,
+      borderColor: c.cardBorder,
+    },
+    serieChipText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
+    serieChipTextAquec: { color: c.textSecondary, fontSize: 13, fontWeight: '600' },
+    serieRm1: { color: c.textLabel, fontSize: 11, fontWeight: '600' },
+    semSeries: { color: c.textSecondary, fontSize: 12 },
   });
 }

@@ -65,6 +65,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
          LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
          WHERE st.status = 'finalizada'
          GROUP BY st.id
+         HAVING COUNT(CASE WHEN sr.tipo_serie = 'valida' THEN 1 END) > 0
          ORDER BY st.data_hora_inicio DESC`
       ),
       this.database.getAll<{ exercicio_nome: string; melhor_orm: number }>(

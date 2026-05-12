@@ -185,6 +185,7 @@ export function useSessaoAtivaController(
     } catch (error) {
       dependencies.logger.error('sessao_ativa.cancelar_failed', error);
       setErrorMessage('Nao foi possivel cancelar a sessao.');
+    } finally {
       setIsCanceling(false);
     }
   };

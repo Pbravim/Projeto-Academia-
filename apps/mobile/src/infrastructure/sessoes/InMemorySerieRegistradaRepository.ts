@@ -35,4 +35,10 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
       if (serie.toPrimitives().sessaoExercicioId === sessaoExercicioId) this.seriesById.delete(id);
     }
   }
+
+  async deleteByExercicioId(_exercicioId: string): Promise<void> {
+    // In-memory: the caller (DeleteExerciseUseCase) handles series deletion
+    // via deleteBySessaoExercicioId before calling deleteByExercicioId on the session repo.
+    // This no-op satisfies the interface for test environments that don't wire the full cascade.
+  }
 }

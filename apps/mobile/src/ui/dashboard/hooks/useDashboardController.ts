@@ -22,6 +22,7 @@ export interface DashboardControllerState {
   onReset: () => Promise<void>;
   onExportar: () => Promise<void>;
   onVerEvolucao: (treinoId: string, treinoNome: string) => void;
+  onVerRecordes: () => void;
 }
 
 export function useDashboardController(dependencies: DashboardControllerDependencies): DashboardControllerState {
@@ -87,5 +88,6 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     onReset,
     onExportar,
     onVerEvolucao: () => {},
+    onVerRecordes: () => {},
   };
 }

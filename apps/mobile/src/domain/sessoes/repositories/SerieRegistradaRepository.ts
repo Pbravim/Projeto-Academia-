@@ -7,4 +7,5 @@ export interface SerieRegistradaRepository {
   countBySessaoExercicioId(sessaoExercicioId: string): Promise<number>;
   delete(id: string): Promise<void>;
   deleteBySessaoExercicioId(sessaoExercicioId: string): Promise<void>;
+  deleteByExercicioId(exercicioId: string): Promise<void>;
 }

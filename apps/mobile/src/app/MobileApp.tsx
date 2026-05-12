@@ -1,28 +1,39 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Storage } from 'expo-sqlite/kv-store';
 
 import { mobileDependencies } from '../bootstrap/mobileDependencies';
 import { registerGlobalErrorHandler } from '../infrastructure/logging/registerGlobalErrorHandler';
 import { ExerciseCatalogFeature } from '../ui/exercises/ExerciseCatalogFeature';
-import { PesoFeature } from '../ui/peso/PesoFeature';
+import { PerfilFeature } from '../ui/perfil/PerfilFeature';
+import { PERFIL_NOME_KEY, PERFIL_FOTO_KEY } from '../ui/perfil/hooks/usePerfilController';
 import { TreinoFeature } from '../ui/treinos/TreinoFeature';
 import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 import { DashboardFeature } from '../ui/dashboard/DashboardFeature';
-import { ThemeContext, useTheme, useThemePreference, useThemeProvider, type ThemePreference } from '../ui/shared/theme';
+import { ThemeContext, useTheme, useThemeProvider } from '../ui/shared/theme';
 
-type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'peso' | 'evolucao';
+type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'evolucao' | 'perfil';
+type TabModule = Exclude<ActiveModule, 'perfil'>;
 
-const THEME_OPTIONS: { value: ThemePreference; icon: string; label: string }[] = [
-  { value: 'system', icon: '⊙', label: 'Auto' },
-  { value: 'light',  icon: '☀', label: 'Claro' },
-  { value: 'dark',   icon: '🌙', label: 'Escuro' },
-];
+const PERFIL_DEPS = {
+  peso: mobileDependencies.peso,
+  getDashboardStats: mobileDependencies.dashboard.getDashboardStats,
+  exportarHistorico: mobileDependencies.dashboard.exportarHistorico,
+  resetHistorico: mobileDependencies.dashboard.resetHistorico,
+  logger: mobileDependencies.logger,
+};
+
+function getInitials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '?';
+  if (words.length === 1) return words[0].charAt(0).toUpperCase();
+  return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+}
 
 export function MobileApp() {
   const themeValue = useThemeProvider();
-
   return (
     <ThemeContext.Provider value={themeValue}>
       <SafeAreaProvider>
@@ -34,21 +45,75 @@ export function MobileApp() {
 
 function AppContent() {
   const [activeModule, setActiveModule] = useState<ActiveModule>('sessao');
+  const [displayName, setDisplayName] = useState('');
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const lastTabRef = useRef<TabModule>('sessao');
   const insets = useSafeAreaInsets();
   const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
 
-  const styles = useMemo(() => makeStyles(c), [c]);
+  useEffect(() => {
+    void Promise.all([
+      Storage.getItem(PERFIL_NOME_KEY),
+      Storage.getItem(PERFIL_FOTO_KEY),
+    ]).then(([nome, foto]) => {
+      if (nome) setDisplayName(nome);
+      if (foto) setPhotoUri(foto);
+    });
+  }, []);
+
+  const handleTabPress = (tab: TabModule) => {
+    lastTabRef.current = tab;
+    setActiveModule(tab);
+  };
+
+  const handleProfilePress = () => {
+    if (activeModule === 'perfil') {
+      setActiveModule(lastTabRef.current);
+    } else {
+      setActiveModule('perfil');
+    }
+  };
+
+  const profileOpen = activeModule === 'perfil';
+  const initials = getInitials(displayName);
 
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
 
-      <View style={[styles.topBar, { paddingTop: insets.top }]}>
-        <ThemeSegmentedControl />
+      {/* ── Top bar ── */}
+      <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
+        <View style={styles.greetingBlock}>
+          <Text style={styles.greetingLabel}>Bem vindo{displayName ? ',' : ''}</Text>
+          {displayName ? (
+            <Text style={styles.greetingName} numberOfLines={1}>{displayName}</Text>
+          ) : null}
+        </View>
+
+        <Pressable
+          onPress={handleProfilePress}
+          style={({ pressed }) => [
+            styles.profileButton,
+            profileOpen ? styles.profileButtonActive : null,
+            pressed ? styles.profileButtonPressed : null,
+          ]}
+          accessibilityLabel="Perfil"
+          accessibilityRole="button"
+        >
+          {photoUri ? (
+            <Image source={{ uri: photoUri }} style={styles.profilePhoto} />
+          ) : (
+            <Text style={[styles.profileInitials, profileOpen ? styles.profileInitialsActive : null]}>
+              {initials}
+            </Text>
+          )}
+        </Pressable>
       </View>
 
+      {/* ── Content ── */}
       <View style={styles.container}>
         {activeModule === 'sessao' ? (
           <SessaoFeature dependencies={mobileDependencies.sessao} />
@@ -56,53 +121,29 @@ function AppContent() {
           <TreinoFeature dependencies={mobileDependencies.treinos} />
         ) : activeModule === 'exercicios' ? (
           <ExerciseCatalogFeature dependencies={mobileDependencies.exerciseCatalog} />
-        ) : activeModule === 'peso' ? (
-          <PesoFeature dependencies={mobileDependencies.peso} />
-        ) : (
+        ) : activeModule === 'evolucao' ? (
           <DashboardFeature dependencies={mobileDependencies.dashboard} />
+        ) : (
+          <PerfilFeature
+            dependencies={PERFIL_DEPS}
+            onNameChange={setDisplayName}
+            onPhotoChange={setPhotoUri}
+          />
         )}
       </View>
 
+      {/* ── Bottom tab bar ── */}
       <View style={[styles.tabBar, { paddingBottom: insets.bottom + 4 }]}>
-        <TabButton label="Sessao"     active={activeModule === 'sessao'}     onPress={() => setActiveModule('sessao')} />
-        <TabButton label="Treinos"    active={activeModule === 'treinos'}    onPress={() => setActiveModule('treinos')} />
-        <TabButton label="Exercicios" active={activeModule === 'exercicios'} onPress={() => setActiveModule('exercicios')} />
-        <TabButton label="Peso"       active={activeModule === 'peso'}       onPress={() => setActiveModule('peso')} />
-        <TabButton label="Evolucao"   active={activeModule === 'evolucao'}   onPress={() => setActiveModule('evolucao')} />
+        <TabButton label="Sessao"     active={activeModule === 'sessao'}     onPress={() => handleTabPress('sessao')} />
+        <TabButton label="Treinos"    active={activeModule === 'treinos'}    onPress={() => handleTabPress('treinos')} />
+        <TabButton label="Exercicios" active={activeModule === 'exercicios'} onPress={() => handleTabPress('exercicios')} />
+        <TabButton label="Evolucao"   active={activeModule === 'evolucao'}   onPress={() => handleTabPress('evolucao')} />
       </View>
     </View>
   );
 }
 
-function ThemeSegmentedControl() {
-  const c = useTheme();
-  const { preference, setPreference } = useThemePreference();
-  const styles = useMemo(() => makeSegmentedStyles(c), [c]);
-
-  return (
-    <View style={styles.track}>
-      {THEME_OPTIONS.map((opt) => {
-        const active = preference === opt.value;
-        return (
-          <Pressable
-            key={opt.value}
-            onPress={() => setPreference(opt.value)}
-            accessibilityRole="radio"
-            accessibilityState={{ checked: active }}
-            accessibilityLabel={opt.label}
-            style={({ pressed }) => [
-              styles.option,
-              active ? styles.optionActive : null,
-              pressed && !active ? styles.optionPressed : null,
-            ]}
-          >
-            <Text style={styles.icon}>{opt.icon}</Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
+// ─── Tab button ───────────────────────────────────────────────────────────────
 
 interface TabButtonProps {
   label: string;
@@ -127,18 +168,58 @@ function TabButton({ label, active, onPress }: TabButtonProps) {
   );
 }
 
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     root: { flex: 1, backgroundColor: c.tabBar },
+
     topBar: {
       backgroundColor: c.tabBar,
       flexDirection: 'row',
-      justifyContent: 'flex-end',
       alignItems: 'center',
-      paddingHorizontal: 14,
-      paddingBottom: 4,
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingBottom: 14,
     },
+    greetingBlock: { flex: 1, gap: 1 },
+    greetingLabel: {
+      color: c.tabText,
+      fontSize: 12,
+      fontWeight: '600',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+    greetingName: {
+      color: c.tabTextActive,
+      fontSize: 22,
+      fontWeight: '800',
+      letterSpacing: -0.3,
+    },
+
+    profileButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+      overflow: 'hidden',
+      marginLeft: 12,
+    },
+    profileButtonActive: {
+      backgroundColor: c.accent,
+      borderColor: c.tabTextActive,
+    },
+    profileButtonPressed: { opacity: 0.65 },
+    profilePhoto: { width: 44, height: 44 },
+    profileInitials: { color: c.tabText, fontSize: 16, fontWeight: '800' },
+    profileInitialsActive: { color: c.accentText },
+
     container: { flex: 1, backgroundColor: c.background },
+
     tabBar: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -147,29 +228,5 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       paddingTop: 6,
       gap: 2,
     },
-  });
-}
-
-function makeSegmentedStyles(c: ReturnType<typeof useTheme>) {
-  return StyleSheet.create({
-    track: {
-      flexDirection: 'row',
-      backgroundColor: 'rgba(255,255,255,0.08)',
-      borderRadius: 8,
-      padding: 2,
-      gap: 1,
-    },
-    option: {
-      width: 30,
-      height: 26,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 6,
-    },
-    optionActive: {
-      backgroundColor: 'rgba(255,255,255,0.18)',
-    },
-    optionPressed: { opacity: 0.5 },
-    icon: { fontSize: 13 },
   });
 }

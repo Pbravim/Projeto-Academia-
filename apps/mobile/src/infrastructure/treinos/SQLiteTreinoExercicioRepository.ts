@@ -86,6 +86,10 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
   async deleteByTreinoId(treinoId: string): Promise<void> {
     await this.database.run('DELETE FROM treino_exercicios WHERE treino_id = ?', [treinoId]);
   }
+
+  async deleteByExercicioId(exercicioId: string): Promise<void> {
+    await this.database.run('DELETE FROM treino_exercicios WHERE exercicio_id = ?', [exercicioId]);
+  }
 }
 
 function mapRowToPrimitives(row: TreinoExercicioRow): TreinoExercicioPrimitives {

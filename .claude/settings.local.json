@@ -32,7 +32,9 @@
       "Bash(node *)",
       "Bash(npm --prefix /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile test -- --reporter=verbose)",
       "Bash(npm --prefix /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile test)",
-      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")",
+      "WebFetch(domain:)",
+      "WebSearch"
     ]
   }
 }

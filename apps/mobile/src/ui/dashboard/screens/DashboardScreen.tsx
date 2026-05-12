@@ -4,11 +4,11 @@ import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View
 type DashboardChartMode = 'orm' | 'volume';
 
 import type { DashboardControllerState } from '../hooks/useDashboardController';
-import type { DiaAderencia, EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
 
-export function DashboardScreen({ stats, isLoading, isResetting, isExporting, errorMessage, onRefresh, onReset, onExportar, onVerEvolucao }: DashboardControllerState) {
+export function DashboardScreen({ stats, isLoading, isResetting, isExporting, errorMessage, onRefresh, onReset, onExportar, onVerEvolucao, onVerRecordes }: DashboardControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -67,27 +67,39 @@ export function DashboardScreen({ stats, isLoading, isResetting, isExporting, er
         <ActivityIndicator size="large" color={c.accent} style={styles.loader} />
       ) : stats ? (
         <>
-          <View style={styles.statsRow}>
-            <StatCard label="Total de sessoes" value={String(stats.totalSessoes)} />
-            <StatCard label="Ultimo mes" value={String(stats.sessoesUltimoMes)} />
-          </View>
-
-          <AderenciaCard
-            semanal={stats.aderenciaSemanal}
-            mensal={stats.aderenciaMensal}
-            anual={stats.aderenciaAnual}
-          />
-
           {stats.recordesPessoais.length > 0 ? (
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Recordes pessoais</Text>
-              <Text style={styles.helperText}>Melhor 1RM estimado — carga × (1 + reps / 30)</Text>
-              {stats.recordesPessoais.map((r) => (
+              <View style={styles.recordesHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sectionTitle}>Recordes pessoais</Text>
+                  <Text style={styles.helperText}>Melhor 1RM — carga × (1 + reps / 30)</Text>
+                </View>
+                {stats.recordesPessoais.length > 3 ? (
+                  <Pressable
+                    onPress={onVerRecordes}
+                    style={({ pressed }) => [styles.verTodosBtn, pressed ? { opacity: 0.7 } : null]}
+                  >
+                    <Text style={styles.verTodosBtnText}>Ver todos</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              {stats.recordesPessoais.slice(0, 3).map((r, i) => (
                 <View key={r.exercicioNome} style={styles.recordeRow}>
+                  <Text style={[styles.recordeRank, i === 0 ? styles.recordeRank1 : i === 1 ? styles.recordeRank2 : styles.recordeRank3]}>
+                    {i + 1}
+                  </Text>
                   <Text style={styles.recordeNome} numberOfLines={1}>{r.exercicioNome}</Text>
                   <Text style={styles.recordeValor}>{r.melhorOrmKg} kg</Text>
                 </View>
               ))}
+              {stats.recordesPessoais.length > 3 ? (
+                <Pressable
+                  onPress={onVerRecordes}
+                  style={({ pressed }) => [styles.verTodosRow, pressed ? { opacity: 0.7 } : null]}
+                >
+                  <Text style={styles.verTodosRowText}>+{stats.recordesPessoais.length - 3} exercícios →</Text>
+                </Pressable>
+              ) : null}
             </View>
           ) : null}
 
@@ -120,7 +132,7 @@ function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [chartMode, setChartMode] = useState<DashboardChartMode>('orm');
 
   const sessoes = grupo.sessoes;
@@ -162,32 +174,25 @@ function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino
 
   return (
     <View style={styles.card}>
-      <View style={styles.treinoHeaderRow}>
-        <Pressable
-          onPress={() => setExpanded((v) => !v)}
-          style={[styles.treinoHeader, { flex: 1 }]}
-        >
-          <View style={{ flex: 1 }}>
-            <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
-            <Text style={styles.treinoMeta}>{sessoes.length} sessao{sessoes.length !== 1 ? 'es' : ''}</Text>
-          </View>
-          <View style={styles.treinoHeaderRight}>
-            {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
-            {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
-            {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
-            <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
-          </View>
-        </Pressable>
-        <Pressable
-          onPress={onVerEvolucao}
-          style={({ pressed }) => [styles.verEvolucaoBtn, pressed ? styles.verEvolucaoBtnPressed : null]}
-        >
-          <Text style={styles.verEvolucaoBtnText}>Por exercicio →</Text>
-        </Pressable>
-      </View>
+      {/* Header: tapping collapses/expands the session list */}
+      <Pressable
+        onPress={() => setExpanded((v) => !v)}
+        style={({ pressed }) => [styles.treinoHeader, pressed ? { opacity: 0.7 } : null]}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
+          <Text style={styles.treinoMeta}>{sessoes.length} sessão{sessoes.length !== 1 ? 'ões' : ''}</Text>
+        </View>
+        <View style={styles.treinoHeaderRight}>
+          {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
+          {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
+          {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
+          <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+        </View>
+      </Pressable>
 
       {(ormChartPoints.length >= 2 || volumeChartPoints.length >= 2) ? (
-        <>
+        <View style={styles.chartSection}>
           <View style={styles.chartToggleRow}>
             {ormChartPoints.length >= 2 ? (
               <Pressable
@@ -218,21 +223,24 @@ function TreinoEvolucaoCard({ grupo, onVerEvolucao }: { grupo: EvolucaoPorTreino
               formatValue={activeFormat}
             />
           ) : null}
-        </>
+        </View>
       ) : null}
 
       {expanded ? (
         <View style={styles.sessoesList}>
-          <View style={styles.sessaoTableHeader}>
-            <Text style={[styles.sessaoTableCell, styles.sessaoTableDate]}>Data</Text>
-            {temVolume ? <Text style={[styles.sessaoTableCell, styles.sessaoTableVol]}>Volume</Text> : null}
-            <Text style={[styles.sessaoTableCell, styles.sessaoTableDur]}>Duracao</Text>
-          </View>
           {sessoes.map((s, i) => (
-            <SessaoRow key={s.id} sessao={s} prev={sessoes[i + 1] ?? null} temVolume={temVolume} />
+            <SessaoRow key={s.id} sessao={s} prev={sessoes[i + 1] ?? null} temVolume={temVolume} isFirst={i === 0} />
           ))}
         </View>
       ) : null}
+
+      {/* Bottom CTA */}
+      <Pressable
+        onPress={onVerEvolucao}
+        style={({ pressed }) => [styles.verEvolucaoBtn, pressed ? styles.verEvolucaoBtnPressed : null]}
+      >
+        <Text style={styles.verEvolucaoBtnText}>Ver evolução por exercício →</Text>
+      </Pressable>
     </View>
   );
 }
@@ -241,10 +249,12 @@ function SessaoRow({
   sessao,
   prev,
   temVolume,
+  isFirst,
 }: {
   sessao: SessaoComVolume;
   prev: SessaoComVolume | null;
   temVolume: boolean;
+  isFirst: boolean;
 }) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -264,10 +274,10 @@ function SessaoRow({
     : null;
 
   return (
-    <View style={styles.sessaoRow}>
-      <Text style={[styles.sessaoTableCell, styles.sessaoTableDate, styles.sessaoDataText]}>{dataStr}</Text>
+    <View style={[styles.sessaoRow, isFirst ? styles.sessaoRowFirst : null]}>
+      <Text style={[styles.sessaoDataText, { flex: 2 }]}>{dataStr}</Text>
       {temVolume ? (
-        <View style={[styles.sessaoTableVolContainer, styles.volCell]}>
+        <View style={[styles.volCell, { flex: 2 }]}>
           <Text style={styles.sessaoVolText}>{sessao.volumeTotal > 0 ? `${sessao.volumeTotal.toLocaleString('pt-BR')}kg` : '—'}</Text>
           {volDiff != null ? (
             <Text style={[styles.volDiff, volDiff > 0 ? styles.volDiffUp : volDiff < 0 ? styles.volDiffDown : styles.volDiffEqual]}>
@@ -276,178 +286,7 @@ function SessaoRow({
           ) : null}
         </View>
       ) : null}
-      <Text style={[styles.sessaoTableCell, styles.sessaoTableDur, styles.sessaoDurText]}>{durStr}</Text>
-    </View>
-  );
-}
-
-interface StatCardProps {
-  label: string;
-  value: string;
-}
-
-function StatCard({ label, value }: StatCardProps) {
-  const c = useTheme();
-  const styles = useMemo(() => makeStyles(c), [c]);
-
-  return (
-    <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
-
-type AderenciaMode = 'semanal' | 'mensal' | 'anual';
-
-const CAL_HEADERS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
-
-function CalendarMonthView({ dias, c, styles }: {
-  dias: DiaAderencia[];
-  c: ReturnType<typeof useTheme>;
-  styles: ReturnType<typeof makeStyles>;
-}) {
-  const now = new Date();
-  const firstWeekday = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-  // Convert Sunday=0 to Monday-first offset
-  const startOffset = firstWeekday === 0 ? 6 : firstWeekday - 1;
-
-  const totalCells = Math.ceil((startOffset + dias.length) / 7) * 7;
-  const cells: (DiaAderencia | null)[] = [
-    ...Array<null>(startOffset).fill(null),
-    ...dias,
-    ...Array<null>(totalCells - startOffset - dias.length).fill(null),
-  ];
-
-  const rows: (DiaAderencia | null)[][] = [];
-  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
-
-  return (
-    <View style={styles.calendarGrid}>
-      {/* Weekday header */}
-      <View style={styles.calendarRow}>
-        {CAL_HEADERS.map((h) => (
-          <View key={h} style={styles.calendarCell}>
-            <Text style={styles.calendarHeaderText}>{h}</Text>
-          </View>
-        ))}
-      </View>
-      {/* Day rows */}
-      {rows.map((row, ri) => (
-        <View key={ri} style={styles.calendarRow}>
-          {row.map((day, ci) => {
-            if (!day) return <View key={ci} style={[styles.calendarCell, styles.calendarCellGhost]} />;
-            const active = day.totalSessoes > 0;
-            return (
-              <View
-                key={ci}
-                style={[
-                  styles.calendarCell,
-                  styles.calendarCellDay,
-                  active ? styles.calendarCellActive : null,
-                  day.isToday ? styles.calendarCellToday : null,
-                ]}
-              >
-                <Text style={[styles.calendarDayNum, active ? styles.calendarDayNumActive : null]}>
-                  {String(parseInt(day.label, 10))}
-                </Text>
-                {active ? (
-                  <Text style={styles.calendarCount}>{day.totalSessoes}</Text>
-                ) : null}
-              </View>
-            );
-          })}
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function AderenciaCard({
-  semanal,
-  mensal,
-  anual,
-}: {
-  semanal: DiaAderencia[];
-  mensal: DiaAderencia[];
-  anual: DiaAderencia[];
-}) {
-  const c = useTheme();
-  const styles = useMemo(() => makeStyles(c), [c]);
-  const [mode, setMode] = useState<AderenciaMode>('semanal');
-
-  const dados = mode === 'semanal' ? semanal : mode === 'mensal' ? mensal : anual;
-  const maxSessoes = Math.max(...dados.map((d) => d.totalSessoes), 1);
-  const totalAtivas = dados.filter((d) => d.totalSessoes > 0).length;
-  const totalSessoes = dados.reduce((sum, d) => sum + d.totalSessoes, 0);
-
-  const MAX_BAR_H = 56;
-  const MIN_BAR_H = 3;
-
-  const subtitle = mode === 'semanal' ? 'Semana atual' : mode === 'mensal' ? 'Mes atual' : 'Ano atual';
-  const footerUnit = mode === 'anual' ? 'meses ativos' : 'dias ativos';
-
-  return (
-    <View style={styles.card}>
-      <View style={styles.adherenceHeader}>
-        <Text style={styles.sectionTitle}>Aderencia</Text>
-        <View style={styles.adherenceModeToggle}>
-          {(['semanal', 'mensal', 'anual'] as AderenciaMode[]).map((m) => (
-            <Pressable
-              key={m}
-              onPress={() => setMode(m)}
-              style={[styles.adherenceModeBtn, mode === m ? styles.adherenceModeBtnActive : null]}
-            >
-              <Text style={[styles.adherenceModeBtnText, mode === m ? styles.adherenceModeBtnTextActive : null]}>
-                {m.charAt(0).toUpperCase() + m.slice(1)}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-      <Text style={styles.helperText}>{subtitle}</Text>
-
-      {mode === 'mensal' ? (
-        <CalendarMonthView dias={mensal} c={c} styles={styles} />
-      ) : (
-        <View style={styles.adherenceChart}>
-          <View style={styles.adherenceBarRow}>
-            {dados.map((d, i) => {
-              const barH = d.totalSessoes === 0
-                ? MIN_BAR_H
-                : Math.max(MIN_BAR_H + 6, Math.round((d.totalSessoes / maxSessoes) * MAX_BAR_H));
-              return (
-                <View key={i} style={styles.adherenceBarCol}>
-                  <Text style={styles.adherenceCount}>
-                    {d.totalSessoes > 0 ? String(d.totalSessoes) : ''}
-                  </Text>
-                  <View
-                    style={[
-                      styles.adherenceBar,
-                      { height: barH },
-                      d.totalSessoes === 0 ? styles.adherenceBarEmpty : null,
-                      d.isToday ? styles.adherenceBarToday : null,
-                    ]}
-                  />
-                </View>
-              );
-            })}
-          </View>
-          <View style={styles.adherenceLabelRow}>
-            {dados.map((d, i) => (
-              <View key={i} style={styles.adherenceLabelCol}>
-                <Text style={styles.adherenceLabel} numberOfLines={1}>{d.label}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-
-      <View style={styles.adherenceFooter}>
-        <Text style={styles.adherenceFooterText}>{totalSessoes} treinos</Text>
-        <Text style={styles.adherenceFooterDot}>·</Text>
-        <Text style={styles.adherenceFooterText}>{totalAtivas} {footerUnit}</Text>
-      </View>
+      <Text style={[styles.sessaoDurText, { flex: 1, textAlign: 'right' }]}>{durStr}</Text>
     </View>
   );
 }
@@ -472,32 +311,44 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     title: { color: c.heroText, fontSize: 30, fontWeight: '800' },
     description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
     loader: { marginTop: 40 },
-    statsRow: { flexDirection: 'row', gap: 12 },
-    statCard: { flex: 1, backgroundColor: c.card, borderRadius: 20, padding: 18, alignItems: 'center', borderWidth: 1, borderColor: c.cardBorder },
-    statValue: { color: c.textPrimary, fontSize: 32, fontWeight: '800' },
-    statLabel: { color: c.textSecondary, fontSize: 13, fontWeight: '600', marginTop: 4, textAlign: 'center' },
-    card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
+    card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
     helperText: { color: c.textSecondary, fontSize: 12, lineHeight: 17 },
     emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
     errorText: { color: c.error, fontSize: 14, fontWeight: '600' },
     refreshBtn: { backgroundColor: c.hero, borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
     refreshBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },
-    recordeRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.cardAlt, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+    recordesHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+    verTodosBtn: {
+      backgroundColor: c.cardAlt,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      alignSelf: 'flex-start',
+      marginTop: 2,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    verTodosBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+    recordeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.cardAlt,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 11,
+      gap: 10,
+    },
+    recordeRank: { fontSize: 13, fontWeight: '800', minWidth: 18, textAlign: 'center' },
+    recordeRank1: { color: '#d4a017' },
+    recordeRank2: { color: c.textSecondary },
+    recordeRank3: { color: '#a0522d' },
     recordeNome: { flex: 1, color: c.textPrimary, fontSize: 14, fontWeight: '700' },
-    recordeValor: { color: c.accent, fontSize: 15, fontWeight: '800', marginLeft: 8 },
+    recordeValor: { color: c.accent, fontSize: 15, fontWeight: '800' },
+    verTodosRow: { alignItems: 'center', paddingVertical: 6 },
+    verTodosRowText: { color: c.accent, fontSize: 13, fontWeight: '700' },
     groupLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 },
-    treinoHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
     treinoHeader: { flexDirection: 'row', alignItems: 'flex-start' },
-    verEvolucaoBtn: { backgroundColor: c.cardAlt, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7, alignSelf: 'flex-start', marginTop: 2 },
-    verEvolucaoBtnPressed: { opacity: 0.7 },
-    verEvolucaoBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
-    chartToggleRow: { flexDirection: 'row', gap: 8 },
-    chartToggleBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9, backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.cardBorder },
-    chartToggleBtnActive: { backgroundColor: c.hero, borderColor: c.hero },
-    chartToggleBtnActiveVolume: { backgroundColor: c.successBg, borderColor: c.success },
-    chartToggleBtnText: { color: c.textSecondary, fontSize: 12, fontWeight: '700' },
-    chartToggleBtnTextActive: { color: c.heroText },
     treinoNome: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     treinoMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
     treinoHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },
@@ -505,15 +356,31 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     trendDown: { color: c.error, fontSize: 16, fontWeight: '800' },
     trendEqual: { color: c.textSecondary, fontSize: 16, fontWeight: '800' },
     chevron: { color: c.textSecondary, fontSize: 11, fontWeight: '700' },
-    sessoesList: { gap: 4 },
-    sessaoTableHeader: { flexDirection: 'row', paddingHorizontal: 4, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
-    sessaoTableCell: { fontSize: 12 },
-    sessaoTableDate: { flex: 2, color: c.textLabel, fontWeight: '700' },
-    sessaoTableVol: { flex: 2, color: c.textLabel, fontWeight: '700' },
-    sessaoTableVolContainer: { flex: 2 },
-    sessaoTableDur: { flex: 1, color: c.textLabel, fontWeight: '700', textAlign: 'right' },
-    sessaoRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 6, borderRadius: 8, backgroundColor: c.background },
-    sessaoDataText: { color: c.textPrimary, fontWeight: '600', fontSize: 13 },
+    chartSection: { gap: 10 },
+    chartToggleRow: { flexDirection: 'row', gap: 8 },
+    chartToggleBtn: {
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      borderRadius: 10,
+      backgroundColor: c.cardAlt,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    chartToggleBtnActive: { backgroundColor: c.hero, borderColor: c.hero },
+    chartToggleBtnActiveVolume: { backgroundColor: c.successBg, borderColor: c.success },
+    chartToggleBtnText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
+    chartToggleBtnTextActive: { color: c.heroText },
+    sessoesList: { gap: 6 },
+    sessaoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: c.cardAlt,
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+    },
+    sessaoRowFirst: { borderWidth: 1.5, borderColor: c.accent },
+    sessaoDataText: { color: c.textPrimary, fontWeight: '700', fontSize: 13 },
     volCell: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     sessaoVolText: { color: c.textPrimary, fontWeight: '700', fontSize: 13 },
     volDiff: { fontSize: 11, fontWeight: '700' },
@@ -521,38 +388,14 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     volDiffDown: { color: c.error },
     volDiffEqual: { color: c.textSecondary },
     sessaoDurText: { color: c.textSecondary, fontSize: 12 },
-    adherenceHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    adherenceModeToggle: { flexDirection: 'row', backgroundColor: c.cardAlt, borderRadius: 10, padding: 2, gap: 2 },
-    adherenceModeBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
-    adherenceModeBtnActive: { backgroundColor: c.card, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
-    adherenceModeBtnText: { color: c.textSecondary, fontSize: 11, fontWeight: '700' },
-    adherenceModeBtnTextActive: { color: c.textPrimary },
-    // bar chart (semanal / anual)
-    adherenceChart: { gap: 0 },
-    adherenceBarRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 72 },
-    adherenceBarCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 2 },
-    adherenceCount: { color: c.accent, fontSize: 9, fontWeight: '800', height: 12, textAlign: 'center' },
-    adherenceBar: { width: '100%', borderRadius: 3, backgroundColor: c.accent, opacity: 0.6 },
-    adherenceBarEmpty: { backgroundColor: c.cardBorder, opacity: 1 },
-    adherenceBarToday: { opacity: 1 },
-    adherenceLabelRow: { flexDirection: 'row', gap: 3, marginTop: 3 },
-    adherenceLabelCol: { flex: 1, alignItems: 'center' },
-    adherenceLabel: { color: c.textSecondary, fontSize: 9, fontWeight: '600', textAlign: 'center' },
-    // calendar (mensal)
-    calendarGrid: { gap: 3 },
-    calendarRow: { flexDirection: 'row', gap: 3 },
-    calendarCell: { flex: 1, aspectRatio: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-    calendarCellGhost: { backgroundColor: 'transparent' },
-    calendarCellDay: { backgroundColor: c.cardAlt },
-    calendarCellActive: { backgroundColor: c.accent },
-    calendarCellToday: { borderWidth: 2, borderColor: c.accent },
-    calendarHeaderText: { color: c.textSecondary, fontSize: 9, fontWeight: '700', textAlign: 'center' },
-    calendarDayNum: { color: c.textSecondary, fontSize: 10, fontWeight: '600' },
-    calendarDayNumActive: { color: c.accentText, fontSize: 9 },
-    calendarCount: { color: c.accentText, fontSize: 13, fontWeight: '800', lineHeight: 14 },
-    // footer
-    adherenceFooter: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
-    adherenceFooterText: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },
-    adherenceFooterDot: { color: c.cardBorder, fontSize: 14, fontWeight: '800' },
+    verEvolucaoBtn: {
+      borderRadius: 14,
+      paddingVertical: 12,
+      alignItems: 'center',
+      borderWidth: 1.5,
+      borderColor: c.accent,
+    },
+    verEvolucaoBtnPressed: { opacity: 0.7 },
+    verEvolucaoBtnText: { color: c.accent, fontSize: 14, fontWeight: '700' },
   });
 }

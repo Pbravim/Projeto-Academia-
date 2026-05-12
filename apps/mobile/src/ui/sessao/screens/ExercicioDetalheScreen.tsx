@@ -221,7 +221,7 @@ export function ExercicioDetalheScreen({
             onPress={() => { void onAbrirSubstituicao(sessaoExercicio.id); }}
             style={({ pressed }) => [styles.substituirBtn, pressed ? { opacity: 0.7 } : null]}
           >
-            <Text style={styles.substituirBtnText}>↔</Text>
+            <Text style={styles.substituirBtnText}>Trocar exercicio</Text>
           </Pressable>
         ) : null}
         <Pressable
@@ -594,8 +594,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     headerTitle: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
     headerSubtitle: { color: c.textSecondary, fontSize: 12 },
     substituicaoBadge: { color: c.accent, fontSize: 11, fontWeight: '600' },
-    substituirBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.cardAlt, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: c.cardBorder },
-    substituirBtnText: { color: c.textPrimary, fontSize: 16 },
+    substituirBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, backgroundColor: c.accentLight, borderWidth: 1, borderColor: c.accent, flexShrink: 0 },
+    substituirBtnText: { color: c.accent, fontSize: 11, fontWeight: '700' },
     finalizadoToggle: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
     finalizadoToggleOff: { backgroundColor: c.hero },
     finalizadoToggleOn: { backgroundColor: c.cardAlt },

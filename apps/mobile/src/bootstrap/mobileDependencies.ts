@@ -82,7 +82,12 @@ export const mobileDependencies = {
       exerciseRepository,
       now: () => new Date(),
     }),
-    deleteExercise: new DeleteExerciseUseCase({ exerciseRepository }),
+    deleteExercise: new DeleteExerciseUseCase({
+      exerciseRepository,
+      treinoExercicioRepository,
+      sessaoExercicioRepository,
+      serieRegistradaRepository,
+    }),
     listExercises,
     getUltimasExecucoesValidas: new GetUltimasExecucoesValidasUseCase({ historicoRepository }),
     getHistoricoExercicio: new GetHistoricoExercicioUseCase({ historicoRepository }),

@@ -77,7 +77,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
               sr.id as serie_id, sr.tipo_serie, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
        FROM sessao_exercicios se
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
-       LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
+       INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
        WHERE se.exercicio_id = ? AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL
        ORDER BY st.data_hora_fim DESC, sr.ordem ASC`,
       [exercicioId]

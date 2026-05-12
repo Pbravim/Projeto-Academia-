@@ -55,6 +55,16 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   async deleteBySessaoExercicioId(sessaoExercicioId: string): Promise<void> {
     await this.database.run('DELETE FROM series_registradas WHERE sessao_exercicio_id = ?', [sessaoExercicioId]);
   }
+
+  async deleteByExercicioId(exercicioId: string): Promise<void> {
+    await this.database.run(
+      `DELETE FROM series_registradas
+       WHERE sessao_exercicio_id IN (
+         SELECT id FROM sessao_exercicios WHERE exercicio_id = ?
+       )`,
+      [exercicioId]
+    );
+  }
 }
 
 function mapRow(row: SerieRegistradaRow): SerieRegistradaPrimitives {

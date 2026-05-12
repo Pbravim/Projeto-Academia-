@@ -5,6 +5,7 @@ import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoCont
 import { useDashboardController } from './hooks/useDashboardController';
 import { useTreinoEvolucaoController } from './hooks/useTreinoEvolucaoController';
 import { DashboardScreen } from './screens/DashboardScreen';
+import { RecordesPessoaisScreen } from './screens/RecordesPessoaisScreen';
 import { TreinoEvolucaoScreen } from './screens/TreinoEvolucaoScreen';
 
 interface Props {
@@ -16,17 +17,28 @@ interface TreinoSelected {
   treinoNome: string;
 }
 
+type ActiveView = { type: 'dashboard' } | { type: 'recordes' } | { type: 'evolucao'; treinoId: string; treinoNome: string };
+
 export function DashboardFeature({ dependencies }: Props) {
-  const [selected, setSelected] = useState<TreinoSelected | null>(null);
+  const [view, setView] = useState<ActiveView>({ type: 'dashboard' });
   const controller = useDashboardController(dependencies);
 
-  if (selected) {
+  if (view.type === 'recordes') {
+    return (
+      <RecordesPessoaisScreen
+        recordes={controller.stats?.recordesPessoais ?? []}
+        onBack={() => setView({ type: 'dashboard' })}
+      />
+    );
+  }
+
+  if (view.type === 'evolucao') {
     return (
       <TreinoEvolucaoView
-        treinoId={selected.treinoId}
-        treinoNome={selected.treinoNome}
+        treinoId={view.treinoId}
+        treinoNome={view.treinoNome}
         dependencies={dependencies}
-        onBack={() => setSelected(null)}
+        onBack={() => setView({ type: 'dashboard' })}
       />
     );
   }
@@ -34,7 +46,8 @@ export function DashboardFeature({ dependencies }: Props) {
   return (
     <DashboardScreen
       {...controller}
-      onVerEvolucao={(treinoId, treinoNome) => setSelected({ treinoId, treinoNome })}
+      onVerEvolucao={(treinoId, treinoNome) => setView({ type: 'evolucao', treinoId, treinoNome })}
+      onVerRecordes={() => setView({ type: 'recordes' })}
     />
   );
 }

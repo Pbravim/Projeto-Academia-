@@ -50,11 +50,15 @@ describe('CancelarSessaoUseCase', () => {
       grupoMuscularSnapshot: 'Peito',
       categoriaSnapshot: 'Composto',
       equipamentoSnapshot: null,
+      musculoAlvoSnapshot: null,
       realizado: false,
       seriesRecomendadas: null,
       execucoesRecomendadas: null,
       cargaPadrao: null,
       tempoDescansoSegundos: null,
+      substituidoPorExercicioId: null,
+      substituicaoMotivo: null,
+      nomeOriginalSnapshot: null,
       ordem: 1,
     });
     await sessaoExercicioRepository.save(exercicio);
@@ -94,11 +98,15 @@ describe('CancelarSessaoUseCase', () => {
         grupoMuscularSnapshot: 'Peito',
         categoriaSnapshot: 'Composto',
         equipamentoSnapshot: null,
+        musculoAlvoSnapshot: null,
         realizado: false,
         seriesRecomendadas: null,
         execucoesRecomendadas: null,
         cargaPadrao: null,
         tempoDescansoSegundos: null,
+        substituidoPorExercicioId: null,
+        substituicaoMotivo: null,
+        nomeOriginalSnapshot: null,
         ordem: i,
       });
       await sessaoExercicioRepository.save(ex);

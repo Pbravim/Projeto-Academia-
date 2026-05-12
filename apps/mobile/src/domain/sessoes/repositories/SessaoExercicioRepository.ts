@@ -7,4 +7,5 @@ export interface SessaoExercicioRepository {
   listBySessaoId(sessaoId: string): Promise<SessaoExercicio[]>;
   countBySessaoId(sessaoId: string): Promise<number>;
   deleteBySessaoId(sessaoId: string): Promise<void>;
+  deleteByExercicioId(exercicioId: string): Promise<void>;
 }

@@ -49,12 +49,12 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
             {camada1.length > 0 ? (
               <>
                 <Text style={styles.sectionLabel}>Mesmo músculo</Text>
-                {camada1.map((c) => (
+                {camada1.map((cand) => (
                   <CandidatoRow
-                    key={c.exercicio.id}
-                    candidato={c}
-                    selected={selecionado === c.exercicio.id}
-                    onPress={() => handleSelecionado(c.exercicio.id)}
+                    key={cand.exercicio.id}
+                    candidato={cand}
+                    selected={selecionado === cand.exercicio.id}
+                    onPress={() => handleSelecionado(cand.exercicio.id)}
                     styles={styles}
                     theme={c}
                   />
@@ -65,12 +65,12 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
             {camada2.length > 0 ? (
               <>
                 <Text style={styles.sectionLabel}>Mesmo grupo muscular</Text>
-                {camada2.map((c) => (
+                {camada2.map((cand) => (
                   <CandidatoRow
-                    key={c.exercicio.id}
-                    candidato={c}
-                    selected={selecionado === c.exercicio.id}
-                    onPress={() => handleSelecionado(c.exercicio.id)}
+                    key={cand.exercicio.id}
+                    candidato={cand}
+                    selected={selecionado === cand.exercicio.id}
+                    onPress={() => handleSelecionado(cand.exercicio.id)}
                     styles={styles}
                     theme={c}
                   />

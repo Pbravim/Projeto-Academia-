@@ -42,4 +42,10 @@ export class InMemorySessaoExercicioRepository implements SessaoExercicioReposit
       if (item.toPrimitives().sessaoTreinoId === sessaoId) this.itemsById.delete(id);
     }
   }
+
+  async deleteByExercicioId(exercicioId: string): Promise<void> {
+    for (const [id, item] of this.itemsById.entries()) {
+      if (item.toPrimitives().exercicioId === exercicioId) this.itemsById.delete(id);
+    }
+  }
 }

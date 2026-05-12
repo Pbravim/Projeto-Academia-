@@ -24,11 +24,15 @@ function makeSessaoExercicio(id: string, realizado = true) {
     grupoMuscularSnapshot: 'Peito',
     categoriaSnapshot: 'Composto',
     equipamentoSnapshot: null,
+    musculoAlvoSnapshot: null,
     realizado,
     seriesRecomendadas: null,
     execucoesRecomendadas: null,
     cargaPadrao: null,
     tempoDescansoSegundos: null,
+    substituidoPorExercicioId: null,
+    substituicaoMotivo: null,
+    nomeOriginalSnapshot: null,
   };
 }
 

@@ -10,4 +10,5 @@ export interface TreinoExercicioRepository {
   updateRecomendacoes(id: string, seriesRecomendadas: number | null, execucoesRecomendadas: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null): Promise<void>;
   delete(id: string): Promise<void>;
   deleteByTreinoId(treinoId: string): Promise<void>;
+  deleteByExercicioId(exercicioId: string): Promise<void>;
 }
