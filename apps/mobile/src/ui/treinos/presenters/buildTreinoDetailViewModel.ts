@@ -37,7 +37,7 @@ export function buildTreinoDetailViewModel(
       {
         treinoExercicioId: te.id,
         exercicioId: te.exercicioId,
-        ordem: te.ordem,
+        ordem: index + 1,
         name: exercise.name,
         groupMuscle: exercise.groupMuscle,
         category: exercise.category,

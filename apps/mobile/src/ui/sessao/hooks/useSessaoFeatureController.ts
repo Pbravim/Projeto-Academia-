@@ -4,6 +4,7 @@ import type { GetSessaoAtivaUseCase } from '../../../application/sessoes/use-cas
 import type { IniciarSessaoUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoUseCase';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
+import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJaAtivaError';
@@ -16,6 +17,7 @@ export interface SessaoFeatureControllerDependencies {
   getSessaoAtiva: GetSessaoAtivaUseCase;
   iniciarSessao: IniciarSessaoUseCase;
   listTreinos: ListTreinosUseCase;
+  listTreinoExercicios: ListTreinoExerciciosUseCase;
   logger: AppLogger;
 }
 
@@ -24,6 +26,7 @@ export interface SessaoFeatureControllerState {
   sessaoAtiva: SessaoTreinoPrimitives | null;
   sessaoResumo: SessaoDetalhe | null;
   treinos: TreinoPrimitives[];
+  treinosComExercicios: Set<string>;
   errorMessage: string | null;
   isIniciando: boolean;
   onIniciarSessao: (treinoId: string) => Promise<void>;
@@ -39,6 +42,7 @@ export function useSessaoFeatureController(
   const [sessaoAtiva, setSessaoAtiva] = useState<SessaoTreinoPrimitives | null>(null);
   const [sessaoResumo, setSessaoResumo] = useState<SessaoDetalhe | null>(null);
   const [treinos, setTreinos] = useState<TreinoPrimitives[]>([]);
+  const [treinosComExercicios, setTreinosComExercicios] = useState<Set<string>>(new Set());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isIniciando, setIsIniciando] = useState(false);
 
@@ -53,6 +57,15 @@ export function useSessaoFeatureController(
         dependencies.listTreinos.execute(),
       ]);
       setTreinos(listaTreinos);
+
+      const exerciciosPorTreino = await Promise.all(
+        listaTreinos.map((t) => dependencies.listTreinoExercicios.execute(t.id))
+      );
+      const comExercicios = new Set(
+        listaTreinos.filter((_, i) => exerciciosPorTreino[i].length > 0).map((t) => t.id)
+      );
+      setTreinosComExercicios(comExercicios);
+
       if (sessao) {
         setSessaoAtiva(sessao);
         setView('ativa');
@@ -108,6 +121,7 @@ export function useSessaoFeatureController(
     sessaoAtiva,
     sessaoResumo,
     treinos,
+    treinosComExercicios,
     errorMessage,
     isIniciando,
     onIniciarSessao,

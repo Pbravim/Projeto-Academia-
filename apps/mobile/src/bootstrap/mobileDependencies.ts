@@ -147,6 +147,7 @@ export const mobileDependencies = {
         now: () => new Date(),
       }),
       listTreinos,
+      listTreinoExercicios: new ListTreinoExerciciosUseCase(treinoExercicioRepository),
       logger,
     },
     ativa: {

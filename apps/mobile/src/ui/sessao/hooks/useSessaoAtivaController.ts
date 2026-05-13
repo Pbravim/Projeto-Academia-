@@ -163,6 +163,15 @@ export function useSessaoAtivaController(
   };
 
   const onFinalizar = async () => {
+    const temSerieValida = detalhe?.exercicios.some((ex) =>
+      ex.series.some((s) => s.tipoSerie === 'valida')
+    ) ?? false;
+
+    if (!temSerieValida) {
+      setErrorMessage('Registre ao menos uma serie valida antes de finalizar.');
+      return;
+    }
+
     setIsFinalizing(true);
     setErrorMessage(null);
     try {

@@ -6,12 +6,13 @@ import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinos: TreinoPrimitives[];
+  treinosComExercicios: Set<string>;
   errorMessage: string | null;
   isIniciando: boolean;
   onIniciar: (treinoId: string) => Promise<void>;
 }
 
-export function SessaoInicioScreen({ treinos, errorMessage, isIniciando, onIniciar }: Props) {
+export function SessaoInicioScreen({ treinos, treinosComExercicios, errorMessage, isIniciando, onIniciar }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -37,29 +38,36 @@ export function SessaoInicioScreen({ treinos, errorMessage, isIniciando, onInici
       ) : (
         <View style={styles.listCard}>
           <Text style={styles.sectionTitle}>Escolha o treino</Text>
-          {treinos.map((treino) => (
-            <View key={treino.id} style={styles.treinoCard}>
-              <View>
-                <Text style={styles.treinoName}>{treino.name}</Text>
-                {treino.objetivo ? (
-                  <Text style={styles.treinoObjetivo}>{treino.objetivo}</Text>
-                ) : null}
+          {treinos.map((treino) => {
+            const semExercicios = !treinosComExercicios.has(treino.id);
+            const buttonDisabled = isIniciando || semExercicios;
+            return (
+              <View key={treino.id} style={styles.treinoCard}>
+                <View>
+                  <Text style={styles.treinoName}>{treino.name}</Text>
+                  {treino.objetivo ? (
+                    <Text style={styles.treinoObjetivo}>{treino.objetivo}</Text>
+                  ) : null}
+                  {semExercicios ? (
+                    <Text style={styles.treinoSemExercicios}>Sem exercicios</Text>
+                  ) : null}
+                </View>
+                <Pressable
+                  onPress={() => { void onIniciar(treino.id); }}
+                  disabled={buttonDisabled}
+                  style={({ pressed }) => [
+                    styles.iniciarButton,
+                    pressed && !buttonDisabled ? styles.iniciarButtonPressed : null,
+                    buttonDisabled ? styles.iniciarButtonDisabled : null,
+                  ]}
+                >
+                  <Text style={styles.iniciarButtonText}>
+                    {isIniciando ? 'Iniciando...' : 'Comecar'}
+                  </Text>
+                </Pressable>
               </View>
-              <Pressable
-                onPress={() => { void onIniciar(treino.id); }}
-                disabled={isIniciando}
-                style={({ pressed }) => [
-                  styles.iniciarButton,
-                  pressed ? styles.iniciarButtonPressed : null,
-                  isIniciando ? styles.iniciarButtonDisabled : null,
-                ]}
-              >
-                <Text style={styles.iniciarButtonText}>
-                  {isIniciando ? 'Iniciando...' : 'Comecar'}
-                </Text>
-              </Pressable>
-            </View>
-          ))}
+            );
+          })}
         </View>
       )}
     </ScrollView>
@@ -83,6 +91,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     treinoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: c.cardAlt, borderRadius: 16, padding: 16 },
     treinoName: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
     treinoObjetivo: { color: c.textLabel, fontSize: 13, marginTop: 2 },
+    treinoSemExercicios: { color: c.error, fontSize: 12, marginTop: 3 },
     iniciarButton: { backgroundColor: c.accent, paddingHorizontal: 18, paddingVertical: 10, borderRadius: 12 },
     iniciarButtonPressed: { opacity: 0.85 },
     iniciarButtonDisabled: { opacity: 0.5 },

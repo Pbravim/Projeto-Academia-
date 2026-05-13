@@ -88,6 +88,24 @@ export function ExercicioDetalheScreen({
 
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
+  useEffect(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setCargaMode('carousel');
+    setCargaIndex(sessaoExercicio.cargaPadrao != null ? kgIndexFor(sessaoExercicio.cargaPadrao) : 0);
+    setCargaText(sessaoExercicio.cargaPadrao != null ? String(sessaoExercicio.cargaPadrao) : '');
+    setRepsIndex(Math.max(0, Math.min((sessaoExercicio.execucoesRecomendadas ?? 8) - 1, 29)));
+    setDescanso(sessaoExercicio.tempoDescansoSegundos ?? null);
+    setCustomDescansoOpen(false);
+    setCustomDescansoText('');
+    setObs('');
+    setFormError(null);
+    setTimer(null);
+    setTimerMinimized(false);
+  }, [sessaoExercicio.id]);
+
   const startTimer = (segundos: number) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setTimerMinimized(false); // always expand when a new timer starts
