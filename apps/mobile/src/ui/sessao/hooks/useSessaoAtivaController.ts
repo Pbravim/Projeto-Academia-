@@ -42,6 +42,7 @@ export interface SessaoAtivaControllerState {
   feedbackMessage: string | null;
   isFinalizing: boolean;
   isCanceling: boolean;
+  temSerieValida: boolean;
   candidatosSubstituicao: CandidatoSubstituto[];
   sessaoExercicioSubstituindo: string | null;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
@@ -109,6 +110,10 @@ export function useSessaoAtivaController(
       )
     : [];
 
+  const temSerieValida = detalhe?.exercicios.some((ex) =>
+    ex.series.some((s) => s.tipoSerie === 'valida')
+  ) ?? false;
+
   const onRegistrarSerie = async (input: RegistrarSerieInput) => {
     setErrorMessage(null);
     try {
@@ -163,15 +168,6 @@ export function useSessaoAtivaController(
   };
 
   const onFinalizar = async () => {
-    const temSerieValida = detalhe?.exercicios.some((ex) =>
-      ex.series.some((s) => s.tipoSerie === 'valida')
-    ) ?? false;
-
-    if (!temSerieValida) {
-      setErrorMessage('Registre ao menos uma serie valida antes de finalizar.');
-      return;
-    }
-
     setIsFinalizing(true);
     setErrorMessage(null);
     try {
@@ -243,6 +239,7 @@ export function useSessaoAtivaController(
     feedbackMessage,
     isFinalizing,
     isCanceling,
+    temSerieValida,
     candidatosSubstituicao,
     sessaoExercicioSubstituindo,
     onRegistrarSerie,

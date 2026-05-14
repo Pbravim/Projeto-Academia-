@@ -16,6 +16,7 @@ export function SessaoAtivaScreen({
   errorMessage,
   isFinalizing,
   isCanceling,
+  temSerieValida,
   candidatosSubstituicao,
   sessaoExercicioSubstituindo,
   onRegistrarSerie,
@@ -67,6 +68,7 @@ export function SessaoAtivaScreen({
             series={item.series}
             sugestao={sugestoes[selectedExercicioId] ?? null}
             isLastExercicio={isLastExercicio}
+            canFinalizar={temSerieValida}
             onRegistrarSerie={onRegistrarSerie}
             onDeleteSerie={onDeleteSerie}
             onToggleRealizado={onToggleRealizado}
@@ -130,11 +132,11 @@ export function SessaoAtivaScreen({
 
         <Pressable
           onPress={() => { void onFinalizar(); }}
-          disabled={isFinalizing || isCanceling}
+          disabled={isFinalizing || isCanceling || !temSerieValida}
           style={({ pressed }) => [
             styles.finalizarButton,
             pressed ? styles.finalizarButtonPressed : null,
-            (isFinalizing || isCanceling) ? styles.finalizarButtonDisabled : null,
+            (isFinalizing || isCanceling || !temSerieValida) ? styles.finalizarButtonDisabled : null,
           ]}
         >
           <Text style={styles.finalizarButtonText}>

@@ -14,6 +14,7 @@ interface Props {
   series: SerieRegistradaPrimitives[];
   sugestao: SugestaoProgressao | null;
   isLastExercicio: boolean;
+  canFinalizar?: boolean;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onDeleteSerie: (id: string) => Promise<void>;
   onToggleRealizado: (id: string) => Promise<void>;
@@ -47,6 +48,7 @@ export function ExercicioDetalheScreen({
   series,
   sugestao,
   isLastExercicio,
+  canFinalizar = true,
   onRegistrarSerie,
   onDeleteSerie,
   onToggleRealizado,
@@ -376,6 +378,32 @@ export function ExercicioDetalheScreen({
         );
       })() : null}
 
+      {/* Navigation — shown when exercise is done */}
+      {sessaoExercicio.realizado ? (
+        <View style={styles.formCard}>
+          <Pressable
+            onPress={() => {
+              if (isLastExercicio) {
+                onFinalizarSessao();
+              } else {
+                onProximoExercicio();
+              }
+            }}
+            disabled={isLastExercicio && !canFinalizar}
+            style={({ pressed }) => [
+              styles.navegacaoBtn,
+              isLastExercicio ? styles.navegacaoBtnFinalizar : styles.navegacaoBtnProximo,
+              pressed ? { opacity: 0.85 } : null,
+              (isLastExercicio && !canFinalizar) ? { opacity: 0.4 } : null,
+            ]}
+          >
+            <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
+              {isLastExercicio ? 'Finalizar sessao' : 'Proximo exercicio →'}
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       {/* Registration form */}
       {!sessaoExercicio.realizado ? (
         <View style={styles.formCard}>
@@ -547,10 +575,12 @@ export function ExercicioDetalheScreen({
                 onProximoExercicio();
               }
             }}
+            disabled={isLastExercicio && !canFinalizar}
             style={({ pressed }) => [
               styles.navegacaoBtn,
               isLastExercicio ? styles.navegacaoBtnFinalizar : styles.navegacaoBtnProximo,
               pressed ? { opacity: 0.85 } : null,
+              (isLastExercicio && !canFinalizar) ? { opacity: 0.4 } : null,
             ]}
           >
             <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
@@ -560,8 +590,8 @@ export function ExercicioDetalheScreen({
         </View>
       ) : null}
 
-      {/* Series list — only shown while exercise is not yet finalized */}
-      {!sessaoExercicio.realizado && series.length > 0 ? (
+      {/* Series list */}
+      {series.length > 0 ? (
         <View style={styles.seriesCard}>
           <Text style={styles.seriesTitle}>Series registradas</Text>
           <View style={styles.seriesList}>

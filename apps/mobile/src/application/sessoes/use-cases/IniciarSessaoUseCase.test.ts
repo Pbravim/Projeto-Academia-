@@ -33,7 +33,11 @@ function makeUseCase(repos: ReturnType<typeof makeRepos>) {
 }
 
 async function seedTreinoComExercicio(repos: ReturnType<typeof makeRepos>) {
-  const treino = Treino.create({ id: 'treino_1', name: 'Treino A', createdAt: new Date() });
+  const treino = Treino.create({
+    id: 'treino_1',
+    name: 'Treino A',
+    createdAt: new Date(),
+  });
   await repos.treinoRepository.save(treino);
 
   const exercise = Exercise.create({
@@ -45,7 +49,16 @@ async function seedTreinoComExercicio(repos: ReturnType<typeof makeRepos>) {
   });
   await repos.exerciseRepository.save(exercise);
 
-  const te = TreinoExercicio.create({ id: 'te_1', treinoId: 'treino_1', exercicioId: 'exercise_1', ordem: 1, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null });
+  const te = TreinoExercicio.create({
+    id: 'te_1',
+    treinoId: 'treino_1',
+    exercicioId: 'exercise_1',
+    ordem: 1,
+    seriesRecomendadas: null,
+    execucoesRecomendadas: null,
+    cargaPadrao: null,
+    tempoDescansoSegundos: null,
+  });
   await repos.treinoExercicioRepository.save(te);
 }
 
@@ -61,10 +74,51 @@ describe('IniciarSessaoUseCase', () => {
     expect(sessao.status).toBe('em_andamento');
     expect(sessao.dataHoraFim).toBeNull();
 
-    const exercicios = await repos.sessaoExercicioRepository.listBySessaoId(sessao.id);
+    const exercicios = await repos.sessaoExercicioRepository.listBySessaoId(
+      sessao.id,
+    );
     expect(exercicios).toHaveLength(1);
     expect(exercicios[0].toPrimitives().nomeSnapshot).toBe('Supino reto');
-    expect(exercicios[0].toPrimitives().realizado).toBe(true);
+    expect(exercicios[0].toPrimitives().realizado).toBe(false);
+  });
+
+  it('preserves tempo de descanso from the treino when starting a sessao', async () => {
+    counter = 0;
+    const repos = makeRepos();
+    const treino = Treino.create({
+      id: 'treino_1',
+      name: 'Treino A',
+      createdAt: new Date(),
+    });
+    await repos.treinoRepository.save(treino);
+
+    const exercise = Exercise.create({
+      id: 'exercise_1',
+      name: 'Supino reto',
+      groupMuscle: 'Peito',
+      category: 'Composto',
+      createdAt: new Date(),
+    });
+    await repos.exerciseRepository.save(exercise);
+
+    const te = TreinoExercicio.create({
+      id: 'te_1',
+      treinoId: 'treino_1',
+      exercicioId: 'exercise_1',
+      ordem: 1,
+      seriesRecomendadas: null,
+      execucoesRecomendadas: null,
+      cargaPadrao: null,
+      tempoDescansoSegundos: 90,
+    });
+    await repos.treinoExercicioRepository.save(te);
+
+    const sessao = await makeUseCase(repos).execute('treino_1');
+    const exercicios = await repos.sessaoExercicioRepository.listBySessaoId(
+      sessao.id,
+    );
+
+    expect(exercicios[0].toPrimitives().tempoDescansoSegundos).toBe(90);
   });
 
   it('throws SessaoJaAtivaError when a session is already active', async () => {
@@ -75,14 +129,18 @@ describe('IniciarSessaoUseCase', () => {
     const useCase = makeUseCase(repos);
     await useCase.execute('treino_1');
 
-    await expect(useCase.execute('treino_1')).rejects.toThrow(SessaoJaAtivaError);
+    await expect(useCase.execute('treino_1')).rejects.toThrow(
+      SessaoJaAtivaError,
+    );
   });
 
   it('throws TreinoNotFoundError when treino does not exist', async () => {
     counter = 0;
     const repos = makeRepos();
 
-    await expect(makeUseCase(repos).execute('non_existent')).rejects.toThrow(TreinoNotFoundError);
+    await expect(makeUseCase(repos).execute('non_existent')).rejects.toThrow(
+      TreinoNotFoundError,
+    );
   });
 
   it('preserva snapshot mesmo apos edicao posterior do exercicio', async () => {
@@ -93,11 +151,20 @@ describe('IniciarSessaoUseCase', () => {
     const sessao = await makeUseCase(repos).execute('treino_1');
 
     // Simula edicao futura do exercicio no catalogo
-    await new UpdateExerciseUseCase({ exerciseRepository: repos.exerciseRepository, now: () => new Date() })
-      .execute({ id: 'exercise_1', name: 'Supino inclinado', groupMuscle: 'Peito Superior', category: 'Composto' });
+    await new UpdateExerciseUseCase({
+      exerciseRepository: repos.exerciseRepository,
+      now: () => new Date(),
+    }).execute({
+      id: 'exercise_1',
+      name: 'Supino inclinado',
+      groupMuscle: 'Peito Superior',
+      category: 'Composto',
+    });
 
     // O snapshot da sessao ja criada nao deve mudar
-    const exercicios = await repos.sessaoExercicioRepository.listBySessaoId(sessao.id);
+    const exercicios = await repos.sessaoExercicioRepository.listBySessaoId(
+      sessao.id,
+    );
     expect(exercicios[0].toPrimitives().nomeSnapshot).toBe('Supino reto');
     expect(exercicios[0].toPrimitives().grupoMuscularSnapshot).toBe('Peito');
   });
