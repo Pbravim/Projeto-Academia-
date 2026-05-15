@@ -17,6 +17,8 @@ interface SessaoExercicioRow {
   execucoes_recomendadas: number | null;
   carga_padrao: number | null;
   tempo_descanso_segundos: number | null;
+  metodo: string | null;
+  grupo_id: string | null;
   substituido_por_exercicio_id: string | null;
   substituicao_motivo: string | null;
   nome_original_snapshot: string | null;
@@ -29,9 +31,9 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     const p = se.toPrimitives();
     await this.database.run(
       `INSERT OR REPLACE INTO sessao_exercicios
-        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, substituido_por_exercicio_id, substituicao_motivo, nome_original_snapshot)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.musculoAlvoSnapshot ?? null, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.substituidoPorExercicioId ?? null, p.substituicaoMotivo ?? null, p.nomeOriginalSnapshot ?? null]
+        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, substituido_por_exercicio_id, substituicao_motivo, nome_original_snapshot)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.musculoAlvoSnapshot ?? null, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null, p.substituidoPorExercicioId ?? null, p.substituicaoMotivo ?? null, p.nomeOriginalSnapshot ?? null]
     );
   }
 
@@ -76,6 +78,11 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
   }
 }
 
+const VALID_METODO = new Set(['normal', 'drop_set', 'piramide', 'rest_pause']);
+function toMetodo(v: string | null): SessaoExercicioPrimitives['metodo'] {
+  return (v && VALID_METODO.has(v)) ? v as SessaoExercicioPrimitives['metodo'] : 'normal';
+}
+
 function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {
   return {
     id: row.id,
@@ -92,6 +99,8 @@ function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {
     execucoesRecomendadas: row.execucoes_recomendadas ?? null,
     cargaPadrao: row.carga_padrao ?? null,
     tempoDescansoSegundos: row.tempo_descanso_segundos ?? null,
+    metodo: toMetodo(row.metodo),
+    grupoId: row.grupo_id ?? null,
     substituidoPorExercicioId: row.substituido_por_exercicio_id ?? null,
     substituicaoMotivo: (row.substituicao_motivo as SessaoExercicioPrimitives['substituicaoMotivo']) ?? null,
     nomeOriginalSnapshot: row.nome_original_snapshot ?? null,

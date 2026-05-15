@@ -241,6 +241,12 @@ const migrations: string[] = [
 
   // v11: sessões podem ser arquivadas (soft-delete) — ocultas da evolução mas não apagadas
   `ALTER TABLE sessao_treinos ADD COLUMN arquivado INTEGER NOT NULL DEFAULT 0`,
+
+  // v12: método de execução e agrupamento por grupo (bi-set, circuito, drop-set)
+  `ALTER TABLE treino_exercicios ADD COLUMN metodo TEXT NOT NULL DEFAULT 'normal';
+   ALTER TABLE treino_exercicios ADD COLUMN grupo_id TEXT;
+   ALTER TABLE sessao_exercicios ADD COLUMN metodo TEXT NOT NULL DEFAULT 'normal';
+   ALTER TABLE sessao_exercicios ADD COLUMN grupo_id TEXT;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
@@ -340,15 +346,19 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   }
 
   private async ensureColumns(database: SQLite.SQLiteDatabase): Promise<void> {
-    const required: { table: string; column: string; type: string }[] = [
+    const required: { table: string; column: string; type: string; defaultValue?: string }[] = [
       { table: 'treino_exercicios', column: 'series_recomendadas',       type: 'INTEGER' },
       { table: 'treino_exercicios', column: 'execucoes_recomendadas',    type: 'INTEGER' },
       { table: 'treino_exercicios', column: 'carga_padrao',              type: 'REAL'    },
       { table: 'treino_exercicios', column: 'tempo_descanso_segundos',   type: 'INTEGER' },
+      { table: 'treino_exercicios', column: 'metodo',                   type: 'TEXT',   defaultValue: "'normal'" },
+      { table: 'treino_exercicios', column: 'grupo_id',                 type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'series_recomendadas',       type: 'INTEGER' },
       { table: 'sessao_exercicios', column: 'execucoes_recomendadas',    type: 'INTEGER' },
       { table: 'sessao_exercicios', column: 'carga_padrao',              type: 'REAL'    },
       { table: 'sessao_exercicios', column: 'tempo_descanso_segundos',      type: 'INTEGER' },
+      { table: 'sessao_exercicios', column: 'metodo',                      type: 'TEXT',   defaultValue: "'normal'" },
+      { table: 'sessao_exercicios', column: 'grupo_id',                    type: 'TEXT'    },
       { table: 'exercises',         column: 'musculo_alvo',                type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'substituido_por_exercicio_id', type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'substituicao_motivo',          type: 'TEXT'    },
@@ -356,11 +366,12 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
       { table: 'sessao_exercicios', column: 'nome_original_snapshot',       type: 'TEXT'    },
     ];
 
-    for (const { table, column, type } of required) {
+    for (const { table, column, type, defaultValue } of required) {
       const info = await database.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       const exists = info.some((col) => col.name === column);
       if (!exists) {
-        await database.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${type};`);
+        const def = defaultValue ? ` NOT NULL DEFAULT ${defaultValue}` : '';
+        await database.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}${def};`);
         this.logger.info('database.column_added', { table, column });
       }
     }

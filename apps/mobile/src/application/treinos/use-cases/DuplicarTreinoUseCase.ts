@@ -44,6 +44,8 @@ export class DuplicarTreinoUseCase {
         execucoesRecomendadas: ep.execucoesRecomendadas,
         cargaPadrao: ep.cargaPadrao,
         tempoDescansoSegundos: ep.tempoDescansoSegundos,
+        metodo: ep.metodo,
+        grupoId: ep.grupoId,
       });
       await this.deps.treinoExercicioRepository.save(teNovo);
     }

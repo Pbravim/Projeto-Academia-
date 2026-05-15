@@ -1,4 +1,4 @@
-import type { TreinoExercicio } from '../entities/TreinoExercicio';
+import type { MetodoExercicio, TreinoExercicio } from '../entities/TreinoExercicio';
 
 export interface TreinoExercicioRepository {
   save(treinoExercicio: TreinoExercicio): Promise<void>;
@@ -8,6 +8,7 @@ export interface TreinoExercicioRepository {
   countByTreinoId(treinoId: string): Promise<number>;
   updateOrdem(id: string, ordem: number): Promise<void>;
   updateRecomendacoes(id: string, seriesRecomendadas: number | null, execucoesRecomendadas: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null): Promise<void>;
+  updateMetodoGrupo(id: string, metodo: MetodoExercicio, grupoId: string | null): Promise<void>;
   delete(id: string): Promise<void>;
   deleteByTreinoId(treinoId: string): Promise<void>;
   deleteByExercicioId(exercicioId: string): Promise<void>;

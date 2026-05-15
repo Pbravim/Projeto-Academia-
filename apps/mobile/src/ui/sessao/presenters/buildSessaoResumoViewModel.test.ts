@@ -30,6 +30,8 @@ function makeSessaoExercicio(id: string, realizado = true) {
     execucoesRecomendadas: null,
     cargaPadrao: null,
     tempoDescansoSegundos: null,
+    metodo: 'normal' as const,
+    grupoId: null,
     substituidoPorExercicioId: null,
     substituicaoMotivo: null,
     nomeOriginalSnapshot: null,

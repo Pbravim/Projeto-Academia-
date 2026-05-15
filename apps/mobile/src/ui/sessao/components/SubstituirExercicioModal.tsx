@@ -18,8 +18,9 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
 
   const [selecionado, setSelecionado] = useState<string | null>(null);
 
-  const camada1 = candidatos.filter((c) => !c.enfaseDiferente);
-  const camada2 = candidatos.filter((c) => c.enfaseDiferente);
+  const predefinidos = candidatos.filter((c) => c.predefinido);
+  const camada1 = candidatos.filter((c) => !c.predefinido && !c.enfaseDiferente);
+  const camada2 = candidatos.filter((c) => !c.predefinido && c.enfaseDiferente);
 
   const handleSelecionado = (id: string) => setSelecionado((prev) => (prev === id ? null : id));
 
@@ -46,6 +47,22 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
+            {predefinidos.length > 0 ? (
+              <>
+                <Text style={[styles.sectionLabel, styles.sectionLabelPredefinido]}>⭐ Substitutos predefinidos</Text>
+                {predefinidos.map((cand) => (
+                  <CandidatoRow
+                    key={cand.exercicio.id}
+                    candidato={cand}
+                    selected={selecionado === cand.exercicio.id}
+                    onPress={() => handleSelecionado(cand.exercicio.id)}
+                    styles={styles}
+                    theme={c}
+                  />
+                ))}
+              </>
+            ) : null}
+
             {camada1.length > 0 ? (
               <>
                 <Text style={styles.sectionLabel}>Mesmo músculo</Text>
@@ -162,6 +179,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     closeBtnText: { color: c.textSecondary, fontSize: 18 },
     list: { padding: 16, gap: 8 },
     sectionLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 8, marginBottom: 4 },
+    sectionLabelPredefinido: { color: c.accent },
     candidatoRow: { backgroundColor: c.card, borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: c.cardBorder },
     candidatoRowSelected: { borderColor: c.accent, backgroundColor: c.accentLight },
     candidatoInfo: { flex: 1, gap: 3 },

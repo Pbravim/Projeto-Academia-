@@ -1,3 +1,5 @@
+export type MetodoExercicio = 'normal' | 'drop_set' | 'piramide' | 'rest_pause';
+
 export interface TreinoExercicioPrimitives {
   id: string;
   treinoId: string;
@@ -7,6 +9,8 @@ export interface TreinoExercicioPrimitives {
   execucoesRecomendadas: number | null;
   cargaPadrao: number | null;
   tempoDescansoSegundos: number | null;
+  metodo: MetodoExercicio;
+  grupoId: string | null;
 }
 
 export class TreinoExercicio {

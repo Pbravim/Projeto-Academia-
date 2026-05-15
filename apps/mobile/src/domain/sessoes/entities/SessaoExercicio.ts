@@ -15,6 +15,8 @@ export interface SessaoExercicioPrimitives {
   execucoesRecomendadas: number | null;
   cargaPadrao: number | null;
   tempoDescansoSegundos: number | null;
+  metodo: 'normal' | 'drop_set' | 'piramide' | 'rest_pause';
+  grupoId: string | null;
   // substituição
   substituidoPorExercicioId: string | null;
   substituicaoMotivo: SubstituicaoMotivo | null;

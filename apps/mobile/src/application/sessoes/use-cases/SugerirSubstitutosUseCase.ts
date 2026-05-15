@@ -6,6 +6,7 @@ import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
 
 export interface CandidatoSubstituto {
   exercicio: ExercisePrimitives;
+  predefinido: boolean;
   enfaseDiferente: boolean;
   ultimaExecucao: UltimaExecucaoValida | null;
 }
@@ -33,23 +34,38 @@ export class SugerirSubstitutosUseCase {
     const todosNaSessao = await this.deps.sessaoExercicioRepository.listBySessaoId(p.sessaoTreinoId);
     const idsNaSessao = new Set(todosNaSessao.map((se) => se.toPrimitives().exercicioId));
 
-    const [todosExercicios, ultimasExecucoes] = await Promise.all([
+    const [todosExercicios, ultimasExecucoes, alternativasPredefinidas] = await Promise.all([
       this.deps.exerciseRepository.list(),
       this.deps.historicoRepository.getUltimasExecucoesValidas(),
+      this.deps.exerciseRepository.listAlternativas(p.exercicioId),
     ]);
 
     const musculoAlvo = p.musculoAlvoSnapshot;
     const grupoMuscular = p.grupoMuscularSnapshot;
+
+    const idsPredefinidos = new Set(alternativasPredefinidas.map((e) => e.toPrimitives().id));
+
+    // Layer 0 — pre-defined substitutes
+    const camada0: CandidatoSubstituto[] = alternativasPredefinidas
+      .map((ex) => ex.toPrimitives())
+      .filter((ep) => !idsNaSessao.has(ep.id))
+      .map((ep) => ({
+        exercicio: ep,
+        predefinido: true,
+        enfaseDiferente: false,
+        ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
+      }));
 
     const camada1: CandidatoSubstituto[] = [];
     const camada2: CandidatoSubstituto[] = [];
 
     for (const ex of todosExercicios) {
       const ep = ex.toPrimitives();
-      if (idsNaSessao.has(ep.id)) continue;
+      if (idsNaSessao.has(ep.id) || idsPredefinidos.has(ep.id)) continue;
 
       const candidato: CandidatoSubstituto = {
         exercicio: ep,
+        predefinido: false,
         enfaseDiferente: false,
         ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
       };
@@ -61,6 +77,6 @@ export class SugerirSubstitutosUseCase {
       }
     }
 
-    return [...camada1, ...camada2];
+    return [...camada0, ...camada1, ...camada2];
   }
 }

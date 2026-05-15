@@ -14,6 +14,7 @@ export function ExerciseCatalogScreen({
   draft,
   exercises,
   ultimosPesos,
+  alternativas,
   errorMessage,
   feedbackMessage,
   isLoading,
@@ -26,11 +27,15 @@ export function ExerciseCatalogScreen({
   onCancelEdit,
   onDelete,
   onChangeMediaLocal,
+  onAddAlternativa,
+  onRemoveAlternativa,
   onViewHistorico,
 }: ExerciseCatalogControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [search, setSearch] = useState('');
+  const [showSubstPicker, setShowSubstPicker] = useState(false);
+  const [substSearch, setSubstSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterEquipment, setFilterEquipment] = useState('');
   const [sortMode, setSortMode] = useState<CatalogSortMode>('nome');
@@ -178,6 +183,79 @@ export function ExerciseCatalogScreen({
         />
 
         <Text style={styles.helperText}>Carga sempre registrada em kg com valores decimais.</Text>
+
+        {/* ── Exercícios substitutos (only when editing) ── */}
+        {isEditing ? (
+          <View style={styles.substSection}>
+            <Text style={styles.substTitle}>Substitutos predefinidos</Text>
+            <Text style={styles.substHint}>
+              Aparecem em destaque ao trocar exercício durante a sessão.
+            </Text>
+
+            {alternativas.length > 0 ? (
+              <View style={styles.substChips}>
+                {alternativas.map((alt) => (
+                  <View key={alt.id} style={styles.substChip}>
+                    <Text style={styles.substChipText} numberOfLines={1}>{alt.name}</Text>
+                    <Pressable
+                      onPress={() => { void onRemoveAlternativa(alt.id); }}
+                      hitSlop={6}
+                      style={({ pressed }) => [pressed ? { opacity: 0.5 } : null]}
+                    >
+                      <Text style={styles.substChipRemove}>✕</Text>
+                    </Pressable>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+
+            {!showSubstPicker ? (
+              <Pressable
+                onPress={() => { setShowSubstPicker(true); setSubstSearch(''); }}
+                style={({ pressed }) => [styles.addSubstBtn, pressed ? { opacity: 0.75 } : null]}
+              >
+                <Text style={styles.addSubstBtnText}>+ Adicionar substituto</Text>
+              </Pressable>
+            ) : (
+              <View style={styles.substPicker}>
+                <TextInput
+                  style={styles.substSearch}
+                  placeholder="Buscar exercício..."
+                  placeholderTextColor={c.inputPlaceholder}
+                  value={substSearch}
+                  onChangeText={setSubstSearch}
+                  autoFocus
+                />
+                <Pressable onPress={() => setShowSubstPicker(false)} style={styles.substCancelBtn}>
+                  <Text style={styles.substCancelText}>Cancelar</Text>
+                </Pressable>
+                {exercises
+                  .filter((ex) =>
+                    ex.id !== editingExerciseId &&
+                    !alternativas.some((a) => a.id === ex.id) &&
+                    (substSearch.length === 0 ||
+                      ex.name.toLowerCase().includes(substSearch.toLowerCase()) ||
+                      ex.groupMuscle.toLowerCase().includes(substSearch.toLowerCase()))
+                  )
+                  .slice(0, 8)
+                  .map((ex) => (
+                    <Pressable
+                      key={ex.id}
+                      onPress={() => {
+                        void onAddAlternativa(ex.id);
+                        setSubstSearch('');
+                        setShowSubstPicker(false);
+                      }}
+                      style={({ pressed }) => [styles.substPickerRow, pressed ? { opacity: 0.75 } : null]}
+                    >
+                      <Text style={styles.substPickerName} numberOfLines={1}>{ex.name}</Text>
+                      <Text style={styles.substPickerMeta}>{ex.groupMuscle}</Text>
+                    </Pressable>
+                  ))}
+              </View>
+            )}
+          </View>
+        ) : null}
 
         {feedbackMessage ? <Text style={styles.successMessage}>{feedbackMessage}</Text> : null}
 
@@ -384,5 +462,40 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     suggestionName: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     suggestionMeta: { color: c.textSecondary, fontSize: 12, marginTop: 1 },
     suggestionEditHint: { color: c.accent, fontSize: 12, fontWeight: '700' },
+
+    // Substitutes section
+    substSection: { gap: 10, paddingTop: 4 },
+    substTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '800' },
+    substHint: { color: c.textSecondary, fontSize: 12, lineHeight: 17, marginTop: -4 },
+    substChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    substChip: {
+      flexDirection: 'row', alignItems: 'center', gap: 6,
+      backgroundColor: c.accentLight, borderRadius: 20,
+      paddingHorizontal: 12, paddingVertical: 6,
+      borderWidth: 1, borderColor: c.accent,
+      maxWidth: '100%',
+    },
+    substChipText: { color: c.accent, fontSize: 13, fontWeight: '700', flexShrink: 1 },
+    substChipRemove: { color: c.accent, fontSize: 13, fontWeight: '800' },
+    addSubstBtn: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: 14, paddingVertical: 8,
+      borderRadius: 20, borderWidth: 1, borderColor: c.accent,
+    },
+    addSubstBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    substPicker: { gap: 6 },
+    substSearch: {
+      height: 40, borderRadius: 12, borderWidth: 1,
+      borderColor: c.inputBorder, backgroundColor: c.inputBg,
+      paddingHorizontal: 12, color: c.inputText, fontSize: 14,
+    },
+    substCancelBtn: { alignSelf: 'flex-end' },
+    substCancelText: { color: c.textSecondary, fontSize: 13, fontWeight: '600' },
+    substPickerRow: {
+      padding: 10, borderRadius: 10,
+      backgroundColor: c.cardAlt, gap: 2,
+    },
+    substPickerName: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
+    substPickerMeta: { color: c.textSecondary, fontSize: 12 },
   });
 }

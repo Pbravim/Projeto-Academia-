@@ -1,4 +1,4 @@
-import { TreinoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
+import { TreinoExercicio, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../domain/treinos/repositories/TreinoExercicioRepository';
 
 export class InMemoryTreinoExercicioRepository implements TreinoExercicioRepository {
@@ -49,6 +49,12 @@ export class InMemoryTreinoExercicioRepository implements TreinoExercicioReposit
     const item = this.itemsById.get(id);
     if (!item) return;
     this.itemsById.set(id, TreinoExercicio.restore({ ...item.toPrimitives(), seriesRecomendadas, execucoesRecomendadas, cargaPadrao, tempoDescansoSegundos }));
+  }
+
+  async updateMetodoGrupo(id: string, metodo: MetodoExercicio, grupoId: string | null): Promise<void> {
+    const item = this.itemsById.get(id);
+    if (!item) return;
+    this.itemsById.set(id, TreinoExercicio.restore({ ...item.toPrimitives(), metodo, grupoId }));
   }
 
   async delete(id: string): Promise<void> {

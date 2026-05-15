@@ -93,6 +93,33 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
       [mediaOnline, mediaLocal, id]
     );
   }
+
+  async listAlternativas(exercicioId: string): Promise<Exercise[]> {
+    const rows = await this.database.getAll<ExerciseRow>(
+      `SELECT e.id, e.name, e.normalized_name, e.group_muscle, e.category, e.equipment,
+              e.load_unit, e.is_custom, e.created_at, e.updated_at, e.media_online, e.media_local, e.musculo_alvo
+       FROM exercises e
+       JOIN exercise_alternatives ea ON ea.alternativa_id = e.id
+       WHERE ea.exercicio_id = ?
+       ORDER BY e.name ASC`,
+      [exercicioId]
+    );
+    return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
+  }
+
+  async addAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    await this.database.run(
+      'INSERT OR IGNORE INTO exercise_alternatives (exercicio_id, alternativa_id) VALUES (?, ?)',
+      [exercicioId, alternativaId]
+    );
+  }
+
+  async removeAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    await this.database.run(
+      'DELETE FROM exercise_alternatives WHERE exercicio_id = ? AND alternativa_id = ?',
+      [exercicioId, alternativaId]
+    );
+  }
 }
 
 function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {

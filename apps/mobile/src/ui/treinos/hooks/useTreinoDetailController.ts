@@ -1,5 +1,6 @@
 import { startTransition, useEffect, useState } from 'react';
 
+import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
 import type { BaixarMidiasTreinoUseCase, ProgressoBaixarMidias } from '../../../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
@@ -21,6 +22,7 @@ export interface TreinoDetailControllerDependencies {
   updateTreino: UpdateTreinoUseCase;
   listExercises: ListExercisesUseCase;
   updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
+  updateMetodoGrupo: (id: string, metodo: MetodoExercicio, grupoId: string | null) => Promise<void>;
   baixarMidiasTreino: BaixarMidiasTreinoUseCase;
   logger: AppLogger;
 }
@@ -37,7 +39,10 @@ export interface TreinoDetailControllerState {
   onRemoveExercicio: (treinoExercicioId: string) => Promise<void>;
   onMoveUp: (treinoExercicioId: string) => Promise<void>;
   onMoveDown: (treinoExercicioId: string) => Promise<void>;
+  onMoveUpInGroup: (treinoExercicioId: string) => Promise<void>;
+  onMoveDownInGroup: (treinoExercicioId: string) => Promise<void>;
   onUpdateRecomendacoes: (treinoExercicioId: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
+  onUpdateMetodoGrupo: (treinoExercicioId: string, metodo: MetodoExercicio, grupoId: string | null) => Promise<void>;
   onUpdateNome: (novoNome: string) => Promise<void>;
   onUpdateObjetivo: (novoObjetivo: string | null) => Promise<void>;
   progressoBaixarMidias: ProgressoBaixarMidias | null;
@@ -153,23 +158,69 @@ export function useTreinoDetailController(
     }
   };
 
+  // Builds ordered blocks: grouped exercises with the same grupoId form a single block.
+  function buildBlocks(sorted: TreinoExercicioPrimitives[]): TreinoExercicioPrimitives[][] {
+    const blocks: TreinoExercicioPrimitives[][] = [];
+    for (const te of sorted) {
+      if (te.grupoId) {
+        const last = blocks[blocks.length - 1];
+        if (last && last[0].grupoId === te.grupoId) {
+          last.push(te);
+          continue;
+        }
+      }
+      blocks.push([te]);
+    }
+    return blocks;
+  }
+
   const onMoveUp = async (treinoExercicioId: string) => {
     const sorted = [...treinoExercicios].sort((a, b) => a.ordem - b.ordem);
-    const index = sorted.findIndex((te) => te.id === treinoExercicioId);
-    if (index <= 0) return;
-
-    const newIds = sorted.map((te) => te.id);
-    [newIds[index - 1], newIds[index]] = [newIds[index], newIds[index - 1]];
-    await reorder(newIds);
+    const blocks = buildBlocks(sorted);
+    const blockIdx = blocks.findIndex((b) => b.some((te) => te.id === treinoExercicioId));
+    if (blockIdx <= 0) return;
+    const moved = [...blocks];
+    [moved[blockIdx - 1], moved[blockIdx]] = [moved[blockIdx], moved[blockIdx - 1]];
+    await reorder(moved.flat().map((te) => te.id));
   };
 
   const onMoveDown = async (treinoExercicioId: string) => {
     const sorted = [...treinoExercicios].sort((a, b) => a.ordem - b.ordem);
-    const index = sorted.findIndex((te) => te.id === treinoExercicioId);
-    if (index < 0 || index >= sorted.length - 1) return;
+    const blocks = buildBlocks(sorted);
+    const blockIdx = blocks.findIndex((b) => b.some((te) => te.id === treinoExercicioId));
+    if (blockIdx < 0 || blockIdx >= blocks.length - 1) return;
+    const moved = [...blocks];
+    [moved[blockIdx], moved[blockIdx + 1]] = [moved[blockIdx + 1], moved[blockIdx]];
+    await reorder(moved.flat().map((te) => te.id));
+  };
 
-    const newIds = sorted.map((te) => te.id);
-    [newIds[index], newIds[index + 1]] = [newIds[index + 1], newIds[index]];
+  const onMoveUpInGroup = async (treinoExercicioId: string) => {
+    const sorted = [...treinoExercicios].sort((a, b) => a.ordem - b.ordem);
+    const te = sorted.find((x) => x.id === treinoExercicioId);
+    if (!te?.grupoId) return;
+    const members = sorted.filter((x) => x.grupoId === te.grupoId);
+    const idxInGroup = members.findIndex((x) => x.id === treinoExercicioId);
+    if (idxInGroup <= 0) return;
+    const prev = members[idxInGroup - 1];
+    const newIds = sorted.map((x) => x.id);
+    const iA = sorted.findIndex((x) => x.id === prev.id);
+    const iB = sorted.findIndex((x) => x.id === treinoExercicioId);
+    [newIds[iA], newIds[iB]] = [newIds[iB], newIds[iA]];
+    await reorder(newIds);
+  };
+
+  const onMoveDownInGroup = async (treinoExercicioId: string) => {
+    const sorted = [...treinoExercicios].sort((a, b) => a.ordem - b.ordem);
+    const te = sorted.find((x) => x.id === treinoExercicioId);
+    if (!te?.grupoId) return;
+    const members = sorted.filter((x) => x.grupoId === te.grupoId);
+    const idxInGroup = members.findIndex((x) => x.id === treinoExercicioId);
+    if (idxInGroup >= members.length - 1) return;
+    const next = members[idxInGroup + 1];
+    const newIds = sorted.map((x) => x.id);
+    const iA = sorted.findIndex((x) => x.id === treinoExercicioId);
+    const iB = sorted.findIndex((x) => x.id === next.id);
+    [newIds[iA], newIds[iB]] = [newIds[iB], newIds[iA]];
     await reorder(newIds);
   };
 
@@ -186,6 +237,18 @@ export function useTreinoDetailController(
     } catch (error) {
       dependencies.logger.error('treino_detail.update_recomendacoes_failed', error);
       setErrorMessage('Nao foi possivel atualizar as recomendacoes.');
+    }
+  };
+
+  const onUpdateMetodoGrupo = async (treinoExercicioId: string, metodo: MetodoExercicio, grupoId: string | null) => {
+    try {
+      await dependencies.updateMetodoGrupo(treinoExercicioId, metodo, grupoId);
+      setTreinoExercicios((prev) =>
+        prev.map((te) => te.id === treinoExercicioId ? { ...te, metodo, grupoId } : te)
+      );
+    } catch (error) {
+      dependencies.logger.error('treino_detail.update_metodo_grupo_failed', error);
+      setErrorMessage('Nao foi possivel atualizar o metodo.');
     }
   };
 
@@ -251,7 +314,10 @@ export function useTreinoDetailController(
     onRemoveExercicio,
     onMoveUp,
     onMoveDown,
+    onMoveUpInGroup,
+    onMoveDownInGroup,
     onUpdateRecomendacoes,
+    onUpdateMetodoGrupo,
     onUpdateNome,
     onUpdateObjetivo,
     progressoBaixarMidias,

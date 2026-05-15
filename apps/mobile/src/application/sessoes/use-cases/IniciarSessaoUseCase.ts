@@ -81,6 +81,8 @@ export class IniciarSessaoUseCase {
         execucoesRecomendadas: p.execucoesRecomendadas,
         cargaPadrao: p.cargaPadrao,
         tempoDescansoSegundos: p.tempoDescansoSegundos,
+        metodo: p.metodo,
+        grupoId: p.grupoId,
         substituidoPorExercicioId: null,
         substituicaoMotivo: null,
         nomeOriginalSnapshot: null,

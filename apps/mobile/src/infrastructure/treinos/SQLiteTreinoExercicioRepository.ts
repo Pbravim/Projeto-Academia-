@@ -1,4 +1,4 @@
-import { TreinoExercicio, type TreinoExercicioPrimitives } from '../../domain/treinos/entities/TreinoExercicio';
+import { TreinoExercicio, type TreinoExercicioPrimitives, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
@@ -11,6 +11,8 @@ interface TreinoExercicioRow {
   execucoes_recomendadas: number | null;
   carga_padrao: number | null;
   tempo_descanso_segundos: number | null;
+  metodo: string | null;
+  grupo_id: string | null;
 }
 
 export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepository {
@@ -20,15 +22,15 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     const p = treinoExercicio.toPrimitives();
 
     await this.database.run(
-      `INSERT OR REPLACE INTO treino_exercicios (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [p.id, p.treinoId, p.exercicioId, p.ordem, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null]
+      `INSERT OR REPLACE INTO treino_exercicios (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [p.id, p.treinoId, p.exercicioId, p.ordem, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null]
     );
   }
 
   async listByTreinoId(treinoId: string): Promise<TreinoExercicio[]> {
     const rows = await this.database.getAll<TreinoExercicioRow>(
-      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos FROM treino_exercicios WHERE treino_id = ? ORDER BY ordem ASC',
+      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE treino_id = ? ORDER BY ordem ASC',
       [treinoId]
     );
 
@@ -37,7 +39,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
 
   async findById(id: string): Promise<TreinoExercicio | null> {
     const row = await this.database.getFirst<TreinoExercicioRow>(
-      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos FROM treino_exercicios WHERE id = ? LIMIT 1',
+      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE id = ? LIMIT 1',
       [id]
     );
 
@@ -49,7 +51,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     exercicioId: string
   ): Promise<TreinoExercicio | null> {
     const row = await this.database.getFirst<TreinoExercicioRow>(
-      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos FROM treino_exercicios WHERE treino_id = ? AND exercicio_id = ? LIMIT 1',
+      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE treino_id = ? AND exercicio_id = ? LIMIT 1',
       [treinoId, exercicioId]
     );
 
@@ -79,6 +81,13 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     );
   }
 
+  async updateMetodoGrupo(id: string, metodo: MetodoExercicio, grupoId: string | null): Promise<void> {
+    await this.database.run(
+      'UPDATE treino_exercicios SET metodo = ?, grupo_id = ? WHERE id = ?',
+      [metodo, grupoId ?? null, id]
+    );
+  }
+
   async delete(id: string): Promise<void> {
     await this.database.run('DELETE FROM treino_exercicios WHERE id = ?', [id]);
   }
@@ -92,6 +101,11 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
   }
 }
 
+const VALID_METODO = new Set<string>(['normal', 'drop_set', 'piramide', 'rest_pause']);
+function toMetodo(v: string | null): MetodoExercicio {
+  return (v && VALID_METODO.has(v)) ? v as MetodoExercicio : 'normal';
+}
+
 function mapRowToPrimitives(row: TreinoExercicioRow): TreinoExercicioPrimitives {
   return {
     id: row.id,
@@ -102,5 +116,7 @@ function mapRowToPrimitives(row: TreinoExercicioRow): TreinoExercicioPrimitives 
     execucoesRecomendadas: row.execucoes_recomendadas ?? null,
     cargaPadrao: row.carga_padrao ?? null,
     tempoDescansoSegundos: row.tempo_descanso_segundos ?? null,
+    metodo: toMetodo(row.metodo),
+    grupoId: row.grupo_id ?? null,
   };
 }

@@ -14,6 +14,18 @@ const GROUP_ORDER = [
   'Abdomen', 'Trapezio', 'Antebraco',
 ];
 
+function grupoLabel(n: number): string {
+  if (n === 2) return 'Bi-set';
+  if (n === 3) return 'Tri-set';
+  return 'Circuito';
+}
+
+function grupoColor(n: number): string {
+  if (n === 2) return '#16a34a';
+  if (n === 3) return '#ea580c';
+  return '#0891b2';
+}
+
 function primaryGroup(groupMuscle: string): string {
   return groupMuscle.split(',')[0].trim();
 }
@@ -39,6 +51,10 @@ function groupExercises(exercises: ExercisePrimitives[]): { group: string; items
     }));
 }
 
+function gerarGrupoId(): string {
+  return `g_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export function TreinoDetailScreen({
   treino,
   treinoExercicios,
@@ -51,7 +67,10 @@ export function TreinoDetailScreen({
   onRemoveExercicio,
   onMoveUp,
   onMoveDown,
+  onMoveUpInGroup,
+  onMoveDownInGroup,
   onUpdateRecomendacoes,
+  onUpdateMetodoGrupo,
   onUpdateNome,
   onUpdateObjetivo,
   progressoBaixarMidias,
@@ -139,6 +158,57 @@ export function TreinoDetailScreen({
     setEditingNome(false);
   };
 
+  // Sorted exercises for group rendering
+  const sorted = [...treinoExercicios].sort((a, b) => a.ordem - b.ordem);
+
+  // Agrupa exercícios adjacentes com o mesmo grupoId
+  interface Bloco {
+    tipo: 'single' | 'grupo';
+    grupoId: string | null;
+    exercicios: typeof sorted;
+  }
+
+  const blocos: Bloco[] = [];
+  for (const te of sorted) {
+    if (te.grupoId) {
+      const ultimo = blocos[blocos.length - 1];
+      if (ultimo?.tipo === 'grupo' && ultimo.grupoId === te.grupoId) {
+        ultimo.exercicios.push(te);
+      } else {
+        blocos.push({ tipo: 'grupo', grupoId: te.grupoId, exercicios: [te] });
+      }
+    } else {
+      blocos.push({ tipo: 'single', grupoId: null, exercicios: [te] });
+    }
+  }
+
+  // Vincula dois exercícios (ou adiciona ao grupo existente)
+  const vincular = async (teId: string, nextId: string, grupoId: string | null) => {
+    const gid = grupoId ?? gerarGrupoId();
+    // Conta quantos terão o grupoId após o link
+    const jaNoGrupo = sorted.filter((x) => x.grupoId === gid).map((x) => x.id);
+    const todos = [...new Set([...jaNoGrupo, teId, nextId])];
+    for (const id of todos) {
+      await onUpdateMetodoGrupo(id, sorted.find((x) => x.id === id)?.metodo ?? 'normal', gid);
+    }
+  };
+
+  const sairDoGrupo = async (teId: string, grupoId: string) => {
+    await onUpdateMetodoGrupo(teId, 'normal', null);
+    // Se restar apenas 1 exercício no grupo, dissolve o grupo
+    const restantes = sorted.filter((x) => x.grupoId === grupoId && x.id !== teId);
+    if (restantes.length === 1) {
+      await onUpdateMetodoGrupo(restantes[0].id, restantes[0].metodo, null);
+    }
+  };
+
+  const desfazerGrupo = async (grupoId: string) => {
+    const membros = sorted.filter((x) => x.grupoId === grupoId);
+    for (const m of membros) {
+      await onUpdateMetodoGrupo(m.id, m.metodo, null);
+    }
+  };
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
@@ -189,23 +259,168 @@ export function TreinoDetailScreen({
         {viewModel.emptyStateMessage ? (
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
         ) : (
-          viewModel.exercicios.map((item) => {
-            const te = treinoExercicios.find((t) => t.id === item.treinoExercicioId);
+          blocos.map((bloco, bi) => {
+            if (bloco.tipo === 'single') {
+              const te = bloco.exercicios[0];
+              const vm = viewModel.exercicios.find((x) => x.treinoExercicioId === te.id)!;
+              const teIdx = sorted.findIndex((x) => x.id === te.id);
+              const next = teIdx < sorted.length - 1 ? sorted[teIdx + 1] : null;
+              // Pode vincular com o próximo se houver próximo (mesmo se o próximo já está num grupo)
+              const canVincular = !!next;
+
+              return (
+                <ExercicioCardTreino
+                  key={te.id}
+                  item={{ ...vm, metodo: te.metodo, grupoId: te.grupoId, isFirst: bi === 0, isLast: bi === blocos.length - 1 }}
+                  seriesRecomendadas={te.seriesRecomendadas}
+                  execucoesRecomendadas={te.execucoesRecomendadas}
+                  cargaPadrao={te.cargaPadrao}
+                  tempoDescansoSegundos={te.tempoDescansoSegundos}
+                  canVincular={canVincular}
+                  onMoveUp={() => { void onMoveUp(te.id); }}
+                  onMoveDown={() => { void onMoveDown(te.id); }}
+                  onDesvincular={() => { void onRemoveExercicio(te.id); }}
+                  onChangeRecs={(series, execucoes, carga, descanso) => {
+                    recsRef.current.set(te.id, { series, execucoes, carga, descanso });
+                  }}
+                  onUpdateMetodo={async (metodo) => {
+                    await onUpdateMetodoGrupo(te.id, metodo, te.grupoId);
+                  }}
+                  onVincular={async () => {
+                    if (!next) return;
+                    await vincular(te.id, next.id, null);
+                  }}
+                  onSairDoGrupo={null}
+                />
+              );
+            }
+
+            // Bloco agrupado
+            const n = bloco.exercicios.length;
+            const color = grupoColor(n);
+            const label = grupoLabel(n);
+            const lastTeIdx = sorted.findIndex((x) => x.id === bloco.exercicios[n - 1].id);
+            const nextAfterGrupo = lastTeIdx < sorted.length - 1 ? sorted[lastTeIdx + 1] : null;
+            // Unified series/descanso from first exercise in group
+            const firstTe = bloco.exercicios[0];
+            const grupoSeriesKey  = `grupo_series_${bloco.grupoId}`;
+            const grupoDescansoKey = `grupo_descanso_${bloco.grupoId}`;
+
             return (
-              <ExercicioCardTreino
-                key={item.treinoExercicioId}
-                item={item}
-                seriesRecomendadas={te?.seriesRecomendadas ?? null}
-                execucoesRecomendadas={te?.execucoesRecomendadas ?? null}
-                cargaPadrao={te?.cargaPadrao ?? null}
-                tempoDescansoSegundos={te?.tempoDescansoSegundos ?? null}
-                onMoveUp={() => { void onMoveUp(item.treinoExercicioId); }}
-                onMoveDown={() => { void onMoveDown(item.treinoExercicioId); }}
-                onRemove={() => { void onRemoveExercicio(item.treinoExercicioId); }}
-                onChangeRecs={(series, execucoes, carga, descanso) => {
-                  recsRef.current.set(item.treinoExercicioId, { series, execucoes, carga, descanso });
-                }}
-              />
+              <View key={bloco.grupoId ?? bi} style={[styles.grupoContainer, { borderColor: color }]}>
+
+                {/* ── Group header: label + block move + desfazer ── */}
+                <View style={[styles.grupoHeader, { backgroundColor: color }]}>
+                  <Text style={styles.grupoHeaderText}>{label}</Text>
+                  <View style={styles.grupoHeaderActions}>
+                    <Pressable onPress={() => { void onMoveUp(bloco.exercicios[0].id); }}
+                      disabled={bi === 0}
+                      style={[styles.grupoArrowBtn, bi === 0 ? { opacity: 0.3 } : null]}>
+                      <Text style={styles.grupoArrowText}>↑</Text>
+                    </Pressable>
+                    <Pressable onPress={() => { void onMoveDown(bloco.exercicios[0].id); }}
+                      disabled={bi === blocos.length - 1}
+                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 ? { opacity: 0.3 } : null]}>
+                      <Text style={styles.grupoArrowText}>↓</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => { void desfazerGrupo(bloco.grupoId!); }}
+                      style={({ pressed }) => [styles.desfazerBtn, pressed ? { opacity: 0.7 } : null]}>
+                      <Text style={styles.desfazerBtnText}>Desfazer</Text>
+                    </Pressable>
+                  </View>
+                </View>
+
+                {/* ── Unified Series + Descanso ── */}
+                <View style={styles.grupoRecs}>
+                  <View style={styles.grupoRecCell}>
+                    <Text style={[styles.grupoRecLabel, { color }]}>Séries (todas)</Text>
+                    <TextInput
+                      style={[styles.grupoRecInput, { borderColor: color }]}
+                      defaultValue={firstTe.seriesRecomendadas != null ? String(firstTe.seriesRecomendadas) : ''}
+                      onChangeText={(v) => {
+                        recsRef.current.set(grupoSeriesKey, { series: v, execucoes: '', carga: '', descanso: '' });
+                        for (const m of bloco.exercicios) {
+                          const existing = recsRef.current.get(m.id) ?? { series: '', execucoes: '', carga: '', descanso: '' };
+                          recsRef.current.set(m.id, { ...existing, series: v });
+                        }
+                      }}
+                      keyboardType="number-pad"
+                      placeholder="—"
+                      placeholderTextColor={c.inputPlaceholder}
+                    />
+                  </View>
+                  <View style={styles.grupoRecCell}>
+                    <Text style={[styles.grupoRecLabel, { color }]}>Descanso (s)</Text>
+                    <TextInput
+                      style={[styles.grupoRecInput, { borderColor: color }]}
+                      defaultValue={firstTe.tempoDescansoSegundos != null ? String(firstTe.tempoDescansoSegundos) : ''}
+                      onChangeText={(v) => {
+                        recsRef.current.set(grupoDescansoKey, { series: '', execucoes: '', carga: '', descanso: v });
+                        for (const m of bloco.exercicios) {
+                          const existing = recsRef.current.get(m.id) ?? { series: '', execucoes: '', carga: '', descanso: '' };
+                          recsRef.current.set(m.id, { ...existing, descanso: v });
+                        }
+                      }}
+                      keyboardType="number-pad"
+                      placeholder="—"
+                      placeholderTextColor={c.inputPlaceholder}
+                    />
+                  </View>
+                </View>
+
+                {/* ── Exercise cards inside group ── */}
+                <View style={[styles.grupoBody, { backgroundColor: `${color}12` }]}>
+                  {bloco.exercicios.map((te, idx) => {
+                    const vm = viewModel.exercicios.find((x) => x.treinoExercicioId === te.id)!;
+
+                    return (
+                      <View key={te.id}>
+                        {idx > 0 ? (
+                          <View style={[styles.grupoDivider, { backgroundColor: color }]} />
+                        ) : null}
+                        <ExercicioCardTreino
+                          item={{ ...vm, metodo: te.metodo, grupoId: te.grupoId, isFirst: bi === 0, isLast: bi === blocos.length - 1 }}
+                          seriesRecomendadas={te.seriesRecomendadas}
+                          execucoesRecomendadas={te.execucoesRecomendadas}
+                          cargaPadrao={te.cargaPadrao}
+                          tempoDescansoSegundos={te.tempoDescansoSegundos}
+                          inGroup
+                          isFirstInGroup={idx === 0}
+                          isLastInGroup={idx === n - 1}
+                          canVincular={false}
+                          onMoveUp={() => { void onMoveUp(te.id); }}
+                          onMoveDown={() => { void onMoveDown(te.id); }}
+                          onMoveUpInGroup={() => { void onMoveUpInGroup(te.id); }}
+                          onMoveDownInGroup={() => { void onMoveDownInGroup(te.id); }}
+                          onDesvincular={() => { void onRemoveExercicio(te.id); }}
+                          onChangeRecs={(series, execucoes, carga, descanso) => {
+                            const existing = recsRef.current.get(te.id) ?? { series: '', execucoes: '', carga: '', descanso: '' };
+                            recsRef.current.set(te.id, { ...existing, execucoes, carga });
+                          }}
+                          onUpdateMetodo={async (metodo) => {
+                            await onUpdateMetodoGrupo(te.id, metodo, te.grupoId);
+                          }}
+                          onVincular={async () => {}}
+                          onSairDoGrupo={async () => {
+                            await sairDoGrupo(te.id, bloco.grupoId!);
+                          }}
+                        />
+                      </View>
+                    );
+                  })}
+
+                  {/* "+ Vincular próximo ao grupo" — group-level, shown once after all cards */}
+                  {nextAfterGrupo ? (
+                    <Pressable
+                      onPress={() => { void vincular(bloco.exercicios[n - 1].id, nextAfterGrupo.id, bloco.grupoId); }}
+                      style={({ pressed }) => [styles.vincularAoGrupoBtn, { borderColor: color }, pressed ? { opacity: 0.65 } : null]}
+                    >
+                      <Text style={[styles.vincularAoGrupoBtnText, { color }]}>+ Adicionar próximo ao grupo</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              </View>
             );
           })
         )}
@@ -327,10 +542,7 @@ function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: 
 
   return (
     <>
-      <Pressable
-        onPress={() => setOpen(true)}
-        style={styles.objetivoTrigger}
-      >
+      <Pressable onPress={() => setOpen(true)} style={styles.objetivoTrigger}>
         <Text style={[styles.description, !displayValue ? styles.objetivoPlaceholder : null]}>
           {displayValue ?? 'Definir objetivo...'}
         </Text>
@@ -445,5 +657,23 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     saveTreinoBtnPressed: { opacity: 0.9 },
     saveTreinoBtnDisabled: { opacity: 0.6 },
     saveTreinoBtnText: { color: c.accentText, fontSize: 16, fontWeight: '800' },
+    // Group visual blocks
+    grupoContainer: { borderRadius: 16, borderWidth: 3, overflow: 'hidden' },
+    grupoHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 14, paddingVertical: 10 },
+    grupoHeaderText: { color: '#fff', fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8, flex: 1 },
+    grupoHeaderActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    grupoArrowBtn: { width: 26, height: 26, borderRadius: 7, backgroundColor: 'rgba(0,0,0,0.22)', alignItems: 'center', justifyContent: 'center' },
+    grupoArrowText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+    desfazerBtn: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.22)' },
+    desfazerBtnText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+    // Series/Descanso strip — card-coloured background with group-colour accents (set via inline style)
+    grupoRecs: { flexDirection: 'row', gap: 10, paddingHorizontal: 14, paddingVertical: 10, backgroundColor: c.card },
+    grupoRecCell: { flex: 1, gap: 4 },
+    grupoRecLabel: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
+    grupoRecInput: { height: 38, borderRadius: 8, backgroundColor: c.inputBg, textAlign: 'center', color: c.inputText, fontSize: 15, fontWeight: '700', borderWidth: 2 },
+    grupoBody: { padding: 8, gap: 0 },
+    grupoDivider: { height: 2, opacity: 0.35, marginVertical: 6, marginHorizontal: 4 },
+    vincularAoGrupoBtn: { marginTop: 8, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center' },
+    vincularAoGrupoBtnText: { fontSize: 12, fontWeight: '700' },
   });
 }

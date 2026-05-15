@@ -12,4 +12,7 @@ export interface ExerciseRepository {
   findByNormalizedName(normalizedName: string): Promise<Exercise | null>;
   delete(id: string): Promise<void>;
   updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void>;
+  listAlternativas(exercicioId: string): Promise<Exercise[]>;
+  addAlternativa(exercicioId: string, alternativaId: string): Promise<void>;
+  removeAlternativa(exercicioId: string, alternativaId: string): Promise<void>;
 }

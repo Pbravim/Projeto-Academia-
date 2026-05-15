@@ -37,4 +37,21 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
     const updated = Exercise.restore({ ...p, mediaOnline, mediaLocal });
     this.exercisesById.set(id, updated);
   }
+
+  private readonly alternativasById = new Map<string, Set<string>>();
+
+  async listAlternativas(exercicioId: string): Promise<Exercise[]> {
+    const ids = this.alternativasById.get(exercicioId) ?? new Set();
+    return [...ids].map((id) => this.exercisesById.get(id)).filter(Boolean) as Exercise[];
+  }
+
+  async addAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    const set = this.alternativasById.get(exercicioId) ?? new Set<string>();
+    set.add(alternativaId);
+    this.alternativasById.set(exercicioId, set);
+  }
+
+  async removeAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    this.alternativasById.get(exercicioId)?.delete(alternativaId);
+  }
 }

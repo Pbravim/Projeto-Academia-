@@ -37,6 +37,7 @@ export interface ExerciseCatalogControllerState {
   draft: ExerciseDraft;
   exercises: ExercisePrimitives[];
   ultimosPesos: Map<string, UltimaExecucaoValida>;
+  alternativas: ExercisePrimitives[];
   errorMessage: string | null;
   feedbackMessage: string | null;
   isLoading: boolean;
@@ -49,6 +50,8 @@ export interface ExerciseCatalogControllerState {
   onSelectEdit: (exercise: ExercisePrimitives) => void;
   onCancelEdit: () => void;
   onDelete: (id: string) => Promise<void>;
+  onAddAlternativa: (alternativaId: string) => Promise<void>;
+  onRemoveAlternativa: (alternativaId: string) => Promise<void>;
   onViewHistorico: (exerciseId: string, exerciseName: string) => void;
 }
 
@@ -68,6 +71,7 @@ export function useExerciseCatalogController(
   const [draft, setDraft] = useState<ExerciseDraft>(initialDraft);
   const [exercises, setExercises] = useState<ExercisePrimitives[]>([]);
   const [ultimosPesos, setUltimosPesos] = useState<Map<string, UltimaExecucaoValida>>(new Map());
+  const [alternativas, setAlternativas] = useState<ExercisePrimitives[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -131,13 +135,30 @@ export function useExerciseCatalogController(
     });
     setErrorMessage(null);
     setFeedbackMessage(null);
+    void dependencies.exerciseRepository.listAlternativas(exercise.id).then((exs) => {
+      setAlternativas(exs.map((e) => e.toPrimitives()));
+    });
   };
 
   const onCancelEdit = () => {
     setEditingExerciseId(null);
     setDraft(initialDraft);
+    setAlternativas([]);
     setErrorMessage(null);
     setFeedbackMessage(null);
+  };
+
+  const onAddAlternativa = async (alternativaId: string) => {
+    if (!editingExerciseId) return;
+    await dependencies.exerciseRepository.addAlternativa(editingExerciseId, alternativaId);
+    const updated = await dependencies.exerciseRepository.listAlternativas(editingExerciseId);
+    setAlternativas(updated.map((e) => e.toPrimitives()));
+  };
+
+  const onRemoveAlternativa = async (alternativaId: string) => {
+    if (!editingExerciseId) return;
+    await dependencies.exerciseRepository.removeAlternativa(editingExerciseId, alternativaId);
+    setAlternativas((prev) => prev.filter((e) => e.id !== alternativaId));
   };
 
   const onSubmit = async () => {
@@ -231,6 +252,7 @@ export function useExerciseCatalogController(
     draft,
     exercises,
     ultimosPesos,
+    alternativas,
     errorMessage,
     feedbackMessage,
     isLoading,
@@ -243,6 +265,8 @@ export function useExerciseCatalogController(
     onSelectEdit,
     onCancelEdit,
     onDelete,
+    onAddAlternativa,
+    onRemoveAlternativa,
     onViewHistorico,
   };
 }

@@ -10,6 +10,7 @@ import { ListRegistrosPesoUseCase } from '../application/peso/use-cases/ListRegi
 import { RegistrarPesoUseCase } from '../application/peso/use-cases/RegistrarPesoUseCase';
 import { BaixarMidiaExercicioUseCase } from '../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { BaixarMidiasTreinoUseCase } from '../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
+import type { MetodoExercicio } from '../domain/treinos/entities/TreinoExercicio';
 import { AddExercicioAoTreinoUseCase } from '../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
 import { CreateTreinoUseCase } from '../application/treinos/use-cases/CreateTreinoUseCase';
 import { DeleteTreinoUseCase } from '../application/treinos/use-cases/DeleteTreinoUseCase';
@@ -130,6 +131,8 @@ export const mobileDependencies = {
       baixarMidiasTreino,
       updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) =>
         treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao, tempoDescansoSegundos),
+      updateMetodoGrupo: (id: string, metodo: MetodoExercicio, grupoId: string | null) =>
+        treinoExercicioRepository.updateMetodoGrupo(id, metodo, grupoId),
       logger,
     },
   },

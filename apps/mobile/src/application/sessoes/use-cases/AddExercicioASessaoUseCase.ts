@@ -64,6 +64,8 @@ export class AddExercicioASessaoUseCase {
       execucoesRecomendadas: null,
       cargaPadrao: null,
       tempoDescansoSegundos: null,
+      metodo: 'normal',
+      grupoId: null,
       substituidoPorExercicioId: null,
       substituicaoMotivo: null,
       nomeOriginalSnapshot: null,
