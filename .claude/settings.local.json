@@ -40,7 +40,8 @@
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
       "Bash(git stash *)",
       "Bash(npx --prefix apps/mobile tsc --noEmit --skipLibCheck)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Read(//tmp/**)"
     ]
   }
 }
