@@ -24,6 +24,9 @@ export interface TreinoDetailControllerDependencies {
   updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
   updateMetodoGrupo: (id: string, metodo: MetodoExercicio, grupoId: string | null) => Promise<void>;
   baixarMidiasTreino: BaixarMidiasTreinoUseCase;
+  listAlternativas: (exercicioId: string) => Promise<ExercisePrimitives[]>;
+  addAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
+  removeAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -47,6 +50,9 @@ export interface TreinoDetailControllerState {
   onUpdateObjetivo: (novoObjetivo: string | null) => Promise<void>;
   progressoBaixarMidias: ProgressoBaixarMidias | null;
   onBaixarMidias: () => Promise<void>;
+  alternativasByExercicioId: Map<string, ExercisePrimitives[]>;
+  onAddAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
+  onRemoveAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   onBack: () => void;
 }
 
@@ -61,6 +67,7 @@ export function useTreinoDetailController(
   const [exercisesById, setExercisesById] = useState<Map<string, ExercisePrimitives>>(new Map());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [alternativasByExercicioId, setAlternativasByExercicioId] = useState<Map<string, ExercisePrimitives[]>>(new Map());
 
   const loadData = async () => {
     try {
@@ -69,10 +76,18 @@ export function useTreinoDetailController(
         dependencies.listExercises.execute(),
       ]);
 
+      const alternativasEntries = await Promise.all(
+        exercicios.map(async (te) => {
+          const alts = await dependencies.listAlternativas(te.exercicioId);
+          return [te.exercicioId, alts] as const;
+        })
+      );
+
       startTransition(() => {
         setTreinoExercicios(exercicios);
         setAvailableExercises(exercises);
         setExercisesById(new Map(exercises.map((e) => [e.id, e])));
+        setAlternativasByExercicioId(new Map(alternativasEntries));
       });
     } catch (error) {
       dependencies.logger.error('treino_detail.load_failed', error);
@@ -287,6 +302,29 @@ export function useTreinoDetailController(
     }
   };
 
+  const onAddAlternativa = async (exercicioId: string, alternativaId: string) => {
+    try {
+      await dependencies.addAlternativa(exercicioId, alternativaId);
+      const updated = await dependencies.listAlternativas(exercicioId);
+      setAlternativasByExercicioId((prev) => new Map(prev).set(exercicioId, updated));
+    } catch (error) {
+      dependencies.logger.error('treino_detail.add_alternativa_failed', error);
+    }
+  };
+
+  const onRemoveAlternativa = async (exercicioId: string, alternativaId: string) => {
+    try {
+      await dependencies.removeAlternativa(exercicioId, alternativaId);
+      setAlternativasByExercicioId((prev) => {
+        const next = new Map(prev);
+        next.set(exercicioId, (next.get(exercicioId) ?? []).filter((a) => a.id !== alternativaId));
+        return next;
+      });
+    } catch (error) {
+      dependencies.logger.error('treino_detail.remove_alternativa_failed', error);
+    }
+  };
+
   const onUpdateObjetivo = async (novoObjetivo: string | null) => {
     setErrorMessage(null);
     try {
@@ -322,6 +360,9 @@ export function useTreinoDetailController(
     onUpdateObjetivo,
     progressoBaixarMidias,
     onBaixarMidias,
+    alternativasByExercicioId,
+    onAddAlternativa,
+    onRemoveAlternativa,
     onBack,
   };
 }

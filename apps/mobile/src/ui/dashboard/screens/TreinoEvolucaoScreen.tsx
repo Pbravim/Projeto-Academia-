@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import type { ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import type { SessaoExercicioEvolucao } from '../../../domain/dashboard/repositories/DashboardRepository';
 import { LineChart } from '../../shared/LineChart';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
 export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorMessage, onBack }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  useAndroidBack(onBack);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

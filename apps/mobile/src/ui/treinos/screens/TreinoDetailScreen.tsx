@@ -5,7 +5,9 @@ import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailContro
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
 import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
 import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
+import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
 const GROUP_ORDER = [
@@ -75,10 +77,14 @@ export function TreinoDetailScreen({
   onUpdateObjetivo,
   progressoBaixarMidias,
   onBaixarMidias,
+  alternativasByExercicioId,
+  onAddAlternativa,
+  onRemoveAlternativa,
   onBack,
 }: TreinoDetailControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  useAndroidBack(onBack);
 
   const viewModel = buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById);
 
@@ -89,6 +95,7 @@ export function TreinoDetailScreen({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editingNome, setEditingNome] = useState(false);
   const [nomeText, setNomeText] = useState(treino.name);
+  const [substitutoPickerFor, setSubstitutoPickerFor] = useState<{ exercicioId: string } | null>(null);
 
   const recsRef = useRef<Map<string, { series: string; execucoes: string; carga: string; descanso: string }>>(new Map());
   useEffect(() => {
@@ -276,6 +283,7 @@ export function TreinoDetailScreen({
                   execucoesRecomendadas={te.execucoesRecomendadas}
                   cargaPadrao={te.cargaPadrao}
                   tempoDescansoSegundos={te.tempoDescansoSegundos}
+                  alternativas={alternativasByExercicioId.get(te.exercicioId) ?? []}
                   canVincular={canVincular}
                   onMoveUp={() => { void onMoveUp(te.id); }}
                   onMoveDown={() => { void onMoveDown(te.id); }}
@@ -291,6 +299,8 @@ export function TreinoDetailScreen({
                     await vincular(te.id, next.id, null);
                   }}
                   onSairDoGrupo={null}
+                  onOpenSubstitutoPicker={() => setSubstitutoPickerFor({ exercicioId: te.exercicioId })}
+                  onRemoveAlternativa={(altId) => { void onRemoveAlternativa(te.exercicioId, altId); }}
                 />
               );
             }
@@ -385,6 +395,7 @@ export function TreinoDetailScreen({
                           execucoesRecomendadas={te.execucoesRecomendadas}
                           cargaPadrao={te.cargaPadrao}
                           tempoDescansoSegundos={te.tempoDescansoSegundos}
+                          alternativas={alternativasByExercicioId.get(te.exercicioId) ?? []}
                           inGroup
                           isFirstInGroup={idx === 0}
                           isLastInGroup={idx === n - 1}
@@ -405,6 +416,8 @@ export function TreinoDetailScreen({
                           onSairDoGrupo={async () => {
                             await sairDoGrupo(te.id, bloco.grupoId!);
                           }}
+                          onOpenSubstitutoPicker={() => setSubstitutoPickerFor({ exercicioId: te.exercicioId })}
+                          onRemoveAlternativa={(altId) => { void onRemoveAlternativa(te.exercicioId, altId); }}
                         />
                       </View>
                     );
@@ -497,6 +510,17 @@ export function TreinoDetailScreen({
             ))
           )}
         </View>
+      ) : null}
+
+      {substitutoPickerFor ? (
+        <SubstitutosPickerModal
+          visible
+          excludeExercicioId={substitutoPickerFor.exercicioId}
+          currentAlternativaIds={new Set((alternativasByExercicioId.get(substitutoPickerFor.exercicioId) ?? []).map((a) => a.id))}
+          allExercises={Array.from(exercisesById.values())}
+          onAdd={async (altId) => { await onAddAlternativa(substitutoPickerFor.exercicioId, altId); }}
+          onClose={() => setSubstitutoPickerFor(null)}
+        />
       ) : null}
     </ScrollView>
   );

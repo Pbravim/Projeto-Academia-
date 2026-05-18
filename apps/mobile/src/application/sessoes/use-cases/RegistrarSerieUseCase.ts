@@ -1,4 +1,4 @@
-import { SerieRegistrada, type SerieRegistradaPrimitives, type TipoSerie } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { SerieRegistrada, type SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
@@ -9,7 +9,6 @@ import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundE
 
 export interface RegistrarSerieInput {
   sessaoExercicioId: string;
-  tipoSerie: TipoSerie;
   cargaKg: number;
   repeticoes: number;
   observacao?: string;
@@ -51,7 +50,7 @@ export class RegistrarSerieUseCase {
     const serie = SerieRegistrada.create({
       id: this.dependencies.idGenerator(),
       sessaoExercicioId: input.sessaoExercicioId,
-      tipoSerie: input.tipoSerie,
+      tipoSerie: 'valida',
       ordem: count + 1,
       cargaKg: input.cargaKg,
       repeticoes: input.repeticoes,
@@ -70,7 +69,6 @@ export class RegistrarSerieUseCase {
     se: SessaoExercicioPrimitives,
     treinoId: string
   ): Promise<void> {
-    if (input.tipoSerie !== 'valida') return;
     if (se.execucoesRecomendadas == null) return;
     if (input.repeticoes < se.execucoesRecomendadas) return;
     if (se.cargaPadrao != null && input.cargaKg <= se.cargaPadrao) return;

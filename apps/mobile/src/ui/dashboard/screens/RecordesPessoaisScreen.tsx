@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { RecordeItem } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -14,6 +15,7 @@ const MEDAL_COLORS = ['#d4a017', '#9e9e9e', '#a0522d'];
 export function RecordesPessoaisScreen({ recordes, onBack }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  useAndroidBack(onBack);
 
   const sorted = [...recordes].sort((a, b) => b.melhorOrmKg - a.melhorOrmKg);
 

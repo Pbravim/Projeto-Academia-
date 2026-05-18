@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { useTheme } from '../../shared/theme';
 
 const TECNICAS: { value: Exclude<MetodoExercicio, 'normal'>; label: string; color: string }[] = [
@@ -30,6 +31,7 @@ interface Props {
   inGroup?: boolean;
   isFirstInGroup?: boolean;
   isLastInGroup?: boolean;
+  alternativas: ExercisePrimitives[];
   canVincular: boolean;
   onMoveUp: () => void;
   onMoveDown: () => void;
@@ -40,6 +42,8 @@ interface Props {
   onUpdateMetodo: (metodo: MetodoExercicio) => Promise<void>;
   onVincular: () => Promise<void>;
   onSairDoGrupo: (() => Promise<void>) | null;
+  onOpenSubstitutoPicker: () => void;
+  onRemoveAlternativa: (alternativaId: string) => void;
 }
 
 export function ExercicioCardTreino({
@@ -51,6 +55,7 @@ export function ExercicioCardTreino({
   inGroup = false,
   isFirstInGroup = false,
   isLastInGroup = false,
+  alternativas,
   canVincular,
   onMoveUp,
   onMoveDown,
@@ -61,6 +66,8 @@ export function ExercicioCardTreino({
   onUpdateMetodo,
   onVincular,
   onSairDoGrupo,
+  onOpenSubstitutoPicker,
+  onRemoveAlternativa,
 }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -237,6 +244,40 @@ export function ExercicioCardTreino({
         </View>
       ) : null}
 
+      {/* ── Substitutos predefinidos ── */}
+      <View style={styles.substitutosSection}>
+        <View style={styles.substitutosHeader}>
+          <Text style={styles.substitutosLabel}>
+            Substitutos{alternativas.length > 0 ? ` (${alternativas.length})` : ''}
+          </Text>
+          <Pressable
+            onPress={onOpenSubstitutoPicker}
+            style={({ pressed }) => [styles.addSubstitutoBtn, pressed ? { opacity: 0.65 } : null]}
+          >
+            <Text style={styles.addSubstitutoBtnText}>+</Text>
+          </Pressable>
+        </View>
+        {alternativas.length > 0 ? (
+          <View style={styles.substitutosList}>
+            {alternativas.map((alt) => (
+              <View key={alt.id} style={styles.substitutoRow}>
+                <View style={styles.substitutoInfo}>
+                  <Text style={styles.substitutoName} numberOfLines={1}>{alt.name}</Text>
+                  <Text style={styles.substitutoMeta} numberOfLines={1}>{alt.groupMuscle}</Text>
+                </View>
+                <Pressable
+                  onPress={() => onRemoveAlternativa(alt.id)}
+                  hitSlop={8}
+                  style={({ pressed }) => [styles.substitutoRemoveBtn, pressed ? { opacity: 0.5 } : null]}
+                >
+                  <Text style={styles.substitutoRemoveText}>✕</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
+
     </View>
   );
 }
@@ -296,5 +337,18 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       alignItems: 'center',
     },
     vincularBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+
+    substitutosSection: { gap: 6, paddingTop: 4, borderTopWidth: 1, borderTopColor: c.cardBorder },
+    substitutosHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    substitutosLabel: { color: c.textSecondary, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+    addSubstitutoBtn: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, backgroundColor: c.accentLight, borderWidth: 1, borderColor: c.accent },
+    addSubstitutoBtnText: { color: c.accent, fontSize: 16, fontWeight: '800' },
+    substitutosList: { gap: 4 },
+    substitutoRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.card, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 },
+    substitutoInfo: { flex: 1 },
+    substitutoName: { color: c.textPrimary, fontSize: 12, fontWeight: '700' },
+    substitutoMeta: { color: c.textSecondary, fontSize: 10, marginTop: 1 },
+    substitutoRemoveBtn: { padding: 2 },
+    substitutoRemoveText: { color: c.error, fontSize: 12, fontWeight: '800' },
   });
 }

@@ -7,6 +7,7 @@ import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -59,6 +60,7 @@ export function ExercicioDetalheScreen({
 }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  useAndroidBack(onBack);
 
   // --- form state ---
   const [mediaVisible, setMediaVisible] = useState(false);
@@ -198,7 +200,6 @@ export function ExercicioDetalheScreen({
     try {
       await onRegistrarSerie({
         sessaoExercicioId: sessaoExercicio.id,
-        tipoSerie: 'valida',
         cargaKg: cargaNum,
         repeticoes: repsIndex + 1,
         observacao: obs,

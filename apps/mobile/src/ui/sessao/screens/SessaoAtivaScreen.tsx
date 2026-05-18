@@ -2,11 +2,49 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
+import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { ExercicioCard } from '../components/ExercicioCard';
 import { AddExercicioSection } from '../components/AddExercicioSection';
 import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
 import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { useTheme } from '../../shared/theme';
+
+const METODO_LABELS: Record<string, string> = {
+  drop_set:   'Drop-set',
+  piramide:   'Pirâmide',
+  rest_pause: 'Rest-pause',
+};
+
+const METODO_COLORS: Record<string, string> = {
+  drop_set:   '#9333ea',
+  piramide:   '#d97706',
+  rest_pause: '#e11d48',
+};
+
+interface Grupo {
+  grupoId: string | null;
+  metodo: string;
+  itens: SessaoExercicioComSeries[];
+}
+
+function agruparExercicios(exercicios: SessaoExercicioComSeries[]): Grupo[] {
+  const grupos: Grupo[] = [];
+  const grupoMap = new Map<string, Grupo>();
+
+  for (const item of exercicios) {
+    const { grupoId, metodo } = item.sessaoExercicio;
+    if (!grupoId) {
+      grupos.push({ grupoId: null, metodo: 'normal', itens: [item] });
+    } else if (grupoMap.has(grupoId)) {
+      grupoMap.get(grupoId)!.itens.push(item);
+    } else {
+      const grupo: Grupo = { grupoId, metodo: metodo ?? 'normal', itens: [item] };
+      grupoMap.set(grupoId, grupo);
+      grupos.push(grupo);
+    }
+  }
+  return grupos;
+}
 
 export function SessaoAtivaScreen({
   detalhe,
@@ -104,14 +142,35 @@ export function SessaoAtivaScreen({
 
       {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
 
-      {detalhe.exercicios.map(({ sessaoExercicio, series }) => (
-        <ExercicioCard
-          key={sessaoExercicio.id}
-          sessaoExercicio={sessaoExercicio}
-          series={series}
-          onPress={() => setSelectedExercicioId(sessaoExercicio.id)}
-        />
-      ))}
+      {agruparExercicios(detalhe.exercicios).map((grupo, gi) => {
+        if (grupo.metodo === 'normal') {
+          const { sessaoExercicio, series } = grupo.itens[0];
+          return (
+            <ExercicioCard
+              key={sessaoExercicio.id}
+              sessaoExercicio={sessaoExercicio}
+              series={series}
+              onPress={() => setSelectedExercicioId(sessaoExercicio.id)}
+            />
+          );
+        }
+
+        return (
+          <View key={grupo.grupoId ?? gi} style={[styles.grupoCard, { borderColor: METODO_COLORS[grupo.metodo] }]}>
+            <View style={[styles.grupoHeader, { backgroundColor: METODO_COLORS[grupo.metodo] }]}>
+              <Text style={styles.grupoHeaderText}>{METODO_LABELS[grupo.metodo] ?? grupo.metodo}</Text>
+            </View>
+            {grupo.itens.map(({ sessaoExercicio, series }) => (
+              <ExercicioCard
+                key={sessaoExercicio.id}
+                sessaoExercicio={sessaoExercicio}
+                series={series}
+                onPress={() => setSelectedExercicioId(sessaoExercicio.id)}
+              />
+            ))}
+          </View>
+        );
+      })}
 
       <View style={styles.actionsCard}>
         <Pressable
@@ -185,5 +244,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     cancelarButtonPressed: { opacity: 0.7 },
     cancelarButtonDisabled: { opacity: 0.4 },
     cancelarButtonText: { color: c.error, fontSize: 14, fontWeight: '700' },
+    grupoCard: { borderRadius: 16, borderWidth: 2, overflow: 'hidden', gap: 0 },
+    grupoHeader: { paddingHorizontal: 14, paddingVertical: 6 },
+    grupoHeaderText: { color: '#fff', fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8 },
   });
 }

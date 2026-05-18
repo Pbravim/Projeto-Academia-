@@ -37,7 +37,10 @@
       "WebSearch",
       "Bash(xargs ls *)",
       "Bash(git -C /Users/bravim/Documents/GitHub/projeto-academia diff apps/mobile/src/ui/treinos/TreinoFeature.tsx)",
-      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(git stash *)",
+      "Bash(npx --prefix apps/mobile tsc --noEmit --skipLibCheck)",
+      "Bash(git *)"
     ]
   }
 }

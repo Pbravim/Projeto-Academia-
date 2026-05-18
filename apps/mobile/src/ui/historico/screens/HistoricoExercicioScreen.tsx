@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
 import type { ExecucaoHistoricoViewModel } from '../presenters/buildHistoricoExercicioViewModel';
 import { LineChart } from '../../shared/LineChart';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
 export function HistoricoExercicioScreen({
@@ -13,6 +14,7 @@ export function HistoricoExercicioScreen({
 }: HistoricoExercicioControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+  useAndroidBack(onBack);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

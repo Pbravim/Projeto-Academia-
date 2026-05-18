@@ -133,6 +133,14 @@ export const mobileDependencies = {
         treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao, tempoDescansoSegundos),
       updateMetodoGrupo: (id: string, metodo: MetodoExercicio, grupoId: string | null) =>
         treinoExercicioRepository.updateMetodoGrupo(id, metodo, grupoId),
+      listAlternativas: async (exercicioId: string) => {
+        const exercises = await exerciseRepository.listAlternativas(exercicioId);
+        return exercises.map((e) => e.toPrimitives());
+      },
+      addAlternativa: (exercicioId: string, alternativaId: string) =>
+        exerciseRepository.addAlternativa(exercicioId, alternativaId),
+      removeAlternativa: (exercicioId: string, alternativaId: string) =>
+        exerciseRepository.removeAlternativa(exercicioId, alternativaId),
       logger,
     },
   },

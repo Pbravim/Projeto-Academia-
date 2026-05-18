@@ -45,7 +45,7 @@ describe('RegistrarSerieUseCase', () => {
     const deps = makeDeps();
     await seedAtiva(deps);
 
-    const serie = await deps.useCase.execute({ sessaoExercicioId: 'se_1', tipoSerie: 'valida', cargaKg: 100, repeticoes: 8 });
+    const serie = await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 100, repeticoes: 8 });
 
     expect(serie.cargaKg).toBe(100);
     expect(serie.repeticoes).toBe(8);
@@ -57,8 +57,8 @@ describe('RegistrarSerieUseCase', () => {
     const deps = makeDeps();
     await seedAtiva(deps);
 
-    await deps.useCase.execute({ sessaoExercicioId: 'se_1', tipoSerie: 'aquecimento', cargaKg: 60, repeticoes: 15 });
-    const second = await deps.useCase.execute({ sessaoExercicioId: 'se_1', tipoSerie: 'valida', cargaKg: 100, repeticoes: 8 });
+    await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 60, repeticoes: 15 });
+    const second = await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 100, repeticoes: 8 });
 
     expect(second.ordem).toBe(2);
   });
@@ -70,7 +70,7 @@ describe('RegistrarSerieUseCase', () => {
     await deps.sessaoTreinoRepository.save(sessao!.finalizar(new Date()));
 
     await expect(
-      deps.useCase.execute({ sessaoExercicioId: 'se_1', tipoSerie: 'valida', cargaKg: 100, repeticoes: 8 })
+      deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 100, repeticoes: 8 })
     ).rejects.toThrow(SessaoEncerradaError);
   });
 
@@ -79,7 +79,7 @@ describe('RegistrarSerieUseCase', () => {
     await seedAtiva(deps);
 
     await expect(
-      deps.useCase.execute({ sessaoExercicioId: 'se_1', tipoSerie: 'valida', cargaKg: -1, repeticoes: 8 })
+      deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: -1, repeticoes: 8 })
     ).rejects.toThrow(SessaoValidationError);
   });
 
@@ -88,7 +88,7 @@ describe('RegistrarSerieUseCase', () => {
     await seedAtiva(deps);
 
     await expect(
-      deps.useCase.execute({ sessaoExercicioId: 'se_1', tipoSerie: 'valida', cargaKg: 50, repeticoes: 0 })
+      deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 50, repeticoes: 0 })
     ).rejects.toThrow(SessaoValidationError);
   });
 });
