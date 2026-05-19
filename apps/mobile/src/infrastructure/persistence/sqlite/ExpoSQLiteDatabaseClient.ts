@@ -87,7 +87,6 @@ const migrations: string[] = [
   ('seed-ex-005', 'Crucifixo com Haltere',          'crucifixo com haltere',         'Peito',                          'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-006', 'Crossover no Cabo',              'crossover no cabo',             'Peito',                          'Isolado',   'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-007', 'Flexao de Braco',                'flexao de braco',               'Peito, Triceps, Ombros',         'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
-  ('seed-ex-008', 'Pullover com Haltere',           'pullover com haltere',          'Costas, Peito',                  'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-009', 'Barra Fixa',                     'barra fixa',                    'Costas, Biceps',                 'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-010', 'Puxada Frontal',                 'puxada frontal',                'Costas, Biceps',                 'Composto',  'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-011', 'Remada Curvada com Barra',       'remada curvada com barra',      'Costas, Biceps',                 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
@@ -116,11 +115,9 @@ const migrations: string[] = [
   ('seed-ex-034', 'Agachamento Livre',              'agachamento livre',             'Quadriceps, Gluteos, Posterior', 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-035', 'Leg Press 45',                   'leg press 45',                  'Quadriceps, Gluteos',            'Composto',  'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-036', 'Afundo com Haltere',             'afundo com haltere',            'Quadriceps, Gluteos',            'Composto',  'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
-  ('seed-ex-037', 'Extensao de Joelhos',            'extensao de joelhos',           'Quadriceps',                     'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-038', 'Leg Curl',                       'leg curl',                      'Posterior',                      'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-039', 'Stiff com Barra',                'stiff com barra',               'Posterior, Gluteos',             'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-040', 'Hip Thrust com Barra',           'hip thrust com barra',          'Gluteos, Posterior',             'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
-  ('seed-ex-041', 'Abducao de Quadril',             'abducao de quadril',            'Gluteos',                        'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-042', 'Panturrilha em Pe',              'panturrilha em pe',             'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-043', 'Panturrilha Sentado',            'panturrilha sentado',           'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z');`,
 
@@ -159,7 +156,7 @@ const migrations: string[] = [
    UPDATE exercises SET musculo_alvo = 'peitoral_medio'          WHERE id IN ('seed-ex-001','seed-ex-004','seed-ex-005','seed-ex-006','seed-ex-007');
    UPDATE exercises SET musculo_alvo = 'peitoral_superior'       WHERE id = 'seed-ex-002';
    UPDATE exercises SET musculo_alvo = 'peitoral_inferior'       WHERE id = 'seed-ex-003';
-   UPDATE exercises SET musculo_alvo = 'dorsal'                  WHERE id IN ('seed-ex-008','seed-ex-009','seed-ex-010','seed-ex-014');
+   UPDATE exercises SET musculo_alvo = 'dorsal'                  WHERE id IN ('seed-ex-009','seed-ex-010','seed-ex-014');
    UPDATE exercises SET musculo_alvo = 'romboides_trapezio_medio' WHERE id IN ('seed-ex-011','seed-ex-012','seed-ex-013');
    UPDATE exercises SET musculo_alvo = 'deltoide_anterior'       WHERE id IN ('seed-ex-015','seed-ex-016','seed-ex-018');
    UPDATE exercises SET musculo_alvo = 'deltoide_lateral'        WHERE id = 'seed-ex-017';
@@ -169,9 +166,9 @@ const migrations: string[] = [
    UPDATE exercises SET musculo_alvo = 'triceps_cabeca_longa'    WHERE id IN ('seed-ex-025','seed-ex-028');
    UPDATE exercises SET musculo_alvo = 'triceps_lateral_medial'  WHERE id IN ('seed-ex-026','seed-ex-027','seed-ex-029');
    UPDATE exercises SET musculo_alvo = 'abdomen'                 WHERE id IN ('seed-ex-030','seed-ex-031','seed-ex-032','seed-ex-033');
-   UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036','seed-ex-037');
+   UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036');
    UPDATE exercises SET musculo_alvo = 'isquiotibiais'           WHERE id IN ('seed-ex-038','seed-ex-039');
-   UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id IN ('seed-ex-040','seed-ex-041');
+   UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id = 'seed-ex-040';
    UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043');`,
 
   // v10: re-seed any exercises deleted before cascade-delete was introduced (pre-commit 3aaa4f2).
@@ -185,7 +182,6 @@ const migrations: string[] = [
   ('seed-ex-005', 'Crucifixo com Haltere',          'crucifixo com haltere',         'Peito',                          'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-006', 'Crossover no Cabo',              'crossover no cabo',             'Peito',                          'Isolado',   'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-007', 'Flexao de Braco',                'flexao de braco',               'Peito, Triceps, Ombros',         'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
-  ('seed-ex-008', 'Pullover com Haltere',           'pullover com haltere',          'Costas, Peito',                  'Isolado',   'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-009', 'Barra Fixa',                     'barra fixa',                    'Costas, Biceps',                 'Composto',  'Peso corporal',  'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-010', 'Puxada Frontal',                 'puxada frontal',                'Costas, Biceps',                 'Composto',  'Cabo',           'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-011', 'Remada Curvada com Barra',       'remada curvada com barra',      'Costas, Biceps',                 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
@@ -214,17 +210,15 @@ const migrations: string[] = [
   ('seed-ex-034', 'Agachamento Livre',              'agachamento livre',             'Quadriceps, Gluteos, Posterior', 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-035', 'Leg Press 45',                   'leg press 45',                  'Quadriceps, Gluteos',            'Composto',  'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-036', 'Afundo com Haltere',             'afundo com haltere',            'Quadriceps, Gluteos',            'Composto',  'Haltere',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
-  ('seed-ex-037', 'Extensao de Joelhos',            'extensao de joelhos',           'Quadriceps',                     'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-038', 'Leg Curl',                       'leg curl',                      'Posterior',                      'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-039', 'Stiff com Barra',                'stiff com barra',               'Posterior, Gluteos',             'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-040', 'Hip Thrust com Barra',           'hip thrust com barra',          'Gluteos, Posterior',             'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
-  ('seed-ex-041', 'Abducao de Quadril',             'abducao de quadril',            'Gluteos',                        'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-042', 'Panturrilha em Pe',              'panturrilha em pe',             'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
   ('seed-ex-043', 'Panturrilha Sentado',            'panturrilha sentado',           'Panturrilha',                    'Isolado',   'Maquina',        'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z');
   UPDATE exercises SET musculo_alvo = 'peitoral_medio'          WHERE id IN ('seed-ex-001','seed-ex-004','seed-ex-005','seed-ex-006','seed-ex-007') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'peitoral_superior'       WHERE id = 'seed-ex-002' AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'peitoral_inferior'       WHERE id = 'seed-ex-003' AND musculo_alvo IS NULL;
-  UPDATE exercises SET musculo_alvo = 'dorsal'                  WHERE id IN ('seed-ex-008','seed-ex-009','seed-ex-010','seed-ex-014') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'dorsal'                  WHERE id IN ('seed-ex-009','seed-ex-010','seed-ex-014') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'romboides_trapezio_medio' WHERE id IN ('seed-ex-011','seed-ex-012','seed-ex-013') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'deltoide_anterior'       WHERE id IN ('seed-ex-015','seed-ex-016','seed-ex-018') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'deltoide_lateral'        WHERE id = 'seed-ex-017' AND musculo_alvo IS NULL;
@@ -234,9 +228,9 @@ const migrations: string[] = [
   UPDATE exercises SET musculo_alvo = 'triceps_cabeca_longa'    WHERE id IN ('seed-ex-025','seed-ex-028') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'triceps_lateral_medial'  WHERE id IN ('seed-ex-026','seed-ex-027','seed-ex-029') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'abdomen'                 WHERE id IN ('seed-ex-030','seed-ex-031','seed-ex-032','seed-ex-033') AND musculo_alvo IS NULL;
-  UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036','seed-ex-037') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036') AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'isquiotibiais'           WHERE id IN ('seed-ex-038','seed-ex-039') AND musculo_alvo IS NULL;
-  UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id IN ('seed-ex-040','seed-ex-041') AND musculo_alvo IS NULL;
+  UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id = 'seed-ex-040' AND musculo_alvo IS NULL;
   UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043') AND musculo_alvo IS NULL`,
 
   // v11: sessões podem ser arquivadas (soft-delete) — ocultas da evolução mas não apagadas
@@ -467,6 +461,21 @@ const migrations: string[] = [
   UPDATE exercises SET media_local = 'Gifs - Bonus/Biceps/biceps concentrado unilateral no cross.gif'             WHERE id = 'seed-ex-024' AND media_local IS NULL;
   UPDATE exercises SET media_local = 'Gifs - Bonus/Membros Inferiores/agachamento livre pes juntos.gif'           WHERE id = 'seed-ex-034' AND media_local IS NULL;
   UPDATE exercises SET media_local = 'Gifs - Bonus/Membros Inferiores/Flexao Plantar com peso corporal.gif'       WHERE id = 'seed-ex-042' AND media_local IS NULL`,
+
+  // v15: remove seed exercises that have no GIF (seed-ex-008 Pullover, seed-ex-037 Extensao de Joelhos, seed-ex-041 Abducao de Quadril).
+  // Cleans up existing devices that received them via v4/v10. sessao_exercicios rows are intentionally kept (nome_snapshot preserves history).
+  `DELETE FROM treino_exercicios WHERE exercicio_id IN ('seed-ex-008','seed-ex-037','seed-ex-041');
+   DELETE FROM exercise_alternatives WHERE exercicio_id IN ('seed-ex-008','seed-ex-037','seed-ex-041') OR alternativa_id IN ('seed-ex-008','seed-ex-037','seed-ex-041');
+   DELETE FROM exercises WHERE id IN ('seed-ex-008','seed-ex-037','seed-ex-041');`,
+
+  // v16: planejamento semanal — 7 linhas fixas, uma por dia da semana
+  `CREATE TABLE IF NOT EXISTS plano_semanal (
+     dia_semana TEXT PRIMARY KEY NOT NULL,
+     treino_id  TEXT REFERENCES treinos(id) ON DELETE SET NULL
+   );
+   INSERT OR IGNORE INTO plano_semanal (dia_semana, treino_id) VALUES
+     ('seg', NULL), ('ter', NULL), ('qua', NULL), ('qui', NULL),
+     ('sex', NULL), ('sab', NULL), ('dom', NULL);`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {

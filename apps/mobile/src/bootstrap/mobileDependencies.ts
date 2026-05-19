@@ -40,7 +40,11 @@ import { RegistrarSerieUseCase } from '../application/sessoes/use-cases/Registra
 import { SugerirProgressaoUseCase } from '../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import { SugerirSubstitutosUseCase } from '../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import { SubstituirExercicioSessaoUseCase } from '../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
+import { SugerirTreinoUseCase } from '../application/sessoes/use-cases/SugerirTreinoUseCase';
 import { ToggleExercicioRealizadoUseCase } from '../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
+import { GetPlanoSemanalUseCase } from '../application/plano/use-cases/GetPlanoSemanalUseCase';
+import { SetDiaPlanoUseCase } from '../application/plano/use-cases/SetDiaPlanoUseCase';
+import { SQLitePlanoSemanalRepository } from '../infrastructure/plano/SQLitePlanoSemanalRepository';
 import { SQLiteHistoricoRepository } from '../infrastructure/historico/SQLiteHistoricoRepository';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
 import { SQLiteExerciseRepository } from '../infrastructure/exercises/SQLiteExerciseRepository';
@@ -83,6 +87,7 @@ const baixarTodasMidias = new BaixarTodasMidiasUseCase({
   baixarMidia: baixarMidiaExercicio,
 });
 const listTreinos = new ListTreinosUseCase(treinoRepository);
+const planoSemanalRepository = new SQLitePlanoSemanalRepository(databaseClient);
 
 export const mobileDependencies = {
   logger,
@@ -111,7 +116,16 @@ export const mobileDependencies = {
     logger,
   },
 
+  plano: {
+    getPlanoSemanal: new GetPlanoSemanalUseCase(planoSemanalRepository),
+    setDiaPlano: new SetDiaPlanoUseCase(planoSemanalRepository),
+  },
+
   treinos: {
+    plano: {
+      getPlanoSemanal: new GetPlanoSemanalUseCase(planoSemanalRepository),
+      setDiaPlano: new SetDiaPlanoUseCase(planoSemanalRepository),
+    },
     list: {
       createTreino: new CreateTreinoUseCase({
         treinoRepository,
@@ -166,6 +180,7 @@ export const mobileDependencies = {
   sessao: {
     feature: {
       getSessaoAtiva: new GetSessaoAtivaUseCase(sessaoTreinoRepository),
+      sugerirTreino: new SugerirTreinoUseCase({ database: databaseClient, planoRepository: planoSemanalRepository }),
       iniciarSessao: new IniciarSessaoUseCase({
         sessaoTreinoRepository,
         sessaoExercicioRepository,

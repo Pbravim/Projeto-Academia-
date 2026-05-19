@@ -4,11 +4,13 @@ Last updated: 2026-05-19
 
 ## Summary
 
-| Total seed exercises | With GIF | Missing GIF |
+| Exercise set | Count | GIF coverage |
 |---|---|---|
-| 43 | 40 | 3 |
+| `seed-ex-*` (core catalogue) | 40 | 40/40 — 100% |
+| `gif-ex-*` (extended catalogue, v13) | 100+ | 100% (GIF embedded at insert) |
+| Removed from seed (no GIF) | 3 | — (documented below, re-addable) |
 
-All `gif-ex-*` exercises (migration v13) were created with GIFs already embedded in the INSERT statement.
+All `gif-ex-*` exercises (migration v13) were inserted with `media_local` already set.
 
 ---
 
@@ -59,9 +61,9 @@ All `gif-ex-*` exercises (migration v13) were created with GIFs already embedded
 
 ---
 
-## Seed exercises MISSING GIFs
+## Seed exercises REMOVED (no GIF available)
 
-These 3 exercises have no suitable GIF in the current asset collection. New GIF files need to be sourced and added to `apps/mobile/assets/gifs/`.
+These 3 exercises were removed from the seed via **migration v15** because no suitable GIF exists in the asset collection. They are kept here for reference so they can be re-added once a GIF is sourced.
 
 | ID | Name | Group | Equipment | Notes |
 |---|---|---|---|---|
@@ -69,21 +71,57 @@ These 3 exercises have no suitable GIF in the current asset collection. New GIF 
 | seed-ex-037 | Extensao de Joelhos | Quadriceps | Maquina | No leg extension machine GIF exists |
 | seed-ex-041 | Abducao de Quadril | Gluteos | Maquina | No hip abduction machine GIF exists |
 
-### Steps to add a missing GIF
+### Steps to re-add one of these exercises
 
 1. Place the `.gif` file in the appropriate subfolder under `apps/mobile/assets/gifs/`
 2. Run `scripts/copy_gifs.py` to regenerate `gifAssets.ts`
-3. Add a migration step in `ExpoSQLiteDatabaseClient.ts` (next version after v14):
+3. Add a new migration step in `ExpoSQLiteDatabaseClient.ts` (next version after v15):
    ```sql
-   UPDATE exercises SET media_local = 'FOLDER/filename.gif' WHERE id = 'seed-ex-XXX' AND media_local IS NULL;
+   INSERT OR IGNORE INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at, media_local, musculo_alvo)
+   VALUES ('seed-ex-XXX', 'Name', 'normalized name', 'Group', 'Category', 'Equipment', 'kg', 0,
+           '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z', 'FOLDER/filename.gif', 'musculo_alvo_value');
    ```
 
 ---
 
 ## Thumbnail feature
 
-As of this session, `ExercicioCard` (active session list) shows a **52×52 static thumbnail** (first frame of the GIF) on the left side of each card when `mediaLocal` is set. This lets users identify exercises at a glance without opening the card.
+A static first-frame thumbnail is shown inline on every exercise card that has `mediaLocal` set. This lets users identify the exercise at a glance without tapping into the detail view. Exercises without a GIF simply render no thumbnail — no layout shift.
 
-- Component: `apps/mobile/src/ui/sessao/components/ExercicioCard.tsx`
-- Data source: `SessaoExercicioComSeries.mediaLocal` passed from `SessaoAtivaScreen`
-- Rendering: `expo-image` with `autoplay={false}`
+| Screen | Component | Size | Source field |
+|---|---|---|---|
+| Active session list | `ExercicioCard.tsx` | 52×52 | `SessaoExercicioComSeries.mediaLocal` |
+| Exercise catalogue | `ExerciseSection.tsx` | 52×52 | `ExercisePrimitives.mediaLocal` |
+| Workout builder (treino detail) | `ExercicioCardTreino.tsx` | 44×44 | `item.mediaLocal` |
+| Add exercise to session | `AddExercicioSection.tsx` | 44×44 | `ExercisePrimitives.mediaLocal` |
+| Substitute exercise (session) | `SubstituirExercicioModal.tsx` | 44×44 | `CandidatoSubstituto.exercicio.mediaLocal` |
+| Add exercise to workout | `ExercisePickerGroup.tsx` | 44×44 | `ExercisePrimitives.mediaLocal` |
+| Add preset substitute (workout) | `SubstitutosPickerModal.tsx` | 44×44 | `ExercisePrimitives.mediaLocal` |
+
+All three use `expo-image` with `autoplay={false}` (first frame only) and `contentFit="cover"`.
+
+---
+
+## Future implementations / known gaps
+
+### 1 — Re-add the 3 seed exercises removed for missing GIFs
+
+| ID | Name | What's needed |
+|---|---|---|
+| seed-ex-008 | Pullover com Haltere | Pullover dumbbell GIF |
+| seed-ex-037 | Extensao de Joelhos | Leg extension machine GIF |
+| seed-ex-041 | Abducao de Quadril | Hip abduction machine GIF |
+
+Follow the **Steps to re-add** procedure in the section above.
+
+---
+
+### 2 — Thumbnail coverage (static first frame) ✅ DONE
+
+All seven locations now show thumbnails. See the Thumbnail feature table above.
+
+---
+
+### 3 — Animated GIF on card tap ✅ DONE
+
+Tapping any thumbnail toggles playback inline. A semi-transparent `▶` overlay is shown while paused; it disappears when playing. In list components (`AddExercicioSection`, `ExercisePickerGroup`, `SubstitutosPickerModal`) only one GIF plays at a time (`playingId` state). Single-card components (`ExercicioCard`, `ExerciseSection`, `ExercicioCardTreino`, `SubstituirExercicioModal`) each manage their own `playing` boolean independently.

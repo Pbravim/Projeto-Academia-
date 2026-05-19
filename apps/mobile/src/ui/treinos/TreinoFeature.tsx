@@ -6,12 +6,15 @@ import type { TreinoDetailControllerDependencies } from './hooks/useTreinoDetail
 import { useTreinoDetailController } from './hooks/useTreinoDetailController';
 import type { TreinoListControllerDependencies } from './hooks/useTreinoListController';
 import { useTreinoListController } from './hooks/useTreinoListController';
+import type { PlanoControllerDependencies } from './hooks/usePlanoController';
+import { usePlanoController } from './hooks/usePlanoController';
 import { TreinoDetailScreen } from './screens/TreinoDetailScreen';
 import { TreinoListScreen } from './screens/TreinoListScreen';
 
 export interface TreinoFeatureDependencies {
   list: TreinoListControllerDependencies;
   detail: TreinoDetailControllerDependencies;
+  plano: PlanoControllerDependencies;
 }
 
 interface Props {
@@ -23,6 +26,7 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   const [selectedTreino, setSelectedTreino] = useState<TreinoPrimitives | null>(null);
 
   const listController = useTreinoListController(dependencies.list, setSelectedTreino);
+  const planoController = usePlanoController(dependencies.plano);
 
   useEffect(() => {
     if (!selectedTreino) return;
@@ -44,7 +48,7 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
     );
   }
 
-  return <TreinoListScreen {...listController} />;
+  return <TreinoListScreen {...listController} plano={planoController} />;
 }
 
 interface TreinoDetailViewProps {

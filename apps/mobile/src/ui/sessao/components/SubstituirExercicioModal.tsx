@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import type { CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -145,11 +147,23 @@ function CandidatoRow({
   theme: ReturnType<typeof useTheme>;
 }) {
   const ex = candidato.exercicio;
+  const gifSource = ex.mediaLocal ? (gifAssets[ex.mediaLocal] ?? null) : null;
+  const [playing, setPlaying] = useState(false);
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.candidatoRow, selected ? styles.candidatoRowSelected : null, pressed ? { opacity: 0.8 } : null]}
     >
+      {gifSource ? (
+        <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.candidatoThumbnailWrap}>
+          <Image source={gifSource} style={styles.candidatoThumbnail} contentFit="cover" autoplay={playing} />
+          {!playing ? (
+            <View style={styles.thumbnailOverlay}>
+              <Text style={styles.thumbnailPlayIcon}>▶</Text>
+            </View>
+          ) : null}
+        </Pressable>
+      ) : null}
       <View style={styles.candidatoInfo}>
         <Text style={[styles.candidatoNome, selected ? styles.candidatoNomeSelected : null]} numberOfLines={1}>
           {ex.name}
@@ -180,8 +194,12 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     list: { padding: 16, gap: 8 },
     sectionLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 8, marginBottom: 4 },
     sectionLabelPredefinido: { color: c.accent },
-    candidatoRow: { backgroundColor: c.card, borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderColor: c.cardBorder },
+    candidatoRow: { backgroundColor: c.card, borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1.5, borderColor: c.cardBorder },
     candidatoRowSelected: { borderColor: c.accent, backgroundColor: c.accentLight },
+    candidatoThumbnailWrap: { width: 44, height: 44, flexShrink: 0 },
+    candidatoThumbnail: { width: 44, height: 44, borderRadius: 8, backgroundColor: c.cardAlt },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
     candidatoInfo: { flex: 1, gap: 3 },
     candidatoNome: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     candidatoNomeSelected: { color: c.accent },

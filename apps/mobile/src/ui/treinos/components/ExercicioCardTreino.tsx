@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
 const TECNICAS: { value: Exclude<MetodoExercicio, 'normal'>; label: string; color: string }[] = [
@@ -83,6 +85,8 @@ export function ExercicioCardTreino({
 
   const tecnicaAtiva = TECNICAS.find((t) => t.value === item.metodo);
   const isNormal = item.metodo === 'normal';
+  const gifSource = item.mediaLocal ? (gifAssets[item.mediaLocal] ?? null) : null;
+  const [playing, setPlaying] = useState(false);
 
   function toggleTecnica(value: Exclude<MetodoExercicio, 'normal'>) {
     void onUpdateMetodo(item.metodo === value ? 'normal' : value);
@@ -110,6 +114,17 @@ export function ExercicioCardTreino({
         <Text style={[styles.ordem, tecnicaAtiva ? { color: tecnicaAtiva.color } : null]}>
           {item.ordem}
         </Text>
+
+        {gifSource ? (
+          <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.thumbnailWrap}>
+            <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
+            {!playing ? (
+              <View style={styles.thumbnailOverlay}>
+                <Text style={styles.thumbnailPlayIcon}>▶</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        ) : null}
 
         <View style={styles.nameBlock}>
           <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
@@ -306,6 +321,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     card: { borderRadius: 12, padding: 12, backgroundColor: c.cardAlt, gap: 10 },
 
     row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    thumbnailWrap: { width: 44, height: 44, flexShrink: 0 },
+    thumbnail: { width: 44, height: 44, borderRadius: 8, backgroundColor: c.card },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
     groupArrows: { flexDirection: 'column', gap: 2 },
     groupArrowBtn: { width: 22, height: 22, borderRadius: 5, backgroundColor: c.card, alignItems: 'center', justifyContent: 'center' },
     groupArrowText: { color: c.textSecondary, fontSize: 11, fontWeight: '700' },

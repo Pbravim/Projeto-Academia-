@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
@@ -38,6 +38,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, onPress, on
   const overflow = total != null && total > MAX_DOTS ? total - MAX_DOTS : 0;
 
   const gifSource = mediaLocal ? (gifAssets[mediaLocal] ?? null) : null;
+  const [playing, setPlaying] = useState(false);
 
   return (
     <Pressable
@@ -45,12 +46,14 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, onPress, on
       style={({ pressed }) => [styles.card, finalizado ? styles.cardFinalizado : null, pressed ? { opacity: 0.8 } : null]}
     >
       {gifSource ? (
-        <Image
-          source={gifSource}
-          style={styles.thumbnail}
-          contentFit="cover"
-          autoplay={false}
-        />
+        <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.thumbnailWrap}>
+          <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
+          {!playing ? (
+            <View style={styles.thumbnailOverlay}>
+              <Text style={styles.thumbnailPlayIcon}>▶</Text>
+            </View>
+          ) : null}
+        </Pressable>
       ) : null}
       <View style={styles.info}>
         <Text style={styles.name}>{sessaoExercicio.nomeSnapshot}</Text>
@@ -133,7 +136,10 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, onPress, on
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     card: { backgroundColor: c.card, borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: c.cardBorder },
+    thumbnailWrap: { width: 52, height: 52, flexShrink: 0 },
     thumbnail: { width: 52, height: 52, borderRadius: 10, backgroundColor: c.cardAlt },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
     cardFinalizado: { opacity: 0.55 },
     info: { flex: 1, gap: 3 },
     name: { color: c.textPrimary, fontSize: 15, fontWeight: '800' },
