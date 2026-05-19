@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
 const GROUP_ORDER = [
@@ -67,6 +69,7 @@ function ExerciseGroup({ group, items, onAdd }: ExerciseGroupProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   return (
     <View>
@@ -85,16 +88,32 @@ function ExerciseGroup({ group, items, onAdd }: ExerciseGroupProps) {
 
       {expanded ? (
         <View style={styles.groupBody}>
-          {items.map((ex) => (
-            <Pressable
-              key={ex.id}
-              onPress={() => { void onAdd(ex.id); }}
-              style={({ pressed }) => [styles.exerciseCard, pressed ? { opacity: 0.7 } : null]}
-            >
-              <Text style={styles.exerciseName}>{ex.name}</Text>
-              <Text style={styles.exerciseMeta}>{ex.category ? `${ex.groupMuscle} · ${ex.category}` : ex.groupMuscle}</Text>
-            </Pressable>
-          ))}
+          {items.map((ex) => {
+            const gifSource = ex.mediaLocal ? (gifAssets[ex.mediaLocal] ?? null) : null;
+            const playing = playingId === ex.id;
+            return (
+              <Pressable
+                key={ex.id}
+                onPress={() => { void onAdd(ex.id); }}
+                style={({ pressed }) => [styles.exerciseCard, pressed ? { opacity: 0.7 } : null]}
+              >
+                {gifSource ? (
+                  <Pressable onPress={() => setPlayingId((prev) => (prev === ex.id ? null : ex.id))} hitSlop={4} style={styles.thumbnailWrap}>
+                    <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
+                    {!playing ? (
+                      <View style={styles.thumbnailOverlay}>
+                        <Text style={styles.thumbnailPlayIcon}>▶</Text>
+                      </View>
+                    ) : null}
+                  </Pressable>
+                ) : null}
+                <View style={styles.exerciseInfo}>
+                  <Text style={styles.exerciseName}>{ex.name}</Text>
+                  <Text style={styles.exerciseMeta}>{ex.category ? `${ex.groupMuscle} · ${ex.category}` : ex.groupMuscle}</Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
       ) : null}
     </View>
@@ -112,7 +131,12 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     groupBadgeText: { color: c.accentText, fontSize: 11, fontWeight: '800' },
     groupChevron: { color: c.heroSubtext, fontSize: 10, fontWeight: '700' },
     groupBody: { gap: 4, paddingBottom: 4 },
-    exerciseCard: { borderRadius: 12, padding: 12, backgroundColor: c.cardAlt },
+    exerciseCard: { borderRadius: 12, padding: 12, backgroundColor: c.cardAlt, flexDirection: 'row', alignItems: 'center', gap: 10 },
+    thumbnailWrap: { width: 44, height: 44, flexShrink: 0 },
+    thumbnail: { width: 44, height: 44, borderRadius: 8, backgroundColor: c.card },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
+    exerciseInfo: { flex: 1 },
     exerciseName: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     exerciseMeta: { color: c.textSecondary, fontSize: 12, marginTop: 2 },
   });

@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -20,6 +22,7 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
 
   const [expanded, setExpanded] = useState(false);
   const isOpen = expanded || forceExpanded;
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   return (
     <View style={styles.pickerGroup}>
@@ -40,6 +43,8 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
         <View style={styles.pickerGroupBody}>
           {items.map((exercise) => {
             const isSelected = selected.has(exercise.id);
+            const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
+            const playing = playingId === exercise.id;
             return (
               <Pressable
                 key={exercise.id}
@@ -58,6 +63,16 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
                 ]}
               >
                 <View style={styles.availableCardContent}>
+                  {gifSource ? (
+                    <Pressable onPress={() => setPlayingId((prev) => (prev === exercise.id ? null : exercise.id))} hitSlop={4} style={styles.thumbnailWrap}>
+                      <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
+                      {!playing ? (
+                        <View style={styles.thumbnailOverlay}>
+                          <Text style={styles.thumbnailPlayIcon}>▶</Text>
+                        </View>
+                      ) : null}
+                    </Pressable>
+                  ) : null}
                   <View style={{ flex: 1 }}>
                     <Text style={styles.availableName}>{exercise.name}</Text>
                     <Text style={styles.availableMeta}>{exercise.category ? `${exercise.groupMuscle} · ${exercise.category}` : exercise.groupMuscle}</Text>
@@ -87,7 +102,11 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     pickerGroupBody: { gap: 6, paddingBottom: 4 },
     availableCard: { borderRadius: 14, padding: 14, backgroundColor: c.cardAlt, borderWidth: 1.5, borderColor: 'transparent' },
     availableCardSelected: { backgroundColor: c.accentLight, borderColor: c.textPrimary },
-    availableCardContent: { flexDirection: 'row', alignItems: 'center' },
+    availableCardContent: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    thumbnailWrap: { width: 44, height: 44, flexShrink: 0 },
+    thumbnail: { width: 44, height: 44, borderRadius: 8, backgroundColor: c.card },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
     availableName: { color: c.textPrimary, fontSize: 15, fontWeight: '700' },
     availableMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
     checkmark: { width: 24, height: 24, borderRadius: 12, backgroundColor: c.hero, alignItems: 'center', justifyContent: 'center' },

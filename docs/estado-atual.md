@@ -1,6 +1,6 @@
 # Estado Atual — App Academia
 
-> Atualizado em `2026-05-11` (sessão 4). Feature Perfil planejada — ver `docs/plano-perfil.md`.
+> Atualizado em `2026-05-19`.
 
 ---
 
@@ -17,7 +17,7 @@ App mobile de acompanhamento de treino de musculação. Registro rápido durante
 | Framework | React Native 0.81.5 + React 19.1 |
 | Plataforma | Expo SDK 54 |
 | Linguagem | TypeScript 5.9 (strict) |
-| Banco local | SQLite via expo-sqlite 16 (schema v7) |
+| Banco local | SQLite via expo-sqlite 16 (schema v15) |
 | Testes | Vitest 4.1 — 126 testes passando |
 
 ---
@@ -95,12 +95,13 @@ apps/mobile/src/
 - Detecção de plateau (1RM estagnado em 4 sessões consecutivas)
 - `GetUltimasExecucoesValidas` usa uma única query bulk (evita crash Android)
 
-### Perfil *(planejado — ver `docs/plano-perfil.md`)*
+### Perfil
 
-Tab que substituirá **Peso** na navegação inferior. Exibe:
+Tab que substituiu **Peso** na navegação inferior. Exibe:
 - Avatar circular com iniciais e nome editável (persistido em `AsyncStorage`)
 - Badge com último peso registrado
 - Toda a funcionalidade de Peso Corporal embutida abaixo
+- Stats de treino (sessões totais, frequência semanal)
 
 ### Peso Corporal
 
@@ -129,27 +130,33 @@ Tab que substituirá **Peso** na navegação inferior. Exibe:
 
 ---
 
-## Schema SQLite (v7)
+## Schema SQLite (v15)
 
 ```sql
-exercises       (id, name, normalized_name, group_muscle, category, equipment, ...)
-treinos         (id, nome, objetivo, ...)
+exercises         (id, name, normalized_name, group_muscle, category, equipment,
+                   load_unit, is_custom, media_online, media_local, musculo_alvo, ...)
+treinos           (id, nome, objetivo, ...)
 treino_exercicios (id, treino_id, exercicio_id, ordem,
                    series_recomendadas, execucoes_recomendadas,
-                   carga_padrao, tempo_descanso_segundos)
-sessao_treinos  (id, treino_id, treino_nome_snapshot,
-                 data_hora_inicio, data_hora_fim, status)
+                   carga_padrao, tempo_descanso_segundos,
+                   metodo, grupo_id)
+sessao_treinos    (id, treino_id, treino_nome_snapshot,
+                   data_hora_inicio, data_hora_fim, status, arquivado)
 sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem,
                    nome_snapshot, grupo_muscular_snapshot,
                    categoria_snapshot, equipamento_snapshot,
                    realizado, series_recomendadas,
                    execucoes_recomendadas, carga_padrao,
-                   tempo_descanso_segundos)
+                   tempo_descanso_segundos, metodo, grupo_id,
+                   nome_original_snapshot, motivo_substituicao)
 series_registradas (id, sessao_exercicio_id, tipo_serie,
                     ordem, carga_kg, repeticoes, observacao)
-registros_peso  (id, peso_kg, data_hora, observacao)
-settings        (key TEXT PRIMARY KEY, value TEXT)
+registros_peso    (id, peso_kg, data_hora, observacao)
+exercise_alternatives (exercicio_id, alternativa_id)
+settings          (key TEXT PRIMARY KEY, value TEXT)
 ```
+
+Migrações versionadas de v1 a v15 em `ExpoSQLiteDatabaseClient.ts`. GIFs embutidos como assets estáticos — ver `GIF_MAPPING.md`.
 
 ---
 

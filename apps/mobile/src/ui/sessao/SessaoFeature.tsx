@@ -49,6 +49,7 @@ export function SessaoFeature({ dependencies }: Props) {
     <SessaoInicioScreen
       treinos={controller.treinos}
       treinosComExercicios={controller.treinosComExercicios}
+      sugestao={controller.sugestao}
       errorMessage={controller.errorMessage}
       isIniciando={controller.isIniciando}
       onIniciar={controller.onIniciarSessao}

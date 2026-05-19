@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import type { ExerciseSectionViewModel, ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { gifAssets } from './gifAssets';
 import { useTheme } from '../../shared/theme';
 
 interface SectionProps {
@@ -76,14 +78,31 @@ function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSe
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
+  const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
+  const [playing, setPlaying] = useState(false);
+
   return (
     <View style={[styles.exerciseCard, isEditing ? styles.exerciseCardEditing : null]}>
-      <Text style={styles.exerciseTitle}>{card.title}</Text>
-      <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
-      <Text style={styles.exerciseMeta}>{card.meta}</Text>
-      {card.ultimoPeso ? (
-        <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
-      ) : null}
+      <View style={styles.exerciseRow}>
+        {gifSource ? (
+          <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
+            <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={playing} />
+            {!playing ? (
+              <View style={styles.thumbnailOverlay}>
+                <Text style={styles.thumbnailPlayIcon}>▶</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        ) : null}
+        <View style={styles.exerciseInfo}>
+          <Text style={styles.exerciseTitle}>{card.title}</Text>
+          <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
+          <Text style={styles.exerciseMeta}>{card.meta}</Text>
+          {card.ultimoPeso ? (
+            <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
+          ) : null}
+        </View>
+      </View>
 
       <View style={styles.cardActions}>
         {(exercise.mediaOnline || exercise.mediaLocal) ? (
@@ -141,8 +160,14 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     countBadgeText: { color: c.accentText, fontSize: 12, fontWeight: '800' },
     chevron: { color: c.heroSubtext, fontSize: 11, fontWeight: '700' },
     sectionBody: { backgroundColor: c.card, borderRadius: 16, padding: 12, gap: 10, borderWidth: 1, borderColor: c.cardBorder, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-    exerciseCard: { borderRadius: 14, padding: 14, backgroundColor: c.cardAlt, gap: 4 },
+    exerciseCard: { borderRadius: 14, padding: 14, backgroundColor: c.cardAlt, gap: 10 },
     exerciseCardEditing: { borderWidth: 2, borderColor: c.accent },
+    exerciseRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    exerciseThumbnailWrap: { width: 52, height: 52, flexShrink: 0 },
+    exerciseThumbnail: { width: 52, height: 52, borderRadius: 10, backgroundColor: c.card },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
+    exerciseInfo: { flex: 1, gap: 2 },
     exerciseTitle: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
     exerciseSubtitle: { color: c.textLabel, fontSize: 14, fontWeight: '600' },
     exerciseMeta: { color: c.textSecondary, fontSize: 13 },

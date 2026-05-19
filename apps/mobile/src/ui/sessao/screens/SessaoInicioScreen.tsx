@@ -2,17 +2,27 @@ import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import type { SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinos: TreinoPrimitives[];
   treinosComExercicios: Set<string>;
+  sugestao: SugestaoTreino | null;
   errorMessage: string | null;
   isIniciando: boolean;
   onIniciar: (treinoId: string) => Promise<void>;
 }
 
-export function SessaoInicioScreen({ treinos, treinosComExercicios, errorMessage, isIniciando, onIniciar }: Props) {
+function labelUltimaSessao(ultimaSessao: string | null): string {
+  if (!ultimaSessao) return 'Nunca feito';
+  const dias = Math.floor((Date.now() - new Date(ultimaSessao).getTime()) / 86_400_000);
+  if (dias === 0) return 'Hoje';
+  if (dias === 1) return 'Ontem';
+  return `Ha ${dias} dias`;
+}
+
+export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -25,6 +35,32 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, errorMessage
           Escolha um treino para comecar. Todas as series serao registradas e salvas no historico.
         </Text>
       </View>
+
+      {sugestao ? (
+        <View style={styles.sugestaoCard}>
+          <View style={styles.sugestaoInfo}>
+            <Text style={styles.sugestaoLabel}>
+              {sugestao.fonte === 'plano' ? 'Planejado para hoje' : 'Sugerido para hoje'}
+            </Text>
+            <Text style={styles.sugestaoNome} numberOfLines={1}>{sugestao.treino.name}</Text>
+            {sugestao.treino.objetivo ? (
+              <Text style={styles.sugestaoObjetivo} numberOfLines={1}>{sugestao.treino.objetivo}</Text>
+            ) : null}
+            <Text style={styles.sugestaoUltimo}>{labelUltimaSessao(sugestao.ultimaSessao)}</Text>
+          </View>
+          <Pressable
+            onPress={() => { void onIniciar(sugestao.treino.id); }}
+            disabled={isIniciando || !treinosComExercicios.has(sugestao.treino.id)}
+            style={({ pressed }) => [
+              styles.sugestaoBtn,
+              pressed ? { opacity: 0.85 } : null,
+              !treinosComExercicios.has(sugestao.treino.id) ? { opacity: 0.45 } : null,
+            ]}
+          >
+            <Text style={styles.sugestaoBtnText}>Comecar</Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
 
@@ -78,6 +114,14 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
     content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 18 },
+    sugestaoCard: { backgroundColor: c.card, borderRadius: 20, padding: 18, borderWidth: 2, borderColor: c.accent, flexDirection: 'row', alignItems: 'center', gap: 14 },
+    sugestaoInfo: { flex: 1, gap: 2 },
+    sugestaoLabel: { color: c.accent, fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8 },
+    sugestaoNome: { color: c.textPrimary, fontSize: 17, fontWeight: '800', marginTop: 2 },
+    sugestaoObjetivo: { color: c.textLabel, fontSize: 13 },
+    sugestaoUltimo: { color: c.textSecondary, fontSize: 12, marginTop: 4 },
+    sugestaoBtn: { backgroundColor: c.accent, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 14 },
+    sugestaoBtnText: { color: c.accentText, fontSize: 14, fontWeight: '800' },
     heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 10 },
     eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
     title: { color: c.heroText, fontSize: 30, fontWeight: '800' },

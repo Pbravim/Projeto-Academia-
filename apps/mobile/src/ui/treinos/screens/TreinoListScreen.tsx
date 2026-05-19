@@ -11,8 +11,15 @@ import {
 } from 'react-native';
 
 import type { TreinoListControllerState } from '../hooks/useTreinoListController';
+import type { PlanoControllerState } from '../hooks/usePlanoController';
+import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
+import { PlanoPickerModal } from '../components/PlanoPickerModal';
 import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
 import { useTheme } from '../../shared/theme';
+
+interface TreinoListScreenProps extends TreinoListControllerState {
+  plano: PlanoControllerState;
+}
 
 export function TreinoListScreen({
   draft,
@@ -28,14 +35,22 @@ export function TreinoListScreen({
   onDelete,
   onDuplicate,
   onSelectTreino,
-}: TreinoListControllerState) {
+  plano,
+}: TreinoListScreenProps) {
   const canSubmit = draft.name.trim().length > 0 && !isSubmitting;
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const viewModel = buildTreinoListViewModel(treinos);
 
   return (
+    <>
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <PlanoSemanalCard
+        plano={plano.plano}
+        treinos={treinos}
+        onSelectDia={plano.onSelectDia}
+      />
+
       <View style={styles.heroCard}>
         <Text style={styles.eyebrow}>Modulo de treinos</Text>
         <Text style={styles.title}>Meus treinos</Text>
@@ -167,6 +182,15 @@ export function TreinoListScreen({
         )}
       </View>
     </ScrollView>
+
+    <PlanoPickerModal
+      dia={plano.diaSelecionado}
+      treinos={treinos}
+      treinoAtualId={plano.diaSelecionado ? plano.plano[plano.diaSelecionado] : null}
+      onSelect={plano.onSetTreino}
+      onClose={plano.onClosePicker}
+    />
+    </>
   );
 }
 

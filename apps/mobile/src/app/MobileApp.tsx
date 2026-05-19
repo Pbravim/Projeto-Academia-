@@ -135,7 +135,14 @@ function AppContent() {
         {activeModule === 'sessao' ? (
           <SessaoFeature dependencies={mobileDependencies.sessao} />
         ) : activeModule === 'treinos' ? (
-          <TreinoFeature dependencies={mobileDependencies.treinos} onGoToSessao={() => handleTabPress('sessao')} />
+          <TreinoFeature
+            dependencies={{
+              list: mobileDependencies.treinos.list,
+              detail: mobileDependencies.treinos.detail,
+              plano: mobileDependencies.treinos.plano,
+            }}
+            onGoToSessao={() => handleTabPress('sessao')}
+          />
         ) : activeModule === 'exercicios' ? (
           <ExerciseCatalogFeature dependencies={mobileDependencies.exerciseCatalog} />
         ) : activeModule === 'evolucao' ? (

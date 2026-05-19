@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -61,6 +63,7 @@ function CollapsibleGroup({
   c: ReturnType<typeof useTheme>;
 }) {
   const [open, setOpen] = useState(isSearching);
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   const addedCount = items.filter(
     (e) => currentAlternativaIds.has(e.id) || addedThisSession.has(e.id)
@@ -88,6 +91,8 @@ function CollapsibleGroup({
           {items.map((ex) => {
             const alreadyAdded = currentAlternativaIds.has(ex.id) || addedThisSession.has(ex.id);
             const isLoading = adding === ex.id;
+            const gifSource = ex.mediaLocal ? (gifAssets[ex.mediaLocal] ?? null) : null;
+            const playing = playingId === ex.id;
             return (
               <Pressable
                 key={ex.id}
@@ -99,6 +104,16 @@ function CollapsibleGroup({
                   pressed && !alreadyAdded ? styles.itemPressed : null,
                 ]}
               >
+                {gifSource ? (
+                  <Pressable onPress={() => setPlayingId((prev) => (prev === ex.id ? null : ex.id))} hitSlop={4} style={styles.thumbnailWrap}>
+                    <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
+                    {!playing ? (
+                      <View style={styles.thumbnailOverlay}>
+                        <Text style={styles.thumbnailPlayIcon}>▶</Text>
+                      </View>
+                    ) : null}
+                  </Pressable>
+                ) : null}
                 <View style={styles.itemInfo}>
                   <Text style={[styles.itemName, alreadyAdded ? styles.itemNameAdded : null]}>
                     {ex.name}
@@ -257,11 +272,15 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: 20,
-      paddingVertical: 13,
+      paddingVertical: 10,
       gap: 12,
       borderBottomWidth: 1,
       borderBottomColor: c.cardBorder,
     },
+    thumbnailWrap: { width: 44, height: 44, flexShrink: 0 },
+    thumbnail: { width: 44, height: 44, borderRadius: 8, backgroundColor: c.cardAlt },
+    thumbnailOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    thumbnailPlayIcon: { color: '#fff', fontSize: 11, fontWeight: '800' },
     itemPressed: { backgroundColor: c.cardAlt },
     itemAdded: { opacity: 0.45 },
     itemInfo: { flex: 1 },

@@ -47,7 +47,8 @@
       "Bash(awk -F'/' '{print $1}')",
       "Bash(python3 *)",
       "Bash(grep -E \"\\\\.tsx$\")",
-      "Bash(yarn workspace *)"
+      "Bash(yarn workspace *)",
+      "Bash(Remove-Item *)"
     ]
   }
 }
