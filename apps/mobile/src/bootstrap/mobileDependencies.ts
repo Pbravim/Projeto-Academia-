@@ -12,6 +12,7 @@ import { BaixarMidiaExercicioUseCase } from '../application/exercises/use-cases/
 import { BaixarMidiasTreinoUseCase } from '../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
 import { BaixarTodasMidiasUseCase } from '../application/exercises/use-cases/BaixarTodasMidiasUseCase';
 import type { MetodoExercicio } from '../domain/treinos/entities/TreinoExercicio';
+import type { SessaoExercicioPrimitives } from '../domain/sessoes/entities/SessaoExercicio';
 import { AddExercicioAoTreinoUseCase } from '../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
 import { CreateTreinoUseCase } from '../application/treinos/use-cases/CreateTreinoUseCase';
 import { DeleteTreinoUseCase } from '../application/treinos/use-cases/DeleteTreinoUseCase';
@@ -66,6 +67,11 @@ const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
 const dashboardRepository = new SqliteDashboardRepository(databaseClient);
 
 const listExercises = new ListExercisesUseCase(exerciseRepository);
+const cancelarSessaoUC = new CancelarSessaoUseCase({
+  sessaoTreinoRepository,
+  sessaoExercicioRepository,
+  serieRegistradaRepository,
+});
 const baixarMidiaExercicio = new BaixarMidiaExercicioUseCase({ exerciseRepository });
 const baixarMidiasTreino = new BaixarMidiasTreinoUseCase({
   exerciseRepository,
@@ -146,6 +152,13 @@ export const mobileDependencies = {
         exerciseRepository.addAlternativa(exercicioId, alternativaId),
       removeAlternativa: (exercicioId: string, alternativaId: string) =>
         exerciseRepository.removeAlternativa(exercicioId, alternativaId),
+      getSessaoAtiva: async () => {
+        const s = await sessaoTreinoRepository.findAtiva();
+        if (!s) return null;
+        const p = s.toPrimitives();
+        return { id: p.id, treinoNomeSnapshot: p.treinoNomeSnapshot };
+      },
+      cancelarSessao: (sessaoId: string) => cancelarSessaoUC.execute(sessaoId),
       logger,
     },
   },
@@ -195,11 +208,12 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         now: () => new Date(),
       }),
-      cancelarSessao: new CancelarSessaoUseCase({
-        sessaoTreinoRepository,
-        sessaoExercicioRepository,
-        serieRegistradaRepository,
-      }),
+      cancelarSessao: cancelarSessaoUC,
+      atualizarMetodoSessaoExercicio: async (id: string, metodo: SessaoExercicioPrimitives['metodo']) => {
+        const se = await sessaoExercicioRepository.findById(id);
+        if (!se) return;
+        await sessaoExercicioRepository.save(se.withMetodo(metodo));
+      },
       sugerirProgressao: new SugerirProgressaoUseCase({ historicoRepository }),
       sugerirSubstitutos: new SugerirSubstitutosUseCase({
         sessaoExercicioRepository,

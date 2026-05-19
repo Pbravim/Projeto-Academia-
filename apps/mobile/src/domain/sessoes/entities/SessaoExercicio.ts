@@ -38,6 +38,10 @@ export class SessaoExercicio {
     return new SessaoExercicio({ ...this.props, realizado: value });
   }
 
+  withMetodo(metodo: SessaoExercicioPrimitives['metodo']): SessaoExercicio {
+    return new SessaoExercicio({ ...this.props, metodo });
+  }
+
   withSubstituicao(
     novoExercicioId: string,
     novoNome: string,

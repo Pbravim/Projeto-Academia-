@@ -13,7 +13,7 @@ import type { SubstituirExercicioSessaoUseCase } from '../../../application/sess
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
-import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
+import type { SubstituicaoMotivo, SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
@@ -30,6 +30,7 @@ export interface SessaoAtivaControllerDependencies {
   sugerirSubstitutos: SugerirSubstitutosUseCase;
   substituirExercicio: SubstituirExercicioSessaoUseCase;
   listExercises: ListExercisesUseCase;
+  atualizarMetodoSessaoExercicio: (sessaoExercicioId: string, metodo: SessaoExercicioPrimitives['metodo']) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -46,8 +47,11 @@ export interface SessaoAtivaControllerState {
   candidatosSubstituicao: CandidatoSubstituto[];
   sessaoExercicioSubstituindo: string | null;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
+  onRegistrarSeriesEmLote: (inputs: RegistrarSerieInput[]) => Promise<void>;
   onDeleteSerie: (serieId: string) => Promise<void>;
+  onDeleteSeries: (serieIds: string[]) => Promise<void>;
   onToggleRealizado: (sessaoExercicioId: string) => Promise<void>;
+  onToggleRealizadoGrupo: (sessaoExercicioIds: string[]) => Promise<void>;
   onAddExercicio: (exercicioId: string) => Promise<void>;
   onToggleShowAddExercise: () => void;
   onFinalizar: () => Promise<void>;
@@ -55,6 +59,7 @@ export interface SessaoAtivaControllerState {
   onAbrirSubstituicao: (sessaoExercicioId: string) => Promise<void>;
   onConfirmarSubstituicao: (novoExercicioId: string, motivo: SubstituicaoMotivo | null) => Promise<void>;
   onFecharSubstituicao: () => void;
+  onAtualizarMetodo: (sessaoExercicioId: string, metodo: SessaoExercicioPrimitives['metodo']) => Promise<void>;
 }
 
 export function useSessaoAtivaController(
@@ -129,6 +134,17 @@ export function useSessaoAtivaController(
     }
   };
 
+  const onRegistrarSeriesEmLote = async (inputs: RegistrarSerieInput[]) => {
+    setErrorMessage(null);
+    try {
+      await Promise.all(inputs.map((input) => dependencies.registrarSerie.execute(input)));
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.registrar_series_lote_failed', error);
+      setErrorMessage('Nao foi possivel registrar as series.');
+    }
+  };
+
   const onDeleteSerie = async (serieId: string) => {
     setErrorMessage(null);
     try {
@@ -140,6 +156,17 @@ export function useSessaoAtivaController(
     }
   };
 
+  const onDeleteSeries = async (serieIds: string[]) => {
+    setErrorMessage(null);
+    try {
+      await Promise.all(serieIds.map((id) => dependencies.deleteSerie.execute(id)));
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.delete_series_failed', error);
+      setErrorMessage('Nao foi possivel remover as series.');
+    }
+  };
+
   const onToggleRealizado = async (sessaoExercicioId: string) => {
     setErrorMessage(null);
     try {
@@ -148,6 +175,17 @@ export function useSessaoAtivaController(
     } catch (error) {
       dependencies.logger.error('sessao_ativa.toggle_realizado_failed', error);
       setErrorMessage('Nao foi possivel atualizar o exercicio.');
+    }
+  };
+
+  const onToggleRealizadoGrupo = async (sessaoExercicioIds: string[]) => {
+    setErrorMessage(null);
+    try {
+      await Promise.all(sessaoExercicioIds.map((id) => dependencies.toggleExercicioRealizado.execute(id)));
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.toggle_realizado_grupo_failed', error);
+      setErrorMessage('Nao foi possivel atualizar os exercicios.');
     }
   };
 
@@ -230,6 +268,17 @@ export function useSessaoAtivaController(
     setCandidatosSubstituicao([]);
   };
 
+  const onAtualizarMetodo = async (sessaoExercicioId: string, metodo: SessaoExercicioPrimitives['metodo']) => {
+    setErrorMessage(null);
+    try {
+      await dependencies.atualizarMetodoSessaoExercicio(sessaoExercicioId, metodo);
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.atualizar_metodo_failed', error);
+      setErrorMessage('Nao foi possivel atualizar a tecnica.');
+    }
+  };
+
   return {
     detalhe,
     sugestoes,
@@ -243,8 +292,11 @@ export function useSessaoAtivaController(
     candidatosSubstituicao,
     sessaoExercicioSubstituindo,
     onRegistrarSerie,
+    onRegistrarSeriesEmLote,
     onDeleteSerie,
+    onDeleteSeries,
     onToggleRealizado,
+    onToggleRealizadoGrupo,
     onAddExercicio,
     onToggleShowAddExercise: () => setShowAddExercise((v) => !v),
     onFinalizar,
@@ -252,5 +304,6 @@ export function useSessaoAtivaController(
     onAbrirSubstituicao,
     onConfirmarSubstituicao,
     onFecharSubstituicao,
+    onAtualizarMetodo,
   };
 }

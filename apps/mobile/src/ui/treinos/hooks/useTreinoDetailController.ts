@@ -25,6 +25,8 @@ export interface TreinoDetailControllerDependencies {
   listAlternativas: (exercicioId: string) => Promise<ExercisePrimitives[]>;
   addAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   removeAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
+  getSessaoAtiva: () => Promise<{ id: string; treinoNomeSnapshot: string } | null>;
+  cancelarSessao: (sessaoId: string) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -49,13 +51,17 @@ export interface TreinoDetailControllerState {
   alternativasByExercicioId: Map<string, ExercisePrimitives[]>;
   onAddAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   onRemoveAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
+  getSessaoAtiva: () => Promise<{ id: string; treinoNomeSnapshot: string } | null>;
+  cancelarSessao: (sessaoId: string) => Promise<void>;
   onBack: () => void;
+  onGoToSessao: () => void;
 }
 
 export function useTreinoDetailController(
   treino: TreinoPrimitives,
   dependencies: TreinoDetailControllerDependencies,
-  onBack: () => void
+  onBack: () => void,
+  onGoToSessao: () => void
 ): TreinoDetailControllerState {
   const [localTreino, setLocalTreino] = useState<TreinoPrimitives>(treino);
   const [treinoExercicios, setTreinoExercicios] = useState<TreinoExercicioPrimitives[]>([]);
@@ -337,6 +343,9 @@ export function useTreinoDetailController(
     alternativasByExercicioId,
     onAddAlternativa,
     onRemoveAlternativa,
+    getSessaoAtiva: dependencies.getSessaoAtiva,
+    cancelarSessao: dependencies.cancelarSessao,
     onBack,
+    onGoToSessao,
   };
 }

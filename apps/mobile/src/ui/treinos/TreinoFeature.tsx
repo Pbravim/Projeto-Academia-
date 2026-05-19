@@ -16,9 +16,10 @@ export interface TreinoFeatureDependencies {
 
 interface Props {
   dependencies: TreinoFeatureDependencies;
+  onGoToSessao: () => void;
 }
 
-export function TreinoFeature({ dependencies }: Props) {
+export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   const [selectedTreino, setSelectedTreino] = useState<TreinoPrimitives | null>(null);
 
   const listController = useTreinoListController(dependencies.list, setSelectedTreino);
@@ -38,6 +39,7 @@ export function TreinoFeature({ dependencies }: Props) {
         treino={selectedTreino}
         dependencies={dependencies.detail}
         onBack={() => setSelectedTreino(null)}
+        onGoToSessao={onGoToSessao}
       />
     );
   }
@@ -49,9 +51,10 @@ interface TreinoDetailViewProps {
   treino: TreinoPrimitives;
   dependencies: TreinoDetailControllerDependencies;
   onBack: () => void;
+  onGoToSessao: () => void;
 }
 
-function TreinoDetailView({ treino, dependencies, onBack }: TreinoDetailViewProps) {
-  const controller = useTreinoDetailController(treino, dependencies, onBack);
+function TreinoDetailView({ treino, dependencies, onBack, onGoToSessao }: TreinoDetailViewProps) {
+  const controller = useTreinoDetailController(treino, dependencies, onBack, onGoToSessao);
   return <TreinoDetailScreen {...controller} />;
 }
