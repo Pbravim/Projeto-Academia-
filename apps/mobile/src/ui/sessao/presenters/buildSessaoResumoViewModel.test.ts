@@ -42,18 +42,19 @@ function makeSerie(id: string, tipo: 'aquecimento' | 'valida', cargaKg: number, 
   return { id, sessaoExercicioId: 'se_1', tipoSerie: tipo, ordem: 1, cargaKg, repeticoes, observacao: null };
 }
 
+function makeExercicioComSeries(id: string, series: ReturnType<typeof makeSerie>[], realizado = true) {
+  return { sessaoExercicio: makeSessaoExercicio(id, realizado), series, mediaOnline: null, mediaLocal: null };
+}
+
 function makeDetalhe(overrides: Partial<SessaoDetalhe> = {}): SessaoDetalhe {
   return {
     sessao: makeSessao('2026-05-03T10:00:00.000Z', '2026-05-03T11:05:00.000Z'),
     exercicios: [
-      {
-        sessaoExercicio: makeSessaoExercicio('se_1'),
-        series: [
-          makeSerie('s1', 'aquecimento', 40, 15),
-          makeSerie('s2', 'valida', 80, 8),
-          makeSerie('s3', 'valida', 85, 6),
-        ],
-      },
+      makeExercicioComSeries('se_1', [
+        makeSerie('s1', 'aquecimento', 40, 15),
+        makeSerie('s2', 'valida', 80, 8),
+        makeSerie('s3', 'valida', 85, 6),
+      ]),
     ],
     ...overrides,
   };
@@ -72,13 +73,10 @@ describe('buildSessaoResumoViewModel', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            {
-              sessaoExercicio: makeSessaoExercicio('se_1'),
-              series: [
-                makeSerie('s1', 'aquecimento', 100, 15), // nao entra
-                makeSerie('s2', 'valida', 80, 10),        // 800
-              ],
-            },
+            makeExercicioComSeries('se_1', [
+              makeSerie('s1', 'aquecimento', 100, 15), // nao entra
+              makeSerie('s2', 'valida', 80, 10),        // 800
+            ]),
           ],
         })
       );
@@ -90,10 +88,7 @@ describe('buildSessaoResumoViewModel', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            {
-              sessaoExercicio: makeSessaoExercicio('se_1'),
-              series: [makeSerie('s1', 'valida', 80, 5)],  // 400kg
-            },
+            makeExercicioComSeries('se_1', [makeSerie('s1', 'valida', 80, 5)]),  // 400kg
           ],
         })
       );
@@ -105,10 +100,7 @@ describe('buildSessaoResumoViewModel', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            {
-              sessaoExercicio: makeSessaoExercicio('se_1'),
-              series: [makeSerie('s1', 'valida', 100, 15)],  // 1500kg
-            },
+            makeExercicioComSeries('se_1', [makeSerie('s1', 'valida', 100, 15)]),  // 1500kg
           ],
         })
       );
@@ -155,10 +147,7 @@ describe('buildSessaoResumoViewModel', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            {
-              sessaoExercicio: makeSessaoExercicio('se_1'),
-              series: [makeSerie('s1', 'aquecimento', 40, 15)],
-            },
+            makeExercicioComSeries('se_1', [makeSerie('s1', 'aquecimento', 40, 15)]),
           ],
         })
       );
@@ -171,10 +160,10 @@ describe('buildSessaoResumoViewModel', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
-            { sessaoExercicio: makeSessaoExercicio('se_1', true),  series: [makeSerie('s1', 'valida', 80, 8)] },
-            { sessaoExercicio: makeSessaoExercicio('se_2', false), series: [makeSerie('s2', 'valida', 60, 10)] },
-            { sessaoExercicio: makeSessaoExercicio('se_3', false), series: [] },
-            { sessaoExercicio: makeSessaoExercicio('se_4', true),  series: [] },
+            makeExercicioComSeries('se_1', [makeSerie('s1', 'valida', 80, 8)], true),
+            makeExercicioComSeries('se_2', [makeSerie('s2', 'valida', 60, 10)], false),
+            makeExercicioComSeries('se_3', [], false),
+            makeExercicioComSeries('se_4', [], true),
           ],
         })
       );

@@ -7,6 +7,7 @@ import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
@@ -16,6 +17,8 @@ interface Props {
   sugestao: SugestaoProgressao | null;
   isLastExercicio: boolean;
   canFinalizar?: boolean;
+  mediaOnline: string | null;
+  mediaLocal: string | null;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onDeleteSerie: (id: string) => Promise<void>;
   onToggleRealizado: (id: string) => Promise<void>;
@@ -50,6 +53,8 @@ export function ExercicioDetalheScreen({
   sugestao,
   isLastExercicio,
   canFinalizar = true,
+  mediaOnline,
+  mediaLocal,
   onRegistrarSerie,
   onDeleteSerie,
   onToggleRealizado,
@@ -265,12 +270,13 @@ export function ExercicioDetalheScreen({
             <Text style={styles.mediaToggleBtnIcon}>{mediaVisible ? '✕' : '▶'}</Text>
             <Text style={styles.mediaToggleBtnText}>{mediaVisible ? 'Fechar video' : 'Ver execucao'}</Text>
           </Pressable>
-          {mediaVisible ? (
-            <View style={styles.mediaPlaceholder}>
-              <Text style={styles.mediaPlaceholderText}>Video de execucao</Text>
-              <Text style={styles.mediaPlaceholderSub}>Em breve</Text>
-            </View>
-          ) : null}
+          <ExerciseMediaViewer
+            visible={mediaVisible}
+            exercicioNome={sessaoExercicio.nomeSnapshot}
+            mediaOnline={mediaOnline}
+            mediaLocal={mediaLocal}
+            onClose={() => setMediaVisible(false)}
+          />
         </>
       ) : null}
 
@@ -655,10 +661,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     mediaToggleBtn: { flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: c.accentLight, borderWidth: 1, borderColor: c.accent },
     mediaToggleBtnIcon: { color: c.accent, fontSize: 12, fontWeight: '800' },
     mediaToggleBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
-    mediaPlaceholder: { backgroundColor: c.cardAlt, borderRadius: 16, height: 180, alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: c.cardBorder, borderStyle: 'dashed' },
-    mediaPlaceholderText: { color: c.textSecondary, fontSize: 15, fontWeight: '700' },
-    mediaPlaceholderSub: { color: c.textLabel, fontSize: 12 },
-
     sugestaoChip: { backgroundColor: c.accentLight, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: c.accent },
     sugestaoText: { color: c.accent, fontSize: 13, fontWeight: '700' },
 

@@ -54,6 +54,8 @@ function AppContent() {
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
 
+  useEffect(() => { void mobileDependencies.baixarTodasMidias.execute(); }, []);
+
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (activeModule === 'perfil') {

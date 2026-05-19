@@ -75,8 +75,6 @@ export function TreinoDetailScreen({
   onUpdateMetodoGrupo,
   onUpdateNome,
   onUpdateObjetivo,
-  progressoBaixarMidias,
-  onBaixarMidias,
   alternativasByExercicioId,
   onAddAlternativa,
   onRemoveAlternativa,
@@ -441,17 +439,6 @@ export function TreinoDetailScreen({
         {treinoExercicios.length > 0 ? (
           <View style={styles.saveRow}>
             <Pressable
-              onPress={() => { void onBaixarMidias(); }}
-              disabled={!!progressoBaixarMidias || isSaving}
-              style={({ pressed }) => [styles.downloadMidiasBtn, pressed ? { opacity: 0.8 } : null, progressoBaixarMidias ? { opacity: 0.6 } : null]}
-            >
-              <Text style={styles.downloadMidiasBtnText}>
-                {progressoBaixarMidias
-                  ? `⬇ ${progressoBaixarMidias.concluido}/${progressoBaixarMidias.total}`
-                  : '⬇ Midias offline'}
-              </Text>
-            </Pressable>
-            <Pressable
               onPress={() => { void handleSaveAll(); }}
               disabled={isSaving}
               style={({ pressed }) => [
@@ -675,8 +662,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     addSelectedBtn: { backgroundColor: c.hero, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
     addSelectedBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },
     saveRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
-    downloadMidiasBtn: { paddingHorizontal: 14, paddingVertical: 12, borderRadius: 16, borderWidth: 1.5, borderColor: c.accent, alignItems: 'center', justifyContent: 'center' },
-    downloadMidiasBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
     saveTreinoBtn: { flex: 1, minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent },
     saveTreinoBtnPressed: { opacity: 0.9 },
     saveTreinoBtnDisabled: { opacity: 0.6 },

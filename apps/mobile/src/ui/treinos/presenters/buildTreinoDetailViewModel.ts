@@ -10,6 +10,8 @@ export interface TreinoExercicioViewModel {
   groupMuscle: string;
   category: string;
   equipment: string | null;
+  mediaOnline: string | null;
+  mediaLocal: string | null;
   isFirst: boolean;
   isLast: boolean;
 }
@@ -42,6 +44,8 @@ export function buildTreinoDetailViewModel(
         groupMuscle: exercise.groupMuscle,
         category: exercise.category,
         equipment: exercise.equipment,
+        mediaOnline: exercise.mediaOnline ?? null,
+        mediaLocal: exercise.mediaLocal ?? null,
         isFirst: index === 0,
         isLast: index === total - 1,
       },

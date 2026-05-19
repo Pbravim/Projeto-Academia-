@@ -10,6 +10,7 @@ import { ListRegistrosPesoUseCase } from '../application/peso/use-cases/ListRegi
 import { RegistrarPesoUseCase } from '../application/peso/use-cases/RegistrarPesoUseCase';
 import { BaixarMidiaExercicioUseCase } from '../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { BaixarMidiasTreinoUseCase } from '../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
+import { BaixarTodasMidiasUseCase } from '../application/exercises/use-cases/BaixarTodasMidiasUseCase';
 import type { MetodoExercicio } from '../domain/treinos/entities/TreinoExercicio';
 import { AddExercicioAoTreinoUseCase } from '../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
 import { CreateTreinoUseCase } from '../application/treinos/use-cases/CreateTreinoUseCase';
@@ -71,10 +72,15 @@ const baixarMidiasTreino = new BaixarMidiasTreinoUseCase({
   treinoExercicioRepository,
   baixarMidia: baixarMidiaExercicio,
 });
+const baixarTodasMidias = new BaixarTodasMidiasUseCase({
+  exerciseRepository,
+  baixarMidia: baixarMidiaExercicio,
+});
 const listTreinos = new ListTreinosUseCase(treinoRepository);
 
 export const mobileDependencies = {
   logger,
+  baixarTodasMidias,
 
   exerciseCatalog: {
     createExercise: new CreateExerciseUseCase({
@@ -128,7 +134,6 @@ export const mobileDependencies = {
       reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
       updateTreino: new UpdateTreinoUseCase({ treinoRepository, now: () => new Date() }),
       listExercises,
-      baixarMidiasTreino,
       updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) =>
         treinoExercicioRepository.updateRecomendacoes(id, series, execucoes, cargaPadrao, tempoDescansoSegundos),
       updateMetodoGrupo: (id: string, metodo: MetodoExercicio, grupoId: string | null) =>
@@ -166,6 +171,7 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         sessaoExercicioRepository,
         serieRegistradaRepository,
+        exerciseRepository,
       }),
       registrarSerie: new RegistrarSerieUseCase({
         sessaoTreinoRepository,
