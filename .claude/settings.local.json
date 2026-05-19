@@ -41,7 +41,13 @@
       "Bash(git stash *)",
       "Bash(npx --prefix apps/mobile tsc --noEmit --skipLibCheck)",
       "Bash(git *)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(grep -c \"^ \\\\`\\\\|^ \\\\`\\\\`\" /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/infrastructure/persistence/sqlite/ExpoSQLiteDatabaseClient.ts)",
+      "Bash(awk -F'/' '{print $2}')",
+      "Bash(awk -F'/' '{print $1}')",
+      "Bash(python3 *)",
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(yarn workspace *)"
     ]
   }
 }

@@ -13,8 +13,8 @@
 - [X] Ao finalizar o exercício no menu deve ter o botão de próximo/finalizar sessão de acordo com a ordem dos exercícios
 - [x] Descanso não está sendo pego do treino pré-montado
 - [x] Ao passar para o próximo exercício na sessão está mantendo os valores da primeira
+- [x] O botão de voltar não funciona em algumas páginas — investigar
 
 ## Pendentes
 
 - [ ] Mídias offline em treino está esquisito
-- [ ] O botão de voltar não funciona em algumas páginas — investigar
