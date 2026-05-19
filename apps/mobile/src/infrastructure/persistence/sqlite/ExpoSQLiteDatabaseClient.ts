@@ -458,6 +458,15 @@ const migrations: string[] = [
   UPDATE exercises SET media_local = 'MEMBROS INFERIORES E GLÚTEOS (1)/barbell-romanian-deadlift-movement.gif' WHERE id = 'seed-ex-039' AND media_local IS NULL;
   UPDATE exercises SET media_local = 'MEMBROS INFERIORES E GLÚTEOS (1)/barbell-hip-thrust.gif'           WHERE id = 'seed-ex-040' AND media_local IS NULL;
   UPDATE exercises SET media_local = 'PANTURRILHA (1)/seated-calf-raise-dumbbell.gif'                    WHERE id = 'seed-ex-043' AND media_local IS NULL`,
+
+  // v14: GIF mappings for seed exercises that were missing media
+  `UPDATE exercises SET media_local = 'PEITORAL (1)/push-up-bars.gif'                                              WHERE id = 'seed-ex-007' AND media_local IS NULL;
+  UPDATE exercises SET media_local = 'COSTAS E TRAPÉZIO (1)/band-assisted-pull-up.gif'                            WHERE id = 'seed-ex-009' AND media_local IS NULL;
+  UPDATE exercises SET media_local = 'Gifs - Bonus/Ombro/elevacao lateral inclinado sentado.gif'                  WHERE id = 'seed-ex-017' AND media_local IS NULL;
+  UPDATE exercises SET media_local = 'Gifs - Bonus/Costas/voador invertido.gif'                                   WHERE id = 'seed-ex-019' AND media_local IS NULL;
+  UPDATE exercises SET media_local = 'Gifs - Bonus/Biceps/biceps concentrado unilateral no cross.gif'             WHERE id = 'seed-ex-024' AND media_local IS NULL;
+  UPDATE exercises SET media_local = 'Gifs - Bonus/Membros Inferiores/agachamento livre pes juntos.gif'           WHERE id = 'seed-ex-034' AND media_local IS NULL;
+  UPDATE exercises SET media_local = 'Gifs - Bonus/Membros Inferiores/Flexao Plantar com peso corporal.gif'       WHERE id = 'seed-ex-042' AND media_local IS NULL`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {

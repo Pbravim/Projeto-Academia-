@@ -24,7 +24,7 @@ export function PickerCarousel({ count, selectedIndex, onChangeIndex, formatItem
       ref.current?.scrollTo({ y: selectedIndex * PICKER_ITEM_H, animated: false });
     }, 80);
     return () => clearTimeout(t);
-  }, []);
+  }, [selectedIndex]);
 
   const handleScrollEnd = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
     const idx = Math.max(0, Math.min(

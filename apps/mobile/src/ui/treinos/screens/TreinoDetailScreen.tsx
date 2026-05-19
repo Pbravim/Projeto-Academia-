@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
@@ -78,11 +78,14 @@ export function TreinoDetailScreen({
   alternativasByExercicioId,
   onAddAlternativa,
   onRemoveAlternativa,
+  getSessaoAtiva,
+  cancelarSessao,
   onBack,
+  onGoToSessao,
 }: TreinoDetailControllerState) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
-  useAndroidBack(onBack);
+  useAndroidBack(() => { void handleSaveAll(); });
 
   const viewModel = buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById);
 
@@ -113,7 +116,7 @@ export function TreinoDetailScreen({
   const saveFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (saveFeedbackTimer.current) clearTimeout(saveFeedbackTimer.current); }, []);
 
-  const handleSaveAll = async () => {
+  const performSave = async () => {
     setIsSaving(true);
     for (const te of treinoExercicios) {
       const vals = recsRef.current.get(te.id);
@@ -132,6 +135,35 @@ export function TreinoDetailScreen({
     }
     setIsSaving(false);
     onBack();
+  };
+
+  const handleSaveAll = async () => {
+    if (isSaving) return;
+    if (treinoExercicios.length === 0) { onBack(); return; }
+
+    const sessaoAtiva = await getSessaoAtiva();
+    if (sessaoAtiva) {
+      Alert.alert(
+        'Sessao em andamento',
+        `Ha uma sessao de "${sessaoAtiva.treinoNomeSnapshot}" em andamento. Salvar o treino agora vai cancelar essa sessao e perder todo o progresso.`,
+        [
+          { text: 'Continuar sessao', style: 'cancel', onPress: onGoToSessao },
+          {
+            text: 'Salvar treino e cancelar sessao',
+            style: 'destructive',
+            onPress: () => {
+              void (async () => {
+                await cancelarSessao(sessaoAtiva.id);
+                await performSave();
+              })();
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    await performSave();
   };
 
   const filteredExercises = notAddedExercises.filter((e) =>
@@ -217,8 +249,12 @@ export function TreinoDetailScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Pressable onPress={onBack} style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}>
-          <Text style={styles.backButtonText}>← Voltar</Text>
+        <Pressable
+          onPress={() => { void handleSaveAll(); }}
+          disabled={isSaving}
+          style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
+        >
+          <Text style={styles.backButtonText}>{isSaving ? 'Salvando...' : '← Voltar'}</Text>
         </Pressable>
       </View>
 
@@ -403,7 +439,7 @@ export function TreinoDetailScreen({
                           onMoveUpInGroup={() => { void onMoveUpInGroup(te.id); }}
                           onMoveDownInGroup={() => { void onMoveDownInGroup(te.id); }}
                           onDesvincular={() => { void onRemoveExercicio(te.id); }}
-                          onChangeRecs={(series, execucoes, carga, descanso) => {
+                          onChangeRecs={(_series, execucoes, carga, _descanso) => {
                             const existing = recsRef.current.get(te.id) ?? { series: '', execucoes: '', carga: '', descanso: '' };
                             recsRef.current.set(te.id, { ...existing, execucoes, carga });
                           }}
