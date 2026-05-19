@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { useTheme } from '../../shared/theme';
 
 const TECNICAS: { value: Exclude<MetodoExercicio, 'normal'>; label: string; color: string }[] = [
@@ -22,6 +23,8 @@ interface Props {
     isLast: boolean;
     metodo: MetodoExercicio;
     grupoId: string | null;
+    mediaOnline?: string | null;
+    mediaLocal?: string | null;
   };
   seriesRecomendadas: number | null;
   execucoesRecomendadas: number | null;
@@ -76,6 +79,7 @@ export function ExercicioCardTreino({
   const [execText,     setExecText]     = useState(execucoesRecomendadas != null ? String(execucoesRecomendadas) : '');
   const [cargaText,    setCargaText]    = useState(cargaPadrao           != null ? String(cargaPadrao)           : '');
   const [descansoText, setDescansoText] = useState(tempoDescansoSegundos != null ? String(tempoDescansoSegundos) : '');
+  const [mediaVisible, setMediaVisible] = useState(false);
 
   const tecnicaAtiva = TECNICAS.find((t) => t.value === item.metodo);
   const isNormal = item.metodo === 'normal';
@@ -244,6 +248,21 @@ export function ExercicioCardTreino({
         </View>
       ) : null}
 
+      {/* ── Ver execução ── */}
+      <Pressable
+        onPress={() => setMediaVisible(true)}
+        style={({ pressed }) => [styles.verExecucaoBtn, pressed ? { opacity: 0.7 } : null]}
+      >
+        <Text style={styles.verExecucaoBtnText}>▶ Ver execução</Text>
+      </Pressable>
+      <ExerciseMediaViewer
+        visible={mediaVisible}
+        exercicioNome={item.name}
+        mediaOnline={item.mediaOnline ?? null}
+        mediaLocal={item.mediaLocal ?? null}
+        onClose={() => setMediaVisible(false)}
+      />
+
       {/* ── Substitutos predefinidos ── */}
       <View style={styles.substitutosSection}>
         <View style={styles.substitutosHeader}>
@@ -337,6 +356,13 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       alignItems: 'center',
     },
     vincularBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+
+    verExecucaoBtn: {
+      paddingVertical: 8, borderRadius: 8,
+      borderWidth: 1, borderColor: c.accent, backgroundColor: 'transparent',
+      alignItems: 'center',
+    },
+    verExecucaoBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
 
     substitutosSection: { gap: 6, paddingTop: 4, borderTopWidth: 1, borderTopColor: c.cardBorder },
     substitutosHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

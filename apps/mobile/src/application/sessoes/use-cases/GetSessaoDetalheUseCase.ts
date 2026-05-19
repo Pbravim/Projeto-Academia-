@@ -4,11 +4,14 @@ import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/Se
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
 
 export interface SessaoExercicioComSeries {
   sessaoExercicio: SessaoExercicioPrimitives;
   series: SerieRegistradaPrimitives[];
+  mediaOnline: string | null;
+  mediaLocal: string | null;
 }
 
 export interface SessaoDetalhe {
@@ -20,6 +23,7 @@ interface GetSessaoDetalheUseCaseDependencies {
   sessaoTreinoRepository: SessaoTreinoRepository;
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
+  exerciseRepository: ExerciseRepository;
 }
 
 export class GetSessaoDetalheUseCase {
@@ -33,12 +37,17 @@ export class GetSessaoDetalheUseCase {
 
     const exerciciosComSeries: SessaoExercicioComSeries[] = await Promise.all(
       exercicios.map(async (se) => {
-        const series = await this.dependencies.serieRegistradaRepository.listBySessaoExercicioId(
-          se.toPrimitives().id
-        );
+        const primitives = se.toPrimitives();
+        const [series, exercise] = await Promise.all([
+          this.dependencies.serieRegistradaRepository.listBySessaoExercicioId(primitives.id),
+          this.dependencies.exerciseRepository.findById(primitives.exercicioId),
+        ]);
+        const exercisePrimitives = exercise?.toPrimitives();
         return {
-          sessaoExercicio: se.toPrimitives(),
+          sessaoExercicio: primitives,
           series: series.map((s) => s.toPrimitives()),
+          mediaOnline: exercisePrimitives?.mediaOnline ?? null,
+          mediaLocal: exercisePrimitives?.mediaLocal ?? null,
         };
       })
     );

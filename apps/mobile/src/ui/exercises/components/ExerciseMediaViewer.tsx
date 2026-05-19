@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import { Image, Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { useTheme } from '../../shared/theme';
+import { gifAssets } from './gifAssets';
 
 interface Props {
   visible: boolean;
@@ -58,9 +60,14 @@ export function ExerciseMediaViewer({ visible, exercicioNome, mediaOnline, media
           {activeUri && !isYT ? (
             isImage ? (
               <Image
-                source={{ uri: activeUri }}
+                source={
+                  activeUri && !activeUri.startsWith('file://') && !activeUri.startsWith('http')
+                    ? (gifAssets[activeUri] ?? { uri: activeUri })
+                    : { uri: activeUri! }
+                }
                 style={styles.image}
-                resizeMode="contain"
+                contentFit="contain"
+                transition={150}
               />
             ) : (
               <VideoPlayer uri={activeUri} />

@@ -2,7 +2,6 @@ import { startTransition, useEffect, useState } from 'react';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
-import type { BaixarMidiasTreinoUseCase, ProgressoBaixarMidias } from '../../../application/exercises/use-cases/BaixarMidiasTreinoUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { RemoveExercicioDoTreinoUseCase } from '../../../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import type { ReordenarExerciciosUseCase } from '../../../application/treinos/use-cases/ReordenarExerciciosUseCase';
@@ -23,7 +22,6 @@ export interface TreinoDetailControllerDependencies {
   listExercises: ListExercisesUseCase;
   updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) => Promise<void>;
   updateMetodoGrupo: (id: string, metodo: MetodoExercicio, grupoId: string | null) => Promise<void>;
-  baixarMidiasTreino: BaixarMidiasTreinoUseCase;
   listAlternativas: (exercicioId: string) => Promise<ExercisePrimitives[]>;
   addAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   removeAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
@@ -48,8 +46,6 @@ export interface TreinoDetailControllerState {
   onUpdateMetodoGrupo: (treinoExercicioId: string, metodo: MetodoExercicio, grupoId: string | null) => Promise<void>;
   onUpdateNome: (novoNome: string) => Promise<void>;
   onUpdateObjetivo: (novoObjetivo: string | null) => Promise<void>;
-  progressoBaixarMidias: ProgressoBaixarMidias | null;
-  onBaixarMidias: () => Promise<void>;
   alternativasByExercicioId: Map<string, ExercisePrimitives[]>;
   onAddAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   onRemoveAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
@@ -282,26 +278,6 @@ export function useTreinoDetailController(
     }
   };
 
-  const [progressoBaixarMidias, setProgressoBaixarMidias] = useState<ProgressoBaixarMidias | null>(null);
-
-  const onBaixarMidias = async () => {
-    setErrorMessage(null);
-    setProgressoBaixarMidias({ total: 0, concluido: 0, nomeAtual: 'Preparando...' });
-    try {
-      const { baixados } = await dependencies.baixarMidiasTreino.execute(
-        treino.id,
-        (p) => setProgressoBaixarMidias(p)
-      );
-      setFeedbackMessage(baixados > 0 ? `${baixados} midia(s) baixada(s) com sucesso.` : 'Nenhuma midia nova para baixar.');
-      await loadData();
-    } catch (error) {
-      dependencies.logger.error('treino_detail.baixar_midias_failed', error);
-      setErrorMessage('Nao foi possivel baixar as midias.');
-    } finally {
-      setProgressoBaixarMidias(null);
-    }
-  };
-
   const onAddAlternativa = async (exercicioId: string, alternativaId: string) => {
     try {
       await dependencies.addAlternativa(exercicioId, alternativaId);
@@ -358,8 +334,6 @@ export function useTreinoDetailController(
     onUpdateMetodoGrupo,
     onUpdateNome,
     onUpdateObjetivo,
-    progressoBaixarMidias,
-    onBaixarMidias,
     alternativasByExercicioId,
     onAddAlternativa,
     onRemoveAlternativa,

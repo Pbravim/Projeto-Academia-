@@ -107,6 +107,8 @@ export function SessaoAtivaScreen({
             sugestao={sugestoes[selectedExercicioId] ?? null}
             isLastExercicio={isLastExercicio}
             canFinalizar={temSerieValida}
+            mediaOnline={item.mediaOnline}
+            mediaLocal={item.mediaLocal}
             onRegistrarSerie={onRegistrarSerie}
             onDeleteSerie={onDeleteSerie}
             onToggleRealizado={onToggleRealizado}
