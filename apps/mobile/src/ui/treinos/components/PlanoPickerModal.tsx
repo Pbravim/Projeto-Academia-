@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useRef, useEffect } from 'react';
+import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { DiaSemana } from '../../../domain/plano/entities/DiaSemana';
@@ -9,23 +9,55 @@ import { useTheme } from '../../shared/theme';
 interface Props {
   dia: DiaSemana | null;
   treinos: TreinoPrimitives[];
+  treinosVazios: Set<string>;
   treinoAtualId: string | null;
   onSelect: (treinoId: string | null) => Promise<void>;
   onClose: () => void;
 }
 
-export function PlanoPickerModal({ dia, treinos, treinoAtualId, onSelect, onClose }: Props) {
+export function PlanoPickerModal({ dia, treinos, treinosVazios, treinoAtualId, onSelect, onClose }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
+
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (dia) translateY.setValue(0);
+  }, [dia]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gs) => gs.dy > 8,
+      onPanResponderMove: (_, gs) => {
+        if (gs.dy > 0) translateY.setValue(gs.dy);
+      },
+      onPanResponderRelease: (_, gs) => {
+        if (gs.dy > 100) {
+          Animated.timing(translateY, { toValue: 600, duration: 200, useNativeDriver: true }).start(() => {
+            translateY.setValue(0);
+            onCloseRef.current();
+          });
+        } else {
+          Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
+        }
+      },
+    })
+  ).current;
 
   if (!dia) return null;
 
   return (
     <Modal visible animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <View style={styles.handle} />
-          <Text style={styles.title}>{DIA_LABEL[dia]}</Text>
+        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
+          <Pressable style={styles.dragArea} onPress={onClose} {...panResponder.panHandlers}>
+            <View style={styles.handle} />
+            <Text style={styles.title}>{DIA_LABEL[dia]}</Text>
+          </Pressable>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
             <Pressable
@@ -40,26 +72,27 @@ export function PlanoPickerModal({ dia, treinos, treinoAtualId, onSelect, onClos
 
             {treinos.map((t) => {
               const active = treinoAtualId === t.id;
+              const vazio = treinosVazios.has(t.id);
               return (
                 <Pressable
                   key={t.id}
-                  onPress={() => { void onSelect(t.id); }}
-                  style={({ pressed }) => [styles.row, pressed ? styles.rowPressed : null]}
+                  onPress={() => { if (!vazio) void onSelect(t.id); }}
+                  style={({ pressed }) => [styles.row, !vazio && pressed ? styles.rowPressed : null, vazio ? styles.rowDisabled : null]}
                 >
                   <View style={styles.rowInfo}>
-                    <Text style={[styles.rowText, active ? styles.rowTextActive : null]} numberOfLines={1}>
+                    <Text style={[styles.rowText, active ? styles.rowTextActive : null, vazio ? styles.rowTextDisabled : null]} numberOfLines={1}>
                       {t.name}
                     </Text>
-                    {t.objetivo ? (
-                      <Text style={styles.rowMeta} numberOfLines={1}>{t.objetivo}</Text>
-                    ) : null}
+                    <Text style={styles.rowMeta} numberOfLines={1}>
+                      {vazio ? 'Adicione exercicios primeiro' : (t.objetivo ?? '')}
+                    </Text>
                   </View>
                   {active ? <Text style={styles.check}>✓</Text> : null}
                 </Pressable>
               );
             })}
           </ScrollView>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -68,7 +101,9 @@ export function PlanoPickerModal({ dia, treinos, treinoAtualId, onSelect, onClos
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    backdrop: { flex: 1 },
     sheet: { backgroundColor: c.background, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '70%', paddingBottom: 32 },
+    dragArea: { paddingBottom: 4 },
     handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.cardBorder, alignSelf: 'center', marginTop: 10, marginBottom: 4 },
     title: { color: c.textPrimary, fontSize: 17, fontWeight: '800', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
     list: { paddingVertical: 8 },
@@ -78,6 +113,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     rowText: { color: c.textPrimary, fontSize: 15, fontWeight: '600' },
     rowTextActive: { color: c.accent, fontWeight: '800' },
     rowMeta: { color: c.textSecondary, fontSize: 12, marginTop: 2 },
+    rowDisabled: { opacity: 0.45 },
+    rowTextDisabled: { color: c.textSecondary },
     check: { color: c.accent, fontSize: 17, fontWeight: '800', marginLeft: 12 },
   });
 }

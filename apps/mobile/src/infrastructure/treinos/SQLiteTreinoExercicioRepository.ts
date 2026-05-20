@@ -67,6 +67,15 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     return row?.count ?? 0;
   }
 
+  async countAllByTreino(): Promise<Record<string, number>> {
+    const rows = await this.database.getAll<{ treino_id: string; count: number }>(
+      'SELECT treino_id, COUNT(*) as count FROM treino_exercicios GROUP BY treino_id',
+      []
+    );
+
+    return Object.fromEntries(rows.map((r) => [r.treino_id, r.count]));
+  }
+
   async updateOrdem(id: string, ordem: number): Promise<void> {
     await this.database.run(
       'UPDATE treino_exercicios SET ordem = ? WHERE id = ?',

@@ -37,7 +37,8 @@ export class SugerirTreinoUseCase {
              FROM sessao_treinos WHERE status = 'finalizada'
              GROUP BY treino_id
            ) s ON t.id = s.treino_id
-           WHERE t.id = ?`,
+           WHERE t.id = ?
+             AND EXISTS (SELECT 1 FROM treino_exercicios te WHERE te.treino_id = t.id)`,
           [treinoIdHoje]
         );
         if (row) {
@@ -63,6 +64,7 @@ export class SugerirTreinoUseCase {
          FROM sessao_treinos WHERE status = 'finalizada'
          GROUP BY treino_id
        ) s ON t.id = s.treino_id
+       WHERE EXISTS (SELECT 1 FROM treino_exercicios te WHERE te.treino_id = t.id)
        ORDER BY
          CASE WHEN s.ultima_sessao IS NULL THEN 0 ELSE 1 END ASC,
          s.ultima_sessao ASC,

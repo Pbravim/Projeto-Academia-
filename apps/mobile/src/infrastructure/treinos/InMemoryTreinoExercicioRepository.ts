@@ -39,6 +39,15 @@ export class InMemoryTreinoExercicioRepository implements TreinoExercicioReposit
     return count;
   }
 
+  async countAllByTreino(): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    for (const item of this.itemsById.values()) {
+      const { treinoId } = item.toPrimitives();
+      counts[treinoId] = (counts[treinoId] ?? 0) + 1;
+    }
+    return counts;
+  }
+
   async updateOrdem(id: string, ordem: number): Promise<void> {
     const item = this.itemsById.get(id);
     if (!item) return;

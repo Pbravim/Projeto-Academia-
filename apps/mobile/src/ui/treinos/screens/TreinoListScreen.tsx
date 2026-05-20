@@ -24,6 +24,7 @@ interface TreinoListScreenProps extends TreinoListControllerState {
 export function TreinoListScreen({
   draft,
   treinos,
+  treinosVazios,
   errorMessage,
   feedbackMessage,
   isLoading,
@@ -48,8 +49,12 @@ export function TreinoListScreen({
       <PlanoSemanalCard
         plano={plano.plano}
         treinos={treinos}
+        isLoading={plano.isLoading}
         onSelectDia={plano.onSelectDia}
       />
+      {plano.errorMessage ? (
+        <Text style={styles.errorMessage}>{plano.errorMessage}</Text>
+      ) : null}
 
       <View style={styles.heroCard}>
         <Text style={styles.eyebrow}>Modulo de treinos</Text>
@@ -186,6 +191,7 @@ export function TreinoListScreen({
     <PlanoPickerModal
       dia={plano.diaSelecionado}
       treinos={treinos}
+      treinosVazios={treinosVazios}
       treinoAtualId={plano.diaSelecionado ? plano.plano[plano.diaSelecionado] : null}
       onSelect={plano.onSetTreino}
       onClose={plano.onClosePicker}

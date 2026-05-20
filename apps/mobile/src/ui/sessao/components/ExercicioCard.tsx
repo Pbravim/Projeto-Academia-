@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
@@ -11,6 +12,7 @@ interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;
   series: SerieRegistradaPrimitives[];
   mediaLocal?: string | null;
+  mediaOnline?: string | null;
   onPress: () => void;
   onToggleRealizado?: () => void;
   hideProgress?: boolean;
@@ -24,7 +26,7 @@ const METODO_CONFIG: Record<string, { label: string; color: string }> = {
 
 const MAX_DOTS = 8;
 
-export function ExercicioCard({ sessaoExercicio, series, mediaLocal, onPress, onToggleRealizado, hideProgress }: Props) {
+export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline, onPress, onToggleRealizado, hideProgress }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -38,7 +40,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, onPress, on
   const overflow = total != null && total > MAX_DOTS ? total - MAX_DOTS : 0;
 
   const gifSource = mediaLocal ? (gifAssets[mediaLocal] ?? null) : null;
-  const [playing, setPlaying] = useState(false);
+  const [mediaVisible, setMediaVisible] = useState(false);
 
   return (
     <Pressable
@@ -46,15 +48,20 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, onPress, on
       style={({ pressed }) => [styles.card, finalizado ? styles.cardFinalizado : null, pressed ? { opacity: 0.8 } : null]}
     >
       {gifSource ? (
-        <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.thumbnailWrap}>
-          <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
-          {!playing ? (
-            <View style={styles.thumbnailOverlay}>
-              <Text style={styles.thumbnailPlayIcon}>▶</Text>
-            </View>
-          ) : null}
+        <Pressable onPress={() => setMediaVisible(true)} hitSlop={4} style={styles.thumbnailWrap}>
+          <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+          <View style={styles.thumbnailOverlay}>
+            <Text style={styles.thumbnailPlayIcon}>▶</Text>
+          </View>
         </Pressable>
       ) : null}
+      <ExerciseMediaViewer
+        visible={mediaVisible}
+        exercicioNome={sessaoExercicio.nomeSnapshot}
+        mediaOnline={mediaOnline ?? null}
+        mediaLocal={mediaLocal ?? null}
+        onClose={() => setMediaVisible(false)}
+      />
       <View style={styles.info}>
         <Text style={styles.name}>{sessaoExercicio.nomeSnapshot}</Text>
         <Text style={styles.meta}>

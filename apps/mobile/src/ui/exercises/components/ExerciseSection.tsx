@@ -79,19 +79,16 @@ function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSe
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
-  const [playing, setPlaying] = useState(false);
 
   return (
     <View style={[styles.exerciseCard, isEditing ? styles.exerciseCardEditing : null]}>
       <View style={styles.exerciseRow}>
         {gifSource ? (
-          <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
-            <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={playing} />
-            {!playing ? (
-              <View style={styles.thumbnailOverlay}>
-                <Text style={styles.thumbnailPlayIcon}>▶</Text>
-              </View>
-            ) : null}
+          <Pressable onPress={() => onViewMedia(card.id)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
+            <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} />
+            <View style={styles.thumbnailOverlay}>
+              <Text style={styles.thumbnailPlayIcon}>▶</Text>
+            </View>
           </Pressable>
         ) : null}
         <View style={styles.exerciseInfo}>
@@ -105,16 +102,6 @@ function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSe
       </View>
 
       <View style={styles.cardActions}>
-        {(exercise.mediaOnline || exercise.mediaLocal) ? (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => onViewMedia(card.id)}
-            style={({ pressed }) => [styles.actionButton, styles.mediaButton, pressed ? styles.actionButtonPressed : null]}
-          >
-            <Text style={styles.mediaButtonText}>▶ Ver</Text>
-          </Pressable>
-        ) : null}
-
         <Pressable
           accessibilityRole="button"
           onPress={() => onSelectEdit(exercise)}
@@ -178,8 +165,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteButton: { backgroundColor: c.errorBg },
     historicoButton: { backgroundColor: c.cardAlt },
     deleteButtonLoading: { opacity: 0.6 },
-    mediaButton: { backgroundColor: c.hero },
-    mediaButtonText: { color: c.heroText, fontSize: 13, fontWeight: '700' },
     editButtonText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
     deleteButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },
     historicoButtonText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
