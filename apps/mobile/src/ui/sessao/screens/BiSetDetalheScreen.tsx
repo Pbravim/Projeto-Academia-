@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
@@ -111,10 +111,12 @@ export function BiSetDetalheScreen({
   const [timer, setTimer] = useState<TimerState | null>(null);
   const [timerMinimized, setTimerMinimized] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerMinimizedByScrollRef = useRef(false);
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
   const startTimer = (segundos: number) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    timerMinimizedByScrollRef.current = false;
     setTimerMinimized(false);
     setTimer({ total: segundos, restante: segundos });
     intervalRef.current = setInterval(() => {
@@ -274,13 +276,21 @@ export function BiSetDetalheScreen({
   const label = grupoLabel(grupoItens.length);
   const isCustomDescanso = descanso !== null && !DESCANSO_PRESETS.some((p) => p.value === descanso);
 
+  const formatKgItem = useCallback((idx: number) => String(KG_VALUES[idx]), []);
+  const formatRepsItem = useCallback((idx: number) => String(idx + 1), []);
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
-        onScrollBeginDrag={() => { if (timer) setTimerMinimized(true); }}
+        onScrollBeginDrag={() => {
+          if (timer && !timerMinimizedByScrollRef.current) {
+            timerMinimizedByScrollRef.current = true;
+            setTimerMinimized(true);
+          }
+        }}
       >
         {/* Header */}
         <View style={styles.header}>
@@ -396,7 +406,7 @@ export function BiSetDetalheScreen({
                         count={KG_VALUES.length}
                         selectedIndex={cargaIndexes[i]}
                         onChangeIndex={(idx) => updateArr(setCargaIndexes, i, idx)}
-                        formatItem={(idx) => String(KG_VALUES[idx])}
+                        formatItem={formatKgItem}
                       />
                     </View>
                   ) : (
@@ -445,7 +455,7 @@ export function BiSetDetalheScreen({
                         count={30}
                         selectedIndex={repsIndexes[i]}
                         onChangeIndex={(idx) => updateArr(setRepsIndexes, i, idx)}
-                        formatItem={(idx) => String(idx + 1)}
+                        formatItem={formatRepsItem}
                       />
                     </View>
                   ) : (

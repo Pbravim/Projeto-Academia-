@@ -23,6 +23,14 @@ export class InMemoryHistoricoRepository implements HistoricoRepository {
       .sort((a, b) => new Date(b.dataExecucao).getTime() - new Date(a.dataExecucao).getTime());
   }
 
+  async getHistoricoExercicios(exercicioIds: string[]): Promise<Map<string, ExecucaoExercicio[]>> {
+    const result = new Map<string, ExecucaoExercicio[]>();
+    for (const id of exercicioIds) {
+      result.set(id, await this.getHistoricoExercicio(id));
+    }
+    return result;
+  }
+
   async getUltimasExecucoesValidas(): Promise<Map<string, UltimaExecucaoValida>> {
     const exercicioIds = [...new Set(this.records.map((r) => r.exercicioId))];
     const result = new Map<string, UltimaExecucaoValida>();

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { AddExercicioASessaoUseCase } from '../../../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cases/CancelarSessaoUseCase';
@@ -79,25 +79,25 @@ export function useSessaoAtivaController(
   const [candidatosSubstituicao, setCandidatosSubstituicao] = useState<CandidatoSubstituto[]>([]);
   const [sessaoExercicioSubstituindo, setSessaoExercicioSubstituindo] = useState<string | null>(null);
 
+  useEffect(() => {
+    void dependencies.listExercises.execute().then(setAllExercises);
+  }, []);
+
   const loadDetalhe = useCallback(async () => {
     try {
-      const [d, exercises] = await Promise.all([
-        dependencies.getSessaoDetalhe.execute(sessao.id),
-        dependencies.listExercises.execute(),
-      ]);
+      const d = await dependencies.getSessaoDetalhe.execute(sessao.id);
       setDetalhe(d);
-      setAllExercises(exercises);
 
-      const sugestoesEntries = await Promise.all(
-        d.exercicios.map(async ({ sessaoExercicio: se }) => {
-          const sug = await dependencies.sugerirProgressao.execute({
-            exercicioId: se.exercicioId,
-            execucoesRecomendadas: se.execucoesRecomendadas,
-            cargaPadrao: se.cargaPadrao,
-          });
-          return [se.id, sug] as const;
-        })
-      );
+      const inputs = d.exercicios.map(({ sessaoExercicio: se }) => ({
+        exercicioId: se.exercicioId,
+        execucoesRecomendadas: se.execucoesRecomendadas,
+        cargaPadrao: se.cargaPadrao,
+      }));
+      const sugestaoMap = await dependencies.sugerirProgressao.executeLote(inputs);
+      const sugestoesEntries = d.exercicios.map(({ sessaoExercicio: se }) => [
+        se.id,
+        sugestaoMap.get(se.exercicioId) ?? null,
+      ] as const);
       setSugestoes(Object.fromEntries(sugestoesEntries));
     } catch (error) {
       dependencies.logger.error('sessao_ativa.load_failed', error);
@@ -109,11 +109,14 @@ export function useSessaoAtivaController(
     void loadDetalhe();
   }, [loadDetalhe]);
 
-  const availableExercises = detalhe
-    ? allExercises.filter(
-        (e) => !detalhe.exercicios.some((se) => se.sessaoExercicio.exercicioId === e.id)
-      )
-    : [];
+  const sessionExerciseIds = useMemo(
+    () => new Set(detalhe?.exercicios.map((e) => e.sessaoExercicio.exercicioId)),
+    [detalhe],
+  );
+  const availableExercises = useMemo(
+    () => allExercises.filter((e) => !sessionExerciseIds.has(e.id)),
+    [allExercises, sessionExerciseIds],
+  );
 
   const temSerieValida = detalhe?.exercicios.some((ex) =>
     ex.series.some((s) => s.tipoSerie === 'valida')

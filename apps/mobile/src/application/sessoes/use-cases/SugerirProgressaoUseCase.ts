@@ -1,4 +1,4 @@
-import type { HistoricoRepository } from '../../../domain/historico/repositories/HistoricoRepository';
+import type { ExecucaoExercicio, HistoricoRepository } from '../../../domain/historico/repositories/HistoricoRepository';
 
 export interface SugestaoProgressao {
   cargaSugerida: number;
@@ -27,8 +27,25 @@ export class SugerirProgressaoUseCase {
     if (input.execucoesRecomendadas == null) return null;
 
     const execucoes = await this.deps.historicoRepository.getHistoricoExercicio(input.exercicioId);
-    const ultimas2 = execucoes.slice(0, 2);
+    return this._avaliar(input, execucoes);
+  }
 
+  async executeLote(inputs: SugerirProgressaoInput[]): Promise<Map<string, SugestaoProgressao | null>> {
+    const ids = inputs.map((i) => i.exercicioId);
+    const historicoMap = await this.deps.historicoRepository.getHistoricoExercicios(ids);
+
+    const result = new Map<string, SugestaoProgressao | null>();
+    for (const input of inputs) {
+      const execucoes = historicoMap.get(input.exercicioId) ?? [];
+      result.set(input.exercicioId, this._avaliar(input, execucoes));
+    }
+    return result;
+  }
+
+  private _avaliar(input: SugerirProgressaoInput, execucoes: ExecucaoExercicio[]): SugestaoProgressao | null {
+    if (input.execucoesRecomendadas == null) return null;
+
+    const ultimas2 = execucoes.slice(0, 2);
     if (ultimas2.length < 2) return null;
 
     for (const execucao of ultimas2) {

@@ -113,13 +113,13 @@ export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
       ) : (
         <View style={styles.barChart}>
           <View style={styles.barRow}>
-            {dados.map((d, i) => {
+            {dados.map((d) => {
               const barH =
                 d.totalSessoes === 0
                   ? MIN_BAR_H
                   : Math.max(MIN_BAR_H + 6, Math.round((d.totalSessoes / maxSessoes) * MAX_BAR_H));
               return (
-                <View key={i} style={styles.barCol}>
+                <View key={d.label} style={styles.barCol}>
                   <Text style={styles.barCount}>
                     {d.totalSessoes > 0 ? String(d.totalSessoes) : ''}
                   </Text>
@@ -136,8 +136,8 @@ export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
             })}
           </View>
           <View style={styles.labelRow}>
-            {dados.map((d, i) => (
-              <View key={i} style={styles.labelCol}>
+            {dados.map((d) => (
+              <View key={d.label} style={styles.labelCol}>
                 <Text style={styles.label} numberOfLines={1}>{d.label}</Text>
               </View>
             ))}

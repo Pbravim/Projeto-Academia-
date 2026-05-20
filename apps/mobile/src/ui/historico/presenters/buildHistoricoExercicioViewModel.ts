@@ -2,6 +2,7 @@ import type { LineChartPoint } from '../../shared/LineChart';
 import type { ExecucaoExercicio } from '../../../domain/historico/repositories/HistoricoRepository';
 
 export interface SerieHistoricoViewModel {
+  id: string;
   descricao: string;
   tipo: 'aquecimento' | 'valida';
   rm1Estimado: string | null;
@@ -122,6 +123,7 @@ function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoV
     melhorRm1: validas.length > 0 ? `${melhorRm1.toFixed(1)} kg` : '—',
     volumeTotal: validas.length > 0 ? formatVolume(volumeKg) : '—',
     series: execucao.series.map((s) => ({
+      id: s.id,
       descricao: `${s.cargaKg} kg × ${s.repeticoes} rep`,
       tipo: s.tipoSerie,
       rm1Estimado:

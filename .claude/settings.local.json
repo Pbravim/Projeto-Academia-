@@ -48,7 +48,14 @@
       "Bash(python3 *)",
       "Bash(grep -E \"\\\\.tsx$\")",
       "Bash(yarn workspace *)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "Bash(yarn tsc *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js|jsx|json\\)$\")",
+      "Bash(xargs -I {} basename {})",
+      "Bash(grep \"\\(\\) =>\\\\|{}\\\\s*$\\\\|{\\\\$\\\\|{\\\\s*width\\\\|{\\\\s*height\\\\|{\\\\s*backgroundColor\")",
+      "Bash(grep -r \"useEffect.*\\\\[\\\\]$\" /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/ui --include=\"*.tsx\" -n)",
+      "Bash(npx jest *)",
+      "Bash(npx vitest *)"
     ]
   }
 }

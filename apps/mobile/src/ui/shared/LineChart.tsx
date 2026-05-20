@@ -30,91 +30,98 @@ export function LineChart({
   if (points.length < 2) return null;
 
   const lineColor = color ?? c.accent;
-
-  const plotHeight = height - CHART_PAD_V * 2;
-  const values = points.map((p) => p.value);
-  const minVal = Math.min(...values);
-  const maxVal = Math.max(...values);
-  const range = maxVal === minVal ? 1 : maxVal - minVal;
-
   const chartWidth = width - 80;
 
-  const getX = (i: number) => (i / (points.length - 1)) * chartWidth;
-  const getY = (v: number) => CHART_PAD_V + (1 - (v - minVal) / range) * plotHeight;
+  const computed = useMemo(() => {
+    const plotH = height - CHART_PAD_V * 2;
+    const vals = points.map((p) => p.value);
+    const minV = Math.min(...vals);
+    const maxV = Math.max(...vals);
+    const range = maxV === minV ? 1 : maxV - minV;
+    const getX = (i: number) => (i / (points.length - 1)) * chartWidth;
+    const getY = (v: number) => CHART_PAD_V + (1 - (v - minV) / range) * plotH;
 
-  const segments: { cx: number; cy: number; len: number; angle: number }[] = [];
-  for (let i = 0; i < points.length - 1; i++) {
-    const x1 = getX(i);     const y1 = getY(values[i]);
-    const x2 = getX(i + 1); const y2 = getY(values[i + 1]);
-    const dx = x2 - x1;     const dy = y2 - y1;
-    segments.push({
-      cx: (x1 + x2) / 2,
-      cy: (y1 + y2) / 2,
-      len: Math.sqrt(dx * dx + dy * dy),
-      angle: Math.atan2(dy, dx) * 180 / Math.PI,
+    const segmentStyles: object[] = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      const x1 = getX(i);     const y1 = getY(vals[i]);
+      const x2 = getX(i + 1); const y2 = getY(vals[i + 1]);
+      const dx = x2 - x1;     const dy = y2 - y1;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      segmentStyles.push({
+        position: 'absolute' as const,
+        height: 3,
+        borderRadius: 2,
+        backgroundColor: lineColor,
+        left: (x1 + x2) / 2 - len / 2,
+        top: (y1 + y2) / 2 - 1.5,
+        width: len,
+        transform: [{ rotate: `${Math.atan2(dy, dx) * 180 / Math.PI}deg` }],
+      });
+    }
+
+    const pointStyles: object[] = points.map((p, i) => {
+      const isLast = i === points.length - 1;
+      const size = isLast ? 12 : 8;
+      return {
+        position: 'absolute' as const,
+        backgroundColor: lineColor,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        left: getX(i) - size / 2,
+        top: getY(p.value) - size / 2,
+        ...(isLast ? { borderWidth: 2.5, borderColor: c.card } : {}),
+      };
     });
-  }
 
-  const fmtMin = formatValue ? formatValue(minVal) : String(minVal % 1 === 0 ? minVal : minVal.toFixed(1));
-  const fmtMax = formatValue ? formatValue(maxVal) : String(maxVal % 1 === 0 ? maxVal : maxVal.toFixed(1));
-  const midIndex = Math.floor((points.length - 1) / 2);
+    const gridStyles = ([0, 0.5, 1] as const).map((t) => [
+      styles.gridLine,
+      { top: CHART_PAD_V + (1 - t) * plotH },
+    ]);
+
+    const fmtMin = formatValue ? formatValue(minV) : String(minV % 1 === 0 ? minV : minV.toFixed(1));
+    const fmtMax = formatValue ? formatValue(maxV) : String(maxV % 1 === 0 ? maxV : maxV.toFixed(1));
+    const yMaxStyle = [styles.yLabel, { top: CHART_PAD_V - 8 }];
+    const yMinStyle = [styles.yLabel, { top: CHART_PAD_V + plotH - 8 }];
+
+    return {
+      segmentStyles,
+      pointStyles,
+      gridStyles,
+      fmtMin,
+      fmtMax,
+      showMin: minV !== maxV,
+      yMaxStyle,
+      yMinStyle,
+      midIndex: Math.floor((points.length - 1) / 2),
+    };
+  }, [points, lineColor, chartWidth, height, c.card, formatValue, styles.gridLine, styles.yLabel]);
 
   return (
-    <View style={{ width: chartWidth }}>
-      <View style={{ height, position: 'relative' }}>
+    <View style={useMemo(() => ({ width: chartWidth }), [chartWidth])}>
+      <View style={useMemo(() => ({ height, position: 'relative' as const }), [height])}>
         {/* Linhas de grade */}
-        {[0, 0.5, 1].map((t) => (
-          <View
-            key={t}
-            style={[styles.gridLine, { top: CHART_PAD_V + (1 - t) * plotHeight }]}
-          />
+        {([0, 0.5, 1] as const).map((t, i) => (
+          <View key={t} style={computed.gridStyles[i]} />
         ))}
 
         {/* Segmentos */}
-        {segments.map((seg, i) => (
-          <View
-            key={i}
-            style={{
-              position: 'absolute',
-              height: 3,
-              borderRadius: 2,
-              backgroundColor: lineColor,
-              left: seg.cx - seg.len / 2,
-              top: seg.cy - 1.5,
-              width: seg.len,
-              transform: [{ rotate: `${seg.angle}deg` }],
-            }}
-          />
+        {computed.segmentStyles.map((s, i) => (
+          <View key={i} style={s} />
         ))}
 
         {/* Pontos */}
-        {points.map((p, i) => {
-          const isLast = i === points.length - 1;
-          const size = isLast ? 12 : 8;
-          return (
-            <View
-              key={i}
-              style={{
-                position: 'absolute',
-                backgroundColor: lineColor,
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-                left: getX(i) - size / 2,
-                top: getY(p.value) - size / 2,
-                ...(isLast ? { borderWidth: 2.5, borderColor: c.card } : {}),
-              }}
-            />
-          );
-        })}
+        {computed.pointStyles.map((s, i) => (
+          <View key={i} style={s} />
+        ))}
 
         {/* Labels Y */}
-        <View style={[styles.yLabel, { top: CHART_PAD_V - 8 }]}>
-          <Text style={styles.yLabelText}>{fmtMax}</Text>
+        <View style={computed.yMaxStyle}>
+          <Text style={styles.yLabelText}>{computed.fmtMax}</Text>
         </View>
-        {minVal !== maxVal ? (
-          <View style={[styles.yLabel, { top: CHART_PAD_V + plotHeight - 8 }]}>
-            <Text style={styles.yLabelText}>{fmtMin}</Text>
+        {computed.showMin ? (
+          <View style={computed.yMinStyle}>
+            <Text style={styles.yLabelText}>{computed.fmtMin}</Text>
           </View>
         ) : null}
       </View>
@@ -123,7 +130,7 @@ export function LineChart({
       <View style={styles.xAxis}>
         <Text style={styles.axisLabel}>{points[0].label}</Text>
         {points.length > 2 ? (
-          <Text style={styles.axisLabel}>{points[midIndex].label}</Text>
+          <Text style={styles.axisLabel}>{points[computed.midIndex].label}</Text>
         ) : null}
         <Text style={styles.axisLabel}>{points[points.length - 1].label}</Text>
       </View>

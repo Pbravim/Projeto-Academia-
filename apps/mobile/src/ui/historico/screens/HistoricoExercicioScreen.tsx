@@ -117,8 +117,8 @@ function ExecucaoCard({ execucao, isFirst }: { execucao: ExecucaoHistoricoViewMo
             <View style={styles.seriesGroup}>
               <Text style={styles.seriesGroupLabel}>Aquecimento</Text>
               <View style={styles.seriesChips}>
-                {seriesAquec.map((serie, i) => (
-                  <View key={i} style={[styles.serieChip, styles.serieChipAquec]}>
+                {seriesAquec.map((serie) => (
+                  <View key={serie.id} style={[styles.serieChip, styles.serieChipAquec]}>
                     <Text style={styles.serieChipTextAquec}>{serie.descricao}</Text>
                   </View>
                 ))}
@@ -131,8 +131,8 @@ function ExecucaoCard({ execucao, isFirst }: { execucao: ExecucaoHistoricoViewMo
             <View style={styles.seriesGroup}>
               <Text style={styles.seriesGroupLabel}>Séries</Text>
               <View style={styles.seriesChips}>
-                {seriesValidas.map((serie, i) => (
-                  <View key={i} style={styles.serieChip}>
+                {seriesValidas.map((serie) => (
+                  <View key={serie.id} style={styles.serieChip}>
                     <Text style={styles.serieChipText}>{serie.descricao}</Text>
                     {serie.rm1Estimado ? (
                       <Text style={styles.serieRm1}>{serie.rm1Estimado}</Text>

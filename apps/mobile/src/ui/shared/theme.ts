@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { databaseClient } from '../../bootstrap/databaseClient';
@@ -138,15 +138,15 @@ export function useThemeProvider() {
     });
   }, []);
 
-  const setPreference = (p: ThemePreference) => {
+  const setPreference = useCallback((p: ThemePreference) => {
     setPreferenceState(p);
     void databaseClient.setSetting(SETTING_KEY, p);
-  };
+  }, []);
 
   const resolved = preference === 'system' ? system : preference;
   const colors = resolved === 'dark' ? dark : light;
 
-  return { colors, preference, setPreference };
+  return useMemo(() => ({ colors, preference, setPreference }), [colors, preference, setPreference]);
 }
 
 export function useTheme(): Colors {
