@@ -18,12 +18,14 @@ export interface TreinoListControllerDependencies {
   listTreinos: ListTreinosUseCase;
   deleteTreino: DeleteTreinoUseCase;
   duplicarTreino: DuplicarTreinoUseCase;
+  countExerciciosByTreino: () => Promise<Record<string, number>>;
   logger: AppLogger;
 }
 
 export interface TreinoListControllerState {
   draft: TreinoDraft;
   treinos: TreinoPrimitives[];
+  treinosVazios: Set<string>;
   errorMessage: string | null;
   feedbackMessage: string | null;
   isLoading: boolean;
@@ -41,10 +43,12 @@ const initialDraft: TreinoDraft = { name: '', objetivo: '' };
 
 export function useTreinoListController(
   dependencies: TreinoListControllerDependencies,
-  onSelectTreino: (treino: TreinoPrimitives) => void
+  onSelectTreino: (treino: TreinoPrimitives) => void,
+  onAfterMutation?: () => Promise<void>,
 ): TreinoListControllerState {
   const [draft, setDraft] = useState<TreinoDraft>(initialDraft);
   const [treinos, setTreinos] = useState<TreinoPrimitives[]>([]);
+  const [treinosVazios, setTreinosVazios] = useState<Set<string>>(new Set());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,8 +58,14 @@ export function useTreinoListController(
 
   const loadTreinos = async () => {
     try {
-      const result = await dependencies.listTreinos.execute();
-      startTransition(() => setTreinos(result));
+      const [result, counts] = await Promise.all([
+        dependencies.listTreinos.execute(),
+        dependencies.countExerciciosByTreino(),
+      ]);
+      startTransition(() => {
+        setTreinos(result);
+        setTreinosVazios(new Set(result.filter((t) => !counts[t.id]).map((t) => t.id)));
+      });
     } catch (error) {
       dependencies.logger.error('treino_list.load_failed', error);
       setErrorMessage('Nao foi possivel carregar os treinos.');
@@ -110,6 +120,7 @@ export function useTreinoListController(
       await dependencies.deleteTreino.execute(id);
       setFeedbackMessage('Treino excluido com sucesso.');
       await loadTreinos();
+      await onAfterMutation?.();
     } catch (error) {
       dependencies.logger.error('treino_list.delete_failed', error, { id });
       setErrorMessage('Nao foi possivel excluir o treino.');
@@ -127,6 +138,7 @@ export function useTreinoListController(
     try {
       const copia = await dependencies.duplicarTreino.execute(id);
       await loadTreinos();
+      await onAfterMutation?.();
       onSelectTreino(copia);
     } catch (error) {
       dependencies.logger.error('treino_list.duplicate_failed', error, { id });
@@ -139,6 +151,7 @@ export function useTreinoListController(
   return {
     draft,
     treinos,
+    treinosVazios,
     errorMessage,
     feedbackMessage,
     isLoading,

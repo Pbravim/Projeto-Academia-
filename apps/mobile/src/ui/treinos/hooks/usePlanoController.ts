@@ -14,9 +14,12 @@ export interface PlanoControllerDependencies {
 export interface PlanoControllerState {
   plano: PlanoSemanal;
   diaSelecionado: DiaSemana | null;
+  isLoading: boolean;
+  errorMessage: string | null;
   onSelectDia: (dia: DiaSemana) => void;
   onSetTreino: (treinoId: string | null) => Promise<void>;
   onClosePicker: () => void;
+  reload: () => Promise<void>;
 }
 
 const emptyPlano: PlanoSemanal = Object.fromEntries(DIAS_SEMANA.map((d) => [d, null])) as PlanoSemanal;
@@ -24,21 +27,39 @@ const emptyPlano: PlanoSemanal = Object.fromEntries(DIAS_SEMANA.map((d) => [d, n
 export function usePlanoController(deps: PlanoControllerDependencies): PlanoControllerState {
   const [plano, setPlano] = useState<PlanoSemanal>(emptyPlano);
   const [diaSelecionado, setDiaSelecionado] = useState<DiaSemana | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    void deps.getPlanoSemanal.execute().then(setPlano);
-  }, []);
+  const reload = async () => {
+    setIsLoading(true);
+    try {
+      const result = await deps.getPlanoSemanal.execute();
+      setPlano(result);
+    } catch {
+      setErrorMessage('Nao foi possivel carregar o plano semanal.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { void reload(); }, []);
 
   const onSelectDia = (dia: DiaSemana) => setDiaSelecionado(dia);
 
   const onSetTreino = async (treinoId: string | null) => {
     if (!diaSelecionado) return;
-    await deps.setDiaPlano.execute(diaSelecionado, treinoId);
-    setPlano((prev) => ({ ...prev, [diaSelecionado]: treinoId }));
+    const prev = plano;
+    setPlano((p) => ({ ...p, [diaSelecionado]: treinoId }));
     setDiaSelecionado(null);
+    try {
+      await deps.setDiaPlano.execute(diaSelecionado, treinoId);
+    } catch {
+      setPlano(prev);
+      setErrorMessage('Nao foi possivel salvar o plano. Tente novamente.');
+    }
   };
 
   const onClosePicker = () => setDiaSelecionado(null);
 
-  return { plano, diaSelecionado, onSelectDia, onSetTreino, onClosePicker };
+  return { plano, diaSelecionado, isLoading, errorMessage, onSelectDia, onSetTreino, onClosePicker, reload };
 }

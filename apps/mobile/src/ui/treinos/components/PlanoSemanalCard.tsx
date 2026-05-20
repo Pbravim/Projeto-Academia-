@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { PlanoSemanal } from '../../../domain/plano/repositories/PlanoSemanalRepository';
@@ -10,10 +10,11 @@ import { useTheme } from '../../shared/theme';
 interface Props {
   plano: PlanoSemanal;
   treinos: TreinoPrimitives[];
+  isLoading: boolean;
   onSelectDia: (dia: DiaSemana) => void;
 }
 
-export function PlanoSemanalCard({ plano, treinos, onSelectDia }: Props) {
+export function PlanoSemanalCard({ plano, treinos, isLoading, onSelectDia }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const hoje = diaSemanaHoje();
@@ -22,6 +23,9 @@ export function PlanoSemanalCard({ plano, treinos, onSelectDia }: Props) {
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Plano da Semana</Text>
+      {isLoading ? (
+        <ActivityIndicator size="small" color={c.accent} style={styles.loader} />
+      ) : (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
         {DIAS_SEMANA.map((dia) => {
           const treinoId = plano[dia];
@@ -56,6 +60,7 @@ export function PlanoSemanalCard({ plano, treinos, onSelectDia }: Props) {
           );
         })}
       </ScrollView>
+      )}
     </View>
   );
 }
@@ -64,6 +69,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     cardTitle: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
+    loader: { marginVertical: 16 },
     row: { gap: 8, paddingBottom: 4 },
     cell: {
       alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 10,

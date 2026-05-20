@@ -140,6 +140,7 @@ export const mobileDependencies = {
         idGenerator: () => generateId('treino'),
         now: () => new Date(),
       }),
+      countExerciciosByTreino: () => treinoExercicioRepository.countAllByTreino(),
       logger,
     },
     detail: {

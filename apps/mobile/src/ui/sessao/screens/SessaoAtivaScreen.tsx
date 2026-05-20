@@ -3,11 +3,15 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 
 import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
 import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import { Image } from 'expo-image';
+
 import { ExercicioCard } from '../components/ExercicioCard';
 import { AddExercicioSection } from '../components/AddExercicioSection';
 import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
 import { BiSetDetalheScreen } from './BiSetDetalheScreen';
 import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
 const METODO_LABELS: Record<string, string> = {
@@ -91,6 +95,7 @@ export function SessaoAtivaScreen({
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [selectedExercicioId, setSelectedExercicioId] = useState<string | null>(null);
+  const [mediaViewerItem, setMediaViewerItem] = useState<{ nome: string; mediaLocal: string | null } | null>(null);
 
   const handleConcluirExercicio = async (item: SessaoExercicioComSeries) => {
     const { sessaoExercicio, series } = item;
@@ -296,15 +301,28 @@ export function SessaoAtivaScreen({
                   <View key={item.sessaoExercicio.id}>
                     {idx > 0 ? <View style={styles.grupoItemDivider} /> : null}
                     <View style={styles.grupoItemRow}>
-                      <View style={styles.grupoItemNameRow}>
-                        <Text style={styles.grupoItemNome}>{item.sessaoExercicio.nomeSnapshot}</Text>
-                        {item.sessaoExercicio.metodo !== 'normal' ? (
-                          <View style={[styles.grupoItemTecnicaBadge, { backgroundColor: METODO_COLORS[item.sessaoExercicio.metodo] }]}>
-                            <Text style={styles.grupoItemTecnicaBadgeText}>{METODO_LABELS[item.sessaoExercicio.metodo]}</Text>
+                      {item.mediaLocal && gifAssets[item.mediaLocal] ? (
+                        <Pressable
+                          hitSlop={4}
+                          onPress={(e) => { e.stopPropagation(); setMediaViewerItem({ nome: item.sessaoExercicio.nomeSnapshot, mediaLocal: item.mediaLocal ?? null }); }}
+                        >
+                          <Image source={gifAssets[item.mediaLocal]} style={styles.grupoItemThumb} contentFit="cover" autoplay={false} />
+                          <View style={styles.grupoItemThumbOverlay}>
+                            <Text style={styles.grupoItemThumbIcon}>▶</Text>
                           </View>
-                        ) : null}
+                        </Pressable>
+                      ) : null}
+                      <View style={styles.grupoItemInfo}>
+                        <View style={styles.grupoItemNameRow}>
+                          <Text style={styles.grupoItemNome}>{item.sessaoExercicio.nomeSnapshot}</Text>
+                          {item.sessaoExercicio.metodo !== 'normal' ? (
+                            <View style={[styles.grupoItemTecnicaBadge, { backgroundColor: METODO_COLORS[item.sessaoExercicio.metodo] }]}>
+                              <Text style={styles.grupoItemTecnicaBadgeText}>{METODO_LABELS[item.sessaoExercicio.metodo]}</Text>
+                            </View>
+                          ) : null}
+                        </View>
+                        <Text style={styles.grupoItemMeta}>{item.sessaoExercicio.grupoMuscularSnapshot} · {item.sessaoExercicio.categoriaSnapshot}</Text>
                       </View>
-                      <Text style={styles.grupoItemMeta}>{item.sessaoExercicio.grupoMuscularSnapshot} · {item.sessaoExercicio.categoriaSnapshot}</Text>
                     </View>
                   </View>
                 ))}
@@ -342,13 +360,21 @@ export function SessaoAtivaScreen({
                 style={({ pressed }) => [styles.grupoCheckbox, allRealizado ? styles.grupoCheckboxDone : styles.grupoCheckboxPending, pressed ? { opacity: 0.7 } : null]}
                 hitSlop={8}
               >
-                <Text style={[styles.grupoCheckboxText, allRealizado ? styles.grupoCheckboxTextDone : styles.grupoCheckboxTextPending]}>✓</Text>
+                <Text style={[styles.grupoCheckboxText, allRealizado ? styles.grupoCheckboxTextDone : styles.grupoCheckboxTextPending]}>{allRealizado ? '✓' : ''}</Text>
               </Pressable>
               <Text style={styles.grupoArrow}>›</Text>
             </View>
           </Pressable>
         );
       })}
+
+      <ExerciseMediaViewer
+        visible={mediaViewerItem !== null}
+        exercicioNome={mediaViewerItem?.nome ?? ''}
+        mediaOnline={null}
+        mediaLocal={mediaViewerItem?.mediaLocal ?? null}
+        onClose={() => setMediaViewerItem(null)}
+      />
 
       <View style={styles.actionsCard}>
         <Pressable
@@ -434,7 +460,11 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     grupoCheckboxTextDone: { color: '#fff' },
     grupoBody: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 12 },
     grupoExercicios: { flex: 1 },
-    grupoItemRow: { paddingVertical: 5, gap: 2 },
+    grupoItemRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 5, gap: 10 },
+    grupoItemThumb: { width: 40, height: 40, borderRadius: 8, flexShrink: 0, backgroundColor: c.card },
+    grupoItemThumbOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.30)', alignItems: 'center', justifyContent: 'center' },
+    grupoItemThumbIcon: { color: '#fff', fontSize: 10, fontWeight: '800' },
+    grupoItemInfo: { flex: 1, gap: 2 },
     grupoItemNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
     grupoItemTecnicaBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5 },
     grupoItemTecnicaBadgeText: { color: '#fff', fontSize: 9, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.4 },

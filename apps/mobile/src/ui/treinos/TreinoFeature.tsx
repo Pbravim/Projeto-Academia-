@@ -25,8 +25,8 @@ interface Props {
 export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   const [selectedTreino, setSelectedTreino] = useState<TreinoPrimitives | null>(null);
 
-  const listController = useTreinoListController(dependencies.list, setSelectedTreino);
   const planoController = usePlanoController(dependencies.plano);
+  const listController = useTreinoListController(dependencies.list, setSelectedTreino, planoController.reload);
 
   useEffect(() => {
     if (!selectedTreino) return;

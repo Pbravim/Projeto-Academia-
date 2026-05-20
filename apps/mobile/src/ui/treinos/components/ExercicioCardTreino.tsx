@@ -86,7 +86,6 @@ export function ExercicioCardTreino({
   const tecnicaAtiva = TECNICAS.find((t) => t.value === item.metodo);
   const isNormal = item.metodo === 'normal';
   const gifSource = item.mediaLocal ? (gifAssets[item.mediaLocal] ?? null) : null;
-  const [playing, setPlaying] = useState(false);
 
   function toggleTecnica(value: Exclude<MetodoExercicio, 'normal'>) {
     void onUpdateMetodo(item.metodo === value ? 'normal' : value);
@@ -116,13 +115,11 @@ export function ExercicioCardTreino({
         </Text>
 
         {gifSource ? (
-          <Pressable onPress={() => setPlaying((v) => !v)} hitSlop={4} style={styles.thumbnailWrap}>
-            <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
-            {!playing ? (
-              <View style={styles.thumbnailOverlay}>
-                <Text style={styles.thumbnailPlayIcon}>▶</Text>
-              </View>
-            ) : null}
+          <Pressable onPress={() => setMediaVisible(true)} hitSlop={4} style={styles.thumbnailWrap}>
+            <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+            <View style={styles.thumbnailOverlay}>
+              <Text style={styles.thumbnailPlayIcon}>▶</Text>
+            </View>
           </Pressable>
         ) : null}
 
@@ -263,13 +260,6 @@ export function ExercicioCardTreino({
         </View>
       ) : null}
 
-      {/* ── Ver execução ── */}
-      <Pressable
-        onPress={() => setMediaVisible(true)}
-        style={({ pressed }) => [styles.verExecucaoBtn, pressed ? { opacity: 0.7 } : null]}
-      >
-        <Text style={styles.verExecucaoBtnText}>▶ Ver execução</Text>
-      </Pressable>
       <ExerciseMediaViewer
         visible={mediaVisible}
         exercicioNome={item.name}
@@ -375,13 +365,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       alignItems: 'center',
     },
     vincularBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
-
-    verExecucaoBtn: {
-      paddingVertical: 8, borderRadius: 8,
-      borderWidth: 1, borderColor: c.accent, backgroundColor: 'transparent',
-      alignItems: 'center',
-    },
-    verExecucaoBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
 
     substitutosSection: { gap: 6, paddingTop: 4, borderTopWidth: 1, borderTopColor: c.cardBorder },
     substitutosHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
