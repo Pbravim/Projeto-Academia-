@@ -182,6 +182,9 @@ export function useExerciseCatalogController(
           id: editingExerciseId,
           ...cleanDraft,
         });
+        startTransition(() => {
+          setExercises((prev) => prev.map((e) => e.id === updated.id ? updated : e));
+        });
         setEditingExerciseId(null);
         setDraft(initialDraft);
         showFeedback(`"${updated.name}" atualizado com sucesso.`);
@@ -202,11 +205,12 @@ export function useExerciseCatalogController(
           }
         }
 
+        startTransition(() => {
+          setExercises((prev) => [created, ...prev]);
+        });
         setDraft(initialDraft);
         showFeedback(`"${created.name}" salvo com sucesso.`);
       }
-
-      await loadExercises();
     } catch (error) {
       dependencies.logger.error('exercise_catalog.submit_failed', error, { draft });
 
@@ -234,12 +238,14 @@ export function useExerciseCatalogController(
       await dependencies.deleteExercise.execute(id);
       showFeedback('Exercicio excluido com sucesso.');
 
+      startTransition(() => {
+        setExercises((prev) => prev.filter((e) => e.id !== id));
+      });
+
       if (editingExerciseId === id) {
         setEditingExerciseId(null);
         setDraft(initialDraft);
       }
-
-      await loadExercises();
     } catch (error) {
       dependencies.logger.error('exercise_catalog.delete_failed', error, { id });
       setErrorMessage('Nao foi possivel excluir o exercicio.');

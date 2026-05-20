@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -122,6 +122,8 @@ export function PerfilScreen({
   const [activeMetricKey, setActiveMetricKey] = useState('peso');
   const [pickerStep, setPickerStep] = useState<'date' | 'time' | null>(null);
   const nameInputRef = useRef<TextInput>(null);
+  const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (focusTimerRef.current) clearTimeout(focusTimerRef.current); }, []);
 
   // ── Metric series ────────────────────────────────────────────────────────
   const metricSeries = useMemo<MetricSeries[]>(() => {
@@ -162,7 +164,7 @@ export function PerfilScreen({
   const startEditingName = () => {
     setNameInput(perfil.displayName);
     setIsEditingName(true);
-    setTimeout(() => nameInputRef.current?.focus(), 50);
+    focusTimerRef.current = setTimeout(() => nameInputRef.current?.focus(), 50);
   };
 
   const commitName = () => {

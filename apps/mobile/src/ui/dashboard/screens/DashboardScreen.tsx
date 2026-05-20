@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Alert, ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { memo, useMemo, useState } from 'react';
+import { Alert, ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type DashboardChartMode = 'orm' | 'volume';
 
@@ -123,18 +123,25 @@ export function DashboardScreen({
           {stats.evolucaoPorTreino.length > 0 ? (
             <>
               <Text style={styles.groupLabel}>Evolucao por treino</Text>
-              {stats.evolucaoPorTreino.map((grupo) => (
-                <TreinoEvolucaoCard
-                  key={grupo.treinoNome}
-                  grupo={grupo}
-                  onVerEvolucao={() => onVerEvolucao(grupo.treinoId, grupo.treinoNome)}
-                  onArquivar={(id) => { void onArquivarSessao(id); }}
-                  onDesarquivar={(id) => { void onDesarquivarSessao(id); }}
-                  onDeletar={(id) => { void onDeletarSessao(id); }}
-                  onArquivarTodas={(ids) => { void onArquivarTodasSessoesTreino(ids); }}
-                  onDeletarTodas={(ids) => { void onDeletarTodasSessoesTreino(ids); }}
-                />
-              ))}
+              <FlatList
+                data={stats.evolucaoPorTreino}
+                keyExtractor={(item) => item.treinoNome}
+                renderItem={({ item: grupo }) => (
+                  <TreinoEvolucaoCard
+                    grupo={grupo}
+                    onVerEvolucao={() => onVerEvolucao(grupo.treinoId, grupo.treinoNome)}
+                    onArquivar={(id) => { void onArquivarSessao(id); }}
+                    onDesarquivar={(id) => { void onDesarquivarSessao(id); }}
+                    onDeletar={(id) => { void onDeletarSessao(id); }}
+                    onArquivarTodas={(ids) => { void onArquivarTodasSessoesTreino(ids); }}
+                    onDeletarTodas={(ids) => { void onDeletarTodasSessoesTreino(ids); }}
+                  />
+                )}
+                scrollEnabled={false}
+                removeClippedSubviews
+                initialNumToRender={4}
+                windowSize={5}
+              />
             </>
           ) : (
             <View style={styles.card}>
@@ -150,7 +157,7 @@ export function DashboardScreen({
   );
 }
 
-function TreinoEvolucaoCard({
+const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
   grupo,
   onVerEvolucao,
   onArquivar,
@@ -176,35 +183,35 @@ function TreinoEvolucaoCard({
   const [chartMode, setChartMode] = useState<DashboardChartMode>('orm');
 
   const sessoes = grupo.sessoes;
-  const temOrm = sessoes.some((s) => s.melhorOrm > 0);
-  const temVolume = sessoes.some((s) => s.volumeTotal > 0);
 
-  const sessaoesAsc = [...sessoes].reverse();
-
-  const ormChartPoints = temOrm
-    ? sessaoesAsc
-        .map((s) => ({
-          value: s.melhorOrm,
+  const { temOrm, temVolume, sessaoesAsc, ormChartPoints, volumeChartPoints, trend } = useMemo(() => {
+    const hasOrm = sessoes.some((s) => s.melhorOrm > 0);
+    const hasVolume = sessoes.some((s) => s.volumeTotal > 0);
+    const asc = [...sessoes].reverse();
+    const orm = hasOrm
+      ? asc
+          .map((s) => ({
+            value: s.melhorOrm,
+            label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          }))
+          .filter((p) => p.value > 0)
+      : [];
+    const vol = hasVolume
+      ? asc.map((s) => ({
+          value: s.volumeTotal,
           label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         }))
-        .filter((p) => p.value > 0)
-    : [];
-
-  const volumeChartPoints = temVolume
-    ? sessaoesAsc.map((s) => ({
-        value: s.volumeTotal,
-        label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      }))
-    : [];
-
-  const trend =
-    sessoes.length >= 2 && temOrm
-      ? sessoes[0].melhorOrm > sessoes[1].melhorOrm
-        ? 'up'
-        : sessoes[0].melhorOrm < sessoes[1].melhorOrm
-          ? 'down'
-          : 'equal'
-      : null;
+      : [];
+    const trendVal =
+      sessoes.length >= 2 && hasOrm
+        ? sessoes[0].melhorOrm > sessoes[1].melhorOrm
+          ? 'up'
+          : sessoes[0].melhorOrm < sessoes[1].melhorOrm
+            ? 'down'
+            : 'equal'
+        : null;
+    return { temOrm: hasOrm, temVolume: hasVolume, sessaoesAsc: asc, ormChartPoints: orm, volumeChartPoints: vol, trend: trendVal };
+  }, [sessoes]);
 
   const activePoints = chartMode === 'orm' ? ormChartPoints : volumeChartPoints;
   const activeColor = chartMode === 'orm' ? undefined : c.success;
@@ -415,7 +422,7 @@ function TreinoEvolucaoCard({
       </Pressable>
     </View>
   );
-}
+});
 
 function SessaoRow({
   sessao,

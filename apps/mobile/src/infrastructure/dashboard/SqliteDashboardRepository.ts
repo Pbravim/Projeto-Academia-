@@ -68,7 +68,8 @@ export class SqliteDashboardRepository implements DashboardRepository {
          WHERE st.status = 'finalizada'
          GROUP BY st.id
          HAVING COUNT(CASE WHEN sr.tipo_serie = 'valida' THEN 1 END) > 0
-         ORDER BY st.data_hora_inicio DESC`
+         ORDER BY st.data_hora_inicio DESC
+         LIMIT 200`
       ),
       this.database.getAll<{ exercicio_nome: string; melhor_orm: number }>(
         `SELECT e.name AS exercicio_nome,

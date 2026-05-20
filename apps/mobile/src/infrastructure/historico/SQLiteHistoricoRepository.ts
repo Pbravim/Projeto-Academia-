@@ -13,6 +13,7 @@ interface UltimaRow {
 }
 
 interface HistoricoRow {
+  exercicio_id: string;
   sessao_treino_id: string;
   nome_snapshot: string;
   data_hora_fim: string;
@@ -75,7 +76,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
 
   async getHistoricoExercicio(exercicioId: string): Promise<ExecucaoExercicio[]> {
     const rows = await this.database.getAll<HistoricoRow>(
-      `SELECT se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
+      `SELECT se.exercicio_id, se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
               se.nome_original_snapshot, se.substituicao_motivo,
               sr.id as serie_id, sr.tipo_serie, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
        FROM sessao_exercicios se
@@ -86,6 +87,36 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
       [exercicioId]
     );
     return groupBySession(rows);
+  }
+
+  async getHistoricoExercicios(exercicioIds: string[]): Promise<Map<string, ExecucaoExercicio[]>> {
+    if (exercicioIds.length === 0) return new Map();
+
+    const placeholders = exercicioIds.map(() => '?').join(', ');
+    const rows = await this.database.getAll<HistoricoRow>(
+      `SELECT se.exercicio_id, se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
+              se.nome_original_snapshot, se.substituicao_motivo,
+              sr.id as serie_id, sr.tipo_serie, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
+       FROM sessao_exercicios se
+       INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
+       INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
+       WHERE se.exercicio_id IN (${placeholders}) AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL
+       ORDER BY se.exercicio_id, st.data_hora_fim DESC, sr.ordem ASC`,
+      exercicioIds
+    );
+
+    const byExercicio = new Map<string, HistoricoRow[]>();
+    for (const row of rows) {
+      const list = byExercicio.get(row.exercicio_id) ?? [];
+      list.push(row);
+      byExercicio.set(row.exercicio_id, list);
+    }
+
+    const result = new Map<string, ExecucaoExercicio[]>();
+    for (const [id, idRows] of byExercicio) {
+      result.set(id, groupBySession(idRows));
+    }
+    return result;
   }
 }
 

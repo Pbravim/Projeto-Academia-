@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
@@ -112,6 +112,7 @@ export function ExercicioDetalheScreen({
   const [timer, setTimer] = useState<TimerState | null>(null);
   const [timerMinimized, setTimerMinimized] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerMinimizedByScrollRef = useRef(false);
 
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
@@ -138,6 +139,7 @@ export function ExercicioDetalheScreen({
 
   const startTimer = (segundos: number) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    timerMinimizedByScrollRef.current = false;
     setTimerMinimized(false); // always expand when a new timer starts
     setTimer({ total: segundos, restante: segundos });
     intervalRef.current = setInterval(() => {
@@ -259,13 +261,21 @@ export function ExercicioDetalheScreen({
     }
   };
 
+  const formatKgItem = useCallback((i: number) => String(KG_VALUES[i]), []);
+  const formatRepsItem = useCallback((i: number) => String(i + 1), []);
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
-      onScrollBeginDrag={() => { if (timer) setTimerMinimized(true); }}
+      onScrollBeginDrag={() => {
+        if (timer && !timerMinimizedByScrollRef.current) {
+          timerMinimizedByScrollRef.current = true;
+          setTimerMinimized(true);
+        }
+      }}
     >
       {/* Header — back arrow + exercise name + substituir + finalizar */}
       <View style={styles.header}>
@@ -393,21 +403,21 @@ export function ExercicioDetalheScreen({
 
             {/* Volume bar chart */}
             <Text style={styles.statsSectionLabel}>Volume por serie</Text>
-            <View style={{ height: BARS_H, flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+            <View style={styles.barsContainer}>
               {validSeries.map((serie, i) => {
                 const vol = serie.cargaKg * serie.repeticoes;
                 const barH = Math.max(12, (vol / maxVolume) * BARS_H);
                 return (
-                  <View key={serie.id} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                  <View key={serie.id} style={styles.barCol}>
                     <Text style={styles.chartBarTopLabel}>{serie.cargaKg}kg</Text>
                     <View style={[styles.chartBar, { height: barH }]} />
                   </View>
                 );
               })}
             </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={styles.barLabelRow}>
               {validSeries.map((serie, i) => (
-                <View key={serie.id} style={{ flex: 1, alignItems: 'center', gap: 2 }}>
+                <View key={serie.id} style={styles.barLabelCol}>
                   <Text style={styles.chartBarBotLabel}>×{serie.repeticoes}</Text>
                   <Text style={styles.chartBarXLabel}>S{i + 1}</Text>
                 </View>
@@ -505,7 +515,7 @@ export function ExercicioDetalheScreen({
                   count={KG_VALUES.length}
                   selectedIndex={cargaIndex}
                   onChangeIndex={setCargaIndex}
-                  formatItem={(i) => String(KG_VALUES[i])}
+                  formatItem={formatKgItem}
                 />
               </View>
             ) : (
@@ -555,7 +565,7 @@ export function ExercicioDetalheScreen({
                   count={30}
                   selectedIndex={repsIndex}
                   onChangeIndex={setRepsIndex}
-                  formatItem={(i) => String(i + 1)}
+                  formatItem={formatRepsItem}
                 />
               </View>
             ) : (
@@ -856,6 +866,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     chartBar: { width: '100%', backgroundColor: c.accent, borderRadius: 5 },
     chartBarBotLabel: { color: c.textSecondary, fontSize: 10 },
     chartBarXLabel: { color: c.textLabel, fontSize: 10, fontWeight: '700' },
+    barsContainer: { height: 80, flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+    barCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' },
+    barLabelRow: { flexDirection: 'row', gap: 8 },
+    barLabelCol: { flex: 1, alignItems: 'center', gap: 2 },
 
     seriesCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
     seriesTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },

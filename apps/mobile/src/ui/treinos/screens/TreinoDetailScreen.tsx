@@ -113,8 +113,6 @@ export function TreinoDetailScreen({
   }, [treinoExercicios]);
 
   const [isSaving, setIsSaving] = useState(false);
-  const saveFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (saveFeedbackTimer.current) clearTimeout(saveFeedbackTimer.current); }, []);
 
   const performSave = async () => {
     setIsSaving(true);
