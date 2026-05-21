@@ -12,6 +12,7 @@ interface Props {
   errorMessage: string | null;
   isIniciando: boolean;
   onIniciar: (treinoId: string) => Promise<void>;
+  onGoToTreinos?: () => void;
 }
 
 function labelUltimaSessao(ultimaSessao: string | null): string {
@@ -22,7 +23,7 @@ function labelUltimaSessao(ultimaSessao: string | null): string {
   return `Ha ${dias} dias`;
 }
 
-export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar }: Props) {
+export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar, onGoToTreinos }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -68,8 +69,17 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
         <View style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>Nenhum treino cadastrado</Text>
           <Text style={styles.emptyText}>
-            Crie um treino na aba Treinos antes de iniciar uma sessao.
+            Crie um treino primeiro para poder iniciar uma sessao.
           </Text>
+          {onGoToTreinos ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={onGoToTreinos}
+              style={({ pressed }) => [styles.emptyCta, pressed ? { opacity: 0.85 } : null]}
+            >
+              <Text style={styles.emptyCtaText}>Ir para Treinos</Text>
+            </Pressable>
+          ) : null}
         </View>
       ) : (
         <View style={styles.listCard}>
@@ -127,9 +137,11 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     title: { color: c.heroText, fontSize: 30, fontWeight: '800' },
     description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
     errorMessage: { color: c.error, fontSize: 14, fontWeight: '600', paddingHorizontal: 4 },
-    emptyCard: { backgroundColor: c.card, borderRadius: 24, padding: 24, borderWidth: 1, borderColor: c.cardBorder, gap: 8 },
-    emptyTitle: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
-    emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    emptyCard: { backgroundColor: c.card, borderRadius: 24, padding: 28, borderWidth: 1, borderColor: c.cardBorder, gap: 10, alignItems: 'center' },
+    emptyTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800', textAlign: 'center' },
+    emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+    emptyCta: { backgroundColor: c.accent, paddingHorizontal: 22, paddingVertical: 12, borderRadius: 14, marginTop: 8 },
+    emptyCtaText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
     listCard: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
     treinoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: c.cardAlt, borderRadius: 16, padding: 16 },

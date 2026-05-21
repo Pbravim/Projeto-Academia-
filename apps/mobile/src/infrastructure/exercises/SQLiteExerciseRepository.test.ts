@@ -67,6 +67,10 @@ class FakeSQLiteDatabaseClient implements SQLiteDatabaseClient {
   async getAll<T>(): Promise<T[]> {
     return Array.from(this.rows.values()) as T[];
   }
+
+  async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
+    return fn();
+  }
 }
 
 describe('SQLiteExerciseRepository', () => {

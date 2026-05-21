@@ -7,8 +7,6 @@ export class ListRegistrosPesoUseCase {
 
   async execute(): Promise<RegistroPesoPrimitives[]> {
     const registros = await this.repository.list();
-    return registros
-      .map((r) => r.toPrimitives())
-      .sort((a, b) => new Date(b.dataRegistro).getTime() - new Date(a.dataRegistro).getTime());
+    return registros.map((r) => r.toPrimitives());
   }
 }

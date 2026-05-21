@@ -22,4 +22,10 @@ export class InMemorySessaoTreinoRepository implements SessaoTreinoRepository {
   async delete(id: string): Promise<void> {
     this.sessoesById.delete(id);
   }
+
+  async deleteByTreinoId(treinoId: string): Promise<void> {
+    for (const [id, sessao] of this.sessoesById) {
+      if (sessao.toPrimitives().treinoId === treinoId) this.sessoesById.delete(id);
+    }
+  }
 }

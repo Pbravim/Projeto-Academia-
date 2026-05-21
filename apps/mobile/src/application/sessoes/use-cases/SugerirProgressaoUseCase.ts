@@ -43,7 +43,8 @@ export class SugerirProgressaoUseCase {
   }
 
   private _avaliar(input: SugerirProgressaoInput, execucoes: ExecucaoExercicio[]): SugestaoProgressao | null {
-    if (input.execucoesRecomendadas == null) return null;
+    const meta = input.execucoesRecomendadas;
+    if (meta == null) return null;
 
     const ultimas2 = execucoes.slice(0, 2);
     if (ultimas2.length < 2) return null;
@@ -51,7 +52,7 @@ export class SugerirProgressaoUseCase {
     for (const execucao of ultimas2) {
       const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
       if (validas.length === 0) return null;
-      if (!validas.every((s) => s.repeticoes >= input.execucoesRecomendadas!)) return null;
+      if (!validas.every((s) => s.repeticoes >= meta)) return null;
     }
 
     const cargaReferencia =
@@ -60,7 +61,7 @@ export class SugerirProgressaoUseCase {
 
     return {
       cargaSugerida: cargaReferencia + 2.5,
-      motivo: `Meta de ${input.execucoesRecomendadas} reps atingida nas últimas 2 sessões`,
+      motivo: `Meta de ${meta} reps atingida nas últimas 2 sessões`,
     };
   }
 }

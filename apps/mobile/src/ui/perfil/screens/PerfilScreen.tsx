@@ -43,8 +43,12 @@ interface PerfilScreenProps {
   statsState: StatsControllerState;
   isExporting: boolean;
   isResetting: boolean;
+  isBackingUp: boolean;
+  isImporting: boolean;
   onExportar: () => Promise<void>;
   onReset: () => Promise<void>;
+  onBackup: () => Promise<void>;
+  onImport: () => void;
 }
 
 const THEME_OPTIONS: { value: ThemePreference; icon: string; label: string }[] = [
@@ -108,8 +112,12 @@ export function PerfilScreen({
   statsState,
   isExporting,
   isResetting,
+  isBackingUp,
+  isImporting,
   onExportar,
   onReset,
+  onBackup,
+  onImport,
 }: PerfilScreenProps) {
   const c = useTheme();
   const { preference, setPreference } = useThemePreference();
@@ -289,36 +297,73 @@ export function PerfilScreen({
 
           {/* Acoes de dados */}
           <Text style={styles.configSectionLabel}>Dados</Text>
-          <View style={styles.configActionsRow}>
-            <Pressable
-              onPress={() => { void onExportar(); }}
-              disabled={isExporting || isResetting}
-              style={({ pressed }) => [
-                styles.configActionBtn,
-                pressed ? styles.configActionBtnPressed : null,
-                (isExporting || isResetting) ? styles.configActionBtnDisabled : null,
-              ]}
-            >
-              <Text style={styles.configActionBtnText}>
-                {isExporting ? 'Exportando...' : 'Exportar CSV'}
-              </Text>
-            </Pressable>
+          {(() => {
+            const busy = isExporting || isResetting || isBackingUp || isImporting;
+            return (
+              <>
+                <View style={styles.configActionsRow}>
+                  <Pressable
+                    onPress={() => { void onExportar(); }}
+                    disabled={busy}
+                    style={({ pressed }) => [
+                      styles.configActionBtn,
+                      pressed ? styles.configActionBtnPressed : null,
+                      busy ? styles.configActionBtnDisabled : null,
+                    ]}
+                  >
+                    <Text style={styles.configActionBtnText}>
+                      {isExporting ? 'Exportando...' : 'Exportar CSV'}
+                    </Text>
+                  </Pressable>
 
-            <Pressable
-              onPress={handleReset}
-              disabled={isResetting || isExporting}
-              style={({ pressed }) => [
-                styles.configActionBtn,
-                styles.configActionBtnDanger,
-                pressed ? styles.configActionBtnPressed : null,
-                (isResetting || isExporting) ? styles.configActionBtnDisabled : null,
-              ]}
-            >
-              <Text style={[styles.configActionBtnText, styles.configActionBtnTextDanger]}>
-                {isResetting ? 'Apagando...' : 'Apagar historico'}
-              </Text>
-            </Pressable>
-          </View>
+                  <Pressable
+                    onPress={handleReset}
+                    disabled={busy}
+                    style={({ pressed }) => [
+                      styles.configActionBtn,
+                      styles.configActionBtnDanger,
+                      pressed ? styles.configActionBtnPressed : null,
+                      busy ? styles.configActionBtnDisabled : null,
+                    ]}
+                  >
+                    <Text style={[styles.configActionBtnText, styles.configActionBtnTextDanger]}>
+                      {isResetting ? 'Apagando...' : 'Apagar historico'}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                <View style={styles.configActionsRow}>
+                  <Pressable
+                    onPress={() => { void onBackup(); }}
+                    disabled={busy}
+                    style={({ pressed }) => [
+                      styles.configActionBtn,
+                      pressed ? styles.configActionBtnPressed : null,
+                      busy ? styles.configActionBtnDisabled : null,
+                    ]}
+                  >
+                    <Text style={styles.configActionBtnText}>
+                      {isBackingUp ? 'Gerando...' : 'Exportar backup (.db)'}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={onImport}
+                    disabled={busy}
+                    style={({ pressed }) => [
+                      styles.configActionBtn,
+                      pressed ? styles.configActionBtnPressed : null,
+                      busy ? styles.configActionBtnDisabled : null,
+                    ]}
+                  >
+                    <Text style={styles.configActionBtnText}>
+                      {isImporting ? 'Importando...' : 'Importar backup (.db)'}
+                    </Text>
+                  </Pressable>
+                </View>
+              </>
+            );
+          })()}
         </View>
       ) : null}
 

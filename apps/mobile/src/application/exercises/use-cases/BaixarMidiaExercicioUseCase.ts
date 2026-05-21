@@ -33,7 +33,11 @@ export class BaixarMidiaExercicioUseCase {
     const dir = FileSystemLegacy.documentDirectory + 'exercises/';
     await FileSystemLegacy.makeDirectoryAsync(dir, { intermediates: true }).catch(() => {});
 
-    const ext = mediaOnline.split('?')[0]!.split('.').pop()?.toLowerCase() ?? 'mp4';
+    const pathWithoutQuery = mediaOnline.split('?')[0]!;
+    const lastSegment = pathWithoutQuery.split('/').pop() ?? '';
+    const dotIndex = lastSegment.lastIndexOf('.');
+    const ext = dotIndex > 0 ? lastSegment.slice(dotIndex + 1).toLowerCase() : null;
+    if (!ext || ext.length > 5) throw new Error('Não foi possível determinar a extensão do arquivo de mídia.');
     const localUri = dir + exercicioId + '.' + ext;
 
     const result = await FileSystemLegacy.downloadAsync(mediaOnline, localUri);

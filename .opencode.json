@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "/Users/bravim/.pyenv/versions/3.14.0/bin/python3.14",
+      "args": [
+        "-m",
+        "code_review_graph",
+        "serve"
+      ],
+      "cwd": "/Users/bravim/Documents/GitHub/projeto-academia",
+      "type": "stdio",
+      "env": []
+    }
+  }
+}

@@ -6,4 +6,5 @@ export interface SQLiteDatabaseClient {
   run(statement: string, params?: SQLiteBindParams): Promise<void>;
   getFirst<T>(statement: string, params?: SQLiteBindParams): Promise<T | null>;
   getAll<T>(statement: string, params?: SQLiteBindParams): Promise<T[]>;
+  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
 }

@@ -55,7 +55,25 @@
       "Bash(grep \"\\(\\) =>\\\\|{}\\\\s*$\\\\|{\\\\$\\\\|{\\\\s*width\\\\|{\\\\s*height\\\\|{\\\\s*backgroundColor\")",
       "Bash(grep -r \"useEffect.*\\\\[\\\\]$\" /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/ui --include=\"*.tsx\" -n)",
       "Bash(npx jest *)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(yarn install *)",
+      "Bash(yarn test *)",
+      "Bash(yarn typecheck *)",
+      "Bash(cp /tmp/probe.test.ts apps/mobile/src/test/probe.test.ts)",
+      "Bash(yarn vitest *)",
+      "Bash(grep -n \"async deletarSessao\\\\|}\\\\s*$\" /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/infrastructure/dashboard/SqliteDashboardRepository.ts)",
+      "Bash(sed -n '4,20p' /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/domain/treinos/entities/Treino.ts)",
+      "Bash(sed -n '4,20p' /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/domain/exercises/entities/Exercise.ts)",
+      "Bash(awk '{print $2}')",
+      "Bash(sed -n '1,25p' apps/mobile/src/application/exercises/use-cases/UpdateExerciseUseCase.ts)",
+      "Bash(sed -n '75,100p' apps/mobile/src/domain/exercises/entities/Exercise.ts)"
     ]
+  },
+  "enabledMcpjsonServers": [
+    "code-review-graph"
+  ],
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }

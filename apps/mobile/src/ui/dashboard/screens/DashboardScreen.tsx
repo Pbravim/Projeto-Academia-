@@ -24,7 +24,8 @@ export function DashboardScreen({
   onDeletarSessao,
   onArquivarTodasSessoesTreino,
   onDeletarTodasSessoesTreino,
-}: DashboardControllerState) {
+  onGoToSessao,
+}: DashboardControllerState & { onGoToSessao?: () => void }) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -144,14 +145,39 @@ export function DashboardScreen({
               />
             </>
           ) : (
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Evolucao por treino</Text>
-              <Text style={styles.emptyText}>
-                Nenhum treino finalizado ainda. Inicie e finalize uma sessao para ver a evolucao aqui.
+            <View style={[styles.card, styles.emptyDashboardCard]}>
+              <Text style={styles.emptyDashboardTitle}>Sem dados ainda</Text>
+              <Text style={styles.emptyDashboardText}>
+                Finalize uma sessao para ver recordes e evolucao por treino aqui.
               </Text>
+              {onGoToSessao ? (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={onGoToSessao}
+                  style={({ pressed }) => [styles.emptyDashboardCta, pressed ? { opacity: 0.85 } : null]}
+                >
+                  <Text style={styles.emptyDashboardCtaText}>Iniciar treino</Text>
+                </Pressable>
+              ) : null}
             </View>
           )}
         </>
+      ) : !isLoading && !errorMessage && !stats ? (
+        <View style={[styles.card, styles.emptyDashboardCard]}>
+          <Text style={styles.emptyDashboardTitle}>Sem historico ainda</Text>
+          <Text style={styles.emptyDashboardText}>
+            Complete sua primeira sessao e o progresso aparecera aqui.
+          </Text>
+          {onGoToSessao ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={onGoToSessao}
+              style={({ pressed }) => [styles.emptyDashboardCta, pressed ? { opacity: 0.85 } : null]}
+            >
+              <Text style={styles.emptyDashboardCtaText}>Iniciar treino</Text>
+            </Pressable>
+          ) : null}
+        </View>
       ) : null}
     </ScrollView>
   );
@@ -541,6 +567,11 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
     helperText: { color: c.textSecondary, fontSize: 12, lineHeight: 17 },
     emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    emptyDashboardCard: { alignItems: 'center', padding: 28, gap: 10 },
+    emptyDashboardTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800', textAlign: 'center' },
+    emptyDashboardText: { color: c.textSecondary, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+    emptyDashboardCta: { backgroundColor: c.accent, paddingHorizontal: 22, paddingVertical: 12, borderRadius: 14, marginTop: 8 },
+    emptyDashboardCtaText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
     errorText: { color: c.error, fontSize: 14, fontWeight: '600' },
     refreshBtn: { backgroundColor: c.hero, borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
     refreshBtnText: { color: c.heroText, fontSize: 14, fontWeight: '700' },

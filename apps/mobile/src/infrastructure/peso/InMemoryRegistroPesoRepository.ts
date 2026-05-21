@@ -9,7 +9,9 @@ export class InMemoryRegistroPesoRepository implements RegistroPesoRepository {
   }
 
   async list(): Promise<RegistroPeso[]> {
-    return Array.from(this.registrosById.values());
+    return Array.from(this.registrosById.values()).sort(
+      (a, b) => new Date(b.toPrimitives().dataRegistro).getTime() - new Date(a.toPrimitives().dataRegistro).getTime()
+    );
   }
 
   async findById(id: string): Promise<RegistroPeso | null> {

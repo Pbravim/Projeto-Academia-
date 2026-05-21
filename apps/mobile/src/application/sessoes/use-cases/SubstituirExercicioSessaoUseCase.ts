@@ -4,7 +4,7 @@ import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositorie
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
-import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
+import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
 export interface SubstituirExercicioInput {
   sessaoExercicioId: string;
@@ -23,7 +23,7 @@ export class SubstituirExercicioSessaoUseCase {
 
   async execute(input: SubstituirExercicioInput): Promise<void> {
     const sessaoExercicio = await this.deps.sessaoExercicioRepository.findById(input.sessaoExercicioId);
-    if (!sessaoExercicio) throw new SessaoNotFoundError(input.sessaoExercicioId);
+    if (!sessaoExercicio) throw new SessaoExercicioNotFoundError(input.sessaoExercicioId);
 
     const sessao = await this.deps.sessaoTreinoRepository.findById(sessaoExercicio.toPrimitives().sessaoTreinoId);
     if (!sessao || !sessao.isAtiva()) throw new SessaoEncerradaError();

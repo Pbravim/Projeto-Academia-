@@ -11,6 +11,7 @@ import { TreinoEvolucaoScreen } from './screens/TreinoEvolucaoScreen';
 
 interface Props {
   dependencies: DashboardControllerDependencies & TreinoEvolucaoControllerDeps;
+  onGoToSessao?: () => void;
 }
 
 interface TreinoSelected {
@@ -20,7 +21,7 @@ interface TreinoSelected {
 
 type ActiveView = { type: 'dashboard' } | { type: 'recordes' } | { type: 'evolucao'; treinoId: string; treinoNome: string };
 
-export function DashboardFeature({ dependencies }: Props) {
+export function DashboardFeature({ dependencies, onGoToSessao }: Props) {
   const [view, setView] = useState<ActiveView>({ type: 'dashboard' });
   const controller = useDashboardController(dependencies);
 
@@ -58,6 +59,7 @@ export function DashboardFeature({ dependencies }: Props) {
       {...controller}
       onVerEvolucao={(treinoId, treinoNome) => setView({ type: 'evolucao', treinoId, treinoNome })}
       onVerRecordes={() => setView({ type: 'recordes' })}
+      onGoToSessao={onGoToSessao}
     />
   );
 }

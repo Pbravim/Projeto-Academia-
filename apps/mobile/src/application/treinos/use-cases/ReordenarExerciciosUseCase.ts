@@ -1,5 +1,6 @@
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
+import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
 export interface ReordenarExerciciosInput {
@@ -19,10 +20,17 @@ export class ReordenarExerciciosUseCase {
   /**
    * `treinoExercicioIds` deve conter todos os IDs dos vinculos do treino na nova ordem desejada.
    * @throws {TreinoNotFoundError} treino nao encontrado
+   * @throws {TreinoExercicioNotFoundError} algum ID nao pertence ao treino informado
    */
   async execute(input: ReordenarExerciciosInput): Promise<void> {
     const treino = await this.dependencies.treinoRepository.findById(input.treinoId);
     if (!treino) throw new TreinoNotFoundError(input.treinoId);
+
+    const existentes = await this.dependencies.treinoExercicioRepository.listByTreinoId(input.treinoId);
+    const idsExistentes = new Set(existentes.map((te) => te.toPrimitives().id));
+    for (const id of input.treinoExercicioIds) {
+      if (!idsExistentes.has(id)) throw new TreinoExercicioNotFoundError(id);
+    }
 
     await Promise.all(
       input.treinoExercicioIds.map((id, index) =>

@@ -35,22 +35,26 @@ export class GetSessaoDetalheUseCase {
 
     const exercicios = await this.dependencies.sessaoExercicioRepository.listBySessaoId(sessaoId);
 
-    const exerciciosComSeries: SessaoExercicioComSeries[] = await Promise.all(
-      exercicios.map(async (se) => {
-        const primitives = se.toPrimitives();
-        const [series, exercise] = await Promise.all([
-          this.dependencies.serieRegistradaRepository.listBySessaoExercicioId(primitives.id),
-          this.dependencies.exerciseRepository.findById(primitives.exercicioId),
-        ]);
-        const exercisePrimitives = exercise?.toPrimitives();
-        return {
-          sessaoExercicio: primitives,
-          series: series.map((s) => s.toPrimitives()),
-          mediaOnline: exercisePrimitives?.mediaOnline ?? null,
-          mediaLocal: exercisePrimitives?.mediaLocal ?? null,
-        };
-      })
-    );
+    const exercicioIds = exercicios.map((se) => se.toPrimitives().exercicioId);
+    const [catalogExercicios, allSeries] = await Promise.all([
+      this.dependencies.exerciseRepository.findByIds(exercicioIds),
+      Promise.all(exercicios.map((se) =>
+        this.dependencies.serieRegistradaRepository.listBySessaoExercicioId(se.toPrimitives().id)
+      )),
+    ]);
+
+    const exerciseMap = new Map(catalogExercicios.map((e) => [e.toPrimitives().id, e.toPrimitives()]));
+
+    const exerciciosComSeries: SessaoExercicioComSeries[] = exercicios.map((se, i) => {
+      const primitives = se.toPrimitives();
+      const exercisePrimitives = exerciseMap.get(primitives.exercicioId);
+      return {
+        sessaoExercicio: primitives,
+        series: allSeries[i].map((s) => s.toPrimitives()),
+        mediaOnline: exercisePrimitives?.mediaOnline ?? null,
+        mediaLocal: exercisePrimitives?.mediaLocal ?? null,
+      };
+    });
 
     return { sessao: sessao.toPrimitives(), exercicios: exerciciosComSeries };
   }

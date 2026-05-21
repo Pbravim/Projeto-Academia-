@@ -79,6 +79,7 @@ export function SessaoAtivaScreen({
   onRegistrarSerie,
   onRegistrarSeriesEmLote,
   onDeleteSerie,
+  onUpdateSerie,
   onToggleRealizado,
   onToggleRealizadoGrupo,
   onDeleteSeries,
@@ -225,6 +226,7 @@ export function SessaoAtivaScreen({
             onRegistrarSerie={onRegistrarSerie}
             onRegistrarSeriesEmLote={onRegistrarSeriesEmLote}
             onDeleteSerie={onDeleteSerie}
+            onUpdateSerie={onUpdateSerie}
             onToggleRealizado={onToggleRealizado}
             onAbrirSubstituicao={onAbrirSubstituicao}
             onAtualizarMetodo={onAtualizarMetodo}

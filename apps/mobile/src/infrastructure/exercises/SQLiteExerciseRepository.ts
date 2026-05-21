@@ -55,7 +55,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     const rows = await this.database.getAll<ExerciseRow>(
       `SELECT id, name, normalized_name, group_muscle, category, equipment,
               load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
-       FROM exercises ORDER BY name ASC${pagination}`
+       FROM exercises ORDER BY normalized_name ASC${pagination}`
     );
 
     return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
@@ -70,6 +70,18 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     );
 
     return row ? Exercise.restore(mapRowToPrimitives(row)) : null;
+  }
+
+  async findByIds(ids: string[]): Promise<Exercise[]> {
+    if (ids.length === 0) return [];
+    const placeholders = ids.map(() => '?').join(', ');
+    const rows = await this.database.getAll<ExerciseRow>(
+      `SELECT id, name, normalized_name, group_muscle, category, equipment,
+              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
+       FROM exercises WHERE id IN (${placeholders})`,
+      ids
+    );
+    return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
   }
 
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {

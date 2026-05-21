@@ -30,6 +30,7 @@ interface Props {
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onRegistrarSeriesEmLote: (inputs: RegistrarSerieInput[]) => Promise<void>;
   onDeleteSerie: (id: string) => Promise<void>;
+  onUpdateSerie: (input: { serieId: string; cargaKg: number; repeticoes: number; observacao?: string | null }) => Promise<void>;
   onToggleRealizado: (id: string) => Promise<void>;
   onAbrirSubstituicao: (id: string) => Promise<void>;
   onAtualizarMetodo: (id: string, metodo: MetodoSessao) => Promise<void>;
@@ -68,6 +69,7 @@ export function ExercicioDetalheScreen({
   onRegistrarSerie,
   onRegistrarSeriesEmLote,
   onDeleteSerie,
+  onUpdateSerie,
   onToggleRealizado,
   onAbrirSubstituicao,
   onAtualizarMetodo,
@@ -107,6 +109,9 @@ export function ExercicioDetalheScreen({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmittingSerie, setIsSubmittingSerie] = useState(false);
   const [deletingSerieIds, setDeletingSerieIds] = useState<Set<string>>(new Set());
+  const [editingSerieId, setEditingSerieId] = useState<string | null>(null);
+  const [editKg, setEditKg] = useState(0);
+  const [editReps, setEditReps] = useState(0);
 
   // --- timer ---
   const [timer, setTimer] = useState<TimerState | null>(null);
@@ -767,40 +772,100 @@ export function ExercicioDetalheScreen({
         <View style={styles.seriesCard}>
           <Text style={styles.seriesTitle}>Series registradas</Text>
           <View style={styles.seriesList}>
-            {series.map((serie) => (
-              <View key={serie.id} style={styles.serieRow}>
-                <View style={[styles.tipoBadge, serie.tipoSerie === 'aquecimento' ? styles.tipoBadgeAquec : styles.tipoBadgeValida]}>
-                  <Text style={styles.tipoBadgeText}>{serie.tipoSerie === 'aquecimento' ? 'Aquec.' : 'Valida'}</Text>
-                </View>
-                <Text style={styles.serieLabel}>{serie.cargaKg}kg × {serie.repeticoes}</Text>
-                {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
-                {!sessaoExercicio.realizado ? (
+            {series.map((serie) => {
+              const isEditing = editingSerieId === serie.id;
+              if (isEditing) {
+                return (
+                  <View key={serie.id} style={[styles.serieRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
+                    <Text style={styles.serieLabel}>Editando serie</Text>
+                    <View style={styles.textModeRow}>
+                      <View style={styles.pickerCol}>
+                        <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                        <PickerCarousel
+                          count={KG_VALUES.length}
+                          selectedIndex={kgIndexFor(editKg)}
+                          onChangeIndex={(i) => setEditKg(KG_VALUES[i])}
+                          formatItem={formatKgItem}
+                        />
+                      </View>
+                      <View style={styles.pickerCol}>
+                        <Text style={styles.pickerLabel}>Reps</Text>
+                        <PickerCarousel
+                          count={30}
+                          selectedIndex={Math.max(0, Math.min(editReps - 1, 29))}
+                          onChangeIndex={(i) => setEditReps(i + 1)}
+                          formatItem={formatRepsItem}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <Pressable
+                        onPress={() => {
+                          void (async () => {
+                            await onUpdateSerie({ serieId: serie.id, cargaKg: editKg, repeticoes: editReps });
+                            setEditingSerieId(null);
+                          })();
+                        }}
+                        style={({ pressed }) => [styles.addSerieBtn, { flex: 1 }, pressed ? { opacity: 0.85 } : null]}
+                      >
+                        <Text style={styles.addSerieBtnText}>Salvar</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setEditingSerieId(null)}
+                        style={({ pressed }) => [styles.concluirBtn, { flex: 1 }, pressed ? { opacity: 0.75 } : null]}
+                      >
+                        <Text style={styles.concluirBtnText}>Cancelar</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              }
+              return (
+                <View key={serie.id} style={styles.serieRow}>
+                  <View style={[styles.tipoBadge, serie.tipoSerie === 'aquecimento' ? styles.tipoBadgeAquec : styles.tipoBadgeValida]}>
+                    <Text style={styles.tipoBadgeText}>{serie.tipoSerie === 'aquecimento' ? 'Aquec.' : 'Valida'}</Text>
+                  </View>
                   <Pressable
-                    disabled={deletingSerieIds.has(serie.id)}
-                    onPress={() => {
-                      void (async () => {
-                        setDeletingSerieIds((prev) => new Set(prev).add(serie.id));
-                        try {
-                          await onDeleteSerie(serie.id);
-                        } finally {
-                          setDeletingSerieIds((prev) => {
-                            const next = new Set(prev);
-                            next.delete(serie.id);
-                            return next;
-                          });
-                        }
-                      })();
+                    style={{ flex: 1 }}
+                    onLongPress={() => {
+                      if (!sessaoExercicio.realizado) {
+                        setEditingSerieId(serie.id);
+                        setEditKg(serie.cargaKg);
+                        setEditReps(serie.repeticoes);
+                      }
                     }}
-                    style={({ pressed }) => [
-                      styles.deleteSerieBtn,
-                      (pressed || deletingSerieIds.has(serie.id)) ? { opacity: 0.4 } : null,
-                    ]}
                   >
-                    <Text style={styles.deleteSerieBtnText}>✕</Text>
+                    <Text style={styles.serieLabel}>{serie.cargaKg}kg × {serie.repeticoes}</Text>
+                    {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
                   </Pressable>
-                ) : null}
-              </View>
-            ))}
+                  {!sessaoExercicio.realizado ? (
+                    <Pressable
+                      disabled={deletingSerieIds.has(serie.id)}
+                      onPress={() => {
+                        void (async () => {
+                          setDeletingSerieIds((prev) => new Set(prev).add(serie.id));
+                          try {
+                            await onDeleteSerie(serie.id);
+                          } finally {
+                            setDeletingSerieIds((prev) => {
+                              const next = new Set(prev);
+                              next.delete(serie.id);
+                              return next;
+                            });
+                          }
+                        })();
+                      }}
+                      style={({ pressed }) => [
+                        styles.deleteSerieBtn,
+                        (pressed || deletingSerieIds.has(serie.id)) ? { opacity: 0.4 } : null,
+                      ]}
+                    >
+                      <Text style={styles.deleteSerieBtnText}>✕</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              );
+            })}
           </View>
         </View>
       ) : null}

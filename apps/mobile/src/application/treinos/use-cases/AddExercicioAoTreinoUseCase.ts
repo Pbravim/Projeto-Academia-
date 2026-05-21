@@ -2,6 +2,7 @@ import { TreinoExercicio, type TreinoExercicioPrimitives } from '../../../domain
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
@@ -16,6 +17,7 @@ interface AddExercicioAoTreinoUseCaseDependencies {
   treinoExercicioRepository: TreinoExercicioRepository;
   exerciseRepository: ExerciseRepository;
   idGenerator: () => string;
+  database?: SQLiteDatabaseClient;
 }
 
 /** Adiciona um exercicio ao treino template. A ordem e atribuida automaticamente ao final da lista. */
@@ -40,22 +42,30 @@ export class AddExercicioAoTreinoUseCase {
     );
     if (existing) throw new ExercicioJaNoTreinoError(input.exercicioId);
 
-    const count = await this.dependencies.treinoExercicioRepository.countByTreinoId(input.treinoId);
+    let treinoExercicio!: TreinoExercicio;
 
-    const treinoExercicio = TreinoExercicio.create({
-      id: this.dependencies.idGenerator(),
-      treinoId: input.treinoId,
-      exercicioId: input.exercicioId,
-      ordem: count + 1,
-      seriesRecomendadas: null,
-      execucoesRecomendadas: null,
-      cargaPadrao: null,
-      tempoDescansoSegundos: null,
-      metodo: 'normal',
-      grupoId: null,
-    });
+    const saveNew = async () => {
+      const count = await this.dependencies.treinoExercicioRepository.countByTreinoId(input.treinoId);
+      treinoExercicio = TreinoExercicio.create({
+        id: this.dependencies.idGenerator(),
+        treinoId: input.treinoId,
+        exercicioId: input.exercicioId,
+        ordem: count + 1,
+        seriesRecomendadas: null,
+        execucoesRecomendadas: null,
+        cargaPadrao: null,
+        tempoDescansoSegundos: null,
+        metodo: 'normal',
+        grupoId: null,
+      });
+      await this.dependencies.treinoExercicioRepository.save(treinoExercicio);
+    };
 
-    await this.dependencies.treinoExercicioRepository.save(treinoExercicio);
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(saveNew);
+    } else {
+      await saveNew();
+    }
 
     return treinoExercicio.toPrimitives();
   }

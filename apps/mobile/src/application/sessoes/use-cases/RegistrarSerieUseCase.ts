@@ -4,6 +4,7 @@ import type { SessaoExercicioRepository } from '../../../domain/sessoes/reposito
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
@@ -12,6 +13,7 @@ export interface RegistrarSerieInput {
   cargaKg: number;
   repeticoes: number;
   observacao?: string;
+  tipoSerie?: 'aquecimento' | 'valida';
 }
 
 interface RegistrarSerieUseCaseDependencies {
@@ -20,6 +22,7 @@ interface RegistrarSerieUseCaseDependencies {
   serieRegistradaRepository: SerieRegistradaRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
   idGenerator: () => string;
+  database?: SQLiteDatabaseClient;
 }
 
 /** Registra uma serie (aquecimento ou valida) em um exercicio da sessao ativa. */
@@ -43,21 +46,29 @@ export class RegistrarSerieUseCase {
     );
     if (!sessao?.isAtiva()) throw new SessaoEncerradaError();
 
-    const count = await this.dependencies.serieRegistradaRepository.countBySessaoExercicioId(
-      input.sessaoExercicioId
-    );
+    let serie!: SerieRegistrada;
 
-    const serie = SerieRegistrada.create({
-      id: this.dependencies.idGenerator(),
-      sessaoExercicioId: input.sessaoExercicioId,
-      tipoSerie: 'valida',
-      ordem: count + 1,
-      cargaKg: input.cargaKg,
-      repeticoes: input.repeticoes,
-      observacao: input.observacao,
-    });
+    const saveNew = async () => {
+      const count = await this.dependencies.serieRegistradaRepository.countBySessaoExercicioId(
+        input.sessaoExercicioId
+      );
+      serie = SerieRegistrada.create({
+        id: this.dependencies.idGenerator(),
+        sessaoExercicioId: input.sessaoExercicioId,
+        tipoSerie: input.tipoSerie ?? 'valida',
+        ordem: count + 1,
+        cargaKg: input.cargaKg,
+        repeticoes: input.repeticoes,
+        observacao: input.observacao,
+      });
+      await this.dependencies.serieRegistradaRepository.save(serie);
+    };
 
-    await this.dependencies.serieRegistradaRepository.save(serie);
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(saveNew);
+    } else {
+      await saveNew();
+    }
 
     await this.atualizarCargaSeNecessario(input, sessaoExercicio.toPrimitives(), sessao.toPrimitives().treinoId);
 

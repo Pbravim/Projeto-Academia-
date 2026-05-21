@@ -4,11 +4,16 @@ import type { SessaoExercicioRepository } from '../../../domain/sessoes/reposito
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
 
+export interface MediaFileCleanup {
+  deleteFileIfExists(uri: string): Promise<void>;
+}
+
 interface DeleteExerciseUseCaseDependencies {
   exerciseRepository: ExerciseRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
+  mediaFileCleanup?: MediaFileCleanup;
 }
 
 /**
@@ -30,5 +35,14 @@ export class DeleteExerciseUseCase {
     await this.dependencies.serieRegistradaRepository.deleteByExercicioId(id);
     await this.dependencies.sessaoExercicioRepository.deleteByExercicioId(id);
     await this.dependencies.exerciseRepository.delete(id);
+
+    const { mediaLocal } = exercise.toPrimitives();
+    if (mediaLocal && mediaLocal.startsWith('file://') && this.dependencies.mediaFileCleanup) {
+      try {
+        await this.dependencies.mediaFileCleanup.deleteFileIfExists(mediaLocal);
+      } catch {
+        // Falha silenciosa - arquivo orphan na pior das hipoteses
+      }
+    }
   }
 }
