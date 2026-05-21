@@ -56,6 +56,15 @@ export function TreinoListScreen({
         <Text style={styles.errorMessage}>{plano.errorMessage}</Text>
       ) : null}
 
+      {treinos.length === 0 && !isLoading ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateTitle}>Nenhum treino ainda</Text>
+          <Text style={styles.emptyStateBody}>
+            Crie seu primeiro treino para comecar a registrar sessoes.
+          </Text>
+        </View>
+      ) : null}
+
       <View style={styles.heroCard}>
         <Text style={styles.eyebrow}>Modulo de treinos</Text>
         <Text style={styles.title}>Meus treinos</Text>
@@ -125,7 +134,11 @@ export function TreinoListScreen({
             style={styles.loading}
           />
         ) : viewModel.emptyStateMessage ? (
-          <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
+          <View style={styles.emptyStateBox}>
+            <Text style={styles.emptyStateIcon}>↑</Text>
+            <Text style={styles.emptyStateTitle}>Crie seu primeiro treino</Text>
+            <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
+          </View>
         ) : (
           viewModel.cards.map((card) => (
             <Pressable
@@ -535,7 +548,11 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     primaryButtonDisabled: { opacity: 0.6 },
     primaryButtonText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
     loading: { marginVertical: 12 },
-    emptyState: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    emptyState: { backgroundColor: c.card, borderRadius: 16, padding: 20, gap: 8, alignItems: 'center' },
+    emptyStateTitle: { color: c.textPrimary, fontSize: 18, fontWeight: '800', textAlign: 'center' },
+    emptyStateBody: { color: c.textSecondary, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+    emptyStateBox: { alignItems: 'center', paddingVertical: 16, gap: 6 },
+    emptyStateIcon: { color: c.accent, fontSize: 28, fontWeight: '800' },
     treinoCard: {
       borderRadius: 18,
       padding: 16,

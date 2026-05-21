@@ -9,8 +9,10 @@ export class ResetHistoricoUseCase {
   constructor(private readonly deps: ResetHistoricoDependencies) {}
 
   async execute(): Promise<void> {
-    await this.deps.database.run('DELETE FROM series_registradas');
-    await this.deps.database.run('DELETE FROM sessao_exercicios');
-    await this.deps.database.run('DELETE FROM sessao_treinos');
+    await this.deps.database.withTransaction(async () => {
+      await this.deps.database.run('DELETE FROM series_registradas');
+      await this.deps.database.run('DELETE FROM sessao_exercicios');
+      await this.deps.database.run('DELETE FROM sessao_treinos');
+    });
   }
 }

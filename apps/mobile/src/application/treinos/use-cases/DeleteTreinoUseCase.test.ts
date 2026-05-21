@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
@@ -10,6 +12,7 @@ function makeRepos() {
   return {
     treinoRepository: new InMemoryTreinoRepository(),
     treinoExercicioRepository: new InMemoryTreinoExercicioRepository(),
+    sessaoTreinoRepository: new InMemorySessaoTreinoRepository(),
   };
 }
 
@@ -35,5 +38,30 @@ describe('DeleteTreinoUseCase', () => {
     const del = new DeleteTreinoUseCase(repos);
 
     await expect(del.execute('non_existent')).rejects.toThrow(TreinoNotFoundError);
+  });
+
+  it('deleta sessoes associadas ao treino em cascata', async () => {
+    const repos = makeRepos();
+    const create = new CreateTreinoUseCase({
+      treinoRepository: repos.treinoRepository,
+      idGenerator: () => 'treino_1',
+      now: () => new Date(),
+    });
+    const del = new DeleteTreinoUseCase(repos);
+
+    await create.execute({ name: 'Treino A' });
+
+    const sessao = SessaoTreino.create({
+      id: 'sessao_1',
+      treinoId: 'treino_1',
+      treinoNomeSnapshot: 'Treino A',
+      dataHoraInicio: new Date('2026-05-21T10:00:00.000Z'),
+    });
+    await repos.sessaoTreinoRepository.save(sessao);
+
+    await del.execute('treino_1');
+
+    expect(await repos.treinoRepository.list()).toHaveLength(0);
+    expect(await repos.sessaoTreinoRepository.findById('sessao_1')).toBeNull();
   });
 });

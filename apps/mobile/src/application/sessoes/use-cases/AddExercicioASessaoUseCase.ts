@@ -2,6 +2,7 @@ import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { ExercicioJaNaSessaoError } from '../errors/ExercicioJaNaSessaoError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
@@ -17,6 +18,7 @@ interface AddExercicioASessaoUseCaseDependencies {
   sessaoExercicioRepository: SessaoExercicioRepository;
   exerciseRepository: ExerciseRepository;
   idGenerator: () => string;
+  database?: SQLiteDatabaseClient;
 }
 
 /**
@@ -46,32 +48,40 @@ export class AddExercicioASessaoUseCase {
     );
     if (existing) throw new ExercicioJaNaSessaoError(input.exercicioId);
 
-    const count = await this.dependencies.sessaoExercicioRepository.countBySessaoId(input.sessaoId);
     const ex = exercise.toPrimitives();
+    let sessaoExercicio!: SessaoExercicio;
 
-    const sessaoExercicio = SessaoExercicio.create({
-      id: this.dependencies.idGenerator(),
-      sessaoTreinoId: input.sessaoId,
-      exercicioId: input.exercicioId,
-      ordem: count + 1,
-      nomeSnapshot: ex.name,
-      grupoMuscularSnapshot: ex.groupMuscle,
-      categoriaSnapshot: ex.category,
-      equipamentoSnapshot: ex.equipment,
-      musculoAlvoSnapshot: ex.musculoAlvo,
-      realizado: false,
-      seriesRecomendadas: null,
-      execucoesRecomendadas: null,
-      cargaPadrao: null,
-      tempoDescansoSegundos: null,
-      metodo: 'normal',
-      grupoId: null,
-      substituidoPorExercicioId: null,
-      substituicaoMotivo: null,
-      nomeOriginalSnapshot: null,
-    });
+    const saveNew = async () => {
+      const count = await this.dependencies.sessaoExercicioRepository.countBySessaoId(input.sessaoId);
+      sessaoExercicio = SessaoExercicio.create({
+        id: this.dependencies.idGenerator(),
+        sessaoTreinoId: input.sessaoId,
+        exercicioId: input.exercicioId,
+        ordem: count + 1,
+        nomeSnapshot: ex.name,
+        grupoMuscularSnapshot: ex.groupMuscle,
+        categoriaSnapshot: ex.category,
+        equipamentoSnapshot: ex.equipment,
+        musculoAlvoSnapshot: ex.musculoAlvo,
+        realizado: false,
+        seriesRecomendadas: null,
+        execucoesRecomendadas: null,
+        cargaPadrao: null,
+        tempoDescansoSegundos: null,
+        metodo: 'normal',
+        grupoId: null,
+        substituidoPorExercicioId: null,
+        substituicaoMotivo: null,
+        nomeOriginalSnapshot: null,
+      });
+      await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);
+    };
 
-    await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(saveNew);
+    } else {
+      await saveNew();
+    }
 
     return sessaoExercicio.toPrimitives();
   }

@@ -56,6 +56,15 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     await this.database.run('DELETE FROM series_registradas WHERE sessao_exercicio_id = ?', [sessaoExercicioId]);
   }
 
+  async deleteBySessaoExercicioIds(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => '?').join(', ');
+    await this.database.run(
+      `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
+      ids
+    );
+  }
+
   async deleteByExercicioId(exercicioId: string): Promise<void> {
     await this.database.run(
       `DELETE FROM series_registradas
@@ -63,6 +72,13 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
          SELECT id FROM sessao_exercicios WHERE exercicio_id = ?
        )`,
       [exercicioId]
+    );
+  }
+
+  async update(id: string, patch: { cargaKg: number; repeticoes: number; observacao?: string | null }): Promise<void> {
+    await this.database.run(
+      `UPDATE series_registradas SET carga_kg = ?, repeticoes = ?, observacao = ? WHERE id = ?`,
+      [patch.cargaKg, patch.repeticoes, patch.observacao ?? null, id]
     );
   }
 }

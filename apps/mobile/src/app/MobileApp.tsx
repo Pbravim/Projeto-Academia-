@@ -21,6 +21,8 @@ const PERFIL_DEPS = {
   peso: mobileDependencies.peso,
   getDashboardStats: mobileDependencies.dashboard.getDashboardStats,
   exportarHistorico: mobileDependencies.dashboard.exportarHistorico,
+  exportarBanco: mobileDependencies.dashboard.exportarBanco,
+  importarBanco: mobileDependencies.dashboard.importarBanco,
   resetHistorico: mobileDependencies.dashboard.resetHistorico,
   logger: mobileDependencies.logger,
 };
@@ -133,7 +135,10 @@ function AppContent() {
       {/* ── Content ── */}
       <View style={styles.container}>
         {activeModule === 'sessao' ? (
-          <SessaoFeature dependencies={mobileDependencies.sessao} />
+          <SessaoFeature
+            dependencies={mobileDependencies.sessao}
+            onGoToTreinos={() => handleTabPress('treinos')}
+          />
         ) : activeModule === 'treinos' ? (
           <TreinoFeature
             dependencies={{
@@ -146,7 +151,10 @@ function AppContent() {
         ) : activeModule === 'exercicios' ? (
           <ExerciseCatalogFeature dependencies={mobileDependencies.exerciseCatalog} />
         ) : activeModule === 'evolucao' ? (
-          <DashboardFeature dependencies={mobileDependencies.dashboard} />
+          <DashboardFeature
+            dependencies={mobileDependencies.dashboard}
+            onGoToSessao={() => handleTabPress('sessao')}
+          />
         ) : (
           <PerfilFeature
             dependencies={PERFIL_DEPS}

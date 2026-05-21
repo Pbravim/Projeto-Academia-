@@ -1,5 +1,6 @@
 import { CreateExerciseUseCase } from '../application/exercises/use-cases/CreateExerciseUseCase';
 import { DeleteExerciseUseCase } from '../application/exercises/use-cases/DeleteExerciseUseCase';
+import { ExpoMediaFileCleanup } from '../infrastructure/exercises/ExpoMediaFileCleanup';
 import { ListExercisesUseCase } from '../application/exercises/use-cases/ListExercisesUseCase';
 import { UpdateExerciseUseCase } from '../application/exercises/use-cases/UpdateExerciseUseCase';
 import { GetHistoricoExercicioUseCase } from '../application/historico/use-cases/GetHistoricoExercicioUseCase';
@@ -25,13 +26,16 @@ import { UpdateTreinoUseCase } from '../application/treinos/use-cases/UpdateTrei
 import { ArquivarSessaoUseCase } from '../application/dashboard/use-cases/ArquivarSessaoUseCase';
 import { DesarquivarSessaoUseCase } from '../application/dashboard/use-cases/DesarquivarSessaoUseCase';
 import { DeletarSessaoUseCase } from '../application/dashboard/use-cases/DeletarSessaoUseCase';
+import { ExportarBancoUseCase } from '../application/dashboard/use-cases/ExportarBancoUseCase';
 import { ExportarHistoricoUseCase } from '../application/dashboard/use-cases/ExportarHistoricoUseCase';
+import { ImportarBancoUseCase } from '../application/dashboard/use-cases/ImportarBancoUseCase';
 import { GetDashboardStatsUseCase } from '../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { GetTreinoEvolucaoUseCase } from '../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import { ResetHistoricoUseCase } from '../application/dashboard/use-cases/ResetHistoricoUseCase';
 import { AddExercicioASessaoUseCase } from '../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import { CancelarSessaoUseCase } from '../application/sessoes/use-cases/CancelarSessaoUseCase';
 import { DeleteSerieUseCase } from '../application/sessoes/use-cases/DeleteSerieUseCase';
+import { UpdateSerieUseCase } from '../application/sessoes/use-cases/UpdateSerieUseCase';
 import { FinalizarSessaoUseCase } from '../application/sessoes/use-cases/FinalizarSessaoUseCase';
 import { GetSessaoAtivaUseCase } from '../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import { GetSessaoDetalheUseCase } from '../application/sessoes/use-cases/GetSessaoDetalheUseCase';
@@ -108,6 +112,7 @@ export const mobileDependencies = {
       treinoExercicioRepository,
       sessaoExercicioRepository,
       serieRegistradaRepository,
+      mediaFileCleanup: new ExpoMediaFileCleanup(),
     }),
     listExercises,
     getUltimasExecucoesValidas: new GetUltimasExecucoesValidasUseCase({ historicoRepository }),
@@ -133,7 +138,7 @@ export const mobileDependencies = {
         now: () => new Date(),
       }),
       listTreinos,
-      deleteTreino: new DeleteTreinoUseCase({ treinoRepository, treinoExercicioRepository }),
+      deleteTreino: new DeleteTreinoUseCase({ treinoRepository, treinoExercicioRepository, sessaoTreinoRepository }),
       duplicarTreino: new DuplicarTreinoUseCase({
         treinoRepository,
         treinoExercicioRepository,
@@ -150,6 +155,7 @@ export const mobileDependencies = {
         treinoExercicioRepository,
         exerciseRepository,
         idGenerator: () => generateId('treino_exercicio'),
+        database: databaseClient,
       }),
       removeExercicioDoTreino: new RemoveExercicioDoTreinoUseCase({ treinoExercicioRepository }),
       reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
@@ -181,7 +187,7 @@ export const mobileDependencies = {
   sessao: {
     feature: {
       getSessaoAtiva: new GetSessaoAtivaUseCase(sessaoTreinoRepository),
-      sugerirTreino: new SugerirTreinoUseCase({ database: databaseClient, planoRepository: planoSemanalRepository }),
+      sugerirTreino: new SugerirTreinoUseCase({ dashboardRepository: dashboardRepository, planoRepository: planoSemanalRepository }),
       iniciarSessao: new IniciarSessaoUseCase({
         sessaoTreinoRepository,
         sessaoExercicioRepository,
@@ -190,6 +196,7 @@ export const mobileDependencies = {
         exerciseRepository,
         idGenerator: () => generateId('sessao'),
         now: () => new Date(),
+        database: databaseClient,
       }),
       listTreinos,
       listTreinoExercicios: new ListTreinoExerciciosUseCase(treinoExercicioRepository),
@@ -208,8 +215,14 @@ export const mobileDependencies = {
         serieRegistradaRepository,
         treinoExercicioRepository,
         idGenerator: () => generateId('serie'),
+        database: databaseClient,
       }),
       deleteSerie: new DeleteSerieUseCase({ serieRegistradaRepository }),
+      updateSerie: new UpdateSerieUseCase({
+        serieRegistradaRepository,
+        sessaoExercicioRepository,
+        sessaoTreinoRepository,
+      }),
       toggleExercicioRealizado: new ToggleExercicioRealizadoUseCase({
         sessaoTreinoRepository,
         sessaoExercicioRepository,
@@ -219,6 +232,7 @@ export const mobileDependencies = {
         sessaoExercicioRepository,
         exerciseRepository,
         idGenerator: () => generateId('sessao_exercicio'),
+        database: databaseClient,
       }),
       finalizarSessao: new FinalizarSessaoUseCase({
         sessaoTreinoRepository,
@@ -262,6 +276,8 @@ export const mobileDependencies = {
     getTreinoEvolucao: new GetTreinoEvolucaoUseCase({ dashboardRepository }),
     resetHistorico: new ResetHistoricoUseCase({ database: databaseClient }),
     exportarHistorico: new ExportarHistoricoUseCase({ database: databaseClient }),
+    exportarBanco: new ExportarBancoUseCase({ databaseClient }),
+    importarBanco: new ImportarBancoUseCase({ databaseClient }),
     arquivarSessao: new ArquivarSessaoUseCase({ dashboardRepository }),
     desarquivarSessao: new DesarquivarSessaoUseCase({ dashboardRepository }),
     deletarSessao: new DeletarSessaoUseCase({ dashboardRepository }),

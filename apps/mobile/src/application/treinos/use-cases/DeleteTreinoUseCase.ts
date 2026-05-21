@@ -1,3 +1,4 @@
+import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
@@ -5,6 +6,7 @@ import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 interface DeleteTreinoUseCaseDependencies {
   treinoRepository: TreinoRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
+  sessaoTreinoRepository: SessaoTreinoRepository;
 }
 
 export class DeleteTreinoUseCase {
@@ -17,6 +19,7 @@ export class DeleteTreinoUseCase {
       throw new TreinoNotFoundError(id);
     }
 
+    await this.dependencies.sessaoTreinoRepository.deleteByTreinoId(id);
     await this.dependencies.treinoExercicioRepository.deleteByTreinoId(id);
     await this.dependencies.treinoRepository.delete(id);
   }

@@ -2,7 +2,7 @@ import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exer
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { HistoricoRepository, UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
-import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
+import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
 export interface CandidatoSubstituto {
   exercicio: ExercisePrimitives;
@@ -28,7 +28,7 @@ export class SugerirSubstitutosUseCase {
 
   async execute(sessaoExercicioId: string): Promise<CandidatoSubstituto[]> {
     const sessaoExercicio = await this.deps.sessaoExercicioRepository.findById(sessaoExercicioId);
-    if (!sessaoExercicio) throw new SessaoNotFoundError(sessaoExercicioId);
+    if (!sessaoExercicio) throw new SessaoExercicioNotFoundError(sessaoExercicioId);
 
     const p = sessaoExercicio.toPrimitives();
     const todosNaSessao = await this.deps.sessaoExercicioRepository.listBySessaoId(p.sessaoTreinoId);

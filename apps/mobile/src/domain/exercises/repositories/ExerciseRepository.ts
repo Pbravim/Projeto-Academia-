@@ -9,6 +9,7 @@ export interface ExerciseRepository {
   save(exercise: Exercise): Promise<void>;
   list(options?: ListExercisesOptions): Promise<Exercise[]>;
   findById(id: string): Promise<Exercise | null>;
+  findByIds(ids: string[]): Promise<Exercise[]>;
   findByNormalizedName(normalizedName: string): Promise<Exercise | null>;
   delete(id: string): Promise<void>;
   updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void>;

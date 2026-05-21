@@ -41,6 +41,10 @@ export class SQLiteSessaoTreinoRepository implements SessaoTreinoRepository {
   async delete(id: string): Promise<void> {
     await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [id]);
   }
+
+  async deleteByTreinoId(treinoId: string): Promise<void> {
+    await this.database.run('DELETE FROM sessao_treinos WHERE treino_id = ?', [treinoId]);
+  }
 }
 
 function mapRow(row: SessaoTreinoRow): SessaoTreinoPrimitives {

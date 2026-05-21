@@ -5,4 +5,5 @@ export interface SessaoTreinoRepository {
   findById(id: string): Promise<SessaoTreino | null>;
   findAtiva(): Promise<SessaoTreino | null>;
   delete(id: string): Promise<void>;
+  deleteByTreinoId(treinoId: string): Promise<void>;
 }

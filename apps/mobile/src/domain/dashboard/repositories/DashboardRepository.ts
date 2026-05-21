@@ -55,10 +55,21 @@ export interface ExercicioEvolucao {
   sessoes: SessaoExercicioEvolucao[];
 }
 
+export interface TreinoComUltimaSessao {
+  id: string;
+  name: string;
+  objetivo: string | null;
+  createdAt: string;
+  updatedAt: string;
+  ultimaSessao: string | null;
+}
+
 export interface DashboardRepository {
   getStats(): Promise<DashboardStats>;
   getEvolucaoExercicios(treinoId: string): Promise<ExercicioEvolucao[]>;
   arquivarSessao(sessaoId: string): Promise<void>;
   desarquivarSessao(sessaoId: string): Promise<void>;
   deletarSessao(sessaoId: string): Promise<void>;
+  findSugestaoRotacao(): Promise<TreinoComUltimaSessao | null>;
+  findTreinoComUltimaSessao(treinoId: string): Promise<TreinoComUltimaSessao | null>;
 }

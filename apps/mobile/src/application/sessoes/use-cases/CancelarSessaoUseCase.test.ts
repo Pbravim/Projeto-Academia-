@@ -6,6 +6,7 @@ import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrad
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
 import { CancelarSessaoUseCase } from './CancelarSessaoUseCase';
 
@@ -35,6 +36,15 @@ describe('CancelarSessaoUseCase', () => {
     const { useCase } = makeDeps();
 
     await expect(useCase.execute('inexistente')).rejects.toThrow(SessaoNotFoundError);
+  });
+
+  it('lança SessaoEncerradaError quando sessão já foi finalizada', async () => {
+    const { sessaoTreinoRepository, useCase } = makeDeps();
+
+    const sessaoFinalizada = makeSessao('sessao_1').finalizar(new Date());
+    await sessaoTreinoRepository.save(sessaoFinalizada);
+
+    await expect(useCase.execute('sessao_1')).rejects.toThrow(SessaoEncerradaError);
   });
 
   it('remove sessão, exercícios e séries em cascata', async () => {

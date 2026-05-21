@@ -1,9 +1,21 @@
 import { useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystemLegacy from 'expo-file-system/legacy';
 
+import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { useTheme } from '../../shared/theme';
+
+function isImageMediaUri(uri: string): boolean {
+  const lower = uri.split('?')[0]!.toLowerCase();
+  return lower.endsWith('.gif') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.png') || lower.endsWith('.webp');
+}
+
+function isVideoMediaUri(uri: string): boolean {
+  const lower = uri.split('?')[0]!.toLowerCase();
+  return lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.m4v') || lower.endsWith('.webm');
+}
 
 export const MUSCLE_GROUPS = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
@@ -448,9 +460,29 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
     }
   };
 
+  // Escolhe qual mídia mostrar no preview: local tem precedência.
+  const previewUri = mediaLocal ?? (mediaOnline.trim() || null);
+  const showImagePreview = previewUri ? isImageMediaUri(previewUri) : false;
+  const showVideoPlaceholder = previewUri && !showImagePreview && !isYouTubeUrl(previewUri) ? isVideoMediaUri(previewUri) : false;
+  const showYouTubeBadge = previewUri ? isYouTubeUrl(previewUri) : false;
+
   return (
     <View style={styles.container}>
       <Text style={styles.sectionLabel}>Mídia de referência</Text>
+
+      {showImagePreview ? (
+        <Image source={{ uri: previewUri! }} style={styles.preview} contentFit="contain" transition={150} />
+      ) : showVideoPlaceholder ? (
+        <View style={styles.previewPlaceholder}>
+          <Text style={styles.previewPlaceholderIcon}>🎞</Text>
+          <Text style={styles.previewPlaceholderText}>Video selecionado</Text>
+        </View>
+      ) : showYouTubeBadge ? (
+        <View style={styles.previewPlaceholder}>
+          <Text style={styles.previewPlaceholderIcon}>▶</Text>
+          <Text style={styles.previewPlaceholderText}>Video do YouTube</Text>
+        </View>
+      ) : null}
 
       <View style={styles.field}>
         <Text style={styles.label}>URL online <Text style={styles.hint}>(YouTube, GIF, MP4…)</Text></Text>
@@ -503,5 +535,9 @@ function makeMediaStyles(c: ReturnType<typeof useTheme>) {
     removeBtnText: { color: c.error, fontSize: 12, fontWeight: '700' },
     pickBtn: { height: 44, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, alignItems: 'center', justifyContent: 'center' },
     pickBtnText: { color: c.textSecondary, fontSize: 14, fontWeight: '600' },
+    preview: { width: '100%', height: 160, borderRadius: 12, backgroundColor: c.cardAlt },
+    previewPlaceholder: { height: 80, borderRadius: 12, backgroundColor: c.cardAlt, alignItems: 'center', justifyContent: 'center', gap: 4 },
+    previewPlaceholderIcon: { fontSize: 28 },
+    previewPlaceholderText: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },
   });
 }

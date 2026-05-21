@@ -487,6 +487,29 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
     private readonly logger: AppLogger
   ) {}
 
+  get databaseFileName(): string {
+    return this.databaseName;
+  }
+
+  async close(): Promise<void> {
+    if (!this.databasePromise) return;
+    try {
+      const database = await this.databasePromise;
+      await database.closeAsync();
+    } catch (error) {
+      this.logger.error('database.close_failed', error);
+    } finally {
+      this.databasePromise = null;
+      this.migrationPromise = null;
+    }
+  }
+
+  async checkpointWal(): Promise<void> {
+    if (!this.databasePromise) return;
+    const database = await this.getReadyDatabase();
+    await database.execAsync('PRAGMA wal_checkpoint(FULL);');
+  }
+
   async exec(statement: string): Promise<void> {
     const database = await this.getReadyDatabase();
     await database.execAsync(statement);
@@ -506,6 +529,18 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   async getAll<T>(statement: string, params: SQLiteBindParams = []): Promise<T[]> {
     const database = await this.getReadyDatabase();
     return database.getAllAsync<T>(statement, params);
+  }
+
+  async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
+    await this.run('BEGIN');
+    try {
+      const result = await fn();
+      await this.run('COMMIT');
+      return result;
+    } catch (err) {
+      await this.run('ROLLBACK');
+      throw err;
+    }
   }
 
   async getSetting(key: string): Promise<string | null> {

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AddExercicioASessaoUseCase } from '../../../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cases/CancelarSessaoUseCase';
 import type { DeleteSerieUseCase } from '../../../application/sessoes/use-cases/DeleteSerieUseCase';
+import type { UpdateSerieInput, UpdateSerieUseCase } from '../../../application/sessoes/use-cases/UpdateSerieUseCase';
 import type { FinalizarSessaoUseCase } from '../../../application/sessoes/use-cases/FinalizarSessaoUseCase';
 import type { GetSessaoDetalheUseCase, SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { RegistrarSerieInput, RegistrarSerieUseCase } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
@@ -22,6 +23,7 @@ export interface SessaoAtivaControllerDependencies {
   getSessaoDetalhe: GetSessaoDetalheUseCase;
   registrarSerie: RegistrarSerieUseCase;
   deleteSerie: DeleteSerieUseCase;
+  updateSerie: UpdateSerieUseCase;
   toggleExercicioRealizado: ToggleExercicioRealizadoUseCase;
   addExercicioASessao: AddExercicioASessaoUseCase;
   finalizarSessao: FinalizarSessaoUseCase;
@@ -50,6 +52,7 @@ export interface SessaoAtivaControllerState {
   onRegistrarSeriesEmLote: (inputs: RegistrarSerieInput[]) => Promise<void>;
   onDeleteSerie: (serieId: string) => Promise<void>;
   onDeleteSeries: (serieIds: string[]) => Promise<void>;
+  onUpdateSerie: (input: UpdateSerieInput) => Promise<void>;
   onToggleRealizado: (sessaoExercicioId: string) => Promise<void>;
   onToggleRealizadoGrupo: (sessaoExercicioIds: string[]) => Promise<void>;
   onAddExercicio: (exercicioId: string) => Promise<void>;
@@ -282,6 +285,21 @@ export function useSessaoAtivaController(
     }
   };
 
+  const onUpdateSerie = async (input: UpdateSerieInput) => {
+    setErrorMessage(null);
+    try {
+      await dependencies.updateSerie.execute(input);
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.update_serie_failed', error);
+      if (error instanceof SessaoValidationError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Nao foi possivel atualizar a serie.');
+      }
+    }
+  };
+
   return {
     detalhe,
     sugestoes,
@@ -298,6 +316,7 @@ export function useSessaoAtivaController(
     onRegistrarSeriesEmLote,
     onDeleteSerie,
     onDeleteSeries,
+    onUpdateSerie,
     onToggleRealizado,
     onToggleRealizadoGrupo,
     onAddExercicio,

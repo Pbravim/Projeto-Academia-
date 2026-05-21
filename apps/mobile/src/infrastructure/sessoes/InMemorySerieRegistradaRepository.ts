@@ -36,9 +36,32 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
     }
   }
 
+  async deleteBySessaoExercicioIds(ids: string[]): Promise<void> {
+    const idSet = new Set(ids);
+    for (const [id, serie] of this.seriesById.entries()) {
+      if (idSet.has(serie.toPrimitives().sessaoExercicioId)) this.seriesById.delete(id);
+    }
+  }
+
   async deleteByExercicioId(_exercicioId: string): Promise<void> {
     // In-memory: the caller (DeleteExerciseUseCase) handles series deletion
     // via deleteBySessaoExercicioId before calling deleteByExercicioId on the session repo.
     // This no-op satisfies the interface for test environments that don't wire the full cascade.
+  }
+
+  async update(id: string, patch: { cargaKg: number; repeticoes: number; observacao?: string | null }): Promise<void> {
+    const serie = this.seriesById.get(id);
+    if (!serie) return;
+    const p = serie.toPrimitives();
+    const updated = SerieRegistrada.create({
+      id: p.id,
+      sessaoExercicioId: p.sessaoExercicioId,
+      tipoSerie: p.tipoSerie,
+      ordem: p.ordem,
+      cargaKg: patch.cargaKg,
+      repeticoes: patch.repeticoes,
+      observacao: patch.observacao ?? undefined,
+    });
+    this.seriesById.set(id, updated);
   }
 }

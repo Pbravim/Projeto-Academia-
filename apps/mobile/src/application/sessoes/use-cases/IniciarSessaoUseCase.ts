@@ -7,6 +7,7 @@ import type { ExerciseRepository } from '../../../domain/exercises/repositories/
 import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { TreinoNotFoundError } from '../../treinos/errors/TreinoNotFoundError';
 import { SessaoJaAtivaError } from '../errors/SessaoJaAtivaError';
@@ -20,6 +21,7 @@ interface IniciarSessaoUseCaseDependencies {
   exerciseRepository: ExerciseRepository;
   idGenerator: () => string;
   now: () => Date;
+  database?: SQLiteDatabaseClient;
 }
 
 /**
@@ -36,9 +38,6 @@ export class IniciarSessaoUseCase {
    * @throws {ExerciseNotFoundError} exercicio referenciado no treino nao encontrado no catalogo
    */
   async execute(treinoId: string): Promise<SessaoTreinoPrimitives> {
-    const sessaoAtiva = await this.dependencies.sessaoTreinoRepository.findAtiva();
-    if (sessaoAtiva) throw new SessaoJaAtivaError();
-
     const treino = await this.dependencies.treinoRepository.findById(treinoId);
     if (!treino) throw new TreinoNotFoundError(treinoId);
 
@@ -63,32 +62,42 @@ export class IniciarSessaoUseCase {
       exerciseSnapshots.push({ p, ex: exercise.toPrimitives() });
     }
 
-    await this.dependencies.sessaoTreinoRepository.save(sessao);
+    const saveAll = async () => {
+      const sessaoAtiva = await this.dependencies.sessaoTreinoRepository.findAtiva();
+      if (sessaoAtiva) throw new SessaoJaAtivaError();
 
-    for (const { p, ex } of exerciseSnapshots) {
-      const sessaoExercicio = SessaoExercicio.create({
-        id: this.dependencies.idGenerator(),
-        sessaoTreinoId: sessao.toPrimitives().id,
-        exercicioId: p.exercicioId,
-        ordem: p.ordem,
-        nomeSnapshot: ex.name,
-        grupoMuscularSnapshot: ex.groupMuscle,
-        categoriaSnapshot: ex.category,
-        equipamentoSnapshot: ex.equipment,
-        musculoAlvoSnapshot: ex.musculoAlvo,
-        realizado: false,
-        seriesRecomendadas: p.seriesRecomendadas,
-        execucoesRecomendadas: p.execucoesRecomendadas,
-        cargaPadrao: p.cargaPadrao,
-        tempoDescansoSegundos: p.tempoDescansoSegundos,
-        metodo: p.metodo,
-        grupoId: p.grupoId,
-        substituidoPorExercicioId: null,
-        substituicaoMotivo: null,
-        nomeOriginalSnapshot: null,
-      });
+      await this.dependencies.sessaoTreinoRepository.save(sessao);
 
-      await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);
+      for (const { p, ex } of exerciseSnapshots) {
+        const sessaoExercicio = SessaoExercicio.create({
+          id: this.dependencies.idGenerator(),
+          sessaoTreinoId: sessao.toPrimitives().id,
+          exercicioId: p.exercicioId,
+          ordem: p.ordem,
+          nomeSnapshot: ex.name,
+          grupoMuscularSnapshot: ex.groupMuscle,
+          categoriaSnapshot: ex.category,
+          equipamentoSnapshot: ex.equipment,
+          musculoAlvoSnapshot: ex.musculoAlvo,
+          realizado: false,
+          seriesRecomendadas: p.seriesRecomendadas,
+          execucoesRecomendadas: p.execucoesRecomendadas,
+          cargaPadrao: p.cargaPadrao,
+          tempoDescansoSegundos: p.tempoDescansoSegundos,
+          metodo: p.metodo,
+          grupoId: p.grupoId,
+          substituidoPorExercicioId: null,
+          substituicaoMotivo: null,
+          nomeOriginalSnapshot: null,
+        });
+        await this.dependencies.sessaoExercicioRepository.save(sessaoExercicio);
+      }
+    };
+
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(saveAll);
+    } else {
+      await saveAll();
     }
 
     return sessao.toPrimitives();

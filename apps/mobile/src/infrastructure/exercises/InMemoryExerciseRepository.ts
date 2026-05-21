@@ -16,6 +16,13 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
     return this.exercisesById.get(id) ?? null;
   }
 
+  async findByIds(ids: string[]): Promise<Exercise[]> {
+    return ids.flatMap((id) => {
+      const e = this.exercisesById.get(id);
+      return e ? [e] : [];
+    });
+  }
+
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {
     for (const exercise of this.exercisesById.values()) {
       if (exercise.toPrimitives().normalizedName === normalizedName) {

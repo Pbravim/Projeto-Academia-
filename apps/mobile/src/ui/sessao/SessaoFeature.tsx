@@ -16,9 +16,10 @@ export interface SessaoFeatureDependencies {
 
 interface Props {
   dependencies: SessaoFeatureDependencies;
+  onGoToTreinos?: () => void;
 }
 
-export function SessaoFeature({ dependencies }: Props) {
+export function SessaoFeature({ dependencies, onGoToTreinos }: Props) {
   const controller = useSessaoFeatureController(dependencies.feature);
 
   if (controller.view === 'loading') {
@@ -53,6 +54,7 @@ export function SessaoFeature({ dependencies }: Props) {
       errorMessage={controller.errorMessage}
       isIniciando={controller.isIniciando}
       onIniciar={controller.onIniciarSessao}
+      onGoToTreinos={onGoToTreinos}
     />
   );
 }
