@@ -95,13 +95,8 @@ export function createTestDatabase(): SQLiteDatabaseClient {
     try {
       db.exec(migration);
     } catch (error) {
-      // Some migrations may fail due to ALTER TABLE on non-existent columns
-      // This is expected behavior (idempotent migrations)
-      if (!(error instanceof Error) || !error.message.includes('duplicate column')) {
-        // Only ignore duplicate column errors; re-throw other errors
-        if (!(error instanceof Error) || !error.message.includes('duplicate')) {
-          throw error;
-        }
+      if (!(error instanceof Error) || !error.message.includes('duplicate')) {
+        throw error;
       }
     }
   }
@@ -124,6 +119,12 @@ class BetterSQLiteAdapter implements SQLiteDatabaseClient {
     } else {
       stmt.run();
     }
+  }
+
+  async runWithChanges(statement: string, params?: SQLiteBindParams): Promise<number> {
+    const stmt = this.db.prepare(statement);
+    const result = params ? stmt.run(...params) : stmt.run();
+    return result.changes;
   }
 
   async getFirst<T>(statement: string, params?: SQLiteBindParams): Promise<T | null> {

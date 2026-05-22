@@ -121,9 +121,7 @@ export function useSessaoAtivaController(
     [allExercises, sessionExerciseIds],
   );
 
-  const temSerieValida = detalhe?.exercicios.some((ex) =>
-    ex.series.some((s) => s.tipoSerie === 'valida')
-  ) ?? false;
+  const temSerieValida = detalhe?.exercicios.some((ex) => ex.series.length > 0) ?? false;
 
   const onRegistrarSerie = async (input: RegistrarSerieInput) => {
     setErrorMessage(null);

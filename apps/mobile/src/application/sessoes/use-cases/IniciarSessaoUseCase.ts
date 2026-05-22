@@ -38,7 +38,7 @@ export class IniciarSessaoUseCase {
    * @throws {ExerciseNotFoundError} exercicio referenciado no treino nao encontrado no catalogo
    */
   async execute(treinoId: string): Promise<SessaoTreinoPrimitives> {
-    // Fail fast: check for active session first
+    // Fail fast: check for active session before any DB reads
     const sessaoAtiva = await this.dependencies.sessaoTreinoRepository.findAtiva();
     if (sessaoAtiva) throw new SessaoJaAtivaError();
 

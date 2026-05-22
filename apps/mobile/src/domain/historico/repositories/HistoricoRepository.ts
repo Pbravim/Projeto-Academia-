@@ -6,7 +6,6 @@ export interface UltimaExecucaoValida {
 
 export interface ExecucaoExercicioSerie {
   id: string;
-  tipoSerie: 'aquecimento' | 'valida';
   cargaKg: number;
   repeticoes: number;
   observacao: string | null;

@@ -49,7 +49,6 @@ describe('RegistrarSerieUseCase', () => {
 
     expect(serie.cargaKg).toBe(100);
     expect(serie.repeticoes).toBe(8);
-    expect(serie.tipoSerie).toBe('valida');
     expect(serie.ordem).toBe(1);
   });
 

@@ -50,14 +50,14 @@ export class SugerirProgressaoUseCase {
     if (ultimas2.length < 2) return null;
 
     for (const execucao of ultimas2) {
-      const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
+      const validas = execucao.series;
       if (validas.length === 0) return null;
       if (!validas.every((s) => s.repeticoes >= meta)) return null;
     }
 
     const cargaReferencia =
       input.cargaPadrao ??
-      Math.max(...ultimas2[0].series.filter((s) => s.tipoSerie === 'valida').map((s) => s.cargaKg));
+      Math.max(...ultimas2[0].series.map((s) => s.cargaKg));
 
     return {
       cargaSugerida: cargaReferencia + 2.5,

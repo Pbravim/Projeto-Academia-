@@ -27,7 +27,6 @@ export class UpdateSerieUseCase {
     SerieRegistrada.create({
       id: serie.toPrimitives().id,
       sessaoExercicioId: serie.toPrimitives().sessaoExercicioId,
-      tipoSerie: serie.toPrimitives().tipoSerie,
       ordem: serie.toPrimitives().ordem,
       cargaKg: input.cargaKg,
       repeticoes: input.repeticoes,

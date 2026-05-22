@@ -96,7 +96,6 @@ describe('useSessaoAtivaController', () => {
     await act(async () => {
       await result.current.onRegistrarSerie({
         sessaoExercicioId: 'se1',
-        tipoSerie: 'valida',
         cargaKg: 50,
         repeticoes: 8,
         observacao: null,
@@ -120,7 +119,6 @@ describe('useSessaoAtivaController', () => {
     await act(async () => {
       await result.current.onRegistrarSerie({
         sessaoExercicioId: 'se1',
-        tipoSerie: 'valida',
         cargaKg: -1,
         repeticoes: 8,
         observacao: null,
@@ -140,7 +138,6 @@ describe('useSessaoAtivaController', () => {
     await act(async () => {
       await result.current.onRegistrarSerie({
         sessaoExercicioId: 'se1',
-        tipoSerie: 'valida',
         cargaKg: 50,
         repeticoes: 8,
         observacao: null,

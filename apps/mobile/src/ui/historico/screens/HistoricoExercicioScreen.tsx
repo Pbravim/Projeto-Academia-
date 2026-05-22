@@ -72,8 +72,8 @@ function ExecucaoCard({ execucao, isFirst }: { execucao: ExecucaoHistoricoViewMo
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(isFirst);
 
-  const seriesValidas = execucao.series.filter((s) => s.tipo === 'valida');
-  const seriesAquec = execucao.series.filter((s) => s.tipo === 'aquecimento');
+  const seriesValidas = execucao.series;
+  const seriesAquec: typeof execucao.series = [];
 
   return (
     <View style={styles.card}>

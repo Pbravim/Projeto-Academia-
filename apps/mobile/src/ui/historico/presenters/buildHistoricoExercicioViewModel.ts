@@ -4,7 +4,6 @@ import type { ExecucaoExercicio } from '../../../domain/historico/repositories/H
 export interface SerieHistoricoViewModel {
   id: string;
   descricao: string;
-  tipo: 'aquecimento' | 'valida';
   rm1Estimado: string | null;
 }
 
@@ -47,7 +46,7 @@ export function buildHistoricoExercicioViewModel(
     .slice(0, CHART_MAX)
     .reverse()
     .map((ex) => {
-      const validas = ex.series.filter((s) => s.tipoSerie === 'valida');
+      const validas = ex.series;
       const melhor = validas.reduce((max, s) => {
         const rm1 = s.cargaKg * (1 + s.repeticoes / 30);
         return rm1 > max ? rm1 : max;
@@ -70,7 +69,7 @@ export function buildHistoricoExercicioViewModel(
 
 function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   const comValidas = execucoes.filter((ex) =>
-    ex.series.some((s) => s.tipoSerie === 'valida')
+    ex.series.length > 0
   );
 
   if (comValidas.length < SESSOES_PLATEAU) return null;
@@ -78,7 +77,7 @@ function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   const ultimas = comValidas.slice(0, SESSOES_PLATEAU);
 
   const rm1s = ultimas.map((ex) => {
-    const validas = ex.series.filter((s) => s.tipoSerie === 'valida');
+    const validas = ex.series;
     return validas.reduce((max, s) => {
       const rm1 = s.cargaKg * (1 + s.repeticoes / 30);
       return rm1 > max ? rm1 : max;
@@ -104,12 +103,11 @@ const MOTIVO_LABEL: Record<string, string> = {
 };
 
 function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoViewModel {
-  const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
-  const melhorRm1 = validas.reduce((max, s) => {
+  const melhorRm1 = execucao.series.reduce((max, s) => {
     const rm1 = s.cargaKg * (1 + s.repeticoes / 30);
     return rm1 > max ? rm1 : max;
   }, 0);
-  const volumeKg = validas.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
+  const volumeKg = execucao.series.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
 
   let substituiuLabel: string | null = null;
   if (execucao.substituiuExercicio ?? null) {
@@ -120,16 +118,12 @@ function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoV
 
   return {
     data: formatDate(execucao.dataExecucao),
-    melhorRm1: validas.length > 0 ? `${melhorRm1.toFixed(1)} kg` : '—',
-    volumeTotal: validas.length > 0 ? formatVolume(volumeKg) : '—',
+    melhorRm1: execucao.series.length > 0 ? `${melhorRm1.toFixed(1)} kg` : '—',
+    volumeTotal: execucao.series.length > 0 ? formatVolume(volumeKg) : '—',
     series: execucao.series.map((s) => ({
       id: s.id,
       descricao: `${s.cargaKg} kg × ${s.repeticoes} rep`,
-      tipo: s.tipoSerie,
-      rm1Estimado:
-        s.tipoSerie === 'valida'
-          ? `1RM ~${(s.cargaKg * (1 + s.repeticoes / 30)).toFixed(1)} kg`
-          : null,
+      rm1Estimado: `1RM ~${(s.cargaKg * (1 + s.repeticoes / 30)).toFixed(1)} kg`,
     })),
     substituiuLabel,
   };

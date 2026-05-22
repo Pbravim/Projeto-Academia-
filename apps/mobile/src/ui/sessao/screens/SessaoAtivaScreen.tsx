@@ -100,7 +100,7 @@ export function SessaoAtivaScreen({
 
   const handleConcluirExercicio = async (item: SessaoExercicioComSeries) => {
     const { sessaoExercicio, series } = item;
-    const validCount = series.filter((s) => s.tipoSerie === 'valida').length;
+    const validCount = series.length;
     const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
     const missing = Math.max(0, recomendadas - validCount);
     if (missing > 0) {
@@ -124,7 +124,7 @@ export function SessaoAtivaScreen({
     if (!allRealizado) {
       const allInputs = grupo.itens.flatMap((item) => {
         if (item.sessaoExercicio.realizado) return [];
-        const validCount = item.series.filter((s) => s.tipoSerie === 'valida').length;
+        const validCount = item.series.length;
         const recomendadas = item.sessaoExercicio.seriesRecomendadas ?? 0;
         const missing = Math.max(0, recomendadas - validCount);
         return Array.from({ length: missing }, () => ({
@@ -281,7 +281,7 @@ export function SessaoAtivaScreen({
         const allRealizado = grupo.itens.every((i) => i.sessaoExercicio.realizado);
         const recSeries = grupo.itens[0]?.sessaoExercicio.seriesRecomendadas ?? null;
         const minValidSeries = recSeries != null
-          ? Math.min(...grupo.itens.map((i) => i.series.filter((s) => s.tipoSerie === 'valida').length))
+          ? Math.min(...grupo.itens.map((i) => i.series.length))
           : null;
         const grupoAllDone = recSeries != null && minValidSeries != null && minValidSeries >= recSeries;
 

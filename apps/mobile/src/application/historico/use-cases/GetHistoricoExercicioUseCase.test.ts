@@ -21,14 +21,12 @@ describe('GetHistoricoExercicioUseCase', () => {
     historicoRepository.seed('ex_1', {
       sessaoTreinoId: 'sessao_1',
       dataExecucao: '2026-04-01T10:00:00.000Z',
-      nomeSnapshot: 'Supino reto',
-      series: [{ id: 's1', tipoSerie: 'valida', cargaKg: 80, repeticoes: 8, observacao: null, ordem: 1 }],
+      nomeSnapshot: 'Supino reto', series: [],
     });
     historicoRepository.seed('ex_1', {
       sessaoTreinoId: 'sessao_2',
       dataExecucao: '2026-04-08T10:00:00.000Z',
-      nomeSnapshot: 'Supino reto',
-      series: [{ id: 's2', tipoSerie: 'valida', cargaKg: 85, repeticoes: 6, observacao: null, ordem: 1 }],
+      nomeSnapshot: 'Supino reto', series: [],
     });
 
     const result = await useCase.execute('ex_1');
@@ -44,9 +42,9 @@ describe('GetHistoricoExercicioUseCase', () => {
       dataExecucao: '2026-04-01T10:00:00.000Z',
       nomeSnapshot: 'Supino reto',
       series: [
-        { id: 's1', tipoSerie: 'aquecimento', cargaKg: 40, repeticoes: 15, observacao: null, ordem: 1 },
-        { id: 's2', tipoSerie: 'valida', cargaKg: 80, repeticoes: 8, observacao: null, ordem: 2 },
-        { id: 's3', tipoSerie: 'valida', cargaKg: 85, repeticoes: 6, observacao: 'pesado', ordem: 3 },
+        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1 },
+        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 2 },
+        { id: 's3', cargaKg: 90, repeticoes: 6, observacao: 'pesado', ordem: 3 },
       ],
     });
 
@@ -60,8 +58,7 @@ describe('GetHistoricoExercicioUseCase', () => {
     historicoRepository.seed('ex_2', {
       sessaoTreinoId: 'sessao_1',
       dataExecucao: '2026-04-01T10:00:00.000Z',
-      nomeSnapshot: 'Agachamento',
-      series: [{ id: 's1', tipoSerie: 'valida', cargaKg: 100, repeticoes: 5, observacao: null, ordem: 1 }],
+      nomeSnapshot: 'Agachamento', series: [],
     });
 
     const result = await useCase.execute('ex_1');

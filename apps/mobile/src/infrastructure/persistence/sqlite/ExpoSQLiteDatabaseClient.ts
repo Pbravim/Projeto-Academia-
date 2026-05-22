@@ -477,7 +477,7 @@ const migrations: string[] = [
      ('seg', NULL), ('ter', NULL), ('qua', NULL), ('qui', NULL),
      ('sex', NULL), ('sab', NULL), ('dom', NULL);`,
 
-  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
+  // v17: remove tipo_serie column — warm-up sets concept removed from product
   `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
 ];
 

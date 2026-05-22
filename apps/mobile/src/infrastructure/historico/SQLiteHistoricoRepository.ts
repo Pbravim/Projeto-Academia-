@@ -20,7 +20,6 @@ interface HistoricoRow {
   nome_original_snapshot: string | null;
   substituicao_motivo: string | null;
   serie_id: string | null;
-  tipo_serie: string | null;
   carga_kg: number | null;
   repeticoes: number | null;
   observacao: string | null;
@@ -42,7 +41,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
        ) latest
        JOIN sessao_exercicios se ON se.exercicio_id = latest.exercicio_id
        JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.data_hora_fim = latest.max_fim
-       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.tipo_serie = 'valida'
+       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
        ORDER BY se.exercicio_id, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC`
     );
 
@@ -65,7 +64,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
        FROM series_registradas sr
        INNER JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
-       WHERE se.exercicio_id = ? AND sr.tipo_serie = 'valida' AND st.status = 'finalizada'
+       WHERE se.exercicio_id = ? AND st.status = 'finalizada'
        ORDER BY st.data_hora_fim DESC, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC
        LIMIT 1`,
       [exercicioId]
@@ -78,7 +77,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
     const rows = await this.database.getAll<HistoricoRow>(
       `SELECT se.exercicio_id, se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
               se.nome_original_snapshot, se.substituicao_motivo,
-              sr.id as serie_id, sr.tipo_serie, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
+              sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
        FROM sessao_exercicios se
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
        INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
@@ -96,7 +95,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
     const rows = await this.database.getAll<HistoricoRow>(
       `SELECT se.exercicio_id, se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
               se.nome_original_snapshot, se.substituicao_motivo,
-              sr.id as serie_id, sr.tipo_serie, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
+              sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
        FROM sessao_exercicios se
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
        INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
@@ -138,10 +137,9 @@ function groupBySession(rows: HistoricoRow[]): ExecucaoExercicio[] {
       sessaoOrder.push(row.sessao_treino_id);
     }
 
-    if (row.serie_id !== null && row.tipo_serie !== null && row.carga_kg !== null && row.repeticoes !== null) {
+    if (row.serie_id !== null && row.carga_kg !== null && row.repeticoes !== null) {
       const serie: ExecucaoExercicioSerie = {
         id: row.serie_id,
-        tipoSerie: row.tipo_serie as 'aquecimento' | 'valida',
         cargaKg: row.carga_kg,
         repeticoes: row.repeticoes,
         observacao: row.observacao,
