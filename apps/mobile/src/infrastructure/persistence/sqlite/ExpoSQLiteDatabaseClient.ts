@@ -66,7 +66,18 @@ const migrations: string[] = [
     peso_kg REAL NOT NULL,
     data_registro TEXT NOT NULL,
     observacao TEXT
-  );`,
+  );
+  CREATE INDEX IF NOT EXISTS idx_sessao_treinos_treino_id
+    ON sessao_treinos (treino_id);
+  CREATE INDEX IF NOT EXISTS idx_sessao_exercicios_sessao_treino_id
+    ON sessao_exercicios (sessao_treino_id);
+  CREATE INDEX IF NOT EXISTS idx_sessao_exercicios_exercicio_id
+    ON sessao_exercicios (exercicio_id);
+  CREATE INDEX IF NOT EXISTS idx_series_sessao_exercicio
+    ON series_registradas (sessao_exercicio_id);
+  CREATE INDEX IF NOT EXISTS idx_peso_data
+    ON registros_peso (data_registro);
+  `,
 
   // v2: colunas de recomendacao em treino_exercicios
   `ALTER TABLE treino_exercicios ADD COLUMN series_recomendadas INTEGER;
@@ -169,7 +180,8 @@ const migrations: string[] = [
    UPDATE exercises SET musculo_alvo = 'quadriceps'              WHERE id IN ('seed-ex-034','seed-ex-035','seed-ex-036');
    UPDATE exercises SET musculo_alvo = 'isquiotibiais'           WHERE id IN ('seed-ex-038','seed-ex-039');
    UPDATE exercises SET musculo_alvo = 'gluteos'                 WHERE id = 'seed-ex-040';
-   UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043');`,
+   UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043');
+   CREATE INDEX IF NOT EXISTS idx_exercises_musculo_alvo ON exercises (musculo_alvo);`,
 
   // v10: re-seed any exercises deleted before cascade-delete was introduced (pre-commit 3aaa4f2).
   // INSERT OR IGNORE is a no-op when the row already exists, so this is safe to run unconditionally.
@@ -234,7 +246,8 @@ const migrations: string[] = [
   UPDATE exercises SET musculo_alvo = 'panturrilha'             WHERE id IN ('seed-ex-042','seed-ex-043') AND musculo_alvo IS NULL`,
 
   // v11: sessões podem ser arquivadas (soft-delete) — ocultas da evolução mas não apagadas
-  `ALTER TABLE sessao_treinos ADD COLUMN arquivado INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE sessao_treinos ADD COLUMN arquivado INTEGER NOT NULL DEFAULT 0;
+   CREATE INDEX IF NOT EXISTS idx_sessao_treinos_status_data ON sessao_treinos (status, arquivado, data_hora_inicio);`,
 
   // v12: método de execução e agrupamento por grupo (bi-set, circuito, drop-set)
   `ALTER TABLE treino_exercicios ADD COLUMN metodo TEXT NOT NULL DEFAULT 'normal';
