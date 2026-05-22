@@ -81,6 +81,7 @@
     "code-review-graph"
   ],
   "enabledPlugins": {
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "token-optimizer@alexgreensh-token-optimizer": true
   }
 }
