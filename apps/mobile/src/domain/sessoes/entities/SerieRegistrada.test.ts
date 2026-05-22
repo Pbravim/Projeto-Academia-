@@ -17,7 +17,6 @@ describe('SerieRegistrada', () => {
     expect(serie.toPrimitives()).toMatchObject({
       cargaKg: 102.5,
       repeticoes: 8,
-      tipoSerie: 'valida',
       observacao: null,
     });
   });

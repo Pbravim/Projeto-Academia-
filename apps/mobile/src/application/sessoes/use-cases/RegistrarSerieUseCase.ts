@@ -13,7 +13,6 @@ export interface RegistrarSerieInput {
   cargaKg: number;
   repeticoes: number;
   observacao?: string;
-  tipoSerie?: 'aquecimento' | 'valida';
 }
 
 interface RegistrarSerieUseCaseDependencies {
@@ -25,7 +24,7 @@ interface RegistrarSerieUseCaseDependencies {
   database?: SQLiteDatabaseClient;
 }
 
-/** Registra uma serie (aquecimento ou valida) em um exercicio da sessao ativa. */
+/** Registra uma serie em um exercicio da sessao ativa. */
 export class RegistrarSerieUseCase {
   constructor(private readonly dependencies: RegistrarSerieUseCaseDependencies) {}
 
@@ -55,13 +54,13 @@ export class RegistrarSerieUseCase {
       serie = SerieRegistrada.create({
         id: this.dependencies.idGenerator(),
         sessaoExercicioId: input.sessaoExercicioId,
-        tipoSerie: input.tipoSerie ?? 'valida',
         ordem: count + 1,
         cargaKg: input.cargaKg,
         repeticoes: input.repeticoes,
         observacao: input.observacao,
       });
       await this.dependencies.serieRegistradaRepository.save(serie);
+      await this.atualizarCargaSeNecessario(input, sessaoExercicio.toPrimitives(), sessao.toPrimitives().treinoId);
     };
 
     if (this.dependencies.database) {
@@ -69,8 +68,6 @@ export class RegistrarSerieUseCase {
     } else {
       await saveNew();
     }
-
-    await this.atualizarCargaSeNecessario(input, sessaoExercicio.toPrimitives(), sessao.toPrimitives().treinoId);
 
     return serie.toPrimitives();
   }

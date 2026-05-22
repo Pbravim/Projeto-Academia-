@@ -9,7 +9,13 @@ describe('DeleteSerieUseCase', () => {
   it('deletes an existing serie', async () => {
     const repo = new InMemorySerieRegistradaRepository();
     await repo.save(
-      SerieRegistrada.create({ id: 'serie_1', sessaoExercicioId: 'se_1', tipoSerie: 'valida', ordem: 1, cargaKg: 100, repeticoes: 8 })
+      SerieRegistrada.create({
+        id: 'serie_1',
+        sessaoExercicioId: 'se_1',
+        ordem: 1,
+        cargaKg: 50,
+        repeticoes: 10,
+      })
     );
 
     const useCase = new DeleteSerieUseCase({ serieRegistradaRepository: repo });

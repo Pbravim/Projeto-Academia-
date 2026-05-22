@@ -329,8 +329,8 @@ export function ExercicioDetalheScreen({
       ) : null}
 
       {/* Stats — shown when exercise is done and has series */}
-      {sessaoExercicio.realizado && series.filter(s => s.tipoSerie === 'valida').length > 0 ? (() => {
-        const validSeries = series.filter(s => s.tipoSerie === 'valida');
+      {sessaoExercicio.realizado && series.length > 0 ? (() => {
+        const validSeries = series;
         const totalVolume = validSeries.reduce((sum, s) => sum + s.cargaKg * s.repeticoes, 0);
         const maxCarga = Math.max(...validSeries.map(s => s.cargaKg));
         const totalReps = validSeries.reduce((sum, s) => sum + s.repeticoes, 0);
@@ -465,7 +465,7 @@ export function ExercicioDetalheScreen({
           {/* Series progress */}
           {sessaoExercicio.seriesRecomendadas != null ? (() => {
             const total = sessaoExercicio.seriesRecomendadas!;
-            const validCount = series.filter((s) => s.tipoSerie === 'valida').length;
+            const validCount = series.length;
             const allDone = validCount >= total;
             const dotCount = Math.min(total, 12);
             const overflow = total > 12 ? total - 12 : 0;
@@ -706,7 +706,7 @@ export function ExercicioDetalheScreen({
                     text: 'Concluir',
                     onPress: () => {
                       void (async () => {
-                        const validCount = series.filter((s) => s.tipoSerie === 'valida').length;
+                        const validCount = series.length;
                         const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
                         const missing = Math.max(0, recomendadas - validCount);
 
@@ -822,9 +822,6 @@ export function ExercicioDetalheScreen({
               }
               return (
                 <View key={serie.id} style={styles.serieRow}>
-                  <View style={[styles.tipoBadge, serie.tipoSerie === 'aquecimento' ? styles.tipoBadgeAquec : styles.tipoBadgeValida]}>
-                    <Text style={styles.tipoBadgeText}>{serie.tipoSerie === 'aquecimento' ? 'Aquec.' : 'Valida'}</Text>
-                  </View>
                   <Pressable
                     style={{ flex: 1 }}
                     onLongPress={() => {

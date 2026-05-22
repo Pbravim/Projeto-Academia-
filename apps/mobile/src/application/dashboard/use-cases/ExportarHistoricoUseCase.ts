@@ -17,7 +17,6 @@ export class ExportarHistoricoUseCase {
       treino_nome: string;
       exercicio_nome: string;
       serie_ordem: number;
-      tipo_serie: string;
       carga_kg: number;
       repeticoes: number;
       observacao: string | null;
@@ -27,7 +26,6 @@ export class ExportarHistoricoUseCase {
          st.treino_nome_snapshot  AS treino_nome,
          se.nome_snapshot         AS exercicio_nome,
          sr.ordem                 AS serie_ordem,
-         sr.tipo_serie,
          sr.carga_kg,
          sr.repeticoes,
          sr.observacao
@@ -42,7 +40,7 @@ export class ExportarHistoricoUseCase {
 
     function esc(v: string) { return `"${v.replace(/"/g, '""')}"`; }
 
-    const lines: string[] = ['Data,Treino,Exercicio,Serie,Tipo,Carga (kg),Repeticoes,Observacao'];
+    const lines: string[] = ['Data,Treino,Exercicio,Serie,Carga (kg),Repeticoes,Observacao'];
     for (const r of rows) {
       const data = new Date(r.data_hora_inicio).toLocaleDateString('pt-BR');
       lines.push([
@@ -50,7 +48,6 @@ export class ExportarHistoricoUseCase {
         esc(r.treino_nome),
         esc(r.exercicio_nome),
         r.serie_ordem,
-        r.tipo_serie,
         r.carga_kg,
         r.repeticoes,
         r.observacao ? esc(r.observacao) : '',
@@ -59,15 +56,18 @@ export class ExportarHistoricoUseCase {
 
     const csv = lines.join('\n');
     const file = new File(Paths.document, 'historico_treinos.csv');
-    file.write(csv);
-
     const canShare = await Sharing.isAvailableAsync();
     if (!canShare) throw new Error('Compartilhamento nao disponivel neste dispositivo.');
 
-    await Sharing.shareAsync(file.uri, {
-      mimeType: 'text/csv',
-      dialogTitle: 'Exportar historico de treinos',
-      UTI: 'public.comma-separated-values-text',
-    });
+    try {
+      file.write(csv);
+      await Sharing.shareAsync(file.uri, {
+        mimeType: 'text/csv',
+        dialogTitle: 'Exportar historico de treinos',
+        UTI: 'public.comma-separated-values-text',
+      });
+    } finally {
+      try { file.delete(); } catch { /* ignore cleanup errors */ }
+    }
   }
 }

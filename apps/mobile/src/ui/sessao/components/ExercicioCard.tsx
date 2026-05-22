@@ -31,7 +31,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const finalizado = sessaoExercicio.realizado;
-  const validCount = series.filter((s) => s.tipoSerie === 'valida').length;
+  const validCount = series.length;
   const total = sessaoExercicio.seriesRecomendadas;
   const metodoConfig = sessaoExercicio.metodo !== 'normal' ? METODO_CONFIG[sessaoExercicio.metodo] : null;
 

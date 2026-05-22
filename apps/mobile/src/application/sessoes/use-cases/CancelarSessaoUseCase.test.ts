@@ -78,7 +78,6 @@ describe('CancelarSessaoUseCase', () => {
     const serie = SerieRegistrada.create({
       id: 'sr_1',
       sessaoExercicioId: 'se_1',
-      tipoSerie: 'valida',
       cargaKg: 80,
       repeticoes: 10,
       ordem: 1,
@@ -128,7 +127,6 @@ describe('CancelarSessaoUseCase', () => {
       const serie = SerieRegistrada.create({
         id: `sr_${i}`,
         sessaoExercicioId: `se_${i}`,
-        tipoSerie: 'valida',
         cargaKg: 60 + i * 5,
         repeticoes: 10,
         ordem: 1,

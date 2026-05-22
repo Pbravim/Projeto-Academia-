@@ -61,14 +61,14 @@ export class SqliteDashboardRepository implements DashboardRepository {
            st.data_hora_inicio,
            st.data_hora_fim,
            st.arquivado,
-           COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes ELSE 0 END), 0) AS volume_total,
-           COALESCE(MAX(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * (1.0 + sr.repeticoes / 30.0) ELSE 0 END), 0) AS melhor_orm
+           COALESCE(SUM(sr.carga_kg * sr.repeticoes), 0) AS volume_total,
+           COALESCE(MAX(sr.carga_kg * (1.0 + sr.repeticoes / 30.0)), 0) AS melhor_orm
          FROM sessao_treinos st
          LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
          LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
          WHERE st.status = 'finalizada'
          GROUP BY st.id
-         HAVING COUNT(CASE WHEN sr.tipo_serie = 'valida' THEN 1 END) > 0
+         HAVING COUNT(sr.id) > 0
          ORDER BY st.data_hora_inicio DESC
          LIMIT 200`
       ),
@@ -79,7 +79,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
          JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id
          JOIN sessao_treinos st ON se.sessao_treino_id = st.id
          JOIN exercises e ON se.exercicio_id = e.id
-         WHERE sr.tipo_serie = 'valida' AND st.arquivado = 0
+         WHERE st.arquivado = 0
          GROUP BY se.exercicio_id
          ORDER BY melhor_orm DESC
          LIMIT 10`
@@ -207,7 +207,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
        FROM sessao_treinos st
        JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
        JOIN series_registradas sr
-         ON sr.sessao_exercicio_id = se.id AND sr.tipo_serie = 'valida'
+         ON sr.sessao_exercicio_id = se.id
        WHERE st.treino_id = ? AND st.status = 'finalizada' AND st.arquivado = 0
        ORDER BY se.nome_snapshot ASC, st.data_hora_inicio DESC, sr.ordem ASC`,
       [treinoId]
@@ -256,12 +256,12 @@ export class SqliteDashboardRepository implements DashboardRepository {
     });
   }
 
-  async arquivarSessao(sessaoId: string): Promise<void> {
-    await this.database.run('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
+  async arquivarSessao(sessaoId: string): Promise<number> {
+    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
   }
 
-  async desarquivarSessao(sessaoId: string): Promise<void> {
-    await this.database.run('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
+  async desarquivarSessao(sessaoId: string): Promise<number> {
+    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
   }
 
   async deletarSessao(sessaoId: string): Promise<void> {

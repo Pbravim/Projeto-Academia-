@@ -67,8 +67,8 @@ export interface TreinoComUltimaSessao {
 export interface DashboardRepository {
   getStats(): Promise<DashboardStats>;
   getEvolucaoExercicios(treinoId: string): Promise<ExercicioEvolucao[]>;
-  arquivarSessao(sessaoId: string): Promise<void>;
-  desarquivarSessao(sessaoId: string): Promise<void>;
+  arquivarSessao(sessaoId: string): Promise<number>;
+  desarquivarSessao(sessaoId: string): Promise<number>;
   deletarSessao(sessaoId: string): Promise<void>;
   findSugestaoRotacao(): Promise<TreinoComUltimaSessao | null>;
   findTreinoComUltimaSessao(treinoId: string): Promise<TreinoComUltimaSessao | null>;

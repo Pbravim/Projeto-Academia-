@@ -31,7 +31,7 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumo
   let volumeTotalKg = 0;
 
   const exerciciosVM: ExercicioResumoItem[] = exercicios.map(({ sessaoExercicio, series }) => {
-    const validas = series.filter((s) => s.tipoSerie === 'valida');
+    const validas = series;
     const volume = validas.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
 
     totalSeriesValidas += validas.length;
@@ -57,7 +57,7 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumo
     duracao,
     totalExercicios: exercicios.length,
     exerciciosRealizados: exercicios.filter(({ series }) =>
-      series.some((s) => s.tipoSerie === 'valida')
+      series.some((s) => true)
     ).length,
     totalSeriesValidas,
     volumeTotal: formatVolume(volumeTotalKg),

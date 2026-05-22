@@ -68,6 +68,10 @@ class FakeSQLiteDatabaseClient implements SQLiteDatabaseClient {
     return Array.from(this.rows.values()) as T[];
   }
 
+  async runWithChanges(): Promise<number> {
+    return 0;
+  }
+
   async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
     return fn();
   }

@@ -204,7 +204,7 @@ export function BiSetDetalheScreen({
   };
 
   const validSeriesPerExercicio = grupoItens.map((item) =>
-    item.series.filter((s) => s.tipoSerie === 'valida')
+    item.series
   );
   const seriesCount = Math.max(...validSeriesPerExercicio.map((s) => s.length), 0);
   const recSeriesCount = grupoItens[0]?.sessaoExercicio.seriesRecomendadas ?? 0;
@@ -245,7 +245,7 @@ export function BiSetDetalheScreen({
             void (async () => {
               const allInputs = grupoItens.flatMap((item, i) => {
                 if (item.sessaoExercicio.realizado) return [];
-                const validCount = item.series.filter((s) => s.tipoSerie === 'valida').length;
+                const validCount = item.series.length;
                 const recomendadas = item.sessaoExercicio.seriesRecomendadas ?? 0;
                 const missing = Math.max(0, recomendadas - validCount);
                 const cargaNum = cargaModes[i] === 'carousel'

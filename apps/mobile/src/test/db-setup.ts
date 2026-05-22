@@ -106,6 +106,12 @@ class BetterSQLiteAdapter implements SQLiteDatabaseClient {
     }
   }
 
+  async runWithChanges(statement: string, params?: SQLiteBindParams): Promise<number> {
+    const stmt = this.db.prepare(statement);
+    const result = params ? stmt.run(...params) : stmt.run();
+    return result.changes;
+  }
+
   async getFirst<T>(statement: string, params?: SQLiteBindParams): Promise<T | null> {
     const stmt = this.db.prepare(statement);
     const result = params ? stmt.get(...params) : stmt.get();

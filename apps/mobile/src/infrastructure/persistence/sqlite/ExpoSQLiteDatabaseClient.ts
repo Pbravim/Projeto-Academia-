@@ -476,6 +476,8 @@ const migrations: string[] = [
    INSERT OR IGNORE INTO plano_semanal (dia_semana, treino_id) VALUES
      ('seg', NULL), ('ter', NULL), ('qua', NULL), ('qui', NULL),
      ('sex', NULL), ('sab', NULL), ('dom', NULL);`,
+  // v17: remove tipo_serie column — warm-up sets concept removed from product
+  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
@@ -518,6 +520,12 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   async run(statement: string, params: SQLiteBindParams = []): Promise<void> {
     const database = await this.getReadyDatabase();
     await database.runAsync(statement, params);
+  }
+
+  async runWithChanges(statement: string, params: SQLiteBindParams = []): Promise<number> {
+    const database = await this.getReadyDatabase();
+    const result = await database.runAsync(statement, params);
+    return result.changes;
   }
 
   async getFirst<T>(statement: string, params: SQLiteBindParams = []): Promise<T | null> {

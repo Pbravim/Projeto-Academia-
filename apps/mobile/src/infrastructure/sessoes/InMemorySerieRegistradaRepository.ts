@@ -56,7 +56,6 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
     const updated = SerieRegistrada.create({
       id: p.id,
       sessaoExercicioId: p.sessaoExercicioId,
-      tipoSerie: p.tipoSerie,
       ordem: p.ordem,
       cargaKg: patch.cargaKg,
       repeticoes: patch.repeticoes,

@@ -5,6 +5,7 @@ import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/Sessao
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
+import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 
 export interface SubstituirExercicioInput {
   sessaoExercicioId: string;
@@ -30,6 +31,14 @@ export class SubstituirExercicioSessaoUseCase {
 
     const novoExercicio = await this.deps.exerciseRepository.findById(input.novoExercicioId);
     if (!novoExercicio) throw new ExerciseNotFoundError(input.novoExercicioId);
+
+    // Duplicate guard: new exercise must not already be in the session
+    const sessaoId = sessaoExercicio.toPrimitives().sessaoTreinoId;
+    const existentes = await this.deps.sessaoExercicioRepository.listBySessaoId(sessaoId);
+    const jaPresente = existentes.some(
+      (se) => se.toPrimitives().exercicioId === input.novoExercicioId
+    );
+    if (jaPresente) throw new SessaoValidationError('Este exercício já está presente na sessão.');
 
     const ex = novoExercicio.toPrimitives();
     const substituido = sessaoExercicio.withSubstituicao(
