@@ -590,10 +590,7 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   }
 
   private async runMigrationStep(database: SQLite.SQLiteDatabase, migration: string): Promise<void> {
-    const statements = migration
-      .split(';')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
+    const statements = this.splitSqlStatements(migration);
 
     for (const stmt of statements) {
       try {
@@ -607,6 +604,87 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
         }
       }
     }
+  }
+
+  /**
+   * Split SQL statements respecting quoted strings and other delimiters.
+   * This is more robust than simply splitting on ';' since semicolons can appear in string literals.
+   *
+   * @param sql SQL string potentially containing multiple statements
+   * @returns Array of individual SQL statements
+   */
+  private splitSqlStatements(sql: string): string[] {
+    const statements: string[] = [];
+    let current = '';
+    let inString = false;
+    let stringChar = '';
+    let inLineComment = false;
+    let inBlockComment = false;
+
+    for (let i = 0; i < sql.length; i++) {
+      const char = sql[i];
+      const nextChar = sql[i + 1];
+      const prevChar = i > 0 ? sql[i - 1] : '';
+
+      // Handle line comments
+      if (!inString && !inBlockComment && char === '-' && nextChar === '-') {
+        inLineComment = true;
+        current += char;
+        continue;
+      }
+
+      // Handle block comments
+      if (!inString && !inLineComment && char === '/' && nextChar === '*') {
+        inBlockComment = true;
+        current += char;
+        continue;
+      }
+
+      if (inBlockComment && char === '*' && nextChar === '/') {
+        inBlockComment = false;
+        current += char + nextChar;
+        i++;
+        continue;
+      }
+
+      // Handle newline (ends line comment)
+      if (inLineComment && (char === '
+' || char === '')) {
+        inLineComment = false;
+        current += char;
+        continue;
+      }
+
+      // Handle string literals
+      if ((char === '"' || char === "'" || char === '`') && !inLineComment && !inBlockComment) {
+        if (!inString) {
+          inString = true;
+          stringChar = char;
+        } else if (char === stringChar && prevChar !== '\\') {
+          inString = false;
+          stringChar = '';
+        }
+      }
+
+      current += char;
+
+      // Split on semicolon if not in string/comment
+      if (char === ';' && !inString && !inLineComment && !inBlockComment) {
+        const trimmed = current.trim().slice(0, -1).trim(); // Remove trailing ;
+        if (trimmed.length > 0) {
+          statements.push(trimmed);
+        }
+        current = '';
+      }
+    }
+
+    // Add remaining statement if any
+    const trimmed = current.trim();
+    if (trimmed.length > 0) {
+      statements.push(trimmed);
+    }
+
+    return statements;
   }
 
   private async ensureColumns(database: SQLite.SQLiteDatabase): Promise<void> {

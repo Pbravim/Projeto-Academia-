@@ -2,6 +2,7 @@ import type { ExerciseRepository } from '../../../domain/exercises/repositories/
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
 
 export interface MediaFileCleanup {
@@ -14,6 +15,7 @@ interface DeleteExerciseUseCaseDependencies {
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
   mediaFileCleanup?: MediaFileCleanup;
+  database?: SQLiteDatabaseClient;
 }
 
 /**
@@ -31,10 +33,18 @@ export class DeleteExerciseUseCase {
     const exercise = await this.dependencies.exerciseRepository.findById(id);
     if (!exercise) throw new ExerciseNotFoundError(id);
 
-    await this.dependencies.treinoExercicioRepository.deleteByExercicioId(id);
-    await this.dependencies.serieRegistradaRepository.deleteByExercicioId(id);
-    await this.dependencies.sessaoExercicioRepository.deleteByExercicioId(id);
-    await this.dependencies.exerciseRepository.delete(id);
+    const deleteOperation = async () => {
+      await this.dependencies.treinoExercicioRepository.deleteByExercicioId(id);
+      await this.dependencies.serieRegistradaRepository.deleteByExercicioId(id);
+      await this.dependencies.sessaoExercicioRepository.deleteByExercicioId(id);
+      await this.dependencies.exerciseRepository.delete(id);
+    };
+
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(deleteOperation);
+    } else {
+      await deleteOperation();
+    }
 
     const { mediaLocal } = exercise.toPrimitives();
     if (mediaLocal && mediaLocal.startsWith('file://') && this.dependencies.mediaFileCleanup) {

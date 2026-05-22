@@ -23,8 +23,8 @@ export class SQLitePlanoSemanalRepository implements PlanoSemanalRepository {
 
   async setDia(dia: DiaSemana, treinoId: string | null): Promise<void> {
     await this.db.run(
-      'UPDATE plano_semanal SET treino_id = ? WHERE dia_semana = ?',
-      [treinoId, dia]
+      'INSERT OR REPLACE INTO plano_semanal (dia_semana, treino_id) VALUES (?, ?)',
+      [dia, treinoId]
     );
   }
 }

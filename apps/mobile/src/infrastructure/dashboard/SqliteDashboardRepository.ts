@@ -265,20 +265,22 @@ export class SqliteDashboardRepository implements DashboardRepository {
   }
 
   async deletarSessao(sessaoId: string): Promise<void> {
-    const exercicioIds = await this.database.getAll<{ id: string }>(
-      'SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?',
-      [sessaoId]
-    );
-    if (exercicioIds.length > 0) {
-      const placeholders = exercicioIds.map(() => '?').join(',');
-      const ids = exercicioIds.map((r) => r.id);
-      await this.database.run(
-        `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
-        ids
+    await this.database.withTransaction(async () => {
+      const exercicioIds = await this.database.getAll<{ id: string }>(
+        'SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?',
+        [sessaoId]
       );
-    }
-    await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
-    await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [sessaoId]);
+      if (exercicioIds.length > 0) {
+        const placeholders = exercicioIds.map(() => '?').join(',');
+        const ids = exercicioIds.map((r) => r.id);
+        await this.database.run(
+          `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
+          ids
+        );
+      }
+      await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
+      await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [sessaoId]);
+    });
   }
 
   async findSugestaoRotacao(): Promise<TreinoComUltimaSessao | null> {

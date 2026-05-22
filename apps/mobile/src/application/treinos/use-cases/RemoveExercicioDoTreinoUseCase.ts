@@ -1,8 +1,10 @@
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
 
 interface RemoveExercicioDoTreinoUseCaseDependencies {
   treinoExercicioRepository: TreinoExercicioRepository;
+  database?: SQLiteDatabaseClient;
 }
 
 /** Remove um exercicio de um treino template pelo ID do vinculo (TreinoExercicio), nao pelo ID do exercicio. */
@@ -17,15 +19,23 @@ export class RemoveExercicioDoTreinoUseCase {
     const item = await this.dependencies.treinoExercicioRepository.findById(treinoExercicioId);
     if (!item) throw new TreinoExercicioNotFoundError(treinoExercicioId);
 
-    const { treinoId } = item.toPrimitives();
-    await this.dependencies.treinoExercicioRepository.delete(treinoExercicioId);
+    const removeOperation = async () => {
+      const { treinoId } = item.toPrimitives();
+      await this.dependencies.treinoExercicioRepository.delete(treinoExercicioId);
 
-    // Re-index remaining exercises to close the gap left by the removed one
-    const remaining = await this.dependencies.treinoExercicioRepository.listByTreinoId(treinoId);
-    await Promise.all(
-      remaining.map((te, index) =>
-        this.dependencies.treinoExercicioRepository.updateOrdem(te.toPrimitives().id, index + 1)
-      )
-    );
+      // Re-index remaining exercises to close the gap left by the removed one
+      const remaining = await this.dependencies.treinoExercicioRepository.listByTreinoId(treinoId);
+      await Promise.all(
+        remaining.map((te, index) =>
+          this.dependencies.treinoExercicioRepository.updateOrdem(te.toPrimitives().id, index + 1)
+        )
+      );
+    };
+
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(removeOperation);
+    } else {
+      await removeOperation();
+    }
   }
 }
