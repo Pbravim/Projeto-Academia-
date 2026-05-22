@@ -1,13 +1,11 @@
 {
   "mcpServers": {
     "code-review-graph": {
-      "command": "/Users/bravim/.pyenv/versions/3.14.0/bin/python3.14",
+      "command": "C:\\Users\\Usuario\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\code-review-graph.exe",
       "args": [
-        "-m",
-        "code_review_graph",
         "serve"
       ],
-      "cwd": "/Users/bravim/Documents/GitHub/projeto-academia",
+      "cwd": "C:\\Users\\Usuario\\Documents\\Github\\projeto-academia-",
       "type": "stdio"
     }
   }
