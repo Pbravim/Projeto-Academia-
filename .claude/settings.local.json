@@ -56,7 +56,7 @@
       "Bash(grep -r \"useEffect.*\\\\[\\\\]$\" /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/ui --include=\"*.tsx\" -n)",
       "Bash(npx jest *)",
       "Bash(npx vitest *)",
-      "mcp__plugin_context7_context7__query-docs",
+
       "Bash(yarn install *)",
       "Bash(yarn test *)",
       "Bash(yarn typecheck *)",
@@ -67,7 +67,14 @@
       "Bash(sed -n '4,20p' /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/domain/exercises/entities/Exercise.ts)",
       "Bash(awk '{print $2}')",
       "Bash(sed -n '1,25p' apps/mobile/src/application/exercises/use-cases/UpdateExerciseUseCase.ts)",
-      "Bash(sed -n '75,100p' apps/mobile/src/domain/exercises/entities/Exercise.ts)"
+      "Bash(sed -n '75,100p' apps/mobile/src/domain/exercises/entities/Exercise.ts)",
+      "Skill(update-config)",
+      "PowerShell(pip show *)",
+      "PowerShell(& \"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" -m pip show code_review_graph 2>$null; & \"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\Scripts\\\\pip.exe\" show code-review-graph 2>$null)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:pypi.org)",
+      "PowerShell(where.exe code-review-graph 2>$null; & \"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\Scripts\\\\code-review-graph.exe\" --version 2>$null)",
+      "mcp__code-review-graph__build_or_update_graph_tool"
     ]
   },
   "enabledMcpjsonServers": [
