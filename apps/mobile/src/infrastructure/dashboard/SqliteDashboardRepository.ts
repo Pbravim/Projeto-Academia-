@@ -256,12 +256,12 @@ export class SqliteDashboardRepository implements DashboardRepository {
     });
   }
 
-  async arquivarSessao(sessaoId: string): Promise<void> {
-    await this.database.run('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
+  async arquivarSessao(sessaoId: string): Promise<number> {
+    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
   }
 
-  async desarquivarSessao(sessaoId: string): Promise<void> {
-    await this.database.run('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
+  async desarquivarSessao(sessaoId: string): Promise<number> {
+    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
   }
 
   async deletarSessao(sessaoId: string): Promise<void> {

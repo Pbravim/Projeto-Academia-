@@ -1,11 +1,10 @@
-import { SerieRegistrada, type SerieRegistradaPrimitives, type TipoSerie } from '../../domain/sessoes/entities/SerieRegistrada';
+import { SerieRegistrada, type SerieRegistradaPrimitives } from '../../domain/sessoes/entities/SerieRegistrada';
 import type { SerieRegistradaRepository } from '../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface SerieRegistradaRow {
   id: string;
   sessao_exercicio_id: string;
-  tipo_serie: TipoSerie;
   ordem: number;
   carga_kg: number;
   repeticoes: number;
@@ -18,9 +17,9 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   async save(serie: SerieRegistrada): Promise<void> {
     const p = serie.toPrimitives();
     await this.database.run(
-      `INSERT OR REPLACE INTO series_registradas (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [p.id, p.sessaoExercicioId, p.tipoSerie, p.ordem, p.cargaKg, p.repeticoes, p.observacao]
+      `INSERT OR REPLACE INTO series_registradas (id, sessao_exercicio_id, ordem, carga_kg, repeticoes, observacao)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [p.id, p.sessaoExercicioId, p.ordem, p.cargaKg, p.repeticoes, p.observacao]
     );
   }
 
@@ -87,7 +86,6 @@ function mapRow(row: SerieRegistradaRow): SerieRegistradaPrimitives {
   return {
     id: row.id,
     sessaoExercicioId: row.sessao_exercicio_id,
-    tipoSerie: row.tipo_serie,
     ordem: row.ordem,
     cargaKg: row.carga_kg,
     repeticoes: row.repeticoes,

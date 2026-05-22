@@ -18,6 +18,13 @@ interface Dependencies {
   exerciseRepository: ExerciseRepository;
 }
 
+export class DuplicateExercicioInSessaoError extends Error {
+  constructor(exercicioId: string) {
+    super(`Exercicio ${exercicioId} ja esta presente nesta sessao.`);
+    this.name = 'DuplicateExercicioInSessaoError';
+  }
+}
+
 export class SubstituirExercicioSessaoUseCase {
   constructor(private readonly deps: Dependencies) {}
 
@@ -31,6 +38,14 @@ export class SubstituirExercicioSessaoUseCase {
     const novoExercicio = await this.deps.exerciseRepository.findById(input.novoExercicioId);
     if (!novoExercicio) throw new ExerciseNotFoundError(input.novoExercicioId);
 
+    // Check if the new exercise is already present in the session (duplicate guard)
+    const sessaoId = sessaoExercicio.toPrimitives().sessaoTreinoId;
+    const existing = await this.deps.sessaoExercicioRepository.findBySessaoIdAndExercicioId(
+      sessaoId,
+      input.novoExercicioId
+    );
+    if (existing) throw new DuplicateExercicioInSessaoError(input.novoExercicioId);
+
     const ex = novoExercicio.toPrimitives();
     const substituido = sessaoExercicio.withSubstituicao(
       ex.id,
@@ -43,5 +58,6 @@ export class SubstituirExercicioSessaoUseCase {
     );
 
     await this.deps.sessaoExercicioRepository.save(substituido);
+    // Note: Original exercise's series are preserved in history (not deleted or transferred)
   }
 }

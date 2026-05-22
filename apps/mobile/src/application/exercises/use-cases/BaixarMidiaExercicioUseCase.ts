@@ -1,4 +1,4 @@
-import * as FileSystemLegacy from 'expo-file-system/legacy';
+import { File, Paths, Directory } from 'expo-file-system';
 
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 
@@ -30,20 +30,41 @@ export class BaixarMidiaExercicioUseCase {
     if (!mediaOnline) throw new Error('Exercicio sem URL de midia.');
     if (!isDownloadableUrl(mediaOnline)) throw new Error('Este tipo de URL nao pode ser baixado.');
 
-    const dir = FileSystemLegacy.documentDirectory + 'exercises/';
-    await FileSystemLegacy.makeDirectoryAsync(dir, { intermediates: true }).catch(() => {});
+    // Use the new expo-file-system API with Paths.document directory
+    const exercisesDir = new Directory(Paths.document, 'exercises');
+
+    // Create the exercises directory if it doesn't exist
+    try {
+      if (!exercisesDir.exists) {
+        exercisesDir.create();
+      }
+    } catch {
+      // Directory might already exist or other error, try to continue
+    }
 
     const pathWithoutQuery = mediaOnline.split('?')[0]!;
     const lastSegment = pathWithoutQuery.split('/').pop() ?? '';
     const dotIndex = lastSegment.lastIndexOf('.');
     const ext = dotIndex > 0 ? lastSegment.slice(dotIndex + 1).toLowerCase() : null;
     if (!ext || ext.length > 5) throw new Error('Não foi possível determinar a extensão do arquivo de mídia.');
-    const localUri = dir + exercicioId + '.' + ext;
 
-    const result = await FileSystemLegacy.downloadAsync(mediaOnline, localUri);
-    if (result.status !== 200) throw new Error(`Download falhou (status ${result.status}).`);
+    const localFile = new File(exercisesDir, `${exercicioId}.${ext}`);
 
-    await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, localUri);
-    return localUri;
+    // Download using the new API
+    const downloadedFile = await File.downloadFileAsync(mediaOnline, exercisesDir, {
+      idempotent: true,
+    });
+
+    // Rename if needed to match exercicioId
+    if (downloadedFile.name !== `${exercicioId}.${ext}`) {
+      // The downloaded file is already at the right location, just use its URI
+      const finalLocalUri = localFile.uri;
+      await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, finalLocalUri);
+      return finalLocalUri;
+    }
+
+    const finalLocalUri = localFile.uri;
+    await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, finalLocalUri);
+    return finalLocalUri;
   }
 }

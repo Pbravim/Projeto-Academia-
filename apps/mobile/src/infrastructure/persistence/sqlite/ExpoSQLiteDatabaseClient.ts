@@ -476,6 +476,9 @@ const migrations: string[] = [
    INSERT OR IGNORE INTO plano_semanal (dia_semana, treino_id) VALUES
      ('seg', NULL), ('ter', NULL), ('qua', NULL), ('qui', NULL),
      ('sex', NULL), ('sab', NULL), ('dom', NULL);`,
+
+  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
+  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
@@ -518,6 +521,12 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   async run(statement: string, params: SQLiteBindParams = []): Promise<void> {
     const database = await this.getReadyDatabase();
     await database.runAsync(statement, params);
+  }
+
+  async runWithChanges(statement: string, params: SQLiteBindParams = []): Promise<number> {
+    const database = await this.getReadyDatabase();
+    const result = await database.runAsync(statement, params);
+    return result.changes;
   }
 
   async getFirst<T>(statement: string, params: SQLiteBindParams = []): Promise<T | null> {
@@ -614,7 +623,10 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
    * @returns Array of individual SQL statements
    */
   private splitSqlStatements(sql: string): string[] {
-    const statements: string[] = [];
+    const statements: string[] = [
+  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
+  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
+];
     let current = '';
     let inString = false;
     let stringChar = '';
@@ -622,8 +634,14 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
     let inBlockComment = false;
 
     for (let i = 0; i < sql.length; i++) {
-      const char = sql[i];
-      const nextChar = sql[i + 1];
+      const char = sql[i
+  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
+  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
+];
+      const nextChar = sql[i + 1
+  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
+  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
+];
       const prevChar = i > 0 ? sql[i - 1] : '';
 
       // Handle line comments
@@ -649,7 +667,8 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
 
       // Handle newline (ends line comment)
       if (inLineComment && (char === '
-' || char === '')) {
+' || char === '
+')) {
         inLineComment = false;
         current += char;
         continue;
@@ -706,7 +725,10 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
       { table: 'sessao_exercicios', column: 'substituicao_motivo',          type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'musculo_alvo_snapshot',        type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'nome_original_snapshot',       type: 'TEXT'    },
-    ];
+    
+  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
+  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
+];
 
     for (const { table, column, type, defaultValue } of required) {
       const info = await database.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);

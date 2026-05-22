@@ -44,7 +44,7 @@ import { RegistrarSerieUseCase } from '../application/sessoes/use-cases/Registra
 import { SugerirProgressaoUseCase } from '../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import { SugerirSubstitutosUseCase } from '../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import { SubstituirExercicioSessaoUseCase } from '../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
-import { SugerirTreinoUseCase } from '../application/sessoes/use-cases/SugerirTreinoUseCase';
+import { SugerirTreinoUseCase } from '../application/sugestoes/use-cases/SugerirTreinoUseCase';
 import { ToggleExercicioRealizadoUseCase } from '../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
 import { GetPlanoSemanalUseCase } from '../application/plano/use-cases/GetPlanoSemanalUseCase';
 import { SetDiaPlanoUseCase } from '../application/plano/use-cases/SetDiaPlanoUseCase';
