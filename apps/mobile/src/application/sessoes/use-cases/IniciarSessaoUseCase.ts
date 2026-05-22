@@ -38,6 +38,10 @@ export class IniciarSessaoUseCase {
    * @throws {ExerciseNotFoundError} exercicio referenciado no treino nao encontrado no catalogo
    */
   async execute(treinoId: string): Promise<SessaoTreinoPrimitives> {
+    // Fail fast: check for active session first
+    const sessaoAtiva = await this.dependencies.sessaoTreinoRepository.findAtiva();
+    if (sessaoAtiva) throw new SessaoJaAtivaError();
+
     const treino = await this.dependencies.treinoRepository.findById(treinoId);
     if (!treino) throw new TreinoNotFoundError(treinoId);
 
@@ -63,9 +67,6 @@ export class IniciarSessaoUseCase {
     }
 
     const saveAll = async () => {
-      const sessaoAtiva = await this.dependencies.sessaoTreinoRepository.findAtiva();
-      if (sessaoAtiva) throw new SessaoJaAtivaError();
-
       await this.dependencies.sessaoTreinoRepository.save(sessao);
 
       for (const { p, ex } of exerciseSnapshots) {

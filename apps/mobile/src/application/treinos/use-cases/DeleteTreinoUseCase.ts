@@ -1,12 +1,14 @@
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
 interface DeleteTreinoUseCaseDependencies {
   treinoRepository: TreinoRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
   sessaoTreinoRepository: SessaoTreinoRepository;
+  database?: SQLiteDatabaseClient;
 }
 
 export class DeleteTreinoUseCase {
@@ -19,8 +21,16 @@ export class DeleteTreinoUseCase {
       throw new TreinoNotFoundError(id);
     }
 
-    await this.dependencies.sessaoTreinoRepository.deleteByTreinoId(id);
-    await this.dependencies.treinoExercicioRepository.deleteByTreinoId(id);
-    await this.dependencies.treinoRepository.delete(id);
+    const deleteOperation = async () => {
+      await this.dependencies.sessaoTreinoRepository.deleteByTreinoId(id);
+      await this.dependencies.treinoExercicioRepository.deleteByTreinoId(id);
+      await this.dependencies.treinoRepository.delete(id);
+    };
+
+    if (this.dependencies.database) {
+      await this.dependencies.database.withTransaction(deleteOperation);
+    } else {
+      await deleteOperation();
+    }
   }
 }

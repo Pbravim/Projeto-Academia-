@@ -256,29 +256,31 @@ export class SqliteDashboardRepository implements DashboardRepository {
     });
   }
 
-  async arquivarSessao(sessaoId: string): Promise<void> {
-    await this.database.run('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
+  async arquivarSessao(sessaoId: string): Promise<number> {
+    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
   }
 
-  async desarquivarSessao(sessaoId: string): Promise<void> {
-    await this.database.run('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
+  async desarquivarSessao(sessaoId: string): Promise<number> {
+    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
   }
 
   async deletarSessao(sessaoId: string): Promise<void> {
-    const exercicioIds = await this.database.getAll<{ id: string }>(
-      'SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?',
-      [sessaoId]
-    );
-    if (exercicioIds.length > 0) {
-      const placeholders = exercicioIds.map(() => '?').join(',');
-      const ids = exercicioIds.map((r) => r.id);
-      await this.database.run(
-        `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
-        ids
+    await this.database.withTransaction(async () => {
+      const exercicioIds = await this.database.getAll<{ id: string }>(
+        'SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?',
+        [sessaoId]
       );
-    }
-    await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
-    await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [sessaoId]);
+      if (exercicioIds.length > 0) {
+        const placeholders = exercicioIds.map(() => '?').join(',');
+        const ids = exercicioIds.map((r) => r.id);
+        await this.database.run(
+          `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
+          ids
+        );
+      }
+      await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
+      await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [sessaoId]);
+    });
   }
 
   async findSugestaoRotacao(): Promise<TreinoComUltimaSessao | null> {
