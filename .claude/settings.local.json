@@ -67,13 +67,20 @@
       "Bash(sed -n '4,20p' /Users/bravim/Documents/GitHub/projeto-academia/apps/mobile/src/domain/exercises/entities/Exercise.ts)",
       "Bash(awk '{print $2}')",
       "Bash(sed -n '1,25p' apps/mobile/src/application/exercises/use-cases/UpdateExerciseUseCase.ts)",
-      "Bash(sed -n '75,100p' apps/mobile/src/domain/exercises/entities/Exercise.ts)"
+      "Bash(sed -n '75,100p' apps/mobile/src/domain/exercises/entities/Exercise.ts)",
+      "Bash(python3.10 /Users/bravim/.claude/plugins/cache/alexgreensh-token-optimizer/token-optimizer/5.7.0/skills/token-optimizer/scripts/measure.py report)",
+      "Bash(pyenv local *)",
+      "Bash(pyenv exec *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Read(//Users/bravim/.claude/**)",
+      "Read(//Users/bravim/.claude/plugins/cache/**)"
     ]
   },
   "enabledMcpjsonServers": [
     "code-review-graph"
   ],
   "enabledPlugins": {
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "token-optimizer@alexgreensh-token-optimizer": true
   }
 }
