@@ -9,6 +9,7 @@ export function createTestDatabase(): SQLiteDatabaseClient {
   const db = new Database(':memory:');
   db.pragma('journal_mode = WAL');
   db.pragma('synchronous = NORMAL');
+  db.pragma('foreign_keys = OFF');
 
   // Run all migrations
   const migrations: string[] = [
@@ -89,6 +90,21 @@ export function createTestDatabase(): SQLiteDatabaseClient {
     ('seed-ex-001', 'Supino Reto com Barra',         'supino reto com barra',         'Peito, Triceps, Ombros',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
     ('seed-ex-002', 'Supino Inclinado com Barra',     'supino inclinado com barra',    'Peito, Ombros, Triceps',         'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z'),
     ('seed-ex-003', 'Supino Declinado com Barra',     'supino declinado com barra',    'Peito, Triceps',                 'Composto',  'Barra olimpica', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z');`,
+
+    // v5-v12: columns added in production migrations that the SQL repos require
+    `ALTER TABLE exercises ADD COLUMN media_online TEXT;
+     ALTER TABLE exercises ADD COLUMN media_local TEXT;
+     ALTER TABLE exercises ADD COLUMN musculo_alvo TEXT;
+     ALTER TABLE sessao_exercicios ADD COLUMN tempo_descanso_segundos INTEGER;
+     ALTER TABLE sessao_exercicios ADD COLUMN substituido_por_exercicio_id TEXT;
+     ALTER TABLE sessao_exercicios ADD COLUMN substituicao_motivo TEXT;
+     ALTER TABLE sessao_exercicios ADD COLUMN musculo_alvo_snapshot TEXT;
+     ALTER TABLE sessao_exercicios ADD COLUMN nome_original_snapshot TEXT;
+     ALTER TABLE sessao_exercicios ADD COLUMN metodo TEXT NOT NULL DEFAULT 'normal';
+     ALTER TABLE sessao_exercicios ADD COLUMN grupo_id TEXT;
+     ALTER TABLE treino_exercicios ADD COLUMN tempo_descanso_segundos INTEGER;
+     ALTER TABLE treino_exercicios ADD COLUMN metodo TEXT NOT NULL DEFAULT 'normal';
+     ALTER TABLE treino_exercicios ADD COLUMN grupo_id TEXT;`,
   ];
 
   for (const migration of migrations) {
@@ -140,7 +156,16 @@ class BetterSQLiteAdapter implements SQLiteDatabaseClient {
   }
 
   async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
-    const transaction = this.db.transaction(() => fn());
-    return transaction();
+    // For synchronous better-sqlite3, we wrap the transaction in BEGIN/COMMIT
+    // Note: the fn() is async, so we just execute it and handle rollback on error
+    try {
+      this.db.exec('BEGIN TRANSACTION');
+      const result = await fn();
+      this.db.exec('COMMIT');
+      return result;
+    } catch (error) {
+      this.db.exec('ROLLBACK');
+      throw error;
+    }
   }
 }

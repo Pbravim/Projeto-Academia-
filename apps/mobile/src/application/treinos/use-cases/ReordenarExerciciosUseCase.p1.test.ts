@@ -5,8 +5,7 @@ import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTr
 import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { Treino } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
-import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
-import { ReordenarExerciciosUseCase } from './ReordenarExerciciosUseCase';
+import { ReordenarExerciciosUseCase, ReordenacaoIncompletaError } from './ReordenarExerciciosUseCase';
 
 describe('ReordenarExerciciosUseCase - P1 Regression Tests', () => {
   let database: SQLiteDatabaseClient;
@@ -67,7 +66,7 @@ describe('ReordenarExerciciosUseCase - P1 Regression Tests', () => {
         treinoId: 'treino_1',
         treinoExercicioIds: ['te_1', 'te_2'], // missing te_3
       })
-    ).rejects.toThrow(TreinoExercicioNotFoundError);
+    ).rejects.toThrow(ReordenacaoIncompletaError);
   });
 
   it('reorders exercises successfully with complete list', async () => {
