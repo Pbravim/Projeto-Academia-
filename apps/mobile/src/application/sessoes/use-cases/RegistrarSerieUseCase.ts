@@ -12,6 +12,7 @@ export interface RegistrarSerieInput {
   sessaoExercicioId: string;
   cargaKg: number;
   repeticoes: number;
+  tipoSerie?: 'valida' | 'aquecimento';
   observacao?: string;
 }
 
@@ -54,6 +55,7 @@ export class RegistrarSerieUseCase {
       serie = SerieRegistrada.create({
         id: this.dependencies.idGenerator(),
         sessaoExercicioId: input.sessaoExercicioId,
+        tipoSerie: input.tipoSerie ?? 'valida',
         ordem: count + 1,
         cargaKg: input.cargaKg,
         repeticoes: input.repeticoes,
