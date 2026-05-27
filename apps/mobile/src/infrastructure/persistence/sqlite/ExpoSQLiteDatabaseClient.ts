@@ -492,6 +492,10 @@ const migrations: string[] = [
 
   // v17: remove tipo_serie column — warm-up sets concept removed from product
   `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
+
+  // v18: re-add tipo_serie to series_registradas (removed in v17, restored for warm-up set tracking)
+  // Existing rows default to 'valida' which is semantically correct — they were all working sets.
+  `ALTER TABLE series_registradas ADD COLUMN tipo_serie TEXT NOT NULL DEFAULT 'valida';`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {

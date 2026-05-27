@@ -18,9 +18,9 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   async save(serie: SerieRegistrada): Promise<void> {
     const p = serie.toPrimitives();
     await this.database.run(
-      `INSERT OR REPLACE INTO series_registradas (id, sessao_exercicio_id, ordem, carga_kg, repeticoes, observacao)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [p.id, p.sessaoExercicioId, p.ordem, p.cargaKg, p.repeticoes, p.observacao]
+      `INSERT OR REPLACE INTO series_registradas (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [p.id, p.sessaoExercicioId, p.tipoSerie, p.ordem, p.cargaKg, p.repeticoes, p.observacao]
     );
   }
 
