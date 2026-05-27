@@ -3,6 +3,7 @@ import { SessaoValidationError } from '../errors/SessaoValidationError';
 export interface SerieRegistradaPrimitives {
   id: string;
   sessaoExercicioId: string;
+  tipoSerie: 'valida' | 'aquecimento';
   ordem: number;
   cargaKg: number;
   repeticoes: number;
@@ -12,6 +13,7 @@ export interface SerieRegistradaPrimitives {
 export interface CreateSerieRegistradaProps {
   id: string;
   sessaoExercicioId: string;
+  tipoSerie?: 'valida' | 'aquecimento';
   ordem: number;
   cargaKg: number;
   repeticoes: number;
@@ -35,6 +37,7 @@ export class SerieRegistrada {
     return new SerieRegistrada({
       id: input.id,
       sessaoExercicioId: input.sessaoExercicioId,
+      tipoSerie: input.tipoSerie ?? 'valida',
       ordem: input.ordem,
       cargaKg: input.cargaKg,
       repeticoes: input.repeticoes,
