@@ -38,6 +38,7 @@ export interface UpdateExerciseProps {
   equipment?: string | null;
   mediaOnline?: string | null;
   mediaLocal?: string | null;
+  musculoAlvo?: string | null;
 }
 
 export class Exercise {
@@ -91,7 +92,7 @@ export class Exercise {
       updatedAt: updatedAt.toISOString(),
       mediaOnline: 'mediaOnline' in input ? normalizeOptionalText(input.mediaOnline) : current.mediaOnline,
       mediaLocal: 'mediaLocal' in input ? normalizeOptionalText(input.mediaLocal) : current.mediaLocal,
-      musculoAlvo: current.musculoAlvo,
+      musculoAlvo: 'musculoAlvo' in input ? normalizeOptionalText(input.musculoAlvo) : current.musculoAlvo,
     });
   }
 

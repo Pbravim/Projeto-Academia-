@@ -42,7 +42,13 @@ export class SqliteDashboardRepository implements DashboardRepository {
 
     const [total, sessoes, records, ultimoMes, weekRows, monthRows, yearRows] = await Promise.all([
       this.database.getFirst<{ count: number }>(
-        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND arquivado = 0"
+        `SELECT COUNT(*) as count FROM sessao_treinos st
+         WHERE status = 'finalizada' AND arquivado = 0
+         AND EXISTS (
+           SELECT 1 FROM sessao_exercicios se
+           JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
+           WHERE se.sessao_treino_id = st.id
+         )`
       ),
       this.database.getAll<{
         id: string;
@@ -69,8 +75,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
          WHERE st.status = 'finalizada'
          GROUP BY st.id
          HAVING COUNT(sr.id) > 0
-         ORDER BY st.data_hora_inicio DESC
-         LIMIT 200`
+         ORDER BY st.data_hora_inicio DESC`
       ),
       this.database.getAll<{ exercicio_nome: string; melhor_orm: number }>(
         `SELECT e.name AS exercicio_nome,

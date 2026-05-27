@@ -24,12 +24,16 @@ export class BaixarMidiasTreinoUseCase {
   ): Promise<{ baixados: number; ignorados: number }> {
     const treinoExercicios = await this.deps.treinoExercicioRepository.listByTreinoId(treinoId);
 
+    const exercicioIds = treinoExercicios.map((te) => te.toPrimitives().exercicioId);
+    const exercises = await this.deps.exerciseRepository.findByIds(exercicioIds);
+    const exerciseMap = new Map(exercises.map((e) => [e.toPrimitives().id, e]));
+
     const pendentes: Array<{ id: string; nome: string }> = [];
     let semMidia = 0;
     let jaTemLocal = 0;
 
     for (const te of treinoExercicios) {
-      const ex = await this.deps.exerciseRepository.findById(te.toPrimitives().exercicioId);
+      const ex = exerciseMap.get(te.toPrimitives().exercicioId);
       if (!ex) continue;
       const p = ex.toPrimitives();
       if (!p.mediaOnline || !isDownloadableUrl(p.mediaOnline)) { semMidia++; continue; }

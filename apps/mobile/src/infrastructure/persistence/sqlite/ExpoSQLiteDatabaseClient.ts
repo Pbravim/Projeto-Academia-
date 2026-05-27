@@ -592,6 +592,7 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
 
   private async runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
     await database.execAsync('PRAGMA journal_mode = WAL;');
+    await database.execAsync('PRAGMA foreign_keys = ON;');
 
     const versionRow = await database.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
     const currentVersion = versionRow?.user_version ?? 0;

@@ -96,4 +96,45 @@ describe('UpdateExerciseUseCase', () => {
       })
     ).rejects.toThrow(ExerciseNotFoundError);
   });
+
+  it('updates musculoAlvo on a custom exercise', async () => {
+    const repo = makeRepo();
+    const create = makeCreateUseCase(repo);
+    const update = makeUpdateUseCase(repo);
+
+    await create.execute({ name: 'Exercicio Customizado', groupMuscle: 'Peito', category: 'Composto' });
+
+    const updated = await update.execute({
+      id: 'exercise_1',
+      name: 'Exercicio Customizado',
+      groupMuscle: 'Peito',
+      category: 'Composto',
+      musculoAlvo: 'peitoral_medio',
+    });
+
+    expect(updated.musculoAlvo).toBe('peitoral_medio');
+  });
+
+  it('clears musculoAlvo when null is passed', async () => {
+    const repo = makeRepo();
+    const create = makeCreateUseCase(repo);
+    const update = makeUpdateUseCase(repo);
+
+    await create.execute({
+      name: 'Exercicio Customizado',
+      groupMuscle: 'Peito',
+      category: 'Composto',
+      musculoAlvo: 'peitoral_medio',
+    });
+
+    const updated = await update.execute({
+      id: 'exercise_1',
+      name: 'Exercicio Customizado',
+      groupMuscle: 'Peito',
+      category: 'Composto',
+      musculoAlvo: null,
+    });
+
+    expect(updated.musculoAlvo).toBeNull();
+  });
 });

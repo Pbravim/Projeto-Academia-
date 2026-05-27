@@ -1,4 +1,4 @@
-export type SessaoStatus = 'em_andamento' | 'finalizada';
+export type SessaoStatus = 'em_andamento' | 'finalizada' | 'cancelada';
 
 export interface SessaoTreinoPrimitives {
   id: string;
@@ -39,6 +39,13 @@ export class SessaoTreino {
       ...this.props,
       status: 'finalizada',
       dataHoraFim: now.toISOString(),
+    });
+  }
+
+  cancelar(): SessaoTreino {
+    return new SessaoTreino({
+      ...this.props,
+      status: 'cancelada',
     });
   }
 

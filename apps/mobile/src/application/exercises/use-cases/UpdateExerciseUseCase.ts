@@ -11,6 +11,7 @@ export interface UpdateExerciseInput {
   equipment?: string;
   mediaOnline?: string;
   mediaLocal?: string;
+  musculoAlvo?: string | null;
 }
 
 interface UpdateExerciseUseCaseDependencies {

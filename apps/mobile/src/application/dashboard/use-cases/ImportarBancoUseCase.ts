@@ -45,9 +45,10 @@ export class ImportarBancoUseCase {
     const dest = new File(sqliteDir, dbName);
 
     // Cria backup de segurança antes de sobrescrever.
+    let backupFile: InstanceType<typeof File> | null = null;
     if (dest.exists) {
       const ts = Date.now();
-      const backupFile = new File(Paths.cache, `academia-pre-import-${ts}.db`);
+      backupFile = new File(Paths.cache, `academia-pre-import-${ts}.db`);
       dest.copy(backupFile);
       dest.delete();
     }
@@ -58,7 +59,14 @@ export class ImportarBancoUseCase {
       if (sidecar.exists) sidecar.delete();
     }
 
-    pickedFile.copy(dest);
+    try {
+      pickedFile.copy(dest);
+    } catch (err) {
+      if (backupFile?.exists) {
+        backupFile.copy(dest);
+      }
+      throw err;
+    }
 
     return { status: 'imported' };
   }

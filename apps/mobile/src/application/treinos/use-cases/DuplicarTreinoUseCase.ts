@@ -27,9 +27,18 @@ export class DuplicarTreinoUseCase {
 
     const duplicateOperation = async () => {
       const prim = original.toPrimitives();
+      const existingTreinos = await this.deps.treinoRepository.list();
+      const existingNames = new Set(existingTreinos.map((t) => t.toPrimitives().name.trim().toLowerCase()));
+
+      let novoNome = `Copia de ${prim.name}`;
+      let counter = 2;
+      while (existingNames.has(novoNome.trim().toLowerCase())) {
+        novoNome = `Copia de ${prim.name} (${counter++})`;
+      }
+
       const copia = Treino.create({
         id: this.deps.idGenerator(),
-        name: `Copia de ${prim.name}`,
+        name: novoNome,
         objetivo: prim.objetivo,
         createdAt: this.deps.now(),
       });

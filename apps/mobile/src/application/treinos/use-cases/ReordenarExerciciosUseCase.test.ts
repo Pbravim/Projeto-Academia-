@@ -1,51 +1,88 @@
 import { describe, expect, it } from 'vitest';
 
-import { Exercise } from '../../../domain/exercises/entities/Exercise';
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
-import { AddExercicioAoTreinoUseCase } from './AddExercicioAoTreinoUseCase';
-import { CreateTreinoUseCase } from './CreateTreinoUseCase';
-import { ReordenarExerciciosUseCase } from './ReordenarExerciciosUseCase';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+import { Treino } from '../../../domain/treinos/entities/Treino';
+import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
+import { ReordenarExerciciosUseCase, ReordenacaoIncompletaError } from './ReordenarExerciciosUseCase';
+
+function makeRepos() {
+  return {
+    treinoRepo: new InMemoryTreinoRepository(),
+    teRepo: new InMemoryTreinoExercicioRepository(),
+  };
+}
+
+async function setupTreinoComExercicios(treinoRepo: InMemoryTreinoRepository, teRepo: InMemoryTreinoExercicioRepository) {
+  const treino = Treino.create({ id: 'treino-1', name: 'Treino A', createdAt: new Date('2026-01-01') });
+  await treinoRepo.save(treino);
+
+  const te1 = TreinoExercicio.create({ id: 'te-1', treinoId: 'treino-1', exercicioId: 'ex-1', ordem: 1 });
+  const te2 = TreinoExercicio.create({ id: 'te-2', treinoId: 'treino-1', exercicioId: 'ex-2', ordem: 2 });
+  const te3 = TreinoExercicio.create({ id: 'te-3', treinoId: 'treino-1', exercicioId: 'ex-3', ordem: 3 });
+  await teRepo.save(te1);
+  await teRepo.save(te2);
+  await teRepo.save(te3);
+
+  return { treino, te1, te2, te3 };
+}
 
 describe('ReordenarExerciciosUseCase', () => {
-  it('reorders exercises in a treino', async () => {
-    const treinoRepository = new InMemoryTreinoRepository();
-    const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
-    const exerciseRepository = new InMemoryExerciseRepository();
+  it('reorders exercises when all IDs are provided', async () => {
+    const { treinoRepo, teRepo } = makeRepos();
+    await setupTreinoComExercicios(treinoRepo, teRepo);
 
-    await new CreateTreinoUseCase({
-      treinoRepository,
-      idGenerator: () => 'treino_1',
-      now: () => new Date(),
-    }).execute({ name: 'Treino A' });
-
-    for (const id of ['ex_1', 'ex_2', 'ex_3']) {
-      await exerciseRepository.save(
-        Exercise.create({ id, name: `Exercicio ${id}`, groupMuscle: 'Peito', category: 'Composto', createdAt: new Date() })
-      );
-    }
-
-    let counter = 0;
-    const add = new AddExercicioAoTreinoUseCase({
-      treinoRepository,
-      treinoExercicioRepository,
-      exerciseRepository,
-      idGenerator: () => `te_${++counter}`,
+    const uc = new ReordenarExerciciosUseCase({
+      treinoRepository: treinoRepo,
+      treinoExercicioRepository: teRepo,
     });
 
-    await add.execute({ treinoId: 'treino_1', exercicioId: 'ex_1' });
-    await add.execute({ treinoId: 'treino_1', exercicioId: 'ex_2' });
-    await add.execute({ treinoId: 'treino_1', exercicioId: 'ex_3' });
+    await uc.execute({ treinoId: 'treino-1', treinoExercicioIds: ['te-3', 'te-1', 'te-2'] });
 
-    const reorder = new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository });
+    const exercicios = await teRepo.listByTreinoId('treino-1');
+    const ordered = exercicios.sort((a, b) => a.toPrimitives().ordem - b.toPrimitives().ordem);
+    expect(ordered.map((te) => te.toPrimitives().id)).toEqual(['te-3', 'te-1', 'te-2']);
+  });
 
-    await reorder.execute({ treinoId: 'treino_1', treinoExercicioIds: ['te_3', 'te_1', 'te_2'] });
+  it('throws TreinoNotFoundError when treino does not exist', async () => {
+    const { treinoRepo, teRepo } = makeRepos();
+    const uc = new ReordenarExerciciosUseCase({
+      treinoRepository: treinoRepo,
+      treinoExercicioRepository: teRepo,
+    });
 
-    const ordered = await treinoExercicioRepository.listByTreinoId('treino_1');
+    await expect(
+      uc.execute({ treinoId: 'nao-existe', treinoExercicioIds: ['te-1'] })
+    ).rejects.toThrow(TreinoNotFoundError);
+  });
 
-    expect(ordered[0].toPrimitives().id).toBe('te_3');
-    expect(ordered[1].toPrimitives().id).toBe('te_1');
-    expect(ordered[2].toPrimitives().id).toBe('te_2');
+  it('throws TreinoExercicioNotFoundError when input contains an unknown ID', async () => {
+    const { treinoRepo, teRepo } = makeRepos();
+    await setupTreinoComExercicios(treinoRepo, teRepo);
+
+    const uc = new ReordenarExerciciosUseCase({
+      treinoRepository: treinoRepo,
+      treinoExercicioRepository: teRepo,
+    });
+
+    await expect(
+      uc.execute({ treinoId: 'treino-1', treinoExercicioIds: ['te-1', 'te-2', 'id-desconhecido'] })
+    ).rejects.toThrow(TreinoExercicioNotFoundError);
+  });
+
+  it('throws ReordenacaoIncompletaError when input is missing IDs from the treino', async () => {
+    const { treinoRepo, teRepo } = makeRepos();
+    await setupTreinoComExercicios(treinoRepo, teRepo);
+
+    const uc = new ReordenarExerciciosUseCase({
+      treinoRepository: treinoRepo,
+      treinoExercicioRepository: teRepo,
+    });
+
+    await expect(
+      uc.execute({ treinoId: 'treino-1', treinoExercicioIds: ['te-1', 'te-2'] })
+    ).rejects.toThrow(ReordenacaoIncompletaError);
   });
 });

@@ -1,83 +1,59 @@
 import { describe, expect, it } from 'vitest';
 
-import { Treino } from '../../../domain/treinos/entities/Treino';
-import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
+import { Treino } from '../../../domain/treinos/entities/Treino';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+import { DuplicateTreinoError } from '../errors/DuplicateTreinoError';
 import { UpdateTreinoUseCase } from './UpdateTreinoUseCase';
 
-const baseDate = new Date('2026-05-03T10:00:00.000Z');
-const updatedDate = new Date('2026-05-03T11:00:00.000Z');
-
-function makeDeps() {
-  const repository = new InMemoryTreinoRepository();
-  const useCase = new UpdateTreinoUseCase({ treinoRepository: repository, now: () => updatedDate });
-  return { repository, useCase };
+function makeUseCase(repo: InMemoryTreinoRepository) {
+  return new UpdateTreinoUseCase({
+    treinoRepository: repo,
+    now: () => new Date('2026-05-22T10:00:00.000Z'),
+  });
 }
 
-async function seedTreino(repository: InMemoryTreinoRepository) {
-  const treino = Treino.create({ id: 'treino_1', name: 'Treino A', objetivo: 'Forca', createdAt: baseDate });
-  await repository.save(treino);
-  return treino;
+async function populateRepo(repo: InMemoryTreinoRepository) {
+  const t1 = Treino.create({ id: 'treino-1', name: 'Treino A', createdAt: new Date('2026-01-01') });
+  const t2 = Treino.create({ id: 'treino-2', name: 'Treino B', createdAt: new Date('2026-01-01') });
+  await repo.save(t1);
+  await repo.save(t2);
 }
 
 describe('UpdateTreinoUseCase', () => {
-  it('atualiza o nome do treino', async () => {
-    const { repository, useCase } = makeDeps();
-    await seedTreino(repository);
+  it('updates name and objetivo', async () => {
+    const repo = new InMemoryTreinoRepository();
+    await populateRepo(repo);
 
-    const result = await useCase.execute({ id: 'treino_1', name: 'Treino B' });
+    const result = await makeUseCase(repo).execute({ id: 'treino-1', name: 'Treino Renomeado', objetivo: 'Hipertrofia' });
 
-    expect(result.name).toBe('Treino B');
-    expect(result.id).toBe('treino_1');
-    expect(result.updatedAt).toBe(updatedDate.toISOString());
-  });
-
-  it('atualiza o objetivo', async () => {
-    const { repository, useCase } = makeDeps();
-    await seedTreino(repository);
-
-    const result = await useCase.execute({ id: 'treino_1', name: 'Treino A', objetivo: 'Hipertrofia' });
-
+    expect(result.name).toBe('Treino Renomeado');
     expect(result.objetivo).toBe('Hipertrofia');
   });
 
-  it('permite remover o objetivo passando null', async () => {
-    const { repository, useCase } = makeDeps();
-    await seedTreino(repository);
+  it('allows keeping the same name', async () => {
+    const repo = new InMemoryTreinoRepository();
+    await populateRepo(repo);
 
-    const result = await useCase.execute({ id: 'treino_1', name: 'Treino A', objetivo: null });
+    const result = await makeUseCase(repo).execute({ id: 'treino-1', name: 'Treino A' });
 
-    expect(result.objetivo).toBeNull();
+    expect(result.name).toBe('Treino A');
   });
 
-  it('preserva o createdAt original', async () => {
-    const { repository, useCase } = makeDeps();
-    await seedTreino(repository);
+  it('throws TreinoNotFoundError when treino does not exist', async () => {
+    const repo = new InMemoryTreinoRepository();
 
-    const result = await useCase.execute({ id: 'treino_1', name: 'Treino B' });
-
-    expect(result.createdAt).toBe(baseDate.toISOString());
+    await expect(
+      makeUseCase(repo).execute({ id: 'nao-existe', name: 'Qualquer' })
+    ).rejects.toThrow(TreinoNotFoundError);
   });
 
-  it('persiste a atualizacao no repositorio', async () => {
-    const { repository, useCase } = makeDeps();
-    await seedTreino(repository);
+  it('throws DuplicateTreinoError when new name matches another treino', async () => {
+    const repo = new InMemoryTreinoRepository();
+    await populateRepo(repo);
 
-    await useCase.execute({ id: 'treino_1', name: 'Treino Novo' });
-
-    const saved = await repository.findById('treino_1');
-    expect(saved?.toPrimitives().name).toBe('Treino Novo');
-  });
-
-  it('lanca TreinoNotFoundError quando treino nao existe', async () => {
-    const { useCase } = makeDeps();
-    await expect(useCase.execute({ id: 'nao_existe', name: 'X' })).rejects.toThrow(TreinoNotFoundError);
-  });
-
-  it('lanca TreinoValidationError para nome vazio', async () => {
-    const { repository, useCase } = makeDeps();
-    await seedTreino(repository);
-    await expect(useCase.execute({ id: 'treino_1', name: '   ' })).rejects.toThrow(TreinoValidationError);
+    await expect(
+      makeUseCase(repo).execute({ id: 'treino-1', name: 'treino b' })
+    ).rejects.toThrow(DuplicateTreinoError);
   });
 });

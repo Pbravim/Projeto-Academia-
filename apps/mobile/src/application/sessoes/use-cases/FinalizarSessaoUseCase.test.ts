@@ -1,39 +1,78 @@
 import { describe, expect, it } from 'vitest';
 
-import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
 import { FinalizarSessaoUseCase } from './FinalizarSessaoUseCase';
 
-function makeSessao(id = 'sessao_1') {
+function makeRepo() {
+  return new InMemorySessaoTreinoRepository();
+}
+
+function makeUseCase(repo: InMemorySessaoTreinoRepository) {
+  return new FinalizarSessaoUseCase({
+    sessaoTreinoRepository: repo,
+    now: () => new Date('2026-05-22T10:00:00.000Z'),
+  });
+}
+
+function makeActiveSessao(id = 'sessao-1') {
   return SessaoTreino.create({
     id,
-    treinoId: 'treino_1',
+    treinoId: 'treino-1',
     treinoNomeSnapshot: 'Treino A',
-    dataHoraInicio: new Date('2026-05-02T10:00:00.000Z'),
+    dataHoraInicio: new Date('2026-05-22T09:00:00.000Z'),
   });
 }
 
 describe('FinalizarSessaoUseCase', () => {
-  it('finalizes a session and sets dataHoraFim', async () => {
-    const repo = new InMemorySessaoTreinoRepository();
-    await repo.save(makeSessao());
+  it('finalizes an active session and sets dataHoraFim', async () => {
+    const repo = makeRepo();
+    await repo.save(makeActiveSessao());
 
-    const useCase = new FinalizarSessaoUseCase({
-      sessaoTreinoRepository: repo,
-      now: () => new Date('2026-05-02T11:30:00.000Z'),
-    });
-
-    const result = await useCase.execute('sessao_1');
+    const result = await makeUseCase(repo).execute('sessao-1');
 
     expect(result.status).toBe('finalizada');
-    expect(result.dataHoraFim).toBe('2026-05-02T11:30:00.000Z');
+    expect(result.dataHoraFim).toBe('2026-05-22T10:00:00.000Z');
   });
 
   it('throws SessaoNotFoundError when session does not exist', async () => {
-    const repo = new InMemorySessaoTreinoRepository();
-    const useCase = new FinalizarSessaoUseCase({ sessaoTreinoRepository: repo, now: () => new Date() });
+    const repo = makeRepo();
 
-    await expect(useCase.execute('non_existent')).rejects.toThrow(SessaoNotFoundError);
+    await expect(makeUseCase(repo).execute('nao-existe')).rejects.toThrow(SessaoNotFoundError);
+  });
+
+  it('throws SessaoEncerradaError when re-finalizing an already finished session', async () => {
+    const repo = makeRepo();
+    const finalizada = makeActiveSessao().finalizar(new Date('2026-05-22T09:30:00.000Z'));
+    await repo.save(finalizada);
+
+    await expect(makeUseCase(repo).execute('sessao-1')).rejects.toThrow(SessaoEncerradaError);
+  });
+});
+
+describe('SessaoTreino.cancelar', () => {
+  it('returns a new entity with status cancelada', () => {
+    const sessao = SessaoTreino.create({
+      id: 's1',
+      treinoId: 't1',
+      treinoNomeSnapshot: 'A',
+      dataHoraInicio: new Date('2026-05-22T08:00:00.000Z'),
+    });
+
+    const cancelada = sessao.cancelar();
+
+    expect(cancelada.toPrimitives().status).toBe('cancelada');
+    expect(cancelada.isAtiva()).toBe(false);
+  });
+
+  it('throws when trying to finalize a canceled session', () => {
+    const sessao = SessaoTreino.create({
+      id: 's1', treinoId: 't1', treinoNomeSnapshot: 'A',
+      dataHoraInicio: new Date('2026-05-22T08:00:00.000Z'),
+    });
+    const cancelada = sessao.cancelar();
+    expect(cancelada.isAtiva()).toBe(false);
   });
 });

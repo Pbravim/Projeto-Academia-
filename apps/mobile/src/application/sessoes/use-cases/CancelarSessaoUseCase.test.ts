@@ -48,98 +48,54 @@ describe('CancelarSessaoUseCase', () => {
   });
 
   it('remove sessão, exercícios e séries em cascata', async () => {
-    const { sessaoTreinoRepository, sessaoExercicioRepository, serieRegistradaRepository, useCase } = makeDeps();
+    const { sessaoTreinoRepository, useCase } = makeDeps();
 
     await sessaoTreinoRepository.save(makeSessao('sessao_1'));
 
-    const exercicio = SessaoExercicio.create({
-      id: 'se_1',
-      sessaoTreinoId: 'sessao_1',
-      exercicioId: 'ex_1',
-      nomeSnapshot: 'Supino',
-      grupoMuscularSnapshot: 'Peito',
-      categoriaSnapshot: 'Composto',
-      equipamentoSnapshot: null,
-      musculoAlvoSnapshot: null,
-      realizado: false,
-      seriesRecomendadas: null,
-      execucoesRecomendadas: null,
-      cargaPadrao: null,
-      tempoDescansoSegundos: null,
-      metodo: 'normal' as const,
-      grupoId: null,
-      substituidoPorExercicioId: null,
-      substituicaoMotivo: null,
-      nomeOriginalSnapshot: null,
-      ordem: 1,
-    });
-    await sessaoExercicioRepository.save(exercicio);
-
-    const serie = SerieRegistrada.create({
-      id: 'sr_1',
-      sessaoExercicioId: 'se_1',
-      cargaKg: 80,
-      repeticoes: 10,
-      ordem: 1,
-    });
-    await serieRegistradaRepository.save(serie);
-
     await useCase.execute('sessao_1');
 
-    const sessoesRestantes = await sessaoTreinoRepository.findById('sessao_1');
-    const exerciciosRestantes = await sessaoExercicioRepository.listBySessaoId('sessao_1');
-    const seriesRestantes = await serieRegistradaRepository.listBySessaoExercicioId('se_1');
-
-    expect(sessoesRestantes).toBeNull();
-    expect(exerciciosRestantes).toHaveLength(0);
-    expect(seriesRestantes).toHaveLength(0);
+    const sessaoRestante = await sessaoTreinoRepository.findById('sessao_1');
+    expect(sessaoRestante).not.toBeNull();
+    expect(sessaoRestante!.toPrimitives().status).toBe('cancelada');
   });
 
   it('repositórios ficam vazios após cancelamento com múltiplos exercícios e séries', async () => {
-    const { sessaoTreinoRepository, sessaoExercicioRepository, serieRegistradaRepository, useCase } = makeDeps();
+    const { sessaoTreinoRepository, useCase } = makeDeps();
 
     await sessaoTreinoRepository.save(makeSessao('sessao_1'));
 
-    for (let i = 1; i <= 3; i++) {
-      const ex = SessaoExercicio.create({
-        id: `se_${i}`,
-        sessaoTreinoId: 'sessao_1',
-        exercicioId: `ex_${i}`,
-        nomeSnapshot: `Exercicio ${i}`,
-        grupoMuscularSnapshot: 'Peito',
-        categoriaSnapshot: 'Composto',
-        equipamentoSnapshot: null,
-        musculoAlvoSnapshot: null,
-        realizado: false,
-        seriesRecomendadas: null,
-        execucoesRecomendadas: null,
-        cargaPadrao: null,
-        tempoDescansoSegundos: null,
-        metodo: 'normal' as const,
-        grupoId: null,
-        substituidoPorExercicioId: null,
-        substituicaoMotivo: null,
-        nomeOriginalSnapshot: null,
-        ordem: i,
-      });
-      await sessaoExercicioRepository.save(ex);
-
-      const serie = SerieRegistrada.create({
-        id: `sr_${i}`,
-        sessaoExercicioId: `se_${i}`,
-        cargaKg: 60 + i * 5,
-        repeticoes: 10,
-        ordem: 1,
-      });
-      await serieRegistradaRepository.save(serie);
-    }
-
     await useCase.execute('sessao_1');
 
-    expect(await sessaoTreinoRepository.findById('sessao_1')).toBeNull();
-    expect(await sessaoExercicioRepository.listBySessaoId('sessao_1')).toHaveLength(0);
-    for (let i = 1; i <= 3; i++) {
-      expect(await serieRegistradaRepository.listBySessaoExercicioId(`se_${i}`)).toHaveLength(0);
-    }
+    const sessaoRestante = await sessaoTreinoRepository.findById('sessao_1');
+    expect(sessaoRestante).not.toBeNull();
+    expect(sessaoRestante!.toPrimitives().status).toBe('cancelada');
+  });
+
+  it('leaves the session in the repository with status cancelada instead of deleting it', async () => {
+    const sessaoRepo = new InMemorySessaoTreinoRepository();
+    const sessaoExercicioRepo = new InMemorySessaoExercicioRepository();
+    const serieRepo = new InMemorySerieRegistradaRepository();
+
+    const sessao = SessaoTreino.create({
+      id: 'sessao-1',
+      treinoId: 'treino-1',
+      treinoNomeSnapshot: 'Treino A',
+      dataHoraInicio: new Date('2026-05-22T09:00:00.000Z'),
+    });
+    await sessaoRepo.save(sessao);
+
+    const uc = new CancelarSessaoUseCase({
+      sessaoTreinoRepository: sessaoRepo,
+      sessaoExercicioRepository: sessaoExercicioRepo,
+      serieRegistradaRepository: serieRepo,
+    });
+    await uc.execute('sessao-1');
+
+    const found = await sessaoRepo.findById('sessao-1');
+    expect(found).not.toBeNull();
+    expect(found!.toPrimitives().status).toBe('cancelada');
+
+    const ativa = await sessaoRepo.findAtiva();
+    expect(ativa).toBeNull();
   });
 });
