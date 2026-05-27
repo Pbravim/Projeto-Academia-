@@ -9,6 +9,7 @@ interface SerieRegistradaRow {
   carga_kg: number;
   repeticoes: number;
   observacao: string | null;
+  tipo_serie: string | null;
 }
 
 export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepository {
@@ -90,5 +91,6 @@ function mapRow(row: SerieRegistradaRow): SerieRegistradaPrimitives {
     cargaKg: row.carga_kg,
     repeticoes: row.repeticoes,
     observacao: row.observacao,
+    tipoSerie: (row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida') as const,
   };
 }

@@ -24,6 +24,7 @@ interface HistoricoRow {
   repeticoes: number | null;
   observacao: string | null;
   ordem: number | null;
+  tipo_serie: string | null;
 }
 
 export class SQLiteHistoricoRepository implements HistoricoRepository {
@@ -77,7 +78,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
     const rows = await this.database.getAll<HistoricoRow>(
       `SELECT se.exercicio_id, se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
               se.nome_original_snapshot, se.substituicao_motivo,
-              sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
+              sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem, sr.tipo_serie
        FROM sessao_exercicios se
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
        INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
@@ -100,7 +101,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
       const rows = await this.database.getAll<HistoricoRow>(
         `SELECT se.exercicio_id, se.sessao_treino_id, se.nome_snapshot, st.data_hora_fim,
                 se.nome_original_snapshot, se.substituicao_motivo,
-                sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem
+                sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem, sr.tipo_serie
          FROM sessao_exercicios se
          INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
          INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
@@ -158,6 +159,7 @@ function groupBySession(rows: HistoricoRow[]): ExecucaoExercicio[] {
         repeticoes: row.repeticoes,
         observacao: row.observacao,
         ordem: row.ordem!,
+        tipoSerie: (row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida') as const,
       };
       sessaoMap.get(row.sessao_treino_id)!.series.push(serie);
     }
