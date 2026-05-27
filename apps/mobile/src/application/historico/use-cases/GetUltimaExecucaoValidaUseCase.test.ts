@@ -35,8 +35,8 @@ describe('GetUltimaExecucaoValidaUseCase', () => {
       dataExecucao: '2026-04-01T10:00:00.000Z',
       nomeSnapshot: 'Supino reto',
       series: [
-        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1 },
-        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 2 },
+        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1, tipoSerie: 'valida' },
+        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 2, tipoSerie: 'valida' },
       ],
     });
 
@@ -52,7 +52,7 @@ describe('GetUltimaExecucaoValidaUseCase', () => {
       dataExecucao: '2026-04-01T10:00:00.000Z',
       nomeSnapshot: 'Supino reto',
       series: [
-        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1 },
+        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1, tipoSerie: 'valida' },
       ],
     });
     historicoRepository.seed('ex_1', {
@@ -60,7 +60,7 @@ describe('GetUltimaExecucaoValidaUseCase', () => {
       dataExecucao: '2026-04-08T10:00:00.000Z',
       nomeSnapshot: 'Supino reto',
       series: [
-        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 1 },
+        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 1, tipoSerie: 'valida' },
       ],
     });
 

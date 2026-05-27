@@ -29,7 +29,6 @@ export interface HistoricoExercicioViewModel {
 }
 
 const CHART_MAX = 14;
-
 const SESSOES_PLATEAU = 4;
 const MELHORA_MINIMA_KG = 1.0;
 
@@ -41,12 +40,11 @@ export function buildHistoricoExercicioViewModel(
     return { exercicioNome, execucoes: [], emptyStateMessage: 'Nenhuma execucao registrada ainda.', rm1ChartPoints: [], plateau: null };
   }
 
-  // execucoes vem desc (mais recente primeiro) — pega as últimas CHART_MAX e reverte para cronológico
   const rm1ChartPoints: LineChartPoint[] = execucoes
     .slice(0, CHART_MAX)
     .reverse()
     .map((ex) => {
-      const validas = ex.series;
+      const validas = ex.series.filter((s) => s.tipoSerie === 'valida');
       const melhor = validas.reduce((max, s) => {
         const rm1 = s.cargaKg * (1 + s.repeticoes / 30);
         return rm1 > max ? rm1 : max;
@@ -69,7 +67,7 @@ export function buildHistoricoExercicioViewModel(
 
 function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   const comValidas = execucoes.filter((ex) =>
-    ex.series.length > 0
+    ex.series.some((s) => s.tipoSerie === 'valida')
   );
 
   if (comValidas.length < SESSOES_PLATEAU) return null;
@@ -77,7 +75,7 @@ function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   const ultimas = comValidas.slice(0, SESSOES_PLATEAU);
 
   const rm1s = ultimas.map((ex) => {
-    const validas = ex.series;
+    const validas = ex.series.filter((s) => s.tipoSerie === 'valida');
     return validas.reduce((max, s) => {
       const rm1 = s.cargaKg * (1 + s.repeticoes / 30);
       return rm1 > max ? rm1 : max;
@@ -103,11 +101,12 @@ const MOTIVO_LABEL: Record<string, string> = {
 };
 
 function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoViewModel {
-  const melhorRm1 = execucao.series.reduce((max, s) => {
+  const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
+  const melhorRm1 = validas.reduce((max, s) => {
     const rm1 = s.cargaKg * (1 + s.repeticoes / 30);
     return rm1 > max ? rm1 : max;
   }, 0);
-  const volumeKg = execucao.series.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
+  const volumeKg = validas.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
 
   let substituiuLabel: string | null = null;
   if (execucao.substituiuExercicio ?? null) {
@@ -118,12 +117,14 @@ function buildExecucaoViewModel(execucao: ExecucaoExercicio): ExecucaoHistoricoV
 
   return {
     data: formatDate(execucao.dataExecucao),
-    melhorRm1: execucao.series.length > 0 ? `${melhorRm1.toFixed(1)} kg` : '—',
-    volumeTotal: execucao.series.length > 0 ? formatVolume(volumeKg) : '—',
+    melhorRm1: validas.length > 0 ? `${melhorRm1.toFixed(1)} kg` : '—',
+    volumeTotal: validas.length > 0 ? formatVolume(volumeKg) : '—',
     series: execucao.series.map((s) => ({
       id: s.id,
       descricao: `${s.cargaKg} kg × ${s.repeticoes} rep`,
-      rm1Estimado: `1RM ~${(s.cargaKg * (1 + s.repeticoes / 30)).toFixed(1)} kg`,
+      rm1Estimado: s.tipoSerie === 'valida'
+        ? `1RM ~${(s.cargaKg * (1 + s.repeticoes / 30)).toFixed(1)} kg`
+        : null,
     })),
     substituiuLabel,
   };

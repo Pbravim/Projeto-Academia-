@@ -44,8 +44,9 @@ export class InMemoryHistoricoRepository implements HistoricoRepository {
   async getUltimaExecucaoValida(exercicioId: string): Promise<UltimaExecucaoValida | null> {
     const execucoes = await this.getHistoricoExercicio(exercicioId);
     for (const execucao of execucoes) {
-      if (execucao.series.length === 0) continue;
-      const melhor = execucao.series.reduce((a, b) =>
+      const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
+      if (validas.length === 0) continue;
+      const melhor = validas.reduce((a, b) =>
         a.cargaKg * (1 + a.repeticoes / 30) >= b.cargaKg * (1 + b.repeticoes / 30) ? a : b
       );
       return { cargaKg: melhor.cargaKg, repeticoes: melhor.repeticoes, dataExecucao: execucao.dataExecucao };
