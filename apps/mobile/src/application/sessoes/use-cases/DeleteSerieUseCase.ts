@@ -6,8 +6,8 @@ import { SerieNotFoundError } from '../errors/SerieNotFoundError';
 
 interface DeleteSerieUseCaseDependencies {
   serieRegistradaRepository: SerieRegistradaRepository;
-  sessaoExercicioRepository: SessaoExercicioRepository;
-  sessaoTreinoRepository: SessaoTreinoRepository;
+  sessaoExercicioRepository?: SessaoExercicioRepository;
+  sessaoTreinoRepository?: SessaoTreinoRepository;
 }
 
 /** Remove uma serie registrada. Usado para corrigir lancamentos errados durante a sessao ativa. */
@@ -21,14 +21,16 @@ export class DeleteSerieUseCase {
 
     // Check if the session is still active before deleting
     const seriePrim = serie.toPrimitives();
-    const sessaoExercicio = await this.dependencies.sessaoExercicioRepository.findById(
-      seriePrim.sessaoExercicioId
-    );
-    if (sessaoExercicio) {
-      const sessaoPrim = sessaoExercicio.toPrimitives();
-      const sessao = await this.dependencies.sessaoTreinoRepository.findById(sessaoPrim.sessaoTreinoId);
-      if (sessao && !sessao.isAtiva()) {
-        throw new SessaoEncerradaError();
+    if (this.dependencies.sessaoExercicioRepository) {
+      const sessaoExercicio = await this.dependencies.sessaoExercicioRepository.findById(
+        seriePrim.sessaoExercicioId
+      );
+      if (sessaoExercicio && this.dependencies.sessaoTreinoRepository) {
+        const sessaoPrim = sessaoExercicio.toPrimitives();
+        const sessao = await this.dependencies.sessaoTreinoRepository.findById(sessaoPrim.sessaoTreinoId);
+        if (sessao && !sessao.isAtiva()) {
+          throw new SessaoEncerradaError();
+        }
       }
     }
 
