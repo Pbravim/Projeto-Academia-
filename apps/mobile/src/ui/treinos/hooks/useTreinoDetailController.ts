@@ -154,6 +154,18 @@ export function useTreinoDetailController(
     setFeedbackMessage(null);
 
     try {
+      // If removing from a 2-member group, dissolve the group so the last member isn't orphaned
+      const te = treinoExercicios.find((x) => x.id === treinoExercicioId);
+      if (te?.grupoId) {
+        const grupoMembers = treinoExercicios.filter((x) => x.grupoId === te.grupoId);
+        if (grupoMembers.length === 2) {
+          const restante = grupoMembers.find((x) => x.id !== treinoExercicioId);
+          if (restante) {
+            await dependencies.updateMetodoGrupo(restante.id, restante.metodo, null);
+          }
+        }
+      }
+
       await dependencies.removeExercicioDoTreino.execute(treinoExercicioId);
       await loadData();
     } catch (error) {
