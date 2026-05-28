@@ -49,4 +49,12 @@ export class InMemoryPlanoSemanalRepository implements PlanoSemanalRepository {
       dom: null,
     };
   }
+
+  async clearTreino(treinoId: string): Promise<void> {
+    for (const dia of DIAS_SEMANA) {
+      if (this.plano[dia] === treinoId) {
+        this.plano[dia] = null;
+      }
+    }
+  }
 }

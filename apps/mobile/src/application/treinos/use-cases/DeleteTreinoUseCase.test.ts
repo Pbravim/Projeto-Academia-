@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { Treino } from '../../../domain/treinos/entities/Treino';
+import { InMemoryPlanoSemanalRepository } from '../../../infrastructure/plano/InMemoryPlanoSemanalRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
@@ -63,5 +65,30 @@ describe('DeleteTreinoUseCase', () => {
 
     expect(await repos.treinoRepository.list()).toHaveLength(0);
     expect(await repos.sessaoTreinoRepository.findById('sessao_1')).toBeNull();
+  });
+
+  it('clears plano semanal entries that reference the deleted treino', async () => {
+    const treinoRepo = new InMemoryTreinoRepository();
+    const teRepo = new InMemoryTreinoExercicioRepository();
+    const planoRepo = new InMemoryPlanoSemanalRepository();
+    const sessaoRepo = new InMemorySessaoTreinoRepository();
+
+    const treino = Treino.create({ id: 'treino-1', name: 'Treino A', createdAt: new Date() });
+    await treinoRepo.save(treino);
+    await planoRepo.setDia('seg', 'treino-1');
+    await planoRepo.setDia('qua', 'treino-1');
+
+    const uc = new DeleteTreinoUseCase({
+      treinoRepository: treinoRepo,
+      treinoExercicioRepository: teRepo,
+      sessaoTreinoRepository: sessaoRepo,
+      planoSemanalRepository: planoRepo,
+    });
+
+    await uc.execute('treino-1');
+
+    const plano = await planoRepo.getPlano();
+    expect(plano.seg).toBeNull();
+    expect(plano.qua).toBeNull();
   });
 });

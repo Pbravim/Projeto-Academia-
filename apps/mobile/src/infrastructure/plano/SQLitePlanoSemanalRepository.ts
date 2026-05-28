@@ -27,4 +27,8 @@ export class SQLitePlanoSemanalRepository implements PlanoSemanalRepository {
       [dia, treinoId]
     );
   }
+
+  async clearTreino(treinoId: string): Promise<void> {
+    await this.db.run('UPDATE plano_semanal SET treino_id = NULL WHERE treino_id = ?', [treinoId]);
+  }
 }

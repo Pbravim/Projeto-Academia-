@@ -1,4 +1,5 @@
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
@@ -8,6 +9,7 @@ interface DeleteTreinoUseCaseDependencies {
   treinoRepository: TreinoRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
   sessaoTreinoRepository: SessaoTreinoRepository;
+  planoSemanalRepository?: PlanoSemanalRepository;
   database?: SQLiteDatabaseClient;
 }
 
@@ -25,6 +27,7 @@ export class DeleteTreinoUseCase {
       await this.dependencies.sessaoTreinoRepository.deleteByTreinoId(id);
       await this.dependencies.treinoExercicioRepository.deleteByTreinoId(id);
       await this.dependencies.treinoRepository.delete(id);
+      await this.dependencies.planoSemanalRepository?.clearTreino(id);
     };
 
     if (this.dependencies.database) {
