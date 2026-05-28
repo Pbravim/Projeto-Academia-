@@ -48,16 +48,19 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
   }
 
   async list(options?: ListExercisesOptions): Promise<Exercise[]> {
-    const pagination = options?.limit != null
-      ? ` LIMIT ${options.limit} OFFSET ${options.offset ?? 0}`
-      : '';
-
-    const rows = await this.database.getAll<ExerciseRow>(
-      `SELECT id, name, normalized_name, group_muscle, category, equipment,
+    const SELECT = `SELECT id, name, normalized_name, group_muscle, category, equipment,
               load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
-       FROM exercises ORDER BY normalized_name ASC${pagination}`
-    );
+       FROM exercises ORDER BY normalized_name ASC`;
 
+    if (options?.limit != null) {
+      const rows = await this.database.getAll<ExerciseRow>(
+        `${SELECT} LIMIT ? OFFSET ?`,
+        [options.limit, options.offset ?? 0]
+      );
+      return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
+    }
+
+    const rows = await this.database.getAll<ExerciseRow>(SELECT);
     return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
   }
 
