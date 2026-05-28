@@ -732,10 +732,7 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
       { table: 'sessao_exercicios', column: 'substituicao_motivo',          type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'musculo_alvo_snapshot',        type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'nome_original_snapshot',       type: 'TEXT'    },
-    
-  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
-  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
-];
+    ];
 
     for (const { table, column, type, defaultValue } of required) {
       const info = await database.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
