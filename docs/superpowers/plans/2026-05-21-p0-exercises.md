@@ -1,4 +1,4 @@
-# P0 Exercises — Pendente
+# P0 Exercises — ✅ IMPLEMENTADO (2026-05-22)
 
 > Task 3 (DeleteExercise transaction) foi concluída. Restam Tasks 1 e 2.
 

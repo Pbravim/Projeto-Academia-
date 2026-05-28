@@ -1,4 +1,4 @@
-# P0 Dashboard + Infra — Pendente
+# P0 Dashboard + Infra — ✅ IMPLEMENTADO (2026-05-22)
 
 > Tasks 1 (DeletarSessao), 2 (ResetHistorico) e 4 (PlanoSemanal.setDia) foram concluídas. Restam Tasks 3 e 5.
 
