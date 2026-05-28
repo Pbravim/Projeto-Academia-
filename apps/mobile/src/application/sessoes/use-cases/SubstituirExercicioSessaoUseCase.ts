@@ -1,6 +1,7 @@
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
@@ -17,6 +18,7 @@ interface Dependencies {
   sessaoTreinoRepository: SessaoTreinoRepository;
   sessaoExercicioRepository: SessaoExercicioRepository;
   exerciseRepository: ExerciseRepository;
+  serieRegistradaRepository: SerieRegistradaRepository;
 }
 
 export class DuplicateExercicioInSessaoError extends Error {
@@ -47,6 +49,9 @@ export class SubstituirExercicioSessaoUseCase {
     );
     if (existing) throw new DuplicateExercicioInSessaoError(input.novoExercicioId);
 
+    // Delete series recorded for the original exercise before saving the substitution
+    await this.deps.serieRegistradaRepository.deleteBySessaoExercicioId(input.sessaoExercicioId);
+
     const ex = novoExercicio.toPrimitives();
     const substituido = sessaoExercicio.withSubstituicao(
       ex.id,
@@ -59,6 +64,5 @@ export class SubstituirExercicioSessaoUseCase {
     );
 
     await this.deps.sessaoExercicioRepository.save(substituido);
-    // Note: Original exercise's series are preserved in history (not deleted or transferred)
   }
 }

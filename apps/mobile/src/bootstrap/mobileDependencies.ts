@@ -254,6 +254,7 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         sessaoExercicioRepository,
         exerciseRepository,
+        serieRegistradaRepository,
       }),
       listExercises,
       logger,
