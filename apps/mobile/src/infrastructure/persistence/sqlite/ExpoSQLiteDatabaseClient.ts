@@ -641,10 +641,7 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
    * @returns Array of individual SQL statements
    */
   private splitSqlStatements(sql: string): string[] {
-    const statements: string[] = [
-  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
-  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
-];
+    const statements: string[] = [];
     let current = '';
     let inString = false;
     let stringChar = '';
@@ -652,14 +649,8 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
     let inBlockComment = false;
 
     for (let i = 0; i < sql.length; i++) {
-      const char = sql[i
-  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
-  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
-];
-      const nextChar = sql[i + 1
-  // v17: remove warm-up set concept (tipoSerie column) — all series are now normal (valida)
-  `ALTER TABLE series_registradas DROP COLUMN tipo_serie;`,
-];
+      const char = sql[i];
+      const nextChar = sql[i + 1];
       const prevChar = i > 0 ? sql[i - 1] : '';
 
       // Handle line comments
@@ -684,9 +675,7 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
       }
 
       // Handle newline (ends line comment)
-      if (inLineComment && (char === '
-' || char === '
-')) {
+      if (inLineComment && (char === '\n' || char === '\r')) {
         inLineComment = false;
         current += char;
         continue;
