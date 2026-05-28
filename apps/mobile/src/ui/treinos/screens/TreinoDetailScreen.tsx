@@ -6,6 +6,7 @@ import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewM
 import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
 import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
 import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
@@ -97,6 +98,7 @@ export function TreinoDetailScreen({
   const [editingNome, setEditingNome] = useState(false);
   const [nomeText, setNomeText] = useState(treino.name);
   const [substitutoPickerFor, setSubstitutoPickerFor] = useState<{ exercicioId: string } | null>(null);
+  const [mediaViewerInfo, setMediaViewerInfo] = useState<{ name: string; mediaLocal: string | null; mediaOnline: string | null } | null>(null);
 
   const recsRef = useRef<Map<string, { series: string; execucoes: string; carga: string; descanso: string }>>(new Map());
   useEffect(() => {
@@ -245,6 +247,7 @@ export function TreinoDetailScreen({
   };
 
   return (
+    <>
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable
@@ -333,6 +336,7 @@ export function TreinoDetailScreen({
                   onSairDoGrupo={null}
                   onOpenSubstitutoPicker={() => setSubstitutoPickerFor({ exercicioId: te.exercicioId })}
                   onRemoveAlternativa={(altId) => { void onRemoveAlternativa(te.exercicioId, altId); }}
+                  onViewMedia={() => setMediaViewerInfo({ name: vm.name, mediaLocal: vm.mediaLocal, mediaOnline: vm.mediaOnline })}
                 />
               );
             }
@@ -450,6 +454,7 @@ export function TreinoDetailScreen({
                           }}
                           onOpenSubstitutoPicker={() => setSubstitutoPickerFor({ exercicioId: te.exercicioId })}
                           onRemoveAlternativa={(altId) => { void onRemoveAlternativa(te.exercicioId, altId); }}
+                          onViewMedia={() => setMediaViewerInfo({ name: vm.name, mediaLocal: vm.mediaLocal, mediaOnline: vm.mediaOnline })}
                         />
                       </View>
                     );
@@ -544,6 +549,16 @@ export function TreinoDetailScreen({
         />
       ) : null}
     </ScrollView>
+    {mediaViewerInfo ? (
+      <ExerciseMediaViewer
+        visible
+        exercicioNome={mediaViewerInfo.name}
+        mediaLocal={mediaViewerInfo.mediaLocal}
+        mediaOnline={mediaViewerInfo.mediaOnline}
+        onClose={() => setMediaViewerInfo(null)}
+      />
+    ) : null}
+    </>
   );
 }
 

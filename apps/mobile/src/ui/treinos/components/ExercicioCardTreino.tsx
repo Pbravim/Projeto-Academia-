@@ -4,7 +4,6 @@ import { Image } from 'expo-image';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
 
@@ -49,6 +48,7 @@ interface Props {
   onSairDoGrupo: (() => Promise<void>) | null;
   onOpenSubstitutoPicker: () => void;
   onRemoveAlternativa: (alternativaId: string) => void;
+  onViewMedia: () => void;
 }
 
 export function ExercicioCardTreino({
@@ -73,6 +73,7 @@ export function ExercicioCardTreino({
   onSairDoGrupo,
   onOpenSubstitutoPicker,
   onRemoveAlternativa,
+  onViewMedia,
 }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -81,7 +82,6 @@ export function ExercicioCardTreino({
   const [execText,     setExecText]     = useState(execucoesRecomendadas != null ? String(execucoesRecomendadas) : '');
   const [cargaText,    setCargaText]    = useState(cargaPadrao           != null ? String(cargaPadrao)           : '');
   const [descansoText, setDescansoText] = useState(tempoDescansoSegundos != null ? String(tempoDescansoSegundos) : '');
-  const [mediaVisible, setMediaVisible] = useState(false);
 
   const tecnicaAtiva = TECNICAS.find((t) => t.value === item.metodo);
   const isNormal = item.metodo === 'normal';
@@ -115,7 +115,7 @@ export function ExercicioCardTreino({
         </Text>
 
         {gifSource ? (
-          <Pressable onPress={() => setMediaVisible(true)} hitSlop={4} style={styles.thumbnailWrap}>
+          <Pressable onPress={onViewMedia} hitSlop={4} style={styles.thumbnailWrap}>
             <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
             <View style={styles.thumbnailOverlay}>
               <Text style={styles.thumbnailPlayIcon}>▶</Text>
@@ -259,14 +259,6 @@ export function ExercicioCardTreino({
           ) : null}
         </View>
       ) : null}
-
-      <ExerciseMediaViewer
-        visible={mediaVisible}
-        exercicioNome={item.name}
-        mediaOnline={item.mediaOnline ?? null}
-        mediaLocal={item.mediaLocal ?? null}
-        onClose={() => setMediaVisible(false)}
-      />
 
       {/* ── Substitutos predefinidos ── */}
       <View style={styles.substitutosSection}>
