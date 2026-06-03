@@ -40,6 +40,16 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     return rows.map((row) => SerieRegistrada.restore(mapRow(row)));
   }
 
+  async listBySessaoExercicioIds(ids: string[]): Promise<SerieRegistrada[]> {
+    if (ids.length === 0) return [];
+    const placeholders = ids.map(() => '?').join(', ');
+    const rows = await this.database.getAll<SerieRegistradaRow>(
+      `SELECT * FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders}) ORDER BY ordem ASC`,
+      ids,
+    );
+    return rows.map((row) => SerieRegistrada.restore(mapRow(row)));
+  }
+
   async countBySessaoExercicioId(sessaoExercicioId: string): Promise<number> {
     const row = await this.database.getFirst<{ count: number }>(
       'SELECT COUNT(*) as count FROM series_registradas WHERE sessao_exercicio_id = ?',

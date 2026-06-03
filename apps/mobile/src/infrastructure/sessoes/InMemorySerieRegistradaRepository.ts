@@ -18,6 +18,14 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
       .sort((a, b) => a.toPrimitives().ordem - b.toPrimitives().ordem);
   }
 
+  async listBySessaoExercicioIds(ids: string[]): Promise<SerieRegistrada[]> {
+    if (ids.length === 0) return [];
+    const idSet = new Set(ids);
+    return Array.from(this.seriesById.values())
+      .filter((s) => idSet.has(s.toPrimitives().sessaoExercicioId))
+      .sort((a, b) => a.toPrimitives().ordem - b.toPrimitives().ordem);
+  }
+
   async countBySessaoExercicioId(sessaoExercicioId: string): Promise<number> {
     let count = 0;
     for (const s of this.seriesById.values()) {
