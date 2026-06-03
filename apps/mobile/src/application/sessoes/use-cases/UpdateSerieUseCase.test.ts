@@ -106,6 +106,10 @@ describe('UpdateSerieUseCase', () => {
     await expect(
       deps.useCase.execute({ serieId: 'serie_1', cargaKg: 80, repeticoes: 12 })
     ).rejects.toThrow(SessaoEncerradaError);
+
+    const unchanged = await deps.serieRegistradaRepository.findById('serie_1');
+    expect(unchanged?.toPrimitives().cargaKg).toBe(60);   // original value
+    expect(unchanged?.toPrimitives().repeticoes).toBe(10); // original value
   });
 
   it('null observacao: persists observacao as null', async () => {
@@ -121,5 +125,21 @@ describe('UpdateSerieUseCase', () => {
 
     const updated = await deps.serieRegistradaRepository.findById('serie_1');
     expect(updated!.toPrimitives().observacao).toBeNull();
+  });
+
+  it('throws SessaoEncerradaError when session is cancelled', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps);
+
+    const sessao = await deps.sessaoTreinoRepository.findById('sessao_1');
+    await deps.sessaoTreinoRepository.save(sessao!.cancelar());
+
+    await expect(
+      deps.useCase.execute({ serieId: 'serie_1', cargaKg: 80, repeticoes: 12 })
+    ).rejects.toThrow(SessaoEncerradaError);
+
+    const unchanged = await deps.serieRegistradaRepository.findById('serie_1');
+    expect(unchanged?.toPrimitives().cargaKg).toBe(60);   // original value
+    expect(unchanged?.toPrimitives().repeticoes).toBe(10); // original value
   });
 });
