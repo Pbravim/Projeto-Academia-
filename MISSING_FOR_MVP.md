@@ -3,20 +3,14 @@
 > Lacunas entre o estado atual e uma versão 1.0 publicável.
 > Atualizado em `2026-06-02`.
 
-O app já cobre o loop completo (treinos → sessão → histórico → dashboard → perfil/peso) e tem 126 testes verdes. Para virar "1.0 publicável", faltam os itens abaixo, em ordem de prioridade.
+O app já cobre o loop completo (treinos → sessão → histórico → dashboard → perfil/peso) e tem 218 testes verdes. Para virar "1.0 publicável", faltam os itens abaixo, em ordem de prioridade.
 
 ---
 
 ## P0 — Bloqueadores de 1.0
 
-### 1. Backup manual do banco
-Sem isso, troca de celular = perda total de dados.
-
-**Escopo mínimo:**
-- Botão "Exportar banco" no Dashboard → copia `.db` via `expo-file-system` e abre `expo-sharing` (libs já no projeto)
-- Botão "Importar banco" → substitui DB local e força restart
-
-**Custo:** ~1 dia. Não exige backend, auth, nem mudança de arquitetura.
+### ~~1. Backup manual do banco~~ ✅ FEITO (sessão anterior)
+Botões "Exportar backup (.db)" e "Importar backup (.db)" em `PerfilScreen`. `ExportarBancoUseCase` + `ImportarBancoUseCase` implementados e testados.
 
 ---
 
@@ -67,4 +61,4 @@ Itens do roadmap que devem permanecer fora:
 
 ## Veredito
 
-**Resta apenas o item 1 (backup manual).** P1 e P2 concluídos. O único bloqueador real de 1.0 é o backup — sem ele, troca de celular = perda total de dados.
+**Todos os P0 e P1 concluídos. O app está pronto para publicar como 1.0.** P2 itens 5 (sync em nuvem) e 7 (RIR/RPE) são opcionais e diferidos para pós-1.0.
