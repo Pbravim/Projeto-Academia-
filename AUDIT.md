@@ -1,5 +1,5 @@
 # Auditoria de Use Cases e Domínio
-> Gerada em 2026-05-21. Atualizada em 2026-05-27 (itens implementados removidos; verificação in-code).
+> Gerada em 2026-05-21. Atualizada em 2026-06-02 (todos os P1s implementados; verificação in-code).
 > Classificação: **P0** = corrupção/bloqueio de dados · **P1** = bug lógico/risk real · **P2** = qualidade/melhoria
 
 ---
@@ -12,10 +12,14 @@
 
 ## Sumário Executivo — P1s
 
-| # | Módulo | Problema | Arquivo | Status |
-|---|--------|----------|---------|--------|
-| 1 | Histórico | Tie-breaking não-determinístico em `getUltimasExecucoesValidas` — 2 sessões com mesmo `data_hora_fim` | `SQLiteHistoricoRepository.ts:34-46` | **Aberto** |
-| 2 | Plano Semanal | IDs de treinos deletados permanecem no plano sem indicação de órfão | `GetPlanoSemanalUseCase.ts` | **Aberto** |
+**Todos os P1s implementados.** Nenhum P1 em aberto.
+
+| # | Módulo | Problema | Status |
+|---|--------|----------|--------|
+| 1 | Histórico | Tie-breaking não-determinístico em `getUltimasExecucoesValidas` | ✅ `69bca9c` |
+| 2 | Plano Semanal | IDs de treinos deletados permanecem no plano | ✅ `cf3b413` |
+| 3 | Sessões | `SubstituirExercicioSessaoUseCase` não deletava séries ao substituir | ✅ `c878569` |
+| 4 | Exercises | SQL injection em `LIMIT/OFFSET` | ✅ `f62f437` |
 
 ---
 
@@ -28,9 +32,11 @@
 - ✅ `BaixarMidiasTreinoUseCase` N+1 eliminado via `findByIds` (PR fix/pr5)
 - ✅ `UpdateExerciseUseCase.execute` faz `await save` antes de retornar (verificado in-code)
 
+### Bugs resolvidos (adicionais)
+- ✅ SQL injection em `LIMIT/OFFSET` — bind params (`f62f437`)
+- ✅ `file.delete()` sem `await` — era falso positivo; nova API `expo-file-system` é síncrona (comentário em `ExpoMediaFileCleanup.ts:21`)
+
 ### Ainda em aberto
-- **P1 — SQL injection em paginação** (`SQLiteExerciseRepository.ts:52`): `LIMIT ${options.limit} OFFSET ${options.offset}` interpolado diretamente.
-- **P1 — `file.delete()` sem `await`** em `ExpoMediaFileCleanup.ts:8`.
 - **P2 — Zero testes** para `List`, `BaixarMidia*` use cases.
 - **P2 — `updateMedia` não atualiza `updated_at`.**
 - **P2 — Inconsistência** `expo-file-system/legacy` vs nova API.
@@ -39,8 +45,6 @@
 
 | Prior. | Item |
 |--------|------|
-| P1 | SQL injection em `LIMIT/OFFSET` |
-| P1 | `file.delete()` sem `await` em `ExpoMediaFileCleanup` |
 | P2 | Zero testes para `List`, `BaixarMidia*` use cases |
 | P2 | `updateMedia` não atualiza `updated_at` |
 | P2 | Inconsistência expo-file-system legacy vs nova API |
@@ -79,8 +83,10 @@
 - ✅ `IniciarSessaoUseCase` checa `findAtiva()` antes de qualquer outra query (verificado in-code)
 - ✅ `RegistrarSerieUseCase` — `atualizarCargaSeNecessario` está dentro da transação (verificado in-code)
 
+### Bugs resolvidos (adicionais)
+- ✅ `SubstituirExercicioSessaoUseCase` deleta séries do exercício original ao substituir (`c878569`)
+
 ### Ainda em aberto
-- **P1 — `SubstituirExercicioSessaoUseCase`** séries originais não deletadas ao substituir.
 - **P2 — Zero testes** para 8 use cases de sessão.
 - **P2 — N+1 de séries** em `GetSessaoDetalheUseCase`.
 - **P2 — Matching por `includes`** em `SugerirSubstitutosUseCase` (frágil).
@@ -90,7 +96,6 @@
 
 | Prior. | Item |
 |--------|------|
-| P1 | `SubstituirExercicioSessaoUseCase` não deleta séries ao substituir |
 | P2 | Zero testes para 8 use cases de sessão |
 | P2 | N+1 de séries em `GetSessaoDetalheUseCase` |
 | P2 | Matching por `includes` em `SugerirSubstitutosUseCase` |
@@ -129,8 +134,10 @@
 ### Bugs resolvidos
 - ✅ `getHistoricoExercicios` batcha queries em chunks de 999 (PR fix/pr5)
 
+### Bugs resolvidos (adicionais)
+- ✅ Tie-breaking determinístico em `getUltimasExecucoesValidas` — `MAX(st.id)` como critério secundário (`69bca9c`)
+
 ### Ainda em aberto
-- **P1 — Tie-breaking não-determinístico** em `getUltimasExecucoesValidas` (`SQLiteHistoricoRepository.ts:34-46`): quando duas sessões têm o mesmo `data_hora_fim`, a query não tem critério de desempate estável — o ranking pode variar entre execuções. Fix: adicionar `st.id` ao ORDER BY como critério secundário.
 - **P2 — Fórmula 1RM duplicada** em SQL (`SqliteDashboardRepository`, `SQLiteHistoricoRepository`) e TypeScript (`InMemoryHistoricoRepository`). Extrair para `src/shared/utils/estimativa1rm.ts`.
 - **P2 — `InMemoryHistoricoRepository.getUltimasExecucoesValidas`** usa loop O(N²).
 
@@ -138,7 +145,6 @@
 
 | Prior. | Item |
 |--------|------|
-| P1 | Tie-breaking não-determinístico em `getUltimasExecucoesValidas` |
 | P2 | Fórmula 1RM duplicada — extrair para utilitário compartilhado |
 | P2 | `InMemoryHistoricoRepository.getUltimasExecucoesValidas` O(N²) |
 
@@ -146,15 +152,16 @@
 
 ## Módulo: Plano Semanal
 
+### Bugs resolvidos (adicionais)
+- ✅ `DeleteTreinoUseCase` limpa entradas do plano semanal ao deletar treino (`cf3b413`)
+
 ### Ainda em aberto
-- **P1 — IDs de treinos deletados** permanecem no plano sem indicação de órfão: `GetPlanoSemanalUseCase` passa tudo do repo sem filtrar referências inválidas.
 - **P2 — `SetDiaPlanoUseCase`** aceita `treinoId` string vazia e persiste.
 
 ### Sumário Plano Semanal
 
 | Prior. | Item |
 |--------|------|
-| P1 | IDs de treinos deletados retornam no plano sem indicação |
 | P2 | `SetDiaPlanoUseCase` aceita `treinoId` vazio |
 
 ---
@@ -179,12 +186,12 @@
 
 ## Ranking de Prioridade Final
 
-### P1 — Corrigir em seguida (4 itens)
+### P1 — Todos resolvidos ✅
 
-1. **Histórico** — Tie-breaking não-determinístico em `getUltimasExecucoesValidas` (`SQLiteHistoricoRepository.ts:34-46`)
-2. **Plano Semanal** — IDs de treinos deletados sem indicação de órfão
-3. **Sessões** — `SubstituirExercicioSessaoUseCase` não deleta séries ao substituir (séries do exercício original ficam órfãs)
-4. **Exercises** — SQL injection em paginação (`LIMIT/OFFSET` interpolado diretamente)
+1. ✅ **Histórico** — Tie-breaking determinístico (`69bca9c`)
+2. ✅ **Plano Semanal** — Orphans limpos ao deletar treino (`cf3b413`)
+3. ✅ **Sessões** — `SubstituirExercicioSessaoUseCase` deleta séries ao substituir (`c878569`)
+4. ✅ **Exercises** — SQL injection em `LIMIT/OFFSET` corrigido com bind params (`f62f437`)
 
 ### P2 — Melhorias de qualidade (17 itens)
 
