@@ -4,6 +4,16 @@ import type { HistoricoRepository, UltimaExecucaoValida } from '../../../domain/
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
+function splitGrupos(groupMuscle: string): string[] {
+  return groupMuscle.split(',').map((g) => g.trim()).filter(Boolean);
+}
+
+function temIntersecaoDeGrupo(a: string, b: string): boolean {
+  const ga = splitGrupos(a);
+  const gb = new Set(splitGrupos(b));
+  return ga.some((g) => gb.has(g));
+}
+
 export interface CandidatoSubstituto {
   exercicio: ExercisePrimitives;
   predefinido: boolean;
@@ -72,7 +82,7 @@ export class SugerirSubstitutosUseCase {
 
       if (musculoAlvo && ep.musculoAlvo === musculoAlvo) {
         camada1.push(candidato);
-      } else if (ep.groupMuscle === grupoMuscular || ep.groupMuscle.includes(grupoMuscular) || grupoMuscular.includes(ep.groupMuscle)) {
+      } else if (temIntersecaoDeGrupo(ep.groupMuscle, grupoMuscular)) {
         camada2.push({ ...candidato, enfaseDiferente: true });
       }
     }
