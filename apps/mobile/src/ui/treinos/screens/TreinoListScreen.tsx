@@ -64,6 +64,7 @@ export function TreinoListScreen({
             Crie seu primeiro treino para comecar a registrar sessoes.
           </Text>
           <Pressable
+            accessibilityRole="button"
             onPress={() => nameInputRef.current?.focus()}
             style={({ pressed }) => [styles.emptyStateCta, pressed ? { opacity: 0.85 } : null]}
           >
