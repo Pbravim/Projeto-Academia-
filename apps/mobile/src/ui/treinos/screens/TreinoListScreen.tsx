@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -42,6 +42,7 @@ export function TreinoListScreen({
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const viewModel = buildTreinoListViewModel(treinos);
+  const nameInputRef = useRef<TextInput>(null);
 
   return (
     <>
@@ -62,6 +63,12 @@ export function TreinoListScreen({
           <Text style={styles.emptyStateBody}>
             Crie seu primeiro treino para comecar a registrar sessoes.
           </Text>
+          <Pressable
+            onPress={() => nameInputRef.current?.focus()}
+            style={({ pressed }) => [styles.emptyStateCta, pressed ? { opacity: 0.85 } : null]}
+          >
+            <Text style={styles.emptyStateCtaText}>Criar primeiro treino</Text>
+          </Pressable>
         </View>
       ) : null}
 
@@ -78,6 +85,7 @@ export function TreinoListScreen({
         <Text style={styles.sectionTitle}>Novo treino</Text>
 
         <Field
+          ref={nameInputRef}
           label="Nome"
           placeholder="Ex.: Treino A"
           value={draft.name}
@@ -360,33 +368,27 @@ interface FieldProps {
   placeholderTextColor: string;
 }
 
-function Field({
-  label,
-  placeholder,
-  value,
-  onChangeText,
-  onSubmitEditing,
-  editable,
-  required,
-  styles,
-  placeholderTextColor,
-}: FieldProps) {
+const Field = React.forwardRef<TextInput, FieldProps>(function Field(
+  { label, placeholder, value, onChangeText, onSubmitEditing, editable, required, styles, placeholderTextColor },
+  ref,
+) {
   return (
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{label}{required ? <Text style={styles.requiredMark}> *</Text> : null}</Text>
       <TextInput
+        ref={ref}
         style={styles.input}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmitEditing}
-        returnKeyType={onSubmitEditing ? 'done' : 'default'}
         editable={editable}
+        returnKeyType="done"
       />
     </View>
   );
-}
+});
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
@@ -551,6 +553,19 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     emptyState: { backgroundColor: c.card, borderRadius: 16, padding: 20, gap: 8, alignItems: 'center' },
     emptyStateTitle: { color: c.textPrimary, fontSize: 18, fontWeight: '800', textAlign: 'center' },
     emptyStateBody: { color: c.textSecondary, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+    emptyStateCta: {
+      marginTop: 8,
+      alignSelf: 'flex-start',
+      backgroundColor: c.accent,
+      borderRadius: 12,
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+    },
+    emptyStateCtaText: {
+      color: c.accentText,
+      fontSize: 14,
+      fontWeight: '700',
+    },
     emptyStateBox: { alignItems: 'center', paddingVertical: 16, gap: 6 },
     emptyStateIcon: { color: c.accent, fontSize: 28, fontWeight: '800' },
     treinoCard: {
