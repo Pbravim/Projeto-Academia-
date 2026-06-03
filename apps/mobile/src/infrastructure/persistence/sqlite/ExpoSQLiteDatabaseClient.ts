@@ -734,13 +734,23 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
       { table: 'sessao_exercicios', column: 'nome_original_snapshot',       type: 'TEXT'    },
     ];
 
-    for (const { table, column, type, defaultValue } of required) {
+    // Group columns by table to minimize PRAGMA queries
+    const byTable = new Map<string, { column: string; type: string; defaultValue?: string }[]>();
+    for (const col of required) {
+      const list = byTable.get(col.table) ?? [];
+      list.push({ column: col.column, type: col.type, defaultValue: col.defaultValue });
+      byTable.set(col.table, list);
+    }
+
+    for (const [table, cols] of byTable) {
       const info = await database.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
-      const exists = info.some((col) => col.name === column);
-      if (!exists) {
-        const def = defaultValue ? ` NOT NULL DEFAULT ${defaultValue}` : '';
-        await database.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}${def};`);
-        this.logger.info('database.column_added', { table, column });
+      const existing = new Set(info.map((c) => c.name));
+      for (const { column, type, defaultValue } of cols) {
+        if (!existing.has(column)) {
+          const def = defaultValue ? ` NOT NULL DEFAULT ${defaultValue}` : '';
+          await database.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}${def};`);
+          this.logger.info('database.column_added', { table, column });
+        }
       }
     }
   }
