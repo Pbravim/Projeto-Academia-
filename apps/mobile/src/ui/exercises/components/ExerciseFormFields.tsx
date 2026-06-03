@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -430,6 +430,19 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
   const styles = useMemo(() => makeMediaStyles(c), [c]);
   const [picking, setPicking] = useState(false);
 
+  const currentLocalRef = React.useRef(mediaLocal);
+  React.useEffect(() => { currentLocalRef.current = mediaLocal; }, [mediaLocal]);
+
+  const deleteFileIfLocal = async (uri: string | null) => {
+    if (!uri) return;
+    if (!uri.startsWith('file://')) return;
+    try {
+      await FileSystemLegacy.deleteAsync(uri, { idempotent: true });
+    } catch {
+      // best-effort
+    }
+  };
+
   const localFileName = mediaLocal ? mediaLocal.split('/').pop() ?? 'arquivo' : null;
 
   const handlePickFile = async () => {
@@ -453,6 +466,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
       await FileSystemLegacy.makeDirectoryAsync(dir, { intermediates: true }).catch(() => {});
       const id = exercicioId ?? ('tmp_' + Date.now());
       const dest = dir + id + '_local.' + ext;
+      await deleteFileIfLocal(currentLocalRef.current);
       await FileSystemLegacy.copyAsync({ from: asset.uri, to: dest });
       onChangeLocal(dest);
     } finally {
@@ -503,7 +517,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
         {localFileName ? (
           <View style={styles.localRow}>
             <Text style={styles.localFile} numberOfLines={1}>📁 {localFileName}</Text>
-            <Pressable onPress={() => onChangeLocal(null)} style={styles.removeBtn}>
+            <Pressable onPress={() => { void deleteFileIfLocal(currentLocalRef.current); onChangeLocal(null); }} style={styles.removeBtn}>
               <Text style={styles.removeBtnText}>Remover</Text>
             </Pressable>
           </View>
