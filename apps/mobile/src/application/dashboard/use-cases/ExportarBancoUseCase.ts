@@ -1,10 +1,10 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
-import type { ExpoSQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/ExpoSQLiteDatabaseClient';
+import type { DatabaseExportPort } from '../../../domain/dashboard/ports/DatabaseExportPort';
 
 interface ExportarBancoDependencies {
-  databaseClient: ExpoSQLiteDatabaseClient;
+  databaseClient: DatabaseExportPort;
 }
 
 /** Copia o arquivo .db para a pasta de cache e abre o diálogo de compartilhamento. */

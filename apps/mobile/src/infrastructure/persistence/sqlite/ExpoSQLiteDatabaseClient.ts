@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 import type { AppLogger } from '../../logging/AppLogger';
+import type { DatabaseExportPort } from '../../../domain/dashboard/ports/DatabaseExportPort';
 import type { SQLiteBindParams, SQLiteDatabaseClient } from './SQLiteDatabaseClient';
 
 // Each entry is one migration step. The index+1 equals the PRAGMA user_version stored in the DB
@@ -498,7 +499,7 @@ const migrations: string[] = [
   `ALTER TABLE series_registradas ADD COLUMN tipo_serie TEXT NOT NULL DEFAULT 'valida';`,
 ];
 
-export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
+export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort {
   private databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
   private migrationPromise: Promise<void> | null = null;
   private _txDepth = 0;
