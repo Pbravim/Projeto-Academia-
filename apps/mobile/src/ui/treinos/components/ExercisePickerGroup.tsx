@@ -14,15 +14,15 @@ interface Props {
   hasSelection: boolean;
   onToggleSelect: (id: string) => void;
   onAdd: (id: string) => void;
+  onViewMedia: (exercise: ExercisePrimitives) => void;
 }
 
-export function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd }: Props) {
+export function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd, onViewMedia }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [expanded, setExpanded] = useState(false);
   const isOpen = expanded || forceExpanded;
-  const [playingId, setPlayingId] = useState<string | null>(null);
 
   return (
     <View style={styles.pickerGroup}>
@@ -44,7 +44,7 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
           {items.map((exercise) => {
             const isSelected = selected.has(exercise.id);
             const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
-            const playing = playingId === exercise.id;
+            const hasMedia = gifSource !== null || exercise.mediaOnline !== null;
             return (
               <Pressable
                 key={exercise.id}
@@ -64,13 +64,17 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
               >
                 <View style={styles.availableCardContent}>
                   {gifSource ? (
-                    <Pressable onPress={() => setPlayingId((prev) => (prev === exercise.id ? null : exercise.id))} hitSlop={4} style={styles.thumbnailWrap}>
-                      <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={playing} />
-                      {!playing ? (
-                        <View style={styles.thumbnailOverlay}>
-                          <Text style={styles.thumbnailPlayIcon}>▶</Text>
-                        </View>
-                      ) : null}
+                    <Pressable onPress={() => onViewMedia(exercise)} hitSlop={4} style={styles.thumbnailWrap}>
+                      <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+                      <View style={styles.thumbnailOverlay}>
+                        <Text style={styles.thumbnailPlayIcon}>▶</Text>
+                      </View>
+                    </Pressable>
+                  ) : hasMedia ? (
+                    <Pressable onPress={() => onViewMedia(exercise)} hitSlop={4} style={styles.thumbnailWrap}>
+                      <View style={[styles.thumbnail, styles.thumbnailOverlay]}>
+                        <Text style={styles.thumbnailPlayIcon}>▶</Text>
+                      </View>
                     </Pressable>
                   ) : null}
                   <View style={{ flex: 1 }}>

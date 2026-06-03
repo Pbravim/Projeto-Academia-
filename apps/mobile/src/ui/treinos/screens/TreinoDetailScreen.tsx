@@ -532,6 +532,7 @@ export function TreinoDetailScreen({
                 onToggleSelect={toggleSelect}
                 onAdd={(id) => { void onAddExercicio(id); }}
                 hasSelection={selected.size > 0}
+                onViewMedia={(ex) => setMediaViewerInfo({ name: ex.name, mediaLocal: ex.mediaLocal ?? null, mediaOnline: ex.mediaOnline ?? null })}
               />
             ))
           )}
