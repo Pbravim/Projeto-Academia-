@@ -32,11 +32,25 @@ export class InMemoryHistoricoRepository implements HistoricoRepository {
   }
 
   async getUltimasExecucoesValidas(): Promise<Map<string, UltimaExecucaoValida>> {
-    const exercicioIds = [...new Set(this.records.map((r) => r.exercicioId))];
+    const byExercicio = new Map<string, { dataExecucao: string; melhor: { cargaKg: number; repeticoes: number } }>();
+
+    for (const { exercicioId, execucao } of this.records) {
+      const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
+      if (validas.length === 0) continue;
+
+      const existing = byExercicio.get(exercicioId);
+      const isNewer = !existing || new Date(execucao.dataExecucao) > new Date(existing.dataExecucao);
+      if (!isNewer) continue;
+
+      const melhor = validas.reduce((a, b) =>
+        a.cargaKg * (1 + a.repeticoes / 30) >= b.cargaKg * (1 + b.repeticoes / 30) ? a : b
+      );
+      byExercicio.set(exercicioId, { dataExecucao: execucao.dataExecucao, melhor });
+    }
+
     const result = new Map<string, UltimaExecucaoValida>();
-    for (const id of exercicioIds) {
-      const ultima = await this.getUltimaExecucaoValida(id);
-      if (ultima) result.set(id, ultima);
+    for (const [exercicioId, { dataExecucao, melhor }] of byExercicio) {
+      result.set(exercicioId, { cargaKg: melhor.cargaKg, repeticoes: melhor.repeticoes, dataExecucao });
     }
     return result;
   }
