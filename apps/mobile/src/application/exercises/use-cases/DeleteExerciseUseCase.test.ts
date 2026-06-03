@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
@@ -20,12 +20,13 @@ function makeCreateUseCase(repo: InMemoryExerciseRepository) {
   });
 }
 
-function makeDeleteUseCase(repo: InMemoryExerciseRepository) {
+function makeDeleteUseCase(repo: InMemoryExerciseRepository, mediaFileCleanup?: any) {
   return new DeleteExerciseUseCase({
     exerciseRepository: repo,
     treinoExercicioRepository: new InMemoryTreinoExercicioRepository(),
     sessaoExercicioRepository: new InMemorySessaoExercicioRepository(),
     serieRegistradaRepository: new InMemorySerieRegistradaRepository(),
+    mediaFileCleanup,
   });
 }
 
@@ -48,5 +49,29 @@ describe('DeleteExerciseUseCase', () => {
     const del = makeDeleteUseCase(repo);
 
     await expect(del.execute('non_existent')).rejects.toThrow(ExerciseNotFoundError);
+  });
+
+  it('deletes the local media file when exercise has mediaLocal starting with file://', async () => {
+    const repo = makeRepo();
+    const create = makeCreateUseCase(repo);
+    const mockMediaFileCleanup = {
+      deleteFileIfExists: vi.fn().mockResolvedValue(undefined),
+    };
+    const del = makeDeleteUseCase(repo, mockMediaFileCleanup);
+
+    await create.execute({
+      name: 'Supino reto com arquivo local',
+      groupMuscle: 'Peito',
+      category: 'Composto',
+      mediaLocal: 'file:///data/exercises/ex1_local.mp4',
+    });
+
+    await del.execute('exercise_1');
+
+    expect(mockMediaFileCleanup.deleteFileIfExists).toHaveBeenCalledWith('file:///data/exercises/ex1_local.mp4');
+    expect(mockMediaFileCleanup.deleteFileIfExists).toHaveBeenCalledOnce();
+
+    const remaining = await repo.list();
+    expect(remaining).toHaveLength(0);
   });
 });
