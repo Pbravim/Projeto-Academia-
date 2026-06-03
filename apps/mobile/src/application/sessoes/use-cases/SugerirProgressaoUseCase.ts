@@ -1,5 +1,8 @@
 import type { ExecucaoExercicio, HistoricoRepository } from '../../../domain/historico/repositories/HistoricoRepository';
 
+/** Incremento de carga sugerido ao atingir a meta de repetições. */
+export const INCREMENTO_CARGA_KG = 2.5;
+
 export interface SugestaoProgressao {
   cargaSugerida: number;
   motivo: string;
@@ -61,7 +64,7 @@ export class SugerirProgressaoUseCase {
       Math.max(...validasUltima.map((s) => s.cargaKg));
 
     return {
-      cargaSugerida: cargaReferencia + 2.5,
+      cargaSugerida: cargaReferencia + INCREMENTO_CARGA_KG,
       motivo: `Meta de ${meta} reps atingida nas últimas 2 sessões`,
     };
   }

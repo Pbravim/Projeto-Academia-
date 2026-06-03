@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InMemoryHistoricoRepository } from '../../../infrastructure/historico/InMemoryHistoricoRepository';
-import { SugerirProgressaoUseCase } from './SugerirProgressaoUseCase';
+import { INCREMENTO_CARGA_KG, SugerirProgressaoUseCase } from './SugerirProgressaoUseCase';
 
 function makeExecucao(dataExecucao: string, series: { cargaKg: number; repeticoes: number; tipoSerie: 'valida' | 'aquecimento' }[]) {
   return {
@@ -120,5 +120,25 @@ describe('SugerirProgressaoUseCase', () => {
 
     expect(result).not.toBeNull();
     expect(result!.cargaSugerida).toBe(87.5);
+  });
+
+  it('usa INCREMENTO_CARGA_KG quando meta é atingida nas últimas 2 sessões', async () => {
+    const { historicoRepository, useCase } = makeDeps();
+    const cargaReferencia = 75;
+    historicoRepository.seed('ex_1', makeExecucao('2026-05-02T10:00:00Z', [
+      { cargaKg: cargaReferencia, repeticoes: 10, tipoSerie: 'valida' },
+    ]));
+    historicoRepository.seed('ex_1', makeExecucao('2026-05-01T10:00:00Z', [
+      { cargaKg: cargaReferencia, repeticoes: 10, tipoSerie: 'valida' },
+    ]));
+
+    const result = await useCase.execute({
+      exercicioId: 'ex_1',
+      execucoesRecomendadas: 10,
+      cargaPadrao: cargaReferencia,
+    });
+
+    expect(result).not.toBeNull();
+    expect(result!.cargaSugerida).toBe(cargaReferencia + INCREMENTO_CARGA_KG);
   });
 });
