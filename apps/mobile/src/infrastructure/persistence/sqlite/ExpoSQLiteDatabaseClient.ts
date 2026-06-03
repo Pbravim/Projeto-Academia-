@@ -501,6 +501,7 @@ const migrations: string[] = [
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   private databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
   private migrationPromise: Promise<void> | null = null;
+  private _txDepth = 0;
 
   constructor(
     private readonly databaseName: string,
@@ -558,13 +559,29 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient {
   }
 
   async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
-    await this.run('BEGIN');
+    const depth = this._txDepth;
+    if (depth === 0) {
+      await this.run('BEGIN');
+    } else {
+      await this.run(`SAVEPOINT sp${depth}`);
+    }
+    this._txDepth++;
     try {
       const result = await fn();
-      await this.run('COMMIT');
+      this._txDepth--;
+      if (this._txDepth === 0) {
+        await this.run('COMMIT');
+      } else {
+        await this.run(`RELEASE SAVEPOINT sp${depth}`);
+      }
       return result;
     } catch (err) {
-      await this.run('ROLLBACK');
+      this._txDepth--;
+      if (this._txDepth === 0) {
+        await this.run('ROLLBACK');
+      } else {
+        await this.run(`ROLLBACK TO SAVEPOINT sp${depth}`);
+      }
       throw err;
     }
   }
