@@ -1,6 +1,6 @@
 # Estado Atual — App Academia
 
-> Atualizado em `2026-05-19`.
+> Atualizado em `2026-06-02`.
 
 ---
 
@@ -18,7 +18,7 @@ App mobile de acompanhamento de treino de musculação. Registro rápido durante
 | Plataforma | Expo SDK 54 |
 | Linguagem | TypeScript 5.9 (strict) |
 | Banco local | SQLite via expo-sqlite 16 (schema v15) |
-| Testes | Vitest 4.1 — 126 testes passando |
+| Testes | Vitest 4.1 — 218 testes passando |
 
 ---
 
@@ -60,6 +60,7 @@ apps/mobile/src/
 - Sugestões ao criar: exercícios com nome similar aparecem em tempo real; match exato mostra aviso "já existe"
 - Último peso válido exibido no card (via `GetUltimaExecucaoValida`)
 - Navegação para histórico individual do exercício
+- **Mídia custom:** campo para URL online (YouTube, GIF, MP4) e upload de arquivo local (imagem/vídeo) via `expo-image-picker`; arquivos copiados para `documentDirectory/exercises/` e limpos ao remover/deletar
 
 ### Treinos
 
@@ -72,6 +73,7 @@ apps/mobile/src/
 - Adição de exercícios com multiselect e busca por nome/grupo
 - Recomendações por exercício: séries × reps × carga × tempo de descanso
 - Exclusão em cascata (exercícios do treino removidos junto)
+- **Edição inline de série registrada:** long-press na série durante a sessão abre campos de edição (carga, reps) com Save/Cancel
 
 ### Sessões de Treino
 
@@ -162,10 +164,10 @@ Migrações versionadas de v1 a v15 em `ExpoSQLiteDatabaseClient.ts`. GIFs embut
 
 ## Testes
 
-- **126 testes** passando (Vitest, ambiente node)
+- **218 testes** passando (Vitest, ambiente node)
 - **Estratégia:** InMemory repos para use cases, SQLite real para integração
-- **Cobertos:** entities, use cases, repositórios, presenters
-- **Sem cobertura:** hook controllers, screens, E2E
+- **Cobertos:** entities, use cases, repositórios, presenters, hook controllers (8 controllers)
+- **Sem cobertura:** screens, E2E
 
 ---
 
