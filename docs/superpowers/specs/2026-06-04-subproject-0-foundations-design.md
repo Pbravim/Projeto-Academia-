@@ -33,32 +33,31 @@ Prepare the existing local app for cloud sync **without adding a backend**. Afte
 
 ## Component 2 — Sync-metadata columns (migration v16)
 
-**Consolidation decision:** there is **no** parallel `sync_updated_at`. Every user-owned table standardizes on a single canonical **`updated_at` as INTEGER ms-epoch**, used for *both* the domain "last modified" time *and* sync last-write-wins. This is a deliberate refactor (not redundancy): one timestamp, one meaning.
+**Consolidation decision:** there is **no** parallel `sync_updated_at`. Every user-owned table standardizes on a single canonical **`updated_at` as ISO-8601 UTC text** (`YYYY-MM-DDTHH:mm:ss.sssZ`, exactly what `Date.prototype.toISOString()` already produces), used for *both* the domain "last modified" time *and* sync last-write-wins. ISO-8601 UTC strings sort lexicographically === chronologically, so LWW compares them directly — **no ms-epoch conversion, no entity changes.**
 
 Migration v16 (appended as migration index 15 → `user_version` 16):
 
-**a) Canonical `updated_at` (INTEGER ms):**
-- Tables that already have a (text/ISO) `updated_at` — `exercises`, `treinos` — convert the existing values to ms-epoch in the backfill.
-- Tables that lack it — `treino_exercicios`, `sessao_treinos`, `sessao_exercicios`, `series_registradas`, `registros_peso`, `exercise_alternatives`, `settings` — add `updated_at INTEGER`.
-- `created_at` stays as-is (ISO text, display-only, not sync-relevant). The created_at(ISO)/updated_at(ms) split is intentional.
+**a) Canonical `updated_at` (ISO text):**
+- `exercises`, `treinos` already have a text `updated_at` — left as-is.
+- Tables that lack it — `treino_exercicios`, `sessao_treinos`, `sessao_exercicios`, `series_registradas`, `registros_peso`, `exercise_alternatives`, `settings` — add `updated_at TEXT`.
+- `created_at` is unchanged.
 
 **b) New columns on each user-owned table:**
 
 | Column | Type | Meaning |
 |---|---|---|
-| `deleted_at` | INTEGER NULL | tombstone; set on delete, else NULL |
+| `deleted_at` | TEXT NULL | tombstone; ISO timestamp set on delete, else NULL |
 | `dirty` | INTEGER NOT NULL DEFAULT 1 | 1 = local change not yet pushed |
 | `server_rev` | INTEGER NULL | server-assigned revision (populated in sub-project 2; NULL until first sync) |
 
-**c) Entity changes** (consequence of the ms refactor):
-- `Exercise` and `Treino`: `updatedAt` primitive changes from ISO `string` → `number` (ms). Update `create()`/`restore()`/`update()`, their repos' row mapping, presenters/dashboard repo that read it, and the affected tests.
+**c) No entity changes.** `Exercise`/`Treino` keep `updatedAt: string` (ISO). One required bug-fix: `SQLiteExerciseRepository.updateMedia` writes `datetime('now')` (space-separated, no `Z`) — replace with a `toISOString()`-format value so it sorts consistently with all other `updated_at` values.
 
-- **Backfill:** `updated_at = <existing ISO parsed to ms, else migration run time>`, `deleted_at = NULL`, `dirty = 1` (first cloud sync pushes the whole existing dataset up), `server_rev = NULL`.
+- **Backfill:** for tables gaining `updated_at`, set it from the row's existing natural timestamp where one exists (`sessao_treinos.data_hora_inicio`, `registros_peso.data_registro`) else the migration run time (ISO). `deleted_at = NULL`, `dirty = 1` (first cloud sync pushes the whole existing dataset up), `server_rev = NULL`.
 - The `exercises` table gets these columns too, but global rows (`is_custom=0`) are excluded from all sync selection — they're inert.
 - `sessao_treinos.arquivado` (domain archive) is unrelated to `deleted_at` (sync tombstone); both coexist.
-- Migration is idempotent-tolerant per the existing runner (duplicate-column errors ignored), consistent with prior steps.
+- Migration is idempotent-tolerant per the existing runner (duplicate-column errors ignored), consistent with prior steps. **`db-setup.ts` keeps its own condensed migration list and must gain the same columns** so tests see them.
 
-**Acceptance:** fresh DB and a v15→v16 upgrade both end at `user_version=16`; every user-owned table has `updated_at`(ms), `deleted_at`, `dirty`, `server_rev`; existing `updated_at` values correctly converted to ms; entities round-trip the numeric `updatedAt`; global rows unaffected.
+**Acceptance:** fresh DB and a v15→v16 upgrade both end at `user_version=16`; every user-owned table has `updated_at`, `deleted_at`, `dirty`, `server_rev`; existing data intact; `updateMedia` writes ISO-`Z` format; global rows unaffected.
 
 ---
 
@@ -81,11 +80,11 @@ Behind the repository interfaces (domain/use-cases unchanged):
 
 ## Component 4 — Write-time stamping
 
-- Every create/update in a user-owned repo sets `updated_at = Date.now()` (ms) and `dirty = 1`.
+- Every create/update in a user-owned repo sets `updated_at = new Date().toISOString()` and `dirty = 1`.
 - Centralize the "now" via the existing clock/util if present; otherwise a small `stamp()` helper used by the repos.
 - This is deliberately inline in the SQLite repos for now; sub-project 2 extracts it into a `SyncRepository` decorator.
 
-**Acceptance:** any create/update leaves the row with a fresh ms `updated_at` and `dirty=1`.
+**Acceptance:** any create/update leaves the row with a fresh ISO `updated_at` and `dirty=1`.
 
 ---
 
@@ -93,7 +92,7 @@ Behind the repository interfaces (domain/use-cases unchanged):
 
 - Keep all **218** existing tests green.
 - Add: UUIDv7 validity + monotonicity; v16 migration shape (columns present, backfill values, idempotent re-run); soft-delete hides rows; each cascade-soft-delete path; tombstone resurrection on unique re-create; write stamping sets `dirty`/`sync_updated_at`.
-- Test strategy unchanged: InMemory repos for use cases, real SQLite (better-sqlite3 in node) for migration/repo integration. **InMemory repos must mirror the soft-delete + stamping behavior** so use-case tests stay representative.
+- Test strategy unchanged: InMemory repos for use cases, real SQLite (better-sqlite3 in node) for migration/repo integration. **InMemory doubles stay as-is** (hard `Map.delete`) — the observable behavior a use case sees (deleted row no longer returned) is identical to soft-delete, and no entity types change. Tombstone propagation and resurrect-on-unique-recreate are SQLite-specific and tested directly against real SQLite.
 
 ## Risks
 
@@ -101,8 +100,8 @@ Behind the repository interfaces (domain/use-cases unchanged):
 |---|---|
 | Soft delete misses a read path → ghost rows appear | Audit every `SELECT` in user-owned repos; tests per cascade path |
 | Unique constraints vs tombstones | Resurrect-and-overwrite rule (Component 3) |
-| InMemory and SQLite repos diverge in soft-delete semantics | Shared behavioral test suite run against both |
-| ISO→ms `updated_at` conversion breaks readers/presenters | Audit all `updatedAt` consumers (entities, repos, presenters, dashboard); convert in one pass with tests; `created_at` left as ISO |
+| InMemory and SQLite repos diverge in soft-delete semantics | Observable delete behavior is identical; doubles unchanged; tombstone/resurrect tested against real SQLite only |
+| Inconsistent timestamp formats break LWW sort | Canonical ISO-8601 UTC everywhere; fix `updateMedia`'s `datetime('now')`; entities already emit `toISOString()` |
 
 ## Done = shippable
 

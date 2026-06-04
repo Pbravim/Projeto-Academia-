@@ -79,8 +79,8 @@ Three tiers, enforced **server-side** (the client never decides what it may see)
 Every read is filtered server-side to: *rows you own* OR *global* OR *shared-with-you*.
 
 ### Sync metadata (every synced, user-owned table)
-- `updated_at` (ms epoch) — drives LWW.
-- `deleted_at` (nullable) — tombstone; deletes become soft. UI never sees tombstoned rows.
+- `updated_at` (ISO-8601 UTC text) — drives LWW; sorts lexicographically === chronologically.
+- `deleted_at` (nullable ISO text) — tombstone; deletes become soft. UI never sees tombstoned rows.
 - server-assigned `rev` / `server_updated_at` — server ordering for the pull cursor.
 - client-side `dirty` flag — marks unsynced local changes.
 - Global catalog tables do **not** get these columns.
