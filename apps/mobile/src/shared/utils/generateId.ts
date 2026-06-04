@@ -1,6 +1,10 @@
-export function generateId(prefix = 'id'): string {
-  const timePart = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).slice(2, 8);
+import { uuidv7 } from 'uuidv7';
 
-  return `${prefix}_${timePart}_${randomPart}`;
+/**
+ * Globally-unique, time-ordered identifier (UUIDv7) for user-owned rows.
+ * The optional `prefix` argument is accepted for backward compatibility with
+ * existing call sites but is ignored — IDs are now opaque UUIDs.
+ */
+export function generateId(_prefix?: string): string {
+  return uuidv7();
 }
