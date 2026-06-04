@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystemLegacy from 'expo-file-system/legacy';
+import { Directory, File, Paths } from 'expo-file-system';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { useTheme } from '../../shared/theme';
@@ -433,11 +433,12 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
   const currentLocalRef = React.useRef(mediaLocal);
   React.useEffect(() => { currentLocalRef.current = mediaLocal; }, [mediaLocal]);
 
-  const deleteFileIfLocal = async (uri: string | null) => {
+  const deleteFileIfLocal = (uri: string | null) => {
     if (!uri) return;
     if (!uri.startsWith('file://')) return;
     try {
-      await FileSystemLegacy.deleteAsync(uri, { idempotent: true });
+      const f = new File(uri);
+      if (f.exists) f.delete();
     } catch {
       // best-effort
     }
@@ -462,13 +463,14 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
 
       const asset = result.assets[0];
       const ext = asset.uri.split('.').pop()?.toLowerCase() ?? 'mp4';
-      const dir = FileSystemLegacy.documentDirectory + 'exercises/';
-      await FileSystemLegacy.makeDirectoryAsync(dir, { intermediates: true }).catch(() => {});
+      const exercisesDir = new Directory(Paths.document, 'exercises');
+      if (!exercisesDir.exists) { try { exercisesDir.create(); } catch {} }
       const id = exercicioId ?? ('tmp_' + Date.now());
-      const dest = dir + id + '_local.' + ext;
-      await deleteFileIfLocal(currentLocalRef.current);
-      await FileSystemLegacy.copyAsync({ from: asset.uri, to: dest });
-      onChangeLocal(dest);
+      const destFile = new File(exercisesDir, `${id}_local.${ext}`);
+      deleteFileIfLocal(currentLocalRef.current);
+      const sourceFile = new File(asset.uri);
+      sourceFile.copy(destFile);
+      onChangeLocal(destFile.uri);
     } finally {
       setPicking(false);
     }
@@ -517,7 +519,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
         {localFileName ? (
           <View style={styles.localRow}>
             <Text style={styles.localFile} numberOfLines={1}>📁 {localFileName}</Text>
-            <Pressable onPress={() => { void deleteFileIfLocal(currentLocalRef.current); onChangeLocal(null); }} style={styles.removeBtn}>
+            <Pressable onPress={() => { deleteFileIfLocal(currentLocalRef.current); onChangeLocal(null); }} style={styles.removeBtn}>
               <Text style={styles.removeBtnText}>Remover</Text>
             </Pressable>
           </View>

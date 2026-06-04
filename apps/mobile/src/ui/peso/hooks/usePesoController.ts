@@ -32,6 +32,10 @@ export interface PesoControllerState {
   onDelete: (id: string) => Promise<void>;
 }
 
+export function parsePesoInput(input: string): number {
+  return parseFloat(input.replace(/,/g, '.'));
+}
+
 export function usePesoController(dependencies: PesoControllerDependencies): PesoControllerState {
   const [registros, setRegistros] = useState<RegistroPesoPrimitives[]>([]);
   const [pesoKgInput, setPesoKgInput] = useState('');
@@ -75,7 +79,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
     setFeedbackMessage(null);
 
     try {
-      const pesoKg = parseFloat(pesoKgInput.replace(',', '.'));
+      const pesoKg = parsePesoInput(pesoKgInput);
       await dependencies.registrarPeso.execute({ pesoKg, observacao: observacaoInput || undefined, dataRegistro: selectedDate });
       setPesoKgInput('');
       setObservacaoInput('');

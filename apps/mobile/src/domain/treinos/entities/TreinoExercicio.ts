@@ -17,6 +17,15 @@ export class TreinoExercicio {
   private constructor(private readonly props: TreinoExercicioPrimitives) {}
 
   static create(props: TreinoExercicioPrimitives): TreinoExercicio {
+    if (props.ordem < 0) {
+      throw new Error('TreinoExercicio: ordem deve ser >= 0');
+    }
+    if (props.cargaPadrao !== null && props.cargaPadrao !== undefined && props.cargaPadrao < 0) {
+      throw new Error('TreinoExercicio: cargaPadrao deve ser >= 0');
+    }
+    if (props.seriesRecomendadas !== null && props.seriesRecomendadas !== undefined && props.seriesRecomendadas <= 0) {
+      throw new Error('TreinoExercicio: seriesRecomendadas deve ser > 0');
+    }
     return new TreinoExercicio(props);
   }
 

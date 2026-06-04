@@ -1,5 +1,5 @@
 import { startTransition, useCallback, useEffect, useRef, useState } from 'react';
-import * as FileSystemLegacy from 'expo-file-system/legacy';
+import { File, Paths } from 'expo-file-system';
 
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../../../application/exercises/errors/ExerciseNotFoundError';
@@ -197,9 +197,10 @@ export function useExerciseCatalogController(
         if (cleanDraft.mediaLocal && cleanDraft.mediaLocal.includes('tmp_')) {
           try {
             const ext = cleanDraft.mediaLocal.split('.').pop() ?? 'mp4';
-            const canonicalPath = (FileSystemLegacy.documentDirectory ?? '') + `exercises/${created.id}.${ext}`;
-            await FileSystemLegacy.moveAsync({ from: cleanDraft.mediaLocal, to: canonicalPath });
-            await dependencies.exerciseRepository.updateMedia(created.id, created.mediaOnline, canonicalPath);
+            const srcFile = new File(cleanDraft.mediaLocal);
+            const destFile = new File(Paths.document, 'exercises', `${created.id}.${ext}`);
+            srcFile.move(destFile);
+            await dependencies.exerciseRepository.updateMedia(created.id, created.mediaOnline, destFile.uri);
           } catch {
             // Falha silenciosa — o arquivo tmp ainda funciona enquanto existir
           }

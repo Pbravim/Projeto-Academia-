@@ -6,7 +6,7 @@ export interface RegistroPesoCardViewModel {
   data: string;
   observacao: string | null;
   delta: string | null;
-  deltaPositivo: boolean;
+  pesoAumentou: boolean;
 }
 
 export interface PesoChartPoint {
@@ -38,7 +38,7 @@ export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoVie
       data: formatDate(registro.dataRegistro),
       observacao: registro.observacao,
       delta: delta !== null ? formatDelta(delta) : null,
-      deltaPositivo: delta !== null ? delta > 0 : false,
+      pesoAumentou: delta !== null ? delta > 0 : false,
     };
   });
 

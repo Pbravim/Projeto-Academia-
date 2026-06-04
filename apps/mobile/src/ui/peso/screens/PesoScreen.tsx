@@ -157,7 +157,7 @@ export function PesoScreen({
 
                 <View style={styles.registroRight}>
                   {card.delta ? (
-                    <Text style={[styles.registroDelta, card.deltaPositivo ? styles.deltaNegativo : styles.deltaPositivo]}>
+                    <Text style={[styles.registroDelta, card.pesoAumentou ? styles.deltaNegativo : styles.deltaPositivo]}>
                       {card.delta}
                     </Text>
                   ) : null}

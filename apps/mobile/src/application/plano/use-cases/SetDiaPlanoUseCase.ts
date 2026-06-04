@@ -5,6 +5,7 @@ export class SetDiaPlanoUseCase {
   constructor(private readonly repository: PlanoSemanalRepository) {}
 
   execute(dia: DiaSemana, treinoId: string | null): Promise<void> {
-    return this.repository.setDia(dia, treinoId);
+    const normalizado = typeof treinoId === 'string' && treinoId.trim() === '' ? null : treinoId;
+    return this.repository.setDia(dia, normalizado);
   }
 }

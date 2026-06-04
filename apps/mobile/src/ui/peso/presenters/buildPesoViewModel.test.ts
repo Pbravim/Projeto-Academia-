@@ -49,7 +49,7 @@ describe('buildPesoViewModel', () => {
         reg('r1', 80, '2026-05-01T10:00:00.000Z'),
       ]);
       expect(vm.cards[0].delta).toBe('+1 kg');
-      expect(vm.cards[0].deltaPositivo).toBe(true);
+      expect(vm.cards[0].pesoAumentou).toBe(true);
     });
 
     it('calcula delta negativo entre registros consecutivos', () => {
@@ -58,7 +58,7 @@ describe('buildPesoViewModel', () => {
         reg('r1', 80, '2026-05-01T10:00:00.000Z'),
       ]);
       expect(vm.cards[0].delta).toBe('-0.5 kg');
-      expect(vm.cards[0].deltaPositivo).toBe(false);
+      expect(vm.cards[0].pesoAumentou).toBe(false);
     });
 
     it('entrada mais antiga nao tem delta', () => {

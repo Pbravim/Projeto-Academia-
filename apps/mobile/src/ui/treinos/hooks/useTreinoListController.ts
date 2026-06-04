@@ -5,6 +5,7 @@ import type { DeleteTreinoUseCase } from '../../../application/treinos/use-cases
 import type { DuplicarTreinoUseCase } from '../../../application/treinos/use-cases/DuplicarTreinoUseCase';
 import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
 import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 
@@ -100,7 +101,7 @@ export function useTreinoListController(
     } catch (error) {
       dependencies.logger.error('treino_list.create_failed', error, { draft });
 
-      if (error instanceof TreinoValidationError) {
+      if (error instanceof TreinoValidationError || error instanceof DuplicateTreinoError) {
         setErrorMessage(error.message);
       } else {
         setErrorMessage('Nao foi possivel criar o treino.');

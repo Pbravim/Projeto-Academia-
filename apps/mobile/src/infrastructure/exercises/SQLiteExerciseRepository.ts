@@ -104,7 +104,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void> {
     await this.database.run(
-      'UPDATE exercises SET media_online = ?, media_local = ? WHERE id = ?',
+      "UPDATE exercises SET media_online = ?, media_local = ?, updated_at = datetime('now') WHERE id = ?",
       [mediaOnline, mediaLocal, id]
     );
   }
