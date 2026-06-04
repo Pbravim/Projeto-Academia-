@@ -43,11 +43,11 @@ export class SqliteDashboardRepository implements DashboardRepository {
     const [total, sessoes, records, ultimoMes, weekRows, monthRows, yearRows] = await Promise.all([
       this.database.getFirst<{ count: number }>(
         `SELECT COUNT(*) as count FROM sessao_treinos st
-         WHERE status = 'finalizada' AND arquivado = 0
+         WHERE status = 'finalizada' AND arquivado = 0 AND st.deleted_at IS NULL
          AND EXISTS (
            SELECT 1 FROM sessao_exercicios se
            JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
-           WHERE se.sessao_treino_id = st.id
+           WHERE se.sessao_treino_id = st.id AND se.deleted_at IS NULL AND sr.deleted_at IS NULL
          )`
       ),
       this.database.getAll<{
@@ -70,9 +70,9 @@ export class SqliteDashboardRepository implements DashboardRepository {
            COALESCE(SUM(sr.carga_kg * sr.repeticoes), 0) AS volume_total,
            COALESCE(MAX(sr.carga_kg * (1.0 + sr.repeticoes / 30.0)), 0) AS melhor_orm
          FROM sessao_treinos st
-         LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
-         LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
-         WHERE st.status = 'finalizada'
+         LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id AND se.deleted_at IS NULL
+         LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
+         WHERE st.status = 'finalizada' AND st.deleted_at IS NULL
          GROUP BY st.id
          HAVING COUNT(sr.id) > 0
          ORDER BY st.data_hora_inicio DESC`
@@ -81,36 +81,36 @@ export class SqliteDashboardRepository implements DashboardRepository {
         `SELECT e.name AS exercicio_nome,
                 MAX(sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) AS melhor_orm
          FROM series_registradas sr
-         JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id
-         JOIN sessao_treinos st ON se.sessao_treino_id = st.id
-         JOIN exercises e ON se.exercicio_id = e.id
-         WHERE st.arquivado = 0
+         JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id AND se.deleted_at IS NULL
+         JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
+         JOIN exercises e ON se.exercicio_id = e.id AND e.deleted_at IS NULL
+         WHERE st.arquivado = 0 AND sr.deleted_at IS NULL
          GROUP BY se.exercicio_id
          ORDER BY melhor_orm DESC
          LIMIT 10`
       ),
       this.database.getFirst<{ count: number }>(
-        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND arquivado = 0 AND data_hora_inicio >= ?",
+        "SELECT COUNT(*) as count FROM sessao_treinos WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND data_hora_inicio >= ?",
         [new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()]
       ),
       this.database.getAll<{ dia: string; total: number }>(
         `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND arquivado = 0 AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
          GROUP BY dia`,
         [monday, sundayKey]
       ),
       this.database.getAll<{ dia: string; total: number }>(
         `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND arquivado = 0 AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
          GROUP BY dia`,
         [firstOfMonth, lastOfMonth]
       ),
       this.database.getAll<{ mes: string; total: number }>(
         `SELECT strftime('%Y-%m', data_hora_inicio) AS mes, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND arquivado = 0 AND strftime('%Y', data_hora_inicio) = ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND strftime('%Y', data_hora_inicio) = ?
          GROUP BY mes`,
         [yearStr]
       ),
@@ -210,10 +210,10 @@ export class SqliteDashboardRepository implements DashboardRepository {
          sr.carga_kg,
          sr.repeticoes
        FROM sessao_treinos st
-       JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
+       JOIN sessao_exercicios se ON se.sessao_treino_id = st.id AND se.deleted_at IS NULL
        JOIN series_registradas sr
-         ON sr.sessao_exercicio_id = se.id
-       WHERE st.treino_id = ? AND st.status = 'finalizada' AND st.arquivado = 0
+         ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
+       WHERE st.treino_id = ? AND st.status = 'finalizada' AND st.arquivado = 0 AND st.deleted_at IS NULL
        ORDER BY se.nome_snapshot ASC, st.data_hora_inicio DESC, sr.ordem ASC`,
       [treinoId]
     );
@@ -295,10 +295,10 @@ export class SqliteDashboardRepository implements DashboardRepository {
        FROM treinos t
        LEFT JOIN (
          SELECT treino_id, MAX(data_hora_inicio) AS ultima_sessao
-         FROM sessao_treinos WHERE status = 'finalizada'
+         FROM sessao_treinos WHERE status = 'finalizada' AND deleted_at IS NULL
          GROUP BY treino_id
        ) s ON t.id = s.treino_id
-       WHERE EXISTS (SELECT 1 FROM treino_exercicios te WHERE te.treino_id = t.id)
+       WHERE t.deleted_at IS NULL AND EXISTS (SELECT 1 FROM treino_exercicios te WHERE te.treino_id = t.id AND te.deleted_at IS NULL)
        ORDER BY
          CASE WHEN s.ultima_sessao IS NULL THEN 0 ELSE 1 END ASC,
          s.ultima_sessao ASC,
@@ -316,11 +316,11 @@ export class SqliteDashboardRepository implements DashboardRepository {
        FROM treinos t
        LEFT JOIN (
          SELECT treino_id, MAX(data_hora_inicio) AS ultima_sessao
-         FROM sessao_treinos WHERE status = 'finalizada'
+         FROM sessao_treinos WHERE status = 'finalizada' AND deleted_at IS NULL
          GROUP BY treino_id
        ) s ON t.id = s.treino_id
-       WHERE t.id = ?
-         AND EXISTS (SELECT 1 FROM treino_exercicios te WHERE te.treino_id = t.id)`,
+       WHERE t.id = ? AND t.deleted_at IS NULL
+         AND EXISTS (SELECT 1 FROM treino_exercicios te WHERE te.treino_id = t.id AND te.deleted_at IS NULL)`,
       [treinoId]
     );
     if (!row) return null;

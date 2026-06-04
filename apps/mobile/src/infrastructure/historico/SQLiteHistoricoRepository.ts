@@ -37,12 +37,12 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
          SELECT se2.exercicio_id, MAX(st2.data_hora_fim) AS max_fim, MAX(st2.id) AS max_id
          FROM sessao_exercicios se2
          JOIN sessao_treinos st2 ON se2.sessao_treino_id = st2.id
-         WHERE st2.status = 'finalizada' AND st2.data_hora_fim IS NOT NULL
+         WHERE st2.status = 'finalizada' AND st2.data_hora_fim IS NOT NULL AND st2.deleted_at IS NULL AND se2.deleted_at IS NULL
          GROUP BY se2.exercicio_id
        ) latest
-       JOIN sessao_exercicios se ON se.exercicio_id = latest.exercicio_id
-       JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.data_hora_fim = latest.max_fim AND st.id = latest.max_id
-       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
+       JOIN sessao_exercicios se ON se.exercicio_id = latest.exercicio_id AND se.deleted_at IS NULL
+       JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.data_hora_fim = latest.max_fim AND st.id = latest.max_id AND st.deleted_at IS NULL
+       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
        ORDER BY se.exercicio_id, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC`
     );
 
@@ -63,9 +63,9 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
     const row = await this.database.getFirst<UltimaRow>(
       `SELECT sr.carga_kg, sr.repeticoes, st.data_hora_fim
        FROM series_registradas sr
-       INNER JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id
-       INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
-       WHERE se.exercicio_id = ? AND st.status = 'finalizada'
+       INNER JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id AND se.deleted_at IS NULL
+       INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
+       WHERE se.exercicio_id = ? AND st.status = 'finalizada' AND sr.deleted_at IS NULL
        ORDER BY st.data_hora_fim DESC, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC
        LIMIT 1`,
       [exercicioId]
@@ -80,9 +80,9 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
               se.nome_original_snapshot, se.substituicao_motivo,
               sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem, sr.tipo_serie
        FROM sessao_exercicios se
-       INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
-       INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
-       WHERE se.exercicio_id = ? AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL
+       INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
+       INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
+       WHERE se.exercicio_id = ? AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL AND se.deleted_at IS NULL
        ORDER BY st.data_hora_fim DESC, sr.ordem ASC`,
       [exercicioId]
     );
@@ -103,9 +103,9 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
                 se.nome_original_snapshot, se.substituicao_motivo,
                 sr.id as serie_id, sr.carga_kg, sr.repeticoes, sr.observacao, sr.ordem, sr.tipo_serie
          FROM sessao_exercicios se
-         INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
-         INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
-         WHERE se.exercicio_id IN (${placeholders}) AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL
+         INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
+         INNER JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
+         WHERE se.exercicio_id IN (${placeholders}) AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL AND se.deleted_at IS NULL
          ORDER BY se.exercicio_id, st.data_hora_fim DESC, sr.ordem ASC`,
         chunk
       );
