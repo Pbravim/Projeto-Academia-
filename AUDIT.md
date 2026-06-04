@@ -1,5 +1,5 @@
 # Auditoria de Use Cases e Domínio
-> Gerada em 2026-05-21. Atualizada em 2026-06-02 (todos os P1s implementados; verificação in-code).
+> Gerada em 2026-05-21. Atualizada em 2026-06-04 (todos os P1s e P2s CQ implementados; tasks 3-7 do plano performance/arch concluídas).
 > Classificação: **P0** = corrupção/bloqueio de dados · **P1** = bug lógico/risk real · **P2** = qualidade/melhoria
 
 ---
@@ -36,18 +36,18 @@
 - ✅ SQL injection em `LIMIT/OFFSET` — bind params (`f62f437`)
 - ✅ `file.delete()` sem `await` — era falso positivo; nova API `expo-file-system` é síncrona (comentário em `ExpoMediaFileCleanup.ts:21`)
 
+### Bugs resolvidos (adicionais 2026-06-04)
+- ✅ `updateMedia` não atualizava `updated_at` — corrigido (`f711c70`)
+- ✅ `expo-file-system/legacy` migrado para nova API em `ExerciseFormFields` e `useExerciseCatalogController` (`f711c70`)
+
 ### Ainda em aberto
 - **P2 — Zero testes** para `List`, `BaixarMidia*` use cases.
-- **P2 — `updateMedia` não atualiza `updated_at`.**
-- **P2 — Inconsistência** `expo-file-system/legacy` vs nova API.
 
 ### Sumário Exercises
 
 | Prior. | Item |
 |--------|------|
 | P2 | Zero testes para `List`, `BaixarMidia*` use cases |
-| P2 | `updateMedia` não atualiza `updated_at` |
-| P2 | Inconsistência expo-file-system legacy vs nova API |
 
 ---
 
@@ -58,18 +58,18 @@
 - ✅ `UpdateTreinoUseCase` verifica nome duplicado no rename (PR fix/pr5)
 - ✅ `DuplicarTreinoUseCase` gera nome único quando cópia já existe (PR fix/pr5)
 
+### Bugs resolvidos (adicionais 2026-06-04)
+- ✅ `DuplicateTreinoError` agora tratado em `useTreinoListController` (`f711c70`)
+- ✅ `TreinoExercicio.create` com validação de invariantes (`ordem>=0`, `cargaPadrao>=0`, `seriesRecomendadas>0`) (`f711c70`)
+
 ### Ainda em aberto
-- **P1 — `DuplicateTreinoError`** não tratado no hook — mensagem genérica para o usuário.
 - **P2 — Zero testes** para 4 use cases de treinos.
-- **P2 — `TreinoExercicio.create`** sem validação de invariantes (`ordem < 0`, `cargaPadrao < 0`).
 
 ### Sumário Treinos
 
 | Prior. | Item |
 |--------|------|
-| P1 | `DuplicateTreinoError` não tratado no hook |
 | P2 | Zero testes para 4 use cases de treinos |
-| P2 | `TreinoExercicio.create` sem validação de invariantes |
 
 ---
 
@@ -86,11 +86,13 @@
 ### Bugs resolvidos (adicionais)
 - ✅ `SubstituirExercicioSessaoUseCase` deleta séries do exercício original ao substituir (`c878569`)
 
+### Bugs resolvidos (adicionais 2026-06-04)
+- ✅ `SugerirSubstitutosUseCase` usa interseção exata de grupos (sem `includes` frágil) (`e812145`)
+- ✅ `INCREMENTO_CARGA_KG` extraído como constante nomeada em `SugerirProgressaoUseCase` (`12f5425`)
+
 ### Ainda em aberto
 - **P2 — Zero testes** para 8 use cases de sessão.
 - **P2 — N+1 de séries** em `GetSessaoDetalheUseCase`.
-- **P2 — Matching por `includes`** em `SugerirSubstitutosUseCase` (frágil).
-- **P2 — Incremento fixo +2.5 kg** em `SugerirProgressaoUseCase` (não configurável).
 
 ### Sumário Sessões
 
@@ -98,8 +100,6 @@
 |--------|------|
 | P2 | Zero testes para 8 use cases de sessão |
 | P2 | N+1 de séries em `GetSessaoDetalheUseCase` |
-| P2 | Matching por `includes` em `SugerirSubstitutosUseCase` |
-| P2 | Incremento fixo +2.5 kg em `SugerirProgressaoUseCase` |
 
 ---
 
@@ -112,20 +112,19 @@
 - ✅ `ArquivarSessaoUseCase` / `DesarquivarSessaoUseCase` verificam `rowsAffected` (verificado in-code)
 - ✅ `ExportarHistoricoUseCase` deleta CSV no `finally` (verificado in-code)
 
+### Bugs resolvidos (adicionais 2026-06-04)
+- ✅ `withTransaction` suporta aninhamento via `SAVEPOINT` (`79f9276`)
+- ✅ `ExportarBancoUseCase` injetado via `DatabaseExportPort` (DIP corrigido) (`67c7219`)
+- ✅ `ensureColumns` reduzido de 17 para 3 PRAGMA queries (`a2a8102`)
+
 ### Ainda em aberto
 - **P2 — Zero testes** para todos os use cases de dashboard.
-- **P2 — `withTransaction` sem suporte a aninhamento** (`SAVEPOINT`).
-- **P2 — `ExportarBancoUseCase`** depende de classe concreta (violação DIP).
-- **P2 — `ensureColumns`** 17 queries por boot — agrupar por tabela (4 queries).
 
 ### Sumário Dashboard
 
 | Prior. | Item |
 |--------|------|
 | P2 | Zero testes para todos os 8 use cases |
-| P2 | `withTransaction` sem suporte a aninhamento |
-| P2 | `ExportarBancoUseCase` depende de classe concreta |
-| P2 | `ensureColumns` 17 queries por boot |
 
 ---
 
@@ -137,15 +136,18 @@
 ### Bugs resolvidos (adicionais)
 - ✅ Tie-breaking determinístico em `getUltimasExecucoesValidas` — `MAX(st.id)` como critério secundário (`69bca9c`)
 
+### Bugs resolvidos (adicionais 2026-06-04)
+- ✅ Fórmula 1RM TypeScript extraída para `estimativa1rm.ts` e usada em `InMemoryHistoricoRepository` (CQ-1, pré-sessão)
+
 ### Ainda em aberto
-- **P2 — Fórmula 1RM duplicada** em SQL (`SqliteDashboardRepository`, `SQLiteHistoricoRepository`) e TypeScript (`InMemoryHistoricoRepository`). Extrair para `src/shared/utils/estimativa1rm.ts`.
+- **P2 — Fórmula 1RM duplicada** em SQL (`SqliteDashboardRepository`, `SQLiteHistoricoRepository`) — SQL copies harder to consolidate, lower priority.
 - **P2 — `InMemoryHistoricoRepository.getUltimasExecucoesValidas`** usa loop O(N²).
 
 ### Sumário Histórico
 
 | Prior. | Item |
 |--------|------|
-| P2 | Fórmula 1RM duplicada — extrair para utilitário compartilhado |
+| P2 | Fórmula 1RM em SQL ainda duplicada (TS resolvido) |
 | P2 | `InMemoryHistoricoRepository.getUltimasExecucoesValidas` O(N²) |
 
 ---
@@ -155,22 +157,23 @@
 ### Bugs resolvidos (adicionais)
 - ✅ `DeleteTreinoUseCase` limpa entradas do plano semanal ao deletar treino (`cf3b413`)
 
-### Ainda em aberto
-- **P2 — `SetDiaPlanoUseCase`** aceita `treinoId` string vazia e persiste.
+### Bugs resolvidos (adicionais 2026-06-04)
+- ✅ `SetDiaPlanoUseCase` coerce string vazia/whitespace para `null` (`f711c70`)
 
 ### Sumário Plano Semanal
 
-| Prior. | Item |
-|--------|------|
-| P2 | `SetDiaPlanoUseCase` aceita `treinoId` vazio |
+Nenhum item em aberto.
 
 ---
 
 ## Módulo: Peso
 
-### Ainda em aberto (todos P2)
-- Parse de vírgula com `replace` sem regex — múltiplas vírgulas ignoradas.
-- `deltaPositivo` naming contra-intuitivo — renomear para `pesoAumentou`.
+### Bugs resolvidos (2026-06-04)
+- ✅ Parse de vírgula corrigido com `/,/g` em `usePesoController` via `parsePesoInput` (`f711c70`)
+- ✅ `deltaPositivo` renomeado para `pesoAumentou` em todos os consumidores (`f711c70`)
+
+### Ainda em aberto
+- **P2 — Parse de vírgula** ainda usa `replace(',', '.')` (single-replace) em 9 outros arquivos: `TreinoDetailScreen.tsx`, `BiSetDetalheScreen.tsx`, `ExercicioDetalheScreen.tsx`. Ver plano `2026-06-04-p2-comma-parse-screens.md`.
 
 ---
 
@@ -178,9 +181,10 @@
 
 | Tema | Descrição |
 |------|-----------|
-| **Cobertura de testes** | ~45 use cases; testes ausentes em: `Finalizar`, `GetAtiva`, `GetDetalhe`, `RegistrarSerie`, `Toggle`, `Substituir`, `SugerirProgressao`, `SugerirSubstitutos`, `SugerirTreino`, `UpdateTreino`, `Reordenar`, `ListTreinoExercicios`, `ListTreinos`, `BaixarMidias*`, `ArquivarSessao`, `Desarquivar`, `Deletar`, `ExportarHistorico`, `ExportarBanco`, `ImportarBanco`, `GetDashboardStats`, `GetTreinoEvolucao`, `GetPlano`, `SetDia`. |
-| **Clean Architecture** | 3 use cases importam `SQLiteDatabaseClient` (infra) diretamente: `AddExercicioAoTreino`, `RegistrarSerie`, `IniciarSessao`. |
-| **Fórmula 1RM duplicada** | Em SQL (`SqliteDashboardRepository`, `SQLiteHistoricoRepository`) e TypeScript. Extrair para `src/shared/utils/estimativa1rm.ts`. |
+| **Cobertura de testes** | ~45 use cases; testes ausentes em: `Finalizar`, `GetAtiva`, `GetDetalhe`, `RegistrarSerie`, `Toggle`, `Substituir`, `SugerirProgressao`, `SugerirSubstitutos`, `SugerirTreino`, `UpdateTreino`, `Reordenar`, `ListTreinoExercicios`, `ListTreinos`, `BaixarMidias*`, `ArquivarSessao`, `Desarquivar`, `Deletar`, `ExportarHistorico`, `ExportarBanco`, `ImportarBanco`, `GetDashboardStats`, `GetTreinoEvolucao`, `GetPlano`, `SetDia`. Ver plano `2026-06-02-p2-test-coverage.md`. |
+| **Clean Architecture** | 3 use cases importam `SQLiteDatabaseClient` (infra) diretamente: `AddExercicioAoTreino`, `RegistrarSerie`, `IniciarSessao`. Ver plano `2026-06-04-p2-clean-architecture-dip.md`. |
+| **Fórmula 1RM duplicada** | Em SQL (`SqliteDashboardRepository`, `SQLiteHistoricoRepository`) — TypeScript já extraído para `estimativa1rm.ts`. SQL copies harder to consolidate. |
+| **Parse de vírgula** | 9 ocorrências restantes em telas de treino. Ver plano `2026-06-04-p2-comma-parse-screens.md`. |
 
 ---
 
@@ -193,22 +197,27 @@
 3. ✅ **Sessões** — `SubstituirExercicioSessaoUseCase` deleta séries ao substituir (`c878569`)
 4. ✅ **Exercises** — SQL injection em `LIMIT/OFFSET` corrigido com bind params (`f62f437`)
 
-### P2 — Melhorias de qualidade (17 itens)
+### P2 — Melhorias de qualidade (status 2026-06-04)
 
-1. **Cobertura de testes** — ~30 use cases sem testes
-2. **Fórmula 1RM duplicada** — extrair para utilitário compartilhado
-3. `withTransaction` sem suporte a aninhamento (`SAVEPOINT`)
-4. `ensureColumns` 17 queries por boot — agrupar
-5. `ExportarBancoUseCase` depende de classe concreta
-6. `SugerirSubstitutosUseCase` matching por `includes` frágil
-7. Incremento fixo +2.5 kg em `SugerirProgressaoUseCase`
-8. `DuplicateTreinoError` não tratado no hook
-9. N+1 de séries em `GetSessaoDetalheUseCase`
-10. `TreinoExercicio.create` sem validação de invariantes
-11. `updateMedia` não atualiza `updated_at`
-12. Inconsistência `expo-file-system/legacy` vs nova API
-13. `deltaPositivo` naming contra-intuitivo
-14. Parse de vírgula sem regex global
-15. `SetDiaPlanoUseCase` aceita `treinoId` vazio
-16. `file.delete()` sem `await` em `ExpoMediaFileCleanup`
-17. `InMemoryHistoricoRepository.getUltimasExecucoesValidas` O(N²)
+| # | Item | Status |
+|---|------|--------|
+| 1 | Cobertura de testes — ~30 use cases sem testes | ⬜ aberto |
+| 2 | N+1 de séries em `GetSessaoDetalheUseCase` | ⬜ aberto |
+| 3 | `InMemoryHistoricoRepository` O(N²) | ⬜ aberto |
+| 4 | Clean Architecture — 3 DIP violations (SQLiteDatabaseClient direto) | ⬜ aberto |
+| 5 | Parse de vírgula — 9 ocorrências restantes em telas | ⬜ aberto |
+| 6 | Fórmula 1RM em SQL ainda duplicada | ⬜ baixa prioridade |
+| 7 | `withTransaction` sem SAVEPOINT | ✅ `79f9276` |
+| 8 | `ensureColumns` 17 queries por boot | ✅ `a2a8102` |
+| 9 | `ExportarBancoUseCase` DIP violation | ✅ `67c7219` |
+| 10 | `SugerirSubstitutosUseCase` matching frágil | ✅ `e812145` |
+| 11 | Incremento fixo +2.5 kg | ✅ `12f5425` |
+| 12 | `DuplicateTreinoError` não tratado | ✅ `f711c70` |
+| 13 | `TreinoExercicio.create` sem validação | ✅ `f711c70` |
+| 14 | `updateMedia` não atualiza `updated_at` | ✅ `f711c70` |
+| 15 | `expo-file-system/legacy` inconsistência | ✅ `f711c70` |
+| 16 | `deltaPositivo` naming | ✅ `f711c70` |
+| 17 | Parse de vírgula em `usePesoController` | ✅ `f711c70` |
+| 18 | `SetDiaPlanoUseCase` aceita `treinoId` vazio | ✅ `f711c70` |
+| 19 | Fórmula 1RM TypeScript duplicada | ✅ CQ-1 |
+| 20 | `file.delete()` sem `await` | ✅ falso positivo (API é síncrona) |
