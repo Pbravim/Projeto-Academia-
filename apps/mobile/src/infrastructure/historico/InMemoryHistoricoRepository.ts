@@ -3,6 +3,7 @@ import type {
   HistoricoRepository,
   UltimaExecucaoValida,
 } from '../../domain/historico/repositories/HistoricoRepository';
+import { calcularEstimativa1rm } from '../../shared/utils/estimativa1rm';
 
 interface SeedRecord {
   exercicioId: string;
@@ -43,7 +44,7 @@ export class InMemoryHistoricoRepository implements HistoricoRepository {
       if (!isNewer) continue;
 
       const melhor = validas.reduce((a, b) =>
-        a.cargaKg * (1 + a.repeticoes / 30) >= b.cargaKg * (1 + b.repeticoes / 30) ? a : b
+        calcularEstimativa1rm(a.cargaKg, a.repeticoes) >= calcularEstimativa1rm(b.cargaKg, b.repeticoes) ? a : b
       );
       byExercicio.set(exercicioId, { dataExecucao: execucao.dataExecucao, melhor });
     }
@@ -61,7 +62,7 @@ export class InMemoryHistoricoRepository implements HistoricoRepository {
       const validas = execucao.series.filter((s) => s.tipoSerie === 'valida');
       if (validas.length === 0) continue;
       const melhor = validas.reduce((a, b) =>
-        a.cargaKg * (1 + a.repeticoes / 30) >= b.cargaKg * (1 + b.repeticoes / 30) ? a : b
+        calcularEstimativa1rm(a.cargaKg, a.repeticoes) >= calcularEstimativa1rm(b.cargaKg, b.repeticoes) ? a : b
       );
       return { cargaKg: melhor.cargaKg, repeticoes: melhor.repeticoes, dataExecucao: execucao.dataExecucao };
     }

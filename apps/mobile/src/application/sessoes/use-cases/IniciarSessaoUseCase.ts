@@ -7,7 +7,7 @@ import type { ExerciseRepository } from '../../../domain/exercises/repositories/
 import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { TreinoNotFoundError } from '../../treinos/errors/TreinoNotFoundError';
 import { SessaoJaAtivaError } from '../errors/SessaoJaAtivaError';
@@ -21,7 +21,7 @@ interface IniciarSessaoUseCaseDependencies {
   exerciseRepository: ExerciseRepository;
   idGenerator: () => string;
   now: () => Date;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /**

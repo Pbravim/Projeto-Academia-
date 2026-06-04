@@ -174,7 +174,7 @@ export function ExercicioDetalheScreen({
   };
 
   const switchToCarousel = () => {
-    const num = parseFloat(cargaText.replace(',', '.'));
+    const num = parseFloat(cargaText.replace(/,/g, '.'));
     if (Number.isFinite(num) && num >= 0) setCargaIndex(kgIndexFor(num));
     setCargaMode('carousel');
   };
@@ -207,7 +207,7 @@ export function ExercicioDetalheScreen({
   })();
 
   const adjustCarga = (delta: number) => {
-    const current = parseFloat(cargaText.replace(',', '.'));
+    const current = parseFloat(cargaText.replace(/,/g, '.'));
     const base = Number.isFinite(current) && current >= 0 ? current : 0;
     const result = Math.max(0, Math.round((base + delta) * 10) / 10);
     setCargaText(String(result));
@@ -233,7 +233,7 @@ export function ExercicioDetalheScreen({
 
     const cargaNum = cargaMode === 'carousel'
       ? KG_VALUES[cargaIndex]
-      : parseFloat(cargaText.replace(',', '.'));
+      : parseFloat(cargaText.replace(/,/g, '.'));
 
     if (!Number.isFinite(cargaNum) || cargaNum < 0) {
       setFormError('Carga invalida. Use um numero como 80 ou 102,5.');
@@ -712,7 +712,7 @@ export function ExercicioDetalheScreen({
 
                         const cargaNum = cargaMode === 'carousel'
                           ? KG_VALUES[cargaIndex]
-                          : parseFloat(cargaText.replace(',', '.'));
+                          : parseFloat(cargaText.replace(/,/g, '.'));
                         const repsNum = repsMode === 'carousel'
                           ? repsIndex + 1
                           : parseInt(repsText, 10);

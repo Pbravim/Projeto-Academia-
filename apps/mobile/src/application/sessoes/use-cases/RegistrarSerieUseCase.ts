@@ -4,7 +4,7 @@ import type { SessaoExercicioRepository } from '../../../domain/sessoes/reposito
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
@@ -22,7 +22,7 @@ interface RegistrarSerieUseCaseDependencies {
   serieRegistradaRepository: SerieRegistradaRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
   idGenerator: () => string;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /** Registra uma serie em um exercicio da sessao ativa. */

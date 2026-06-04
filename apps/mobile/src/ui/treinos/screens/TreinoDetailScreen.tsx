@@ -123,7 +123,7 @@ export function TreinoDetailScreen({
       if (!vals) continue;
       const s = parseInt(vals.series, 10);
       const e = parseInt(vals.execucoes, 10);
-      const cv = parseFloat(vals.carga.replace(',', '.'));
+      const cv = parseFloat(vals.carga.replace(/,/g, '.'));
       const d = parseInt(vals.descanso, 10);
       await onUpdateRecomendacoes(
         te.id,

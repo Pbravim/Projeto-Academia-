@@ -2,7 +2,7 @@ import { TreinoExercicio, type TreinoExercicioPrimitives } from '../../../domain
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
@@ -17,7 +17,7 @@ interface AddExercicioAoTreinoUseCaseDependencies {
   treinoExercicioRepository: TreinoExercicioRepository;
   exerciseRepository: ExerciseRepository;
   idGenerator: () => string;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /** Adiciona um exercicio ao treino template. A ordem e atribuida automaticamente ao final da lista. */
