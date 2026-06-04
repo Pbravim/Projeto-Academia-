@@ -499,7 +499,8 @@ const migrations: string[] = [
   // Existing rows default to 'valida' which is semantically correct — they were all working sets.
   `ALTER TABLE series_registradas ADD COLUMN tipo_serie TEXT NOT NULL DEFAULT 'valida';`,
 
-  // v16: sync metadata for cloud sync (sub-project 0)
+  // v19: sync metadata for cloud sync (sub-project 0).
+  // NOTE: this is the 19th migration → user_version 19. (An earlier entry is labelled "v16: planejamento semanal".)
   `ALTER TABLE exercises          ADD COLUMN deleted_at TEXT;
    ALTER TABLE exercises          ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
    ALTER TABLE exercises          ADD COLUMN server_rev INTEGER;
