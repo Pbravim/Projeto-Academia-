@@ -105,6 +105,51 @@ export function createTestDatabase(): SQLiteDatabaseClient {
      ALTER TABLE treino_exercicios ADD COLUMN tempo_descanso_segundos INTEGER;
      ALTER TABLE treino_exercicios ADD COLUMN metodo TEXT NOT NULL DEFAULT 'normal';
      ALTER TABLE treino_exercicios ADD COLUMN grupo_id TEXT;`,
+
+    // v16 (test): exercise_alternatives, settings tables + sync metadata columns
+    `CREATE TABLE IF NOT EXISTS exercise_alternatives (
+   exercicio_id   TEXT NOT NULL,
+   alternativa_id TEXT NOT NULL,
+   PRIMARY KEY (exercicio_id, alternativa_id)
+ );
+ CREATE TABLE IF NOT EXISTS settings (
+   key TEXT PRIMARY KEY NOT NULL,
+   value TEXT NOT NULL
+ );
+ ALTER TABLE exercises          ADD COLUMN deleted_at TEXT;
+ ALTER TABLE exercises          ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE exercises          ADD COLUMN server_rev INTEGER;
+ ALTER TABLE treinos            ADD COLUMN deleted_at TEXT;
+ ALTER TABLE treinos            ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE treinos            ADD COLUMN server_rev INTEGER;
+ ALTER TABLE treino_exercicios  ADD COLUMN updated_at TEXT;
+ ALTER TABLE treino_exercicios  ADD COLUMN deleted_at TEXT;
+ ALTER TABLE treino_exercicios  ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE treino_exercicios  ADD COLUMN server_rev INTEGER;
+ ALTER TABLE sessao_treinos     ADD COLUMN updated_at TEXT;
+ ALTER TABLE sessao_treinos     ADD COLUMN deleted_at TEXT;
+ ALTER TABLE sessao_treinos     ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE sessao_treinos     ADD COLUMN server_rev INTEGER;
+ ALTER TABLE sessao_exercicios  ADD COLUMN updated_at TEXT;
+ ALTER TABLE sessao_exercicios  ADD COLUMN deleted_at TEXT;
+ ALTER TABLE sessao_exercicios  ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE sessao_exercicios  ADD COLUMN server_rev INTEGER;
+ ALTER TABLE series_registradas ADD COLUMN updated_at TEXT;
+ ALTER TABLE series_registradas ADD COLUMN deleted_at TEXT;
+ ALTER TABLE series_registradas ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE series_registradas ADD COLUMN server_rev INTEGER;
+ ALTER TABLE registros_peso     ADD COLUMN updated_at TEXT;
+ ALTER TABLE registros_peso     ADD COLUMN deleted_at TEXT;
+ ALTER TABLE registros_peso     ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE registros_peso     ADD COLUMN server_rev INTEGER;
+ ALTER TABLE exercise_alternatives ADD COLUMN updated_at TEXT;
+ ALTER TABLE exercise_alternatives ADD COLUMN deleted_at TEXT;
+ ALTER TABLE exercise_alternatives ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE exercise_alternatives ADD COLUMN server_rev INTEGER;
+ ALTER TABLE settings           ADD COLUMN updated_at TEXT;
+ ALTER TABLE settings           ADD COLUMN deleted_at TEXT;
+ ALTER TABLE settings           ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE settings           ADD COLUMN server_rev INTEGER;`,
   ];
 
   for (const migration of migrations) {

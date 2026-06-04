@@ -498,6 +498,48 @@ const migrations: string[] = [
   // v18: re-add tipo_serie to series_registradas (removed in v17, restored for warm-up set tracking)
   // Existing rows default to 'valida' which is semantically correct — they were all working sets.
   `ALTER TABLE series_registradas ADD COLUMN tipo_serie TEXT NOT NULL DEFAULT 'valida';`,
+
+  // v16: sync metadata for cloud sync (sub-project 0)
+  `ALTER TABLE exercises          ADD COLUMN deleted_at TEXT;
+   ALTER TABLE exercises          ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE exercises          ADD COLUMN server_rev INTEGER;
+   ALTER TABLE treinos            ADD COLUMN deleted_at TEXT;
+   ALTER TABLE treinos            ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE treinos            ADD COLUMN server_rev INTEGER;
+   ALTER TABLE treino_exercicios  ADD COLUMN updated_at TEXT;
+   ALTER TABLE treino_exercicios  ADD COLUMN deleted_at TEXT;
+   ALTER TABLE treino_exercicios  ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE treino_exercicios  ADD COLUMN server_rev INTEGER;
+   ALTER TABLE sessao_treinos     ADD COLUMN updated_at TEXT;
+   ALTER TABLE sessao_treinos     ADD COLUMN deleted_at TEXT;
+   ALTER TABLE sessao_treinos     ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE sessao_treinos     ADD COLUMN server_rev INTEGER;
+   ALTER TABLE sessao_exercicios  ADD COLUMN updated_at TEXT;
+   ALTER TABLE sessao_exercicios  ADD COLUMN deleted_at TEXT;
+   ALTER TABLE sessao_exercicios  ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE sessao_exercicios  ADD COLUMN server_rev INTEGER;
+   ALTER TABLE series_registradas ADD COLUMN updated_at TEXT;
+   ALTER TABLE series_registradas ADD COLUMN deleted_at TEXT;
+   ALTER TABLE series_registradas ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE series_registradas ADD COLUMN server_rev INTEGER;
+   ALTER TABLE registros_peso     ADD COLUMN updated_at TEXT;
+   ALTER TABLE registros_peso     ADD COLUMN deleted_at TEXT;
+   ALTER TABLE registros_peso     ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE registros_peso     ADD COLUMN server_rev INTEGER;
+   ALTER TABLE exercise_alternatives ADD COLUMN updated_at TEXT;
+   ALTER TABLE exercise_alternatives ADD COLUMN deleted_at TEXT;
+   ALTER TABLE exercise_alternatives ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE exercise_alternatives ADD COLUMN server_rev INTEGER;
+   ALTER TABLE settings           ADD COLUMN updated_at TEXT;
+   ALTER TABLE settings           ADD COLUMN deleted_at TEXT;
+   ALTER TABLE settings           ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
+   ALTER TABLE settings           ADD COLUMN server_rev INTEGER;
+   UPDATE treino_exercicios  SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
+   UPDATE sessao_treinos     SET updated_at = COALESCE(data_hora_inicio, '2024-01-01T00:00:00.000Z') WHERE updated_at IS NULL;
+   UPDATE sessao_exercicios  SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
+   UPDATE series_registradas SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
+   UPDATE registros_peso     SET updated_at = COALESCE(data_registro, '2024-01-01T00:00:00.000Z') WHERE updated_at IS NULL;
+   UPDATE exercise_alternatives SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {
@@ -751,6 +793,32 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseE
       { table: 'sessao_exercicios', column: 'substituicao_motivo',          type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'musculo_alvo_snapshot',        type: 'TEXT'    },
       { table: 'sessao_exercicios', column: 'nome_original_snapshot',       type: 'TEXT'    },
+      { table: 'exercises',           column: 'deleted_at', type: 'TEXT'    },
+      { table: 'exercises',           column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'exercises',           column: 'server_rev', type: 'INTEGER' },
+      { table: 'treinos',             column: 'deleted_at', type: 'TEXT'    },
+      { table: 'treinos',             column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'treinos',             column: 'server_rev', type: 'INTEGER' },
+      { table: 'treino_exercicios',   column: 'updated_at', type: 'TEXT'    },
+      { table: 'treino_exercicios',   column: 'deleted_at', type: 'TEXT'    },
+      { table: 'treino_exercicios',   column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'treino_exercicios',   column: 'server_rev', type: 'INTEGER' },
+      { table: 'sessao_treinos',      column: 'updated_at', type: 'TEXT'    },
+      { table: 'sessao_treinos',      column: 'deleted_at', type: 'TEXT'    },
+      { table: 'sessao_treinos',      column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'sessao_treinos',      column: 'server_rev', type: 'INTEGER' },
+      { table: 'sessao_exercicios',   column: 'updated_at', type: 'TEXT'    },
+      { table: 'sessao_exercicios',   column: 'deleted_at', type: 'TEXT'    },
+      { table: 'sessao_exercicios',   column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'sessao_exercicios',   column: 'server_rev', type: 'INTEGER' },
+      { table: 'series_registradas',  column: 'updated_at', type: 'TEXT'    },
+      { table: 'series_registradas',  column: 'deleted_at', type: 'TEXT'    },
+      { table: 'series_registradas',  column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'series_registradas',  column: 'server_rev', type: 'INTEGER' },
+      { table: 'registros_peso',      column: 'updated_at', type: 'TEXT'    },
+      { table: 'registros_peso',      column: 'deleted_at', type: 'TEXT'    },
+      { table: 'registros_peso',      column: 'dirty',      type: 'INTEGER', defaultValue: '1' },
+      { table: 'registros_peso',      column: 'server_rev', type: 'INTEGER' },
     ];
 
     // Group columns by table to minimize PRAGMA queries
