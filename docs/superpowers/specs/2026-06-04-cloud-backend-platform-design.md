@@ -66,13 +66,25 @@ packages/
 ## Cross-Cutting Decisions
 
 ### Identity
-- `generateId` → **UUIDv7** (time-ordered, globally unique, index-friendly), generated client-side. Repository interfaces unchanged, so domain/use-cases are untouched.
+- `generateId` → **UUIDv7** (time-ordered, globally unique, index-friendly), generated client-side, **for user-owned rows only**.
+- **Global catalog rows (seeds + GIFs) keep their deterministic IDs** (`seed-ex-*`, `gif-ex-*`) so the catalog is identical on every device and on the server, and stays a valid FK target across devices. Re-keying the catalog is deferred to a later catalog/GIF-display overhaul.
+- Repository interfaces unchanged, so domain/use-cases are untouched.
 
-### Sync metadata (every synced table)
+### Data ownership & visibility
+Three tiers, enforced **server-side** (the client never decides what it may see):
+- **Global catalog** — seeds + GIFs; system-owned, read-only, visible to everyone, never synced (seeded identically server-side and on-device).
+- **User-private** — owned by `user_id`; visible only to that user. Custom exercises, treinos, sessões, séries, peso, settings/profile.
+- **Trainer-shared** — a trainer-created row (e.g. a custom exercise or assigned treino) owned by the trainer and additionally readable by their linked clients. Never global. Sharing mechanics finalized in sub-project 3.
+
+Every read is filtered server-side to: *rows you own* OR *global* OR *shared-with-you*.
+
+### Sync metadata (every synced, user-owned table)
 - `updated_at` (ms epoch) — drives LWW.
 - `deleted_at` (nullable) — tombstone; deletes become soft. UI never sees tombstoned rows.
 - server-assigned `rev` / `server_updated_at` — server ordering for the pull cursor.
 - client-side `dirty` flag — marks unsynced local changes.
+- Global catalog tables do **not** get these columns.
+- **Custom media files** (`media_local` blobs in `documentDirectory`) sync as binaries via cloud Storage — a sub-project 2 concern; the row syncs only the path/reference.
 
 ### Auth (sub-project 1)
 - NestJS **Passport + JWT**: short-lived access token + long-lived refresh token (rotated on use).
