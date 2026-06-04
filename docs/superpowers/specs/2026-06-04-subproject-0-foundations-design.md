@@ -33,21 +33,32 @@ Prepare the existing local app for cloud sync **without adding a backend**. Afte
 
 ## Component 2 — Sync-metadata columns (migration v16)
 
-Add four columns to **each user-owned table** (one `ALTER` block, appended as migration index 15 → `user_version` 16):
+**Consolidation decision:** there is **no** parallel `sync_updated_at`. Every user-owned table standardizes on a single canonical **`updated_at` as INTEGER ms-epoch**, used for *both* the domain "last modified" time *and* sync last-write-wins. This is a deliberate refactor (not redundancy): one timestamp, one meaning.
+
+Migration v16 (appended as migration index 15 → `user_version` 16):
+
+**a) Canonical `updated_at` (INTEGER ms):**
+- Tables that already have a (text/ISO) `updated_at` — `exercises`, `treinos` — convert the existing values to ms-epoch in the backfill.
+- Tables that lack it — `treino_exercicios`, `sessao_treinos`, `sessao_exercicios`, `series_registradas`, `registros_peso`, `exercise_alternatives`, `settings` — add `updated_at INTEGER`.
+- `created_at` stays as-is (ISO text, display-only, not sync-relevant). The created_at(ISO)/updated_at(ms) split is intentional.
+
+**b) New columns on each user-owned table:**
 
 | Column | Type | Meaning |
 |---|---|---|
-| `sync_updated_at` | INTEGER | ms-epoch of last local write; drives last-write-wins. Dedicated column so it doesn't collide with the existing ISO `updated_at` text columns. |
 | `deleted_at` | INTEGER NULL | tombstone; set on delete, else NULL |
 | `dirty` | INTEGER NOT NULL DEFAULT 1 | 1 = local change not yet pushed |
 | `server_rev` | INTEGER NULL | server-assigned revision (populated in sub-project 2; NULL until first sync) |
 
-- **Backfill** in the same migration: `sync_updated_at = <migration run time>`, `deleted_at = NULL`, `dirty = 1` (so the first cloud sync pushes the whole existing dataset up), `server_rev = NULL`.
-- The `exercises` table gets the columns too, but global rows (`is_custom=0`) are filtered out of all sync selection by `is_custom=0` — they're inert.
+**c) Entity changes** (consequence of the ms refactor):
+- `Exercise` and `Treino`: `updatedAt` primitive changes from ISO `string` → `number` (ms). Update `create()`/`restore()`/`update()`, their repos' row mapping, presenters/dashboard repo that read it, and the affected tests.
+
+- **Backfill:** `updated_at = <existing ISO parsed to ms, else migration run time>`, `deleted_at = NULL`, `dirty = 1` (first cloud sync pushes the whole existing dataset up), `server_rev = NULL`.
+- The `exercises` table gets these columns too, but global rows (`is_custom=0`) are excluded from all sync selection — they're inert.
 - `sessao_treinos.arquivado` (domain archive) is unrelated to `deleted_at` (sync tombstone); both coexist.
 - Migration is idempotent-tolerant per the existing runner (duplicate-column errors ignored), consistent with prior steps.
 
-**Acceptance:** fresh DB and a v15→v16 upgrade both end at `user_version=16` with the four columns on every user-owned table; existing data intact; global rows unaffected.
+**Acceptance:** fresh DB and a v15→v16 upgrade both end at `user_version=16`; every user-owned table has `updated_at`(ms), `deleted_at`, `dirty`, `server_rev`; existing `updated_at` values correctly converted to ms; entities round-trip the numeric `updatedAt`; global rows unaffected.
 
 ---
 
@@ -55,14 +66,14 @@ Add four columns to **each user-owned table** (one `ALTER` block, appended as mi
 
 Behind the repository interfaces (domain/use-cases unchanged):
 
-- Every `delete` becomes `UPDATE … SET deleted_at = <now>, sync_updated_at = <now>, dirty = 1`.
+- Every `delete` becomes `UPDATE … SET deleted_at = <now>, updated_at = <now>, dirty = 1`.
 - Every **read** query gains `AND deleted_at IS NULL`. The UI never sees tombstoned rows.
 - **Cascades become cascade-soft-deletes** and must stamp children dirty so deletions propagate on sync:
   - delete `treino` → tombstone its `treino_exercicios`
   - delete `sessao_treino` → tombstone its `sessao_exercicios` → their `series_registradas`
   - delete custom `exercise` → tombstone its `exercise_alternatives` rows
 - The existing SQLite `ON DELETE CASCADE` FKs no longer fire (we no longer hard-DELETE); cascading is done explicitly in the repos within the existing transaction wrapper.
-- `UNIQUE` constraints (e.g. `exercises.normalized_name`, `treino_exercicios(treino_id, exercicio_id)`): a tombstoned row still occupies the unique slot. Decision: **on re-create of a name/pair that matches a tombstoned row, resurrect-and-overwrite that row** (clear `deleted_at`, update fields, bump `sync_updated_at`/`dirty`) rather than inserting a duplicate. Keeps uniqueness honest and avoids orphan tombstones.
+- `UNIQUE` constraints (e.g. `exercises.normalized_name`, `treino_exercicios(treino_id, exercicio_id)`): a tombstoned row still occupies the unique slot. Decision: **on re-create of a name/pair that matches a tombstoned row, resurrect-and-overwrite that row** (clear `deleted_at`, update fields, bump `updated_at`/`dirty`) rather than inserting a duplicate. Keeps uniqueness honest and avoids orphan tombstones.
 
 **Acceptance:** deleting a treino hides it and its exercises from all reads; the rows still exist with `deleted_at` set and `dirty=1`; re-creating a same-named exercise resurrects the tombstone; all cascade paths covered by tests.
 
@@ -70,11 +81,11 @@ Behind the repository interfaces (domain/use-cases unchanged):
 
 ## Component 4 — Write-time stamping
 
-- Every create/update in a user-owned repo sets `sync_updated_at = Date.now()` and `dirty = 1`.
+- Every create/update in a user-owned repo sets `updated_at = Date.now()` (ms) and `dirty = 1`.
 - Centralize the "now" via the existing clock/util if present; otherwise a small `stamp()` helper used by the repos.
 - This is deliberately inline in the SQLite repos for now; sub-project 2 extracts it into a `SyncRepository` decorator.
 
-**Acceptance:** any create/update leaves the row with a fresh `sync_updated_at` and `dirty=1`.
+**Acceptance:** any create/update leaves the row with a fresh ms `updated_at` and `dirty=1`.
 
 ---
 
@@ -91,7 +102,7 @@ Behind the repository interfaces (domain/use-cases unchanged):
 | Soft delete misses a read path → ghost rows appear | Audit every `SELECT` in user-owned repos; tests per cascade path |
 | Unique constraints vs tombstones | Resurrect-and-overwrite rule (Component 3) |
 | InMemory and SQLite repos diverge in soft-delete semantics | Shared behavioral test suite run against both |
-| Existing ISO `updated_at` confused with `sync_updated_at` | Dedicated, separately-named column; existing column untouched |
+| ISO→ms `updated_at` conversion breaks readers/presenters | Audit all `updatedAt` consumers (entities, repos, presenters, dashboard); convert in one pass with tests; `created_at` left as ISO |
 
 ## Done = shippable
 
