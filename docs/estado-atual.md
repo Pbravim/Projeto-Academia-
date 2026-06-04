@@ -17,8 +17,8 @@ App mobile de acompanhamento de treino de musculação. Registro rápido durante
 | Framework | React Native 0.81.5 + React 19.1 |
 | Plataforma | Expo SDK 54 |
 | Linguagem | TypeScript 5.9 (strict) |
-| Banco local | SQLite via expo-sqlite 16 (schema v15) |
-| Testes | Vitest 4.1 — 218 testes passando |
+| Banco local | SQLite via expo-sqlite 16 (schema v16) |
+| Testes | Vitest 4.1 — 299 testes passando |
 
 ---
 
@@ -132,7 +132,9 @@ Tab que substituiu **Peso** na navegação inferior. Exibe:
 
 ---
 
-## Schema SQLite (v15)
+## Schema SQLite (v16)
+
+v16 adiciona colunas de sincronização (`updated_at` ISO, `deleted_at` tombstone, `dirty`, `server_rev`) em todas as tabelas de dados do usuário; deletes passam a ser soft-deletes. Catálogo global (seeds/GIFs) não sincroniza.
 
 ```sql
 exercises         (id, name, normalized_name, group_muscle, category, equipment,
@@ -158,13 +160,13 @@ exercise_alternatives (exercicio_id, alternativa_id)
 settings          (key TEXT PRIMARY KEY, value TEXT)
 ```
 
-Migrações versionadas de v1 a v15 em `ExpoSQLiteDatabaseClient.ts`. GIFs embutidos como assets estáticos — ver `GIF_MAPPING.md`.
+Migrações versionadas de v1 a v16 em `ExpoSQLiteDatabaseClient.ts`. GIFs embutidos como assets estáticos — ver `GIF_MAPPING.md`.
 
 ---
 
 ## Testes
 
-- **218 testes** passando (Vitest, ambiente node)
+- **299 testes** passando (Vitest, ambiente node)
 - **Estratégia:** InMemory repos para use cases, SQLite real para integração
 - **Cobertos:** entities, use cases, repositórios, presenters, hook controllers (8 controllers)
 - **Sem cobertura:** screens, E2E
