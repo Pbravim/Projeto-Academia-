@@ -1,6 +1,7 @@
 import { TreinoExercicio, type TreinoExercicioPrimitives, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+import { nowIso } from '../../shared/utils/syncStamp';
 
 interface TreinoExercicioRow {
   id: string;
@@ -22,15 +23,15 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     const p = treinoExercicio.toPrimitives();
 
     await this.database.run(
-      `INSERT OR REPLACE INTO treino_exercicios (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [p.id, p.treinoId, p.exercicioId, p.ordem, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null]
+      `INSERT OR REPLACE INTO treino_exercicios (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+      [p.id, p.treinoId, p.exercicioId, p.ordem, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null, nowIso()]
     );
   }
 
   async listByTreinoId(treinoId: string): Promise<TreinoExercicio[]> {
     const rows = await this.database.getAll<TreinoExercicioRow>(
-      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE treino_id = ? ORDER BY ordem ASC',
+      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE treino_id = ? AND deleted_at IS NULL ORDER BY ordem ASC',
       [treinoId]
     );
 
@@ -39,7 +40,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
 
   async findById(id: string): Promise<TreinoExercicio | null> {
     const row = await this.database.getFirst<TreinoExercicioRow>(
-      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE id = ? LIMIT 1',
+      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE id = ? AND deleted_at IS NULL LIMIT 1',
       [id]
     );
 
@@ -51,7 +52,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     exercicioId: string
   ): Promise<TreinoExercicio | null> {
     const row = await this.database.getFirst<TreinoExercicioRow>(
-      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE treino_id = ? AND exercicio_id = ? LIMIT 1',
+      'SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id FROM treino_exercicios WHERE treino_id = ? AND exercicio_id = ? AND deleted_at IS NULL LIMIT 1',
       [treinoId, exercicioId]
     );
 
@@ -60,7 +61,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
 
   async countByTreinoId(treinoId: string): Promise<number> {
     const row = await this.database.getFirst<{ count: number }>(
-      'SELECT COUNT(*) as count FROM treino_exercicios WHERE treino_id = ?',
+      'SELECT COUNT(*) as count FROM treino_exercicios WHERE treino_id = ? AND deleted_at IS NULL',
       [treinoId]
     );
 
@@ -69,7 +70,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
 
   async countAllByTreino(): Promise<Record<string, number>> {
     const rows = await this.database.getAll<{ treino_id: string; count: number }>(
-      'SELECT treino_id, COUNT(*) as count FROM treino_exercicios GROUP BY treino_id',
+      'SELECT treino_id, COUNT(*) as count FROM treino_exercicios WHERE deleted_at IS NULL GROUP BY treino_id',
       []
     );
 
@@ -78,35 +79,35 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
 
   async updateOrdem(id: string, ordem: number): Promise<void> {
     await this.database.run(
-      'UPDATE treino_exercicios SET ordem = ? WHERE id = ?',
-      [ordem, id]
+      'UPDATE treino_exercicios SET ordem = ?, updated_at = ?, dirty = 1 WHERE id = ?',
+      [ordem, nowIso(), id]
     );
   }
 
   async updateRecomendacoes(id: string, seriesRecomendadas: number | null, execucoesRecomendadas: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null): Promise<void> {
     await this.database.run(
-      'UPDATE treino_exercicios SET series_recomendadas = ?, execucoes_recomendadas = ?, carga_padrao = ?, tempo_descanso_segundos = ? WHERE id = ?',
-      [seriesRecomendadas ?? null, execucoesRecomendadas ?? null, cargaPadrao ?? null, tempoDescansoSegundos ?? null, id]
+      'UPDATE treino_exercicios SET series_recomendadas = ?, execucoes_recomendadas = ?, carga_padrao = ?, tempo_descanso_segundos = ?, updated_at = ?, dirty = 1 WHERE id = ?',
+      [seriesRecomendadas ?? null, execucoesRecomendadas ?? null, cargaPadrao ?? null, tempoDescansoSegundos ?? null, nowIso(), id]
     );
   }
 
   async updateMetodoGrupo(id: string, metodo: MetodoExercicio, grupoId: string | null): Promise<void> {
     await this.database.run(
-      'UPDATE treino_exercicios SET metodo = ?, grupo_id = ? WHERE id = ?',
-      [metodo, grupoId ?? null, id]
+      'UPDATE treino_exercicios SET metodo = ?, grupo_id = ?, updated_at = ?, dirty = 1 WHERE id = ?',
+      [metodo, grupoId ?? null, nowIso(), id]
     );
   }
 
   async delete(id: string): Promise<void> {
-    await this.database.run('DELETE FROM treino_exercicios WHERE id = ?', [id]);
+    await this.database.run('UPDATE treino_exercicios SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?', [nowIso(), nowIso(), id]);
   }
 
   async deleteByTreinoId(treinoId: string): Promise<void> {
-    await this.database.run('DELETE FROM treino_exercicios WHERE treino_id = ?', [treinoId]);
+    await this.database.run('UPDATE treino_exercicios SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE treino_id = ? AND deleted_at IS NULL', [nowIso(), nowIso(), treinoId]);
   }
 
   async deleteByExercicioId(exercicioId: string): Promise<void> {
-    await this.database.run('DELETE FROM treino_exercicios WHERE exercicio_id = ?', [exercicioId]);
+    await this.database.run('UPDATE treino_exercicios SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE exercicio_id = ? AND deleted_at IS NULL', [nowIso(), nowIso(), exercicioId]);
   }
 }
 
