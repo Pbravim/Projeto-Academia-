@@ -540,7 +540,8 @@ const migrations: string[] = [
    UPDATE sessao_exercicios  SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
    UPDATE series_registradas SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
    UPDATE registros_peso     SET updated_at = COALESCE(data_registro, '2024-01-01T00:00:00.000Z') WHERE updated_at IS NULL;
-   UPDATE exercise_alternatives SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;`,
+   UPDATE exercise_alternatives SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
+   UPDATE settings           SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {

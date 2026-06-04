@@ -7,7 +7,7 @@ const SYNC_TABLES = [
   'exercise_alternatives', 'settings',
 ];
 
-describe('v16 sync columns', () => {
+describe('v19 sync columns', () => {
   it('adds updated_at, deleted_at, dirty, server_rev to every user-owned table', async () => {
     const db = createTestDatabase();
     for (const table of SYNC_TABLES) {
