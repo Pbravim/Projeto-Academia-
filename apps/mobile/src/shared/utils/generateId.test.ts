@@ -16,7 +16,7 @@ describe('generateId', () => {
   it('is time-ordered (monotonic): later ids sort after earlier ones', () => {
     const a = generateId();
     const b = generateId();
-    expect(a < b || a === b ? true : false).toBe(true);
+    expect(a < b).toBe(true);
     expect([b, a].sort()).toEqual([a, b]);
   });
 });
