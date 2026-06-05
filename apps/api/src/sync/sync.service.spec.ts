@@ -5,14 +5,38 @@ import type { SyncRequest } from '@academia/contracts';
 
 const makePrisma = () => ({
   $transaction: jest.fn(),
-  exercise: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  treino: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  treinoExercicio: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  sessaoTreino: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  sessaoExercicio: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  serieRegistrada: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  registroPeso: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
-  userSetting: { upsert: jest.fn(), findMany: jest.fn().mockResolvedValue([]) },
+  exercise: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  treino: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  treinoExercicio: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  sessaoTreino: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  sessaoExercicio: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  serieRegistrada: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  registroPeso: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
+  userSetting: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
 });
 
 describe('SyncService', () => {
@@ -73,9 +97,15 @@ describe('SyncService', () => {
   it('does not overwrite a newer server row (LWW)', async () => {
     const serverTime = '2026-06-05T12:00:00.000Z';
     const clientTime = '2026-06-05T10:00:00.000Z';
-    mockPrisma.treino.findMany.mockResolvedValueOnce([
-      { id: 'treino-1', name: 'Server version', updatedAt: serverTime, deletedAt: null, userId: 'user-1', objetivo: null, createdAt: serverTime, serverUpdatedAt: new Date() },
-    ]);
+    // First call: userId-scoped findMany, returns the row
+    // Second call: all-db findMany for ownership check, returns the same row
+    mockPrisma.treino.findMany
+      .mockResolvedValueOnce([
+        { id: 'treino-1', name: 'Server version', updatedAt: serverTime, deletedAt: null, userId: 'user-1', objetivo: null, createdAt: serverTime, serverUpdatedAt: new Date() },
+      ])
+      .mockResolvedValueOnce([
+        { id: 'treino-1' },
+      ]);
     await service.sync('user-1', {
       since: null,
       changes: {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { SyncRequest, SyncResponse, SyncChanges } from '@academia/contracts';
 
@@ -13,10 +13,10 @@ export class SyncService {
     const serverChanges = await this.prisma.$transaction(async (tx) => {
       await this.applyExercises(tx, userId, req.changes.exercises, now);
       await this.applyTreinos(tx, userId, req.changes.treinos, now);
-      await this.applyTreinoExercicios(tx, req.changes.treinoExercicios, now);
+      await this.applyTreinoExercicios(tx, userId, req.changes.treinoExercicios, now);
       await this.applySessaoTreinos(tx, userId, req.changes.sessaoTreinos, now);
-      await this.applySessaoExercicios(tx, req.changes.sessaoExercicios, now);
-      await this.applySeriesRegistradas(tx, req.changes.seriesRegistradas, now);
+      await this.applySessaoExercicios(tx, userId, req.changes.sessaoExercicios, now);
+      await this.applySeriesRegistradas(tx, userId, req.changes.seriesRegistradas, now);
       await this.applyRegistrosPeso(tx, userId, req.changes.registrosPeso, now);
       await this.applyUserSettings(tx, userId, req.changes.userSettings, now);
 
@@ -38,13 +38,29 @@ export class SyncService {
   }
 
   private async applyExercises(tx: any, userId: string, rows: SyncRequest['changes']['exercises'], now: Date) {
-    const existing = rows.length === 0 ? [] : await tx.exercise.findMany({
-      where: { id: { in: rows.map((r) => r.id) } },
+    // Only custom exercises are user-owned; filter ownership checks accordingly
+    const customRows = rows.filter((r) => r.isCustom);
+    const customIds = customRows.map((r) => r.id);
+
+    const existing = customRows.length === 0 ? [] : await tx.exercise.findMany({
+      where: { id: { in: customIds }, userId },
       select: { id: true, updatedAt: true, deletedAt: true },
     });
     const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
       existing.map((r: any) => [r.id, r]),
     );
+
+    // Check if any custom row id exists in DB with a different owner
+    const allCustomInDb = customRows.length === 0 ? [] : await tx.exercise.findMany({
+      where: { id: { in: customIds } },
+      select: { id: true },
+    });
+    const allCustomInDbIds = new Set(allCustomInDb.map((r: any) => r.id));
+    const ownedCustomIds = new Set(existing.map((r: any) => r.id));
+    for (const id of allCustomInDbIds) {
+      if (!ownedCustomIds.has(id)) throw new ForbiddenException();
+    }
+
     for (const row of rows) {
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.exercise.upsert({
@@ -73,13 +89,26 @@ export class SyncService {
   }
 
   private async applyTreinos(tx: any, userId: string, rows: SyncRequest['changes']['treinos'], now: Date) {
+    // Fetch only rows owned by this user
     const existing = rows.length === 0 ? [] : await tx.treino.findMany({
-      where: { id: { in: rows.map((r) => r.id) } },
+      where: { id: { in: rows.map((r) => r.id) }, userId },
       select: { id: true, updatedAt: true, deletedAt: true },
     });
     const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
       existing.map((r: any) => [r.id, r]),
     );
+
+    // Check if any incoming id belongs to a different user
+    const allInDb = rows.length === 0 ? [] : await tx.treino.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true },
+    });
+    const allInDbIds = new Set(allInDb.map((r: any) => r.id));
+    const ownedIds = new Set(existing.map((r: any) => r.id));
+    for (const id of allInDbIds) {
+      if (!ownedIds.has(id)) throw new ForbiddenException();
+    }
+
     for (const row of rows) {
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.treino.upsert({
@@ -99,7 +128,18 @@ export class SyncService {
     }
   }
 
-  private async applyTreinoExercicios(tx: any, rows: SyncRequest['changes']['treinoExercicios'], now: Date) {
+  private async applyTreinoExercicios(tx: any, userId: string, rows: SyncRequest['changes']['treinoExercicios'], now: Date) {
+    // Validate parent ownership
+    const treinoIds = [...new Set(rows.map((r) => r.treinoId))];
+    const ownedTreinos = treinoIds.length === 0 ? [] : await tx.treino.findMany({
+      where: { id: { in: treinoIds }, userId },
+      select: { id: true },
+    });
+    const ownedTreinoIds = new Set(ownedTreinos.map((t: any) => t.id));
+    for (const row of rows) {
+      if (!ownedTreinoIds.has(row.treinoId)) throw new ForbiddenException();
+    }
+
     const existing = rows.length === 0 ? [] : await tx.treinoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, updatedAt: true, deletedAt: true },
@@ -131,13 +171,26 @@ export class SyncService {
   }
 
   private async applySessaoTreinos(tx: any, userId: string, rows: SyncRequest['changes']['sessaoTreinos'], now: Date) {
+    // Fetch only rows owned by this user
     const existing = rows.length === 0 ? [] : await tx.sessaoTreino.findMany({
-      where: { id: { in: rows.map((r) => r.id) } },
+      where: { id: { in: rows.map((r) => r.id) }, userId },
       select: { id: true, updatedAt: true, deletedAt: true },
     });
     const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
       existing.map((r: any) => [r.id, r]),
     );
+
+    // Check if any incoming id belongs to a different user
+    const allInDb = rows.length === 0 ? [] : await tx.sessaoTreino.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true },
+    });
+    const allInDbIds = new Set(allInDb.map((r: any) => r.id));
+    const ownedIds = new Set(existing.map((r: any) => r.id));
+    for (const id of allInDbIds) {
+      if (!ownedIds.has(id)) throw new ForbiddenException();
+    }
+
     for (const row of rows) {
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.sessaoTreino.upsert({
@@ -161,7 +214,18 @@ export class SyncService {
     }
   }
 
-  private async applySessaoExercicios(tx: any, rows: SyncRequest['changes']['sessaoExercicios'], now: Date) {
+  private async applySessaoExercicios(tx: any, userId: string, rows: SyncRequest['changes']['sessaoExercicios'], now: Date) {
+    // Validate parent ownership
+    const sessaoTreinoIds = [...new Set(rows.map((r) => r.sessaoTreinoId))];
+    const ownedSessoes = sessaoTreinoIds.length === 0 ? [] : await tx.sessaoTreino.findMany({
+      where: { id: { in: sessaoTreinoIds }, userId },
+      select: { id: true },
+    });
+    const ownedSessaoIds = new Set(ownedSessoes.map((s: any) => s.id));
+    for (const row of rows) {
+      if (!ownedSessaoIds.has(row.sessaoTreinoId)) throw new ForbiddenException();
+    }
+
     const existing = rows.length === 0 ? [] : await tx.sessaoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, updatedAt: true, deletedAt: true },
@@ -201,7 +265,18 @@ export class SyncService {
     }
   }
 
-  private async applySeriesRegistradas(tx: any, rows: SyncRequest['changes']['seriesRegistradas'], now: Date) {
+  private async applySeriesRegistradas(tx: any, userId: string, rows: SyncRequest['changes']['seriesRegistradas'], now: Date) {
+    // Validate grandparent ownership via sessaoExercicio -> sessaoTreino
+    const sessaoExercicioIds = [...new Set(rows.map((r) => r.sessaoExercicioId))];
+    const ownedSessaoExercicios = sessaoExercicioIds.length === 0 ? [] : await tx.sessaoExercicio.findMany({
+      where: { id: { in: sessaoExercicioIds }, sessaoTreino: { userId } },
+      select: { id: true },
+    });
+    const ownedSessaoExercicioIds = new Set(ownedSessaoExercicios.map((s: any) => s.id));
+    for (const row of rows) {
+      if (!ownedSessaoExercicioIds.has(row.sessaoExercicioId)) throw new ForbiddenException();
+    }
+
     const existing = rows.length === 0 ? [] : await tx.serieRegistrada.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, updatedAt: true, deletedAt: true },
@@ -232,13 +307,26 @@ export class SyncService {
   }
 
   private async applyRegistrosPeso(tx: any, userId: string, rows: SyncRequest['changes']['registrosPeso'], now: Date) {
+    // Fetch only rows owned by this user
     const existing = rows.length === 0 ? [] : await tx.registroPeso.findMany({
-      where: { id: { in: rows.map((r) => r.id) } },
+      where: { id: { in: rows.map((r) => r.id) }, userId },
       select: { id: true, updatedAt: true, deletedAt: true },
     });
     const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
       existing.map((r: any) => [r.id, r]),
     );
+
+    // Check if any incoming id belongs to a different user
+    const allInDb = rows.length === 0 ? [] : await tx.registroPeso.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true },
+    });
+    const allInDbIds = new Set(allInDb.map((r: any) => r.id));
+    const ownedIds = new Set(existing.map((r: any) => r.id));
+    for (const id of allInDbIds) {
+      if (!ownedIds.has(id)) throw new ForbiddenException();
+    }
+
     for (const row of rows) {
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.registroPeso.upsert({
