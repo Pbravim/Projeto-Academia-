@@ -88,7 +88,7 @@ export interface RegistroPesoSyncRow extends SyncRow {
 export interface UserSettingSyncRow {
   key: string;
   value: string;
-  updatedAt: string;
+  updatedAt: string | null;
   deletedAt: string | null;
 }
 
