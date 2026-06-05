@@ -38,7 +38,8 @@ export class SyncService {
   }
 
   private async applyExercises(tx: any, userId: string, rows: SyncRequest['changes']['exercises'], now: Date) {
-    // Only custom exercises are user-owned; filter ownership checks accordingly
+    // Only custom exercises are user-owned; silently drop any row where isCustom is false
+    // (client cannot create or modify global catalogue exercises).
     const customRows = rows.filter((r) => r.isCustom);
     const customIds = customRows.map((r) => r.id);
 
@@ -50,18 +51,25 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
 
-    // Check if any custom row id exists in DB with a different owner
+    // Check if any custom row id exists in DB with a different owner (IDOR guard).
+    // Also block writes to global catalogue entries (userId == null).
     const allCustomInDb = customRows.length === 0 ? [] : await tx.exercise.findMany({
       where: { id: { in: customIds } },
-      select: { id: true },
+      select: { id: true, userId: true },
     });
+    const globalCatalogueIds = new Set(
+      allCustomInDb.filter((r: any) => r.userId === null).map((r: any) => r.id),
+    );
     const allCustomInDbIds = new Set(allCustomInDb.map((r: any) => r.id));
     const ownedCustomIds = new Set(existing.map((r: any) => r.id));
     for (const id of allCustomInDbIds) {
       if (!ownedCustomIds.has(id)) throw new ForbiddenException();
     }
 
-    for (const row of rows) {
+    for (const row of customRows) {
+      // Skip any row that resolves to a global catalogue entry (extra safety net)
+      if (globalCatalogueIds.has(row.id)) continue;
+
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.exercise.upsert({
         where: { id: row.id },
@@ -69,7 +77,8 @@ export class SyncService {
           id: winner.id, name: winner.name, normalizedName: winner.normalizedName,
           groupMuscle: winner.groupMuscle, category: winner.category,
           equipment: winner.equipment, loadUnit: winner.loadUnit,
-          isCustom: winner.isCustom, mediaOnline: winner.mediaOnline,
+          // Always force isCustom: true on create — never trust the client value
+          isCustom: true, mediaOnline: winner.mediaOnline,
           mediaLocal: winner.mediaLocal, musculoAlvo: winner.musculoAlvo,
           createdAt: winner.createdAt, updatedAt: winner.updatedAt,
           deletedAt: winner.deletedAt, dirty: false, serverUpdatedAt: now,
@@ -79,7 +88,8 @@ export class SyncService {
           name: winner.name, normalizedName: winner.normalizedName,
           groupMuscle: winner.groupMuscle, category: winner.category,
           equipment: winner.equipment, loadUnit: winner.loadUnit,
-          isCustom: winner.isCustom, mediaOnline: winner.mediaOnline,
+          // isCustom is intentionally omitted from updates — it must never change
+          mediaOnline: winner.mediaOnline,
           mediaLocal: winner.mediaLocal, musculoAlvo: winner.musculoAlvo,
           updatedAt: winner.updatedAt, deletedAt: winner.deletedAt,
           dirty: false, serverUpdatedAt: now,
