@@ -8,3 +8,20 @@
 
 # nested npm lockfiles are forbidden — this is a yarn workspace
 apps/*/package-lock.json
+
+# secrets
+apps/api/.env
+
+# Claude worktrees + local IDE state
+.claude/worktrees/
+.claude/settings.json
+.claude/settings.local.json
+
+# accidental Windows artifacts
+NUL
+apps/api/NUL
+apps/mobile/NUL
+Tomorrow
+
+# personal/binary files not part of the project
+GIFS/

@@ -62,6 +62,13 @@ apps/mobile/src/
 - Navegação para histórico individual do exercício
 - **Mídia custom:** campo para URL online (YouTube, GIF, MP4) e upload de arquivo local (imagem/vídeo) via `expo-image-picker`; arquivos copiados para `documentDirectory/exercises/` e limpos ao remover/deletar
 
+**Limitações atuais (planejado no Sub-projeto 5):**
+- `musculo_alvo` é um único `string | null` — não captura múltiplos músculos primários
+- Sem `movement_pattern` — substituição não distingue push horizontal de push vertical
+- `equipment` é texto livre — sem vocabulário controlado para filtros por equipamento
+- `listAlternativas` é lista plana — não diferencia "equivalente" de "mesmo grupo muscular"
+- Busca somente por `normalized_name` — variações de nome não encontram o mesmo exercício
+
 ### Treinos
 
 **Use cases:** `CreateTreino`, `UpdateTreino`, `DeleteTreino`, `ListTreinos`, `AddExercicioAoTreino`, `RemoveExercicioDoTreino`, `ReordenarExercicios`, `ListTreinoExercicios`, `DuplicarTreino`

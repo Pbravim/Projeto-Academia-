@@ -4,6 +4,38 @@
 
 ---
 
+## Prioridade Alta
+
+### Sub-projeto 5: Exercise Intelligence — modelo de exercício mais rico + substituição escalonada
+
+**O que:** enriquecer a entidade `Exercise` com dados biomecânicos estruturados e melhorar o engine de sugestão de substitutos com camadas de similaridade.
+
+**Mudanças planejadas na entidade `Exercise`:**
+- `movement_pattern` — novo campo enum (`Horizontal Push`, `Vertical Push`, `Horizontal Pull`, `Vertical Pull`, `Squat`, `Hinge`, `Lunge`, `Rotation`, `Anti-Rotation`, `Carry`, `Gait`, `Jump`, `Sprint`)
+- `musculo_alvo` — expandir de `string | null` para `string[]` (músculos principais)
+- `stabilizers: string[]` — músculos estabilizadores (informativo)
+- `execution_type` — `Unilateral | Bilateral | Can Be Both`
+- `name_variations: string[]` — variações de nome para melhorar busca
+- `primary_equipment` / `secondary_equipment` — vocabulário controlado (Barbell, Dumbbell, Cable, Smith Machine, etc.) em vez de texto livre
+
+**Mudanças no `SugerirSubstitutosUseCase` — 3 camadas de similaridade:**
+
+| Camada | Label | Critério |
+|--------|-------|----------|
+| 0 | Predefinidos | `listAlternativas` manual (sem mudança) |
+| 1 | Quase igual | Mesmo `movement_pattern` E interseção de `musculo_alvo[]` |
+| 2 | Similar | Mesmo `movement_pattern` OU alta sobreposição de `musculo_alvo[]` |
+| 3 | Mesmo grupo | Mesmo `groupMuscle` (comportamento atual de camada 2) |
+
+**Split de `listAlternativas` em `ExerciseRepository`:**
+- `listEquivalentAlternativas(id)` — biomechanicamente equivalentes
+- `listMuscleGroupAlternativas(id)` — mesmo músculo, padrão de movimento diferente
+
+**Depende de:** nenhum backend — pode ser feito em paralelo com sub-projeto 1.
+**Referência de dados:** usar a skill `exercise-intelligence-research` para pesquisar e popular os dados.
+
+---
+
 ## Prioridade Média
 
 ### 1. Sincronização / Backup na nuvem
