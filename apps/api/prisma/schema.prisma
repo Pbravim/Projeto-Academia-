@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  exercises      Exercise[]
+  treinos        Treino[]
+  sessaoTreinos  SessaoTreino[]
+  registrosPeso  RegistroPeso[]
+  settings       UserSetting[]
+  refreshTokens  RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+model Exercise {
+  id             String   @id
+  name           String
+  normalizedName String   @map("normalized_name")
+  groupMuscle    String   @map("group_muscle")
+  category       String
+  equipment      String?
+  loadUnit       String   @default("kg") @map("load_unit")
+  isCustom       Boolean  @default(true) @map("is_custom")
+  mediaOnline    String?  @map("media_online")
+  mediaLocal     String?  @map("media_local")
+  musculoAlvo    String?  @map("musculo_alvo")
+  createdAt      String   @map("created_at")
+  updatedAt      String   @map("updated_at")
+  deletedAt      String?  @map("deleted_at")
+  dirty          Boolean  @default(true)
+  serverRev      String?  @map("server_rev")
+  userId         String?  @map("user_id")
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("exercises")
+}
+
+model Treino {
+  id        String   @id
+  name      String
+  objetivo  String?
+  createdAt String   @map("created_at")
+  updatedAt String   @map("updated_at")
+  deletedAt String?  @map("deleted_at")
+  dirty     Boolean  @default(true)
+  serverRev String?  @map("server_rev")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  treinoExercicios TreinoExercicio[]
+  sessaoTreinos    SessaoTreino[]
+
+  @@map("treinos")
+}
+
+model TreinoExercicio {
+  id                    String  @id
+  treinoId              String  @map("treino_id")
+  treino                Treino  @relation(fields: [treinoId], references: [id], onDelete: Cascade)
+  exercicioId           String  @map("exercicio_id")
+  ordem                 Int
+  seriesRecomendadas    Int?    @map("series_recomendadas")
+  execucoesRecomendadas Int?    @map("execucoes_recomendadas")
+  cargaPadrao           Float?  @map("carga_padrao")
+  tempoDescansoSegundos Int?    @map("tempo_descanso_segundos")
+  metodo                String  @default("normal")
+  grupoId               String? @map("grupo_id")
+
+  @@map("treino_exercicios")
+}
+
+model SessaoTreino {
+  id                 String   @id
+  treinoId           String   @map("treino_id")
+  treino             Treino   @relation(fields: [treinoId], references: [id])
+  treinoNomeSnapshot String   @map("treino_nome_snapshot")
+  dataHoraInicio     String   @map("data_hora_inicio")
+  dataHoraFim        String?  @map("data_hora_fim")
+  status             String
+  arquivado          Boolean  @default(false)
+  createdAt          String   @map("created_at")
+  updatedAt          String   @map("updated_at")
+  deletedAt          String?  @map("deleted_at")
+  dirty              Boolean  @default(true)
+  serverRev          String?  @map("server_rev")
+  userId             String   @map("user_id")
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessaoExercicios SessaoExercicio[]
+
+  @@map("sessao_treinos")
+}
+
+model SessaoExercicio {
+  id                       String   @id
+  sessaoTreinoId           String   @map("sessao_treino_id")
+  sessaoTreino             SessaoTreino @relation(fields: [sessaoTreinoId], references: [id], onDelete: Cascade)
+  exercicioId              String   @map("exercicio_id")
+  ordem                    Int
+  nomeSnapshot             String   @map("nome_snapshot")
+  grupoMuscularSnapshot    String   @map("grupo_muscular_snapshot")
+  categoriaSnapshot        String   @map("categoria_snapshot")
+  equipamentoSnapshot      String?  @map("equipamento_snapshot")
+  musculoAlvoSnapshot      String?  @map("musculo_alvo_snapshot")
+  nomeOriginalSnapshot     String?  @map("nome_original_snapshot")
+  realizado                Boolean  @default(true)
+  seriesRecomendadas       Int?     @map("series_recomendadas")
+  execucoesRecomendadas    Int?     @map("execucoes_recomendadas")
+  cargaPadrao              Float?   @map("carga_padrao")
+  tempoDescansoSegundos    Int?     @map("tempo_descanso_segundos")
+  metodo                   String   @default("normal")
+  grupoId                  String?  @map("grupo_id")
+  substituidoPorExercicioId String? @map("substituido_por_exercicio_id")
+  substituicaoMotivo       String?  @map("substituicao_motivo")
+  createdAt                String   @map("created_at")
+  updatedAt                String   @map("updated_at")
+  deletedAt                String?  @map("deleted_at")
+  dirty                    Boolean  @default(true)
+  serverRev                String?  @map("server_rev")
+
+  seriesRegistradas SerieRegistrada[]
+
+  @@map("sessao_exercicios")
+}
+
+model SerieRegistrada {
+  id               String  @id
+  sessaoExercicioId String  @map("sessao_exercicio_id")
+  sessaoExercicio  SessaoExercicio @relation(fields: [sessaoExercicioId], references: [id], onDelete: Cascade)
+  tipoSerie        String  @map("tipo_serie")
+  ordem            Int
+  cargaKg          Float   @map("carga_kg")
+  repeticoes       Int
+  observacao       String?
+  createdAt        String  @map("created_at")
+  updatedAt        String  @map("updated_at")
+  deletedAt        String? @map("deleted_at")
+  dirty            Boolean @default(true)
+  serverRev        String? @map("server_rev")
+
+  @@map("series_registradas")
+}
+
+model RegistroPeso {
+  id            String  @id
+  pesoKg        Float   @map("peso_kg")
+  dataRegistro  String  @map("data_registro")
+  observacao    String?
+  createdAt     String  @map("created_at")
+  updatedAt     String  @map("updated_at")
+  deletedAt     String? @map("deleted_at")
+  dirty         Boolean @default(true)
+  serverRev     String? @map("server_rev")
+  userId        String  @map("user_id")
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("registros_peso")
+}
+
+model UserSetting {
+  key    String @id
+  value  String
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@map("user_settings")
+}
