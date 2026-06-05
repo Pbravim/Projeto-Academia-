@@ -83,6 +83,60 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
       [nowIso(), nowIso(), exercicioId]
     );
   }
+
+  async getDirty(): Promise<import('@academia/contracts').SessaoExercicioSyncRow[]> {
+    const rows = await this.database.getAll<{
+      id: string; sessao_treino_id: string; exercicio_id: string; ordem: number;
+      nome_snapshot: string; grupo_muscular_snapshot: string; categoria_snapshot: string;
+      equipamento_snapshot: string | null; musculo_alvo_snapshot: string | null;
+      nome_original_snapshot: string | null; realizado: number;
+      series_recomendadas: number | null; execucoes_recomendadas: number | null;
+      carga_padrao: number | null; tempo_descanso_segundos: number | null;
+      metodo: string; grupo_id: string | null;
+      substituido_por_exercicio_id: string | null; substituicao_motivo: string | null;
+      created_at: string; updated_at: string; deleted_at: string | null;
+    }>(
+      `SELECT id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
+              categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, nome_original_snapshot,
+              realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
+              metodo, grupo_id, substituido_por_exercicio_id, substituicao_motivo,
+              created_at, updated_at, deleted_at
+       FROM sessao_exercicios WHERE dirty = 1`
+    );
+    return rows.map((r) => ({
+      id: r.id, sessaoTreinoId: r.sessao_treino_id, exercicioId: r.exercicio_id,
+      ordem: r.ordem, nomeSnapshot: r.nome_snapshot,
+      grupoMuscularSnapshot: r.grupo_muscular_snapshot, categoriaSnapshot: r.categoria_snapshot,
+      equipamentoSnapshot: r.equipamento_snapshot, musculoAlvoSnapshot: r.musculo_alvo_snapshot,
+      nomeOriginalSnapshot: r.nome_original_snapshot, realizado: Boolean(r.realizado),
+      seriesRecomendadas: r.series_recomendadas, execucoesRecomendadas: r.execucoes_recomendadas,
+      cargaPadrao: r.carga_padrao, tempoDescansoSegundos: r.tempo_descanso_segundos,
+      metodo: r.metodo, grupoId: r.grupo_id,
+      substituidoPorExercicioId: r.substituido_por_exercicio_id,
+      substituicaoMotivo: r.substituicao_motivo,
+      createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
+    }));
+  }
+
+  async applyServerRows(rows: import('@academia/contracts').SessaoExercicioSyncRow[]): Promise<void> {
+    for (const r of rows) {
+      await this.database.run(
+        `INSERT OR REPLACE INTO sessao_exercicios
+           (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
+            categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, nome_original_snapshot,
+            realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
+            metodo, grupo_id, substituido_por_exercicio_id, substituicao_motivo,
+            created_at, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+        [r.id, r.sessaoTreinoId, r.exercicioId, r.ordem, r.nomeSnapshot,
+         r.grupoMuscularSnapshot, r.categoriaSnapshot, r.equipamentoSnapshot,
+         r.musculoAlvoSnapshot, r.nomeOriginalSnapshot, r.realizado ? 1 : 0,
+         r.seriesRecomendadas, r.execucoesRecomendadas, r.cargaPadrao, r.tempoDescansoSegundos,
+         r.metodo, r.grupoId, r.substituidoPorExercicioId, r.substituicaoMotivo,
+         r.createdAt, r.updatedAt, r.deletedAt]
+      );
+    }
+  }
 }
 
 const VALID_METODO = new Set(['normal', 'drop_set', 'piramide', 'rest_pause']);

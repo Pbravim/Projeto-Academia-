@@ -140,6 +140,40 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
       [nowIso(), nowIso(), exercicioId, alternativaId]
     );
   }
+
+  async getDirty(): Promise<import('@academia/contracts').ExerciseSyncRow[]> {
+    const rows = await this.database.getAll<{
+      id: string; name: string; normalized_name: string; group_muscle: string;
+      category: string; equipment: string | null; load_unit: string; is_custom: number;
+      media_online: string | null; media_local: string | null; musculo_alvo: string | null;
+      created_at: string; updated_at: string; deleted_at: string | null;
+    }>(
+      `SELECT id, name, normalized_name, group_muscle, category, equipment, load_unit,
+              is_custom, media_online, media_local, musculo_alvo, created_at, updated_at, deleted_at
+       FROM exercises WHERE dirty = 1 AND is_custom = 1`
+    );
+    return rows.map((r) => ({
+      id: r.id, name: r.name, normalizedName: r.normalized_name,
+      groupMuscle: r.group_muscle, category: r.category, equipment: r.equipment,
+      loadUnit: r.load_unit, isCustom: Boolean(r.is_custom),
+      mediaOnline: r.media_online, mediaLocal: r.media_local, musculoAlvo: r.musculo_alvo,
+      createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
+    }));
+  }
+
+  async applyServerRows(rows: import('@academia/contracts').ExerciseSyncRow[]): Promise<void> {
+    for (const r of rows) {
+      await this.database.run(
+        `INSERT OR REPLACE INTO exercises
+           (id, name, normalized_name, group_muscle, category, equipment, load_unit,
+            is_custom, media_online, media_local, musculo_alvo, created_at, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+        [r.id, r.name, r.normalizedName, r.groupMuscle, r.category, r.equipment,
+         r.loadUnit, r.isCustom ? 1 : 0, r.mediaOnline, r.mediaLocal, r.musculoAlvo,
+         r.createdAt, r.updatedAt, r.deletedAt]
+      );
+    }
+  }
 }
 
 function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {

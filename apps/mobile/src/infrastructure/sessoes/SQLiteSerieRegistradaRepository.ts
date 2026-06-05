@@ -98,6 +98,37 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
       [patch.cargaKg, patch.repeticoes, patch.observacao ?? null, nowIso(), id]
     );
   }
+
+  async getDirty(): Promise<import('@academia/contracts').SerieRegistradaSyncRow[]> {
+    const rows = await this.database.getAll<{
+      id: string; sessao_exercicio_id: string; tipo_serie: string; ordem: number;
+      carga_kg: number; repeticoes: number; observacao: string | null;
+      created_at: string; updated_at: string; deleted_at: string | null;
+    }>(
+      `SELECT id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
+              created_at, updated_at, deleted_at
+       FROM series_registradas WHERE dirty = 1`
+    );
+    return rows.map((r) => ({
+      id: r.id, sessaoExercicioId: r.sessao_exercicio_id, tipoSerie: r.tipo_serie,
+      ordem: r.ordem, cargaKg: r.carga_kg, repeticoes: r.repeticoes,
+      observacao: r.observacao, createdAt: r.created_at,
+      updatedAt: r.updated_at, deletedAt: r.deleted_at,
+    }));
+  }
+
+  async applyServerRows(rows: import('@academia/contracts').SerieRegistradaSyncRow[]): Promise<void> {
+    for (const r of rows) {
+      await this.database.run(
+        `INSERT OR REPLACE INTO series_registradas
+           (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
+            created_at, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+        [r.id, r.sessaoExercicioId, r.tipoSerie, r.ordem, r.cargaKg, r.repeticoes,
+         r.observacao, r.createdAt, r.updatedAt, r.deletedAt]
+      );
+    }
+  }
 }
 
 function mapRow(row: SerieRegistradaRow): SerieRegistradaPrimitives {

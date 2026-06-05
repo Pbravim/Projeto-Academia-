@@ -109,6 +109,39 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
   async deleteByExercicioId(exercicioId: string): Promise<void> {
     await this.database.run('UPDATE treino_exercicios SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE exercicio_id = ? AND deleted_at IS NULL', [nowIso(), nowIso(), exercicioId]);
   }
+
+  async getDirty(): Promise<import('@academia/contracts').TreinoExercicioSyncRow[]> {
+    const rows = await this.database.getAll<{
+      id: string; treino_id: string; exercicio_id: string; ordem: number;
+      series_recomendadas: number | null; execucoes_recomendadas: number | null;
+      carga_padrao: number | null; tempo_descanso_segundos: number | null;
+      metodo: string; grupo_id: string | null; updated_at: string | null; deleted_at: string | null;
+    }>(
+      `SELECT id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas,
+              carga_padrao, tempo_descanso_segundos, metodo, grupo_id, updated_at, deleted_at
+       FROM treino_exercicios WHERE dirty = 1`
+    );
+    return rows.map((r) => ({
+      id: r.id, treinoId: r.treino_id, exercicioId: r.exercicio_id, ordem: r.ordem,
+      seriesRecomendadas: r.series_recomendadas, execucoesRecomendadas: r.execucoes_recomendadas,
+      cargaPadrao: r.carga_padrao, tempoDescansoSegundos: r.tempo_descanso_segundos,
+      metodo: r.metodo, grupoId: r.grupo_id,
+      updatedAt: r.updated_at ?? new Date().toISOString(), deletedAt: r.deleted_at,
+    }));
+  }
+
+  async applyServerRows(rows: import('@academia/contracts').TreinoExercicioSyncRow[]): Promise<void> {
+    for (const r of rows) {
+      await this.database.run(
+        `INSERT OR REPLACE INTO treino_exercicios
+           (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas,
+            carga_padrao, tempo_descanso_segundos, metodo, grupo_id, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+        [r.id, r.treinoId, r.exercicioId, r.ordem, r.seriesRecomendadas, r.execucoesRecomendadas,
+         r.cargaPadrao, r.tempoDescansoSegundos, r.metodo, r.grupoId, r.updatedAt, r.deletedAt]
+      );
+    }
+  }
 }
 
 const VALID_METODO = new Set<string>(['normal', 'drop_set', 'piramide', 'rest_pause']);

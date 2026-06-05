@@ -49,6 +49,30 @@ export class SQLiteTreinoRepository implements TreinoRepository {
       [nowIso(), nowIso(), id]
     );
   }
+
+  async getDirty(): Promise<import('@academia/contracts').TreinoSyncRow[]> {
+    const rows = await this.database.getAll<{
+      id: string; name: string; objetivo: string | null;
+      created_at: string; updated_at: string; deleted_at: string | null;
+    }>(
+      `SELECT id, name, objetivo, created_at, updated_at, deleted_at
+       FROM treinos WHERE dirty = 1`
+    );
+    return rows.map((r) => ({
+      id: r.id, name: r.name, objetivo: r.objetivo,
+      createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
+    }));
+  }
+
+  async applyServerRows(rows: import('@academia/contracts').TreinoSyncRow[]): Promise<void> {
+    for (const r of rows) {
+      await this.database.run(
+        `INSERT OR REPLACE INTO treinos (id, name, objetivo, created_at, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, 0, 1)`,
+        [r.id, r.name, r.objetivo, r.createdAt, r.updatedAt, r.deletedAt]
+      );
+    }
+  }
 }
 
 function mapRowToPrimitives(row: TreinoRow): TreinoPrimitives {
