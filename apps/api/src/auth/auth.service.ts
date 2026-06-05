@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -32,8 +33,9 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
+    const tokenHash = createHash('sha256').update(refreshToken).digest('hex');
     const stored = await this.prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
+      where: { token: tokenHash },
       include: { user: true },
     });
     if (!stored || stored.expiresAt < new Date()) {
@@ -44,17 +46,20 @@ export class AuthService {
   }
 
   private async generateTokens(userId: string, email: string) {
+    const secret = process.env.JWT_ACCESS_SECRET;
+    if (!secret) throw new Error('JWT_ACCESS_SECRET not set');
     const payload = { sub: userId, email };
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_SECRET ?? 'fallback-secret',
+      secret,
       expiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
     });
     const rawRefresh = uuidv4();
+    const tokenHash = createHash('sha256').update(rawRefresh).digest('hex');
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
     await this.prisma.refreshToken.create({
-      data: { token: rawRefresh, userId, expiresAt },
+      data: { token: tokenHash, userId, expiresAt },
     });
-    return { accessToken, refreshToken: rawRefresh };
+    return { accessToken, refreshToken: rawRefresh }; // return raw, store hash
   }
 }
