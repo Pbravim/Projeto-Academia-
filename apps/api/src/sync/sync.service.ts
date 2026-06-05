@@ -150,6 +150,15 @@ export class SyncService {
       if (!ownedTreinoIds.has(row.treinoId)) throw new ForbiddenException();
     }
 
+    // Verify existing rows with these IDs are also under owned treinos
+    const existingRows = rows.length === 0 ? [] : await tx.treinoExercicio.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true, treinoId: true },
+    });
+    for (const existing of existingRows) {
+      if (!ownedTreinoIds.has(existing.treinoId)) throw new ForbiddenException();
+    }
+
     const existing = rows.length === 0 ? [] : await tx.treinoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, updatedAt: true, deletedAt: true },
@@ -236,6 +245,15 @@ export class SyncService {
       if (!ownedSessaoIds.has(row.sessaoTreinoId)) throw new ForbiddenException();
     }
 
+    // Verify existing rows with these IDs are also under owned sessaoTreinos
+    const existingRowsCheck = rows.length === 0 ? [] : await tx.sessaoExercicio.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true, sessaoTreinoId: true },
+    });
+    for (const existing of existingRowsCheck) {
+      if (!ownedSessaoIds.has(existing.sessaoTreinoId)) throw new ForbiddenException();
+    }
+
     const existing = rows.length === 0 ? [] : await tx.sessaoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, updatedAt: true, deletedAt: true },
@@ -285,6 +303,15 @@ export class SyncService {
     const ownedSessaoExercicioIds = new Set(ownedSessaoExercicios.map((s: any) => s.id));
     for (const row of rows) {
       if (!ownedSessaoExercicioIds.has(row.sessaoExercicioId)) throw new ForbiddenException();
+    }
+
+    // Verify existing rows with these IDs are also under owned sessaoExercicios
+    const existingRowsCheck = rows.length === 0 ? [] : await tx.serieRegistrada.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true, sessaoExercicioId: true },
+    });
+    for (const existing of existingRowsCheck) {
+      if (!ownedSessaoExercicioIds.has(existing.sessaoExercicioId)) throw new ForbiddenException();
     }
 
     const existing = rows.length === 0 ? [] : await tx.serieRegistrada.findMany({

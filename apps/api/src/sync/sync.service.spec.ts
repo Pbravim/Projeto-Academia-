@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ForbiddenException } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { SyncRequest } from '@academia/contracts';
@@ -115,5 +116,22 @@ describe('SyncService', () => {
     });
     const call = mockPrisma.treino.upsert.mock.calls[0][0];
     expect(call.update.name).toBe('Server version');
+  });
+
+  it('throws ForbiddenException when client tries to modify another user\'s treino', async () => {
+    // treino exists in DB but belongs to a different user (not returned in userId-scoped query)
+    mockPrisma.treino.findMany
+      .mockResolvedValueOnce([]) // userId-scoped query returns nothing (not owned by user-1)
+      .mockResolvedValueOnce([{ id: 'treino-other' }]); // all-ids query finds it (belongs to someone else)
+
+    await expect(
+      service.sync('user-1', {
+        since: null,
+        changes: {
+          ...emptyChanges(),
+          treinos: [{ id: 'treino-other', name: 'Stolen', objetivo: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), deletedAt: null }],
+        },
+      }),
+    ).rejects.toThrow(ForbiddenException);
   });
 });
