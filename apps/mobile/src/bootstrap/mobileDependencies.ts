@@ -52,6 +52,12 @@ import { SQLitePlanoSemanalRepository } from '../infrastructure/plano/SQLitePlan
 import { SQLiteHistoricoRepository } from '../infrastructure/historico/SQLiteHistoricoRepository';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
 import { SQLiteExerciseRepository } from '../infrastructure/exercises/SQLiteExerciseRepository';
+import { ExerciseSeedLoader, type SeedFile } from '../infrastructure/exercises/ExerciseSeedLoader';
+import peitoPressJson from '../infrastructure/exercises/seeds/peito_press.json';
+import peitoFlyJson from '../infrastructure/exercises/seeds/peito_fly.json';
+
+const peitoPress = peitoPressJson as SeedFile;
+const peitoFly = peitoFlyJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -65,6 +71,19 @@ import { databaseClient } from './databaseClient';
 const logger = new ConsoleAppLogger();
 
 const exerciseRepository = new SQLiteExerciseRepository(databaseClient);
+
+void (async () => {
+  try {
+    const seedLoader = new ExerciseSeedLoader(exerciseRepository);
+    await Promise.all([
+      seedLoader.loadSeedFile(peitoPress),
+      seedLoader.loadSeedFile(peitoFly),
+    ]);
+  } catch (e) {
+    logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
+  }
+})();
+
 const treinoRepository = new SQLiteTreinoRepository(databaseClient);
 const treinoExercicioRepository = new SQLiteTreinoExercicioRepository(databaseClient);
 const sessaoTreinoRepository = new SQLiteSessaoTreinoRepository(databaseClient);
