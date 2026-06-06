@@ -1,0 +1,30 @@
+{
+  "_comment": "Research session tracker — read by the exercise-intelligence-research skill, NOT by the app",
+  "sessions": {
+    "peito_press": {
+      "status": "complete",
+      "exercise_count": 18,
+      "researched_at": "2026-06-05",
+      "covers": ["seed-ex-001","seed-ex-002","seed-ex-003","seed-ex-004","gif-ex-001","gif-ex-002","gif-ex-003","gif-ex-004","gif-ex-005","gif-ex-006","gif-ex-007","gif-ex-008","gif-ex-018","gif-ex-019","gif-ex-020","gif-ex-032","gif-ex-033","gif-ex-034"]
+    },
+    "peito_fly": {
+      "status": "complete",
+      "exercise_count": 15,
+      "researched_at": "2026-06-05",
+      "covers": ["seed-ex-005","seed-ex-006","gif-ex-009","gif-ex-010","gif-ex-011","gif-ex-012","gif-ex-013","gif-ex-014","gif-ex-015","gif-ex-016","gif-ex-017","gif-ex-021","gif-ex-027","gif-ex-028","gif-ex-035"]
+    }
+  },
+  "pending_sessions": [
+    "costas_pull_vertical",
+    "costas_pull_horizontal",
+    "ombros_press",
+    "ombros_lateral",
+    "biceps",
+    "triceps_push_down",
+    "triceps_overhead",
+    "quadriceps",
+    "posterior_gluteos",
+    "abdome",
+    "panturrilha"
+  ]
+}
