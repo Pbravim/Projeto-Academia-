@@ -150,6 +150,25 @@ export function createTestDatabase(): SQLiteDatabaseClient {
  ALTER TABLE settings           ADD COLUMN deleted_at TEXT;
  ALTER TABLE settings           ADD COLUMN dirty INTEGER NOT NULL DEFAULT 1;
  ALTER TABLE settings           ADD COLUMN server_rev INTEGER;`,
+
+    // v20: exercise intelligence columns + typed alternative tables
+    `ALTER TABLE exercises ADD COLUMN movement_pattern TEXT;
+     ALTER TABLE exercises ADD COLUMN stabilizers TEXT;
+     ALTER TABLE exercises ADD COLUMN execution_type TEXT;
+     ALTER TABLE exercises ADD COLUMN name_variations TEXT;
+     ALTER TABLE exercises ADD COLUMN primary_equipment TEXT;
+     ALTER TABLE exercises ADD COLUMN secondary_equipment TEXT;
+     ALTER TABLE exercises ADD COLUMN catalog_version INTEGER NOT NULL DEFAULT 0;
+     CREATE TABLE IF NOT EXISTS exercise_equivalent_alternatives (
+       exercicio_id   TEXT NOT NULL,
+       alternativa_id TEXT NOT NULL,
+       PRIMARY KEY (exercicio_id, alternativa_id)
+     );
+     CREATE TABLE IF NOT EXISTS exercise_muscle_group_alternatives (
+       exercicio_id   TEXT NOT NULL,
+       alternativa_id TEXT NOT NULL,
+       PRIMARY KEY (exercicio_id, alternativa_id)
+     );`,
   ];
 
   for (const migration of migrations) {

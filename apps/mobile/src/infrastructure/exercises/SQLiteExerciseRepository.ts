@@ -17,41 +17,51 @@ interface ExerciseRow {
   media_online: string | null;
   media_local: string | null;
   musculo_alvo: string | null;
+  movement_pattern: string | null;
+  stabilizers: string | null;
+  execution_type: string | null;
+  name_variations: string | null;
+  primary_equipment: string | null;
+  secondary_equipment: string | null;
+  catalog_version: number;
 }
+
+const EXERCISE_COLUMNS = `id, name, normalized_name, group_muscle, category, equipment,
+       load_unit, is_custom, created_at, updated_at, media_online, media_local,
+       musculo_alvo, movement_pattern, stabilizers, execution_type,
+       name_variations, primary_equipment, secondary_equipment, catalog_version`;
 
 export class SQLiteExerciseRepository implements ExerciseRepository {
   constructor(private readonly database: SQLiteDatabaseClient) {}
 
   async save(exercise: Exercise): Promise<void> {
-    const currentExercise = exercise.toPrimitives();
-
+    const p = exercise.toPrimitives();
     await this.database.run(
       `INSERT OR REPLACE INTO exercises (
          id, name, normalized_name, group_muscle, category, equipment,
-         load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo,
+         load_unit, is_custom, created_at, updated_at, media_online, media_local,
+         musculo_alvo, movement_pattern, stabilizers, execution_type,
+         name_variations, primary_equipment, secondary_equipment, catalog_version,
          deleted_at, dirty
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
       [
-        currentExercise.id,
-        currentExercise.name,
-        currentExercise.normalizedName,
-        currentExercise.groupMuscle,
-        currentExercise.category,
-        currentExercise.equipment,
-        currentExercise.loadUnit,
-        currentExercise.isCustom ? 1 : 0,
-        currentExercise.createdAt,
-        currentExercise.updatedAt,
-        currentExercise.mediaOnline,
-        currentExercise.mediaLocal,
-        currentExercise.musculoAlvo.length > 0 ? JSON.stringify(currentExercise.musculoAlvo) : null,
+        p.id, p.name, p.normalizedName, p.groupMuscle, p.category, p.equipment,
+        p.loadUnit, p.isCustom ? 1 : 0, p.createdAt, p.updatedAt,
+        p.mediaOnline, p.mediaLocal,
+        JSON.stringify(p.musculoAlvo),
+        p.movementPattern,
+        JSON.stringify(p.stabilizers),
+        p.executionType,
+        JSON.stringify(p.nameVariations),
+        p.primaryEquipment,
+        p.secondaryEquipment,
+        p.catalogVersion,
       ]
     );
   }
 
   async list(options?: ListExercisesOptions): Promise<Exercise[]> {
-    const SELECT = `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
+    const SELECT = `SELECT ${EXERCISE_COLUMNS}
        FROM exercises WHERE deleted_at IS NULL ORDER BY normalized_name ASC`;
 
     if (options?.limit != null) {
@@ -68,8 +78,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async findById(id: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
-      `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
+      `SELECT ${EXERCISE_COLUMNS}
        FROM exercises WHERE id = ? AND deleted_at IS NULL LIMIT 1`,
       [id]
     );
@@ -81,8 +90,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     if (ids.length === 0) return [];
     const placeholders = ids.map(() => '?').join(', ');
     const rows = await this.database.getAll<ExerciseRow>(
-      `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
+      `SELECT ${EXERCISE_COLUMNS}
        FROM exercises WHERE id IN (${placeholders}) AND deleted_at IS NULL`,
       ids
     );
@@ -91,13 +99,26 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async findByNormalizedName(normalizedName: string): Promise<Exercise | null> {
     const row = await this.database.getFirst<ExerciseRow>(
-      `SELECT id, name, normalized_name, group_muscle, category, equipment,
-              load_unit, is_custom, created_at, updated_at, media_online, media_local, musculo_alvo
+      `SELECT ${EXERCISE_COLUMNS}
        FROM exercises WHERE normalized_name = ? AND deleted_at IS NULL LIMIT 1`,
       [normalizedName]
     );
 
     return row ? Exercise.restore(mapRowToPrimitives(row)) : null;
+  }
+
+  async findByNameOrVariation(query: string): Promise<Exercise[]> {
+    const q = `%${query.toLowerCase()}%`;
+    const rows = await this.database.getAll<ExerciseRow>(
+      `SELECT ${EXERCISE_COLUMNS}
+       FROM exercises
+       WHERE deleted_at IS NULL
+         AND (normalized_name LIKE ?
+              OR (name_variations IS NOT NULL AND LOWER(name_variations) LIKE ?))
+       ORDER BY normalized_name ASC`,
+      [q, q]
+    );
+    return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
   }
 
   async delete(id: string): Promise<void> {
@@ -117,7 +138,9 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
   async listAlternativas(exercicioId: string): Promise<Exercise[]> {
     const rows = await this.database.getAll<ExerciseRow>(
       `SELECT e.id, e.name, e.normalized_name, e.group_muscle, e.category, e.equipment,
-              e.load_unit, e.is_custom, e.created_at, e.updated_at, e.media_online, e.media_local, e.musculo_alvo
+              e.load_unit, e.is_custom, e.created_at, e.updated_at, e.media_online, e.media_local,
+              e.musculo_alvo, e.movement_pattern, e.stabilizers, e.execution_type,
+              e.name_variations, e.primary_equipment, e.secondary_equipment, e.catalog_version
        FROM exercises e
        JOIN exercise_alternatives ea ON ea.alternativa_id = e.id
        WHERE ea.exercicio_id = ? AND e.deleted_at IS NULL
@@ -139,6 +162,98 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
       'UPDATE exercise_alternatives SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE exercicio_id = ? AND alternativa_id = ?',
       [nowIso(), nowIso(), exercicioId, alternativaId]
     );
+  }
+
+  async listEquivalentAlternativas(exercicioId: string): Promise<Exercise[]> {
+    const rows = await this.database.getAll<ExerciseRow>(
+      `SELECT e.id, e.name, e.normalized_name, e.group_muscle, e.category, e.equipment,
+              e.load_unit, e.is_custom, e.created_at, e.updated_at, e.media_online, e.media_local,
+              e.musculo_alvo, e.movement_pattern, e.stabilizers, e.execution_type,
+              e.name_variations, e.primary_equipment, e.secondary_equipment, e.catalog_version
+       FROM exercises e
+       JOIN exercise_equivalent_alternatives ea ON ea.alternativa_id = e.id
+       WHERE ea.exercicio_id = ? AND e.deleted_at IS NULL
+       ORDER BY e.name ASC`,
+      [exercicioId]
+    );
+    return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
+  }
+
+  async addEquivalentAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    await this.database.run(
+      `INSERT INTO exercise_equivalent_alternatives (exercicio_id, alternativa_id)
+       VALUES (?, ?) ON CONFLICT(exercicio_id, alternativa_id) DO NOTHING`,
+      [exercicioId, alternativaId]
+    );
+  }
+
+  async listMuscleGroupAlternativas(exercicioId: string): Promise<Exercise[]> {
+    const rows = await this.database.getAll<ExerciseRow>(
+      `SELECT e.id, e.name, e.normalized_name, e.group_muscle, e.category, e.equipment,
+              e.load_unit, e.is_custom, e.created_at, e.updated_at, e.media_online, e.media_local,
+              e.musculo_alvo, e.movement_pattern, e.stabilizers, e.execution_type,
+              e.name_variations, e.primary_equipment, e.secondary_equipment, e.catalog_version
+       FROM exercises e
+       JOIN exercise_muscle_group_alternatives ea ON ea.alternativa_id = e.id
+       WHERE ea.exercicio_id = ? AND e.deleted_at IS NULL
+       ORDER BY e.name ASC`,
+      [exercicioId]
+    );
+    return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
+  }
+
+  async addMuscleGroupAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    await this.database.run(
+      `INSERT INTO exercise_muscle_group_alternatives (exercicio_id, alternativa_id)
+       VALUES (?, ?) ON CONFLICT(exercicio_id, alternativa_id) DO NOTHING`,
+      [exercicioId, alternativaId]
+    );
+  }
+
+  async upsertCatalogExercise(exercise: Exercise, equivalentIds: string[], muscleGroupIds: string[]): Promise<void> {
+    const p = exercise.toPrimitives();
+    const now = new Date().toISOString();
+    await this.database.run(
+      `INSERT INTO exercises (
+         id, name, normalized_name, group_muscle, category, equipment,
+         load_unit, is_custom, created_at, updated_at, media_online, media_local,
+         musculo_alvo, movement_pattern, stabilizers, execution_type,
+         name_variations, primary_equipment, secondary_equipment, catalog_version,
+         deleted_at, dirty
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0)
+       ON CONFLICT(id) DO UPDATE SET
+         name               = excluded.name,
+         normalized_name    = excluded.normalized_name,
+         group_muscle       = excluded.group_muscle,
+         category           = excluded.category,
+         equipment          = excluded.equipment,
+         musculo_alvo       = excluded.musculo_alvo,
+         movement_pattern   = excluded.movement_pattern,
+         stabilizers        = excluded.stabilizers,
+         execution_type     = excluded.execution_type,
+         name_variations    = excluded.name_variations,
+         primary_equipment  = excluded.primary_equipment,
+         secondary_equipment = excluded.secondary_equipment,
+         catalog_version    = excluded.catalog_version,
+         updated_at         = excluded.updated_at
+       WHERE exercises.is_custom = 0`,
+      [
+        p.id, p.name, p.normalizedName, p.groupMuscle, p.category, p.equipment,
+        p.loadUnit, 0, p.createdAt, now,
+        p.mediaOnline, p.mediaLocal,
+        JSON.stringify(p.musculoAlvo),
+        p.movementPattern,
+        JSON.stringify(p.stabilizers),
+        p.executionType,
+        JSON.stringify(p.nameVariations),
+        p.primaryEquipment,
+        p.secondaryEquipment,
+        p.catalogVersion,
+      ]
+    );
+
+    for (const altId of equivalentIds) await this.addEquivalentAlternativa(p.id, altId);
+    for (const altId of muscleGroupIds) await this.addMuscleGroupAlternativa(p.id, altId);
   }
 
   async getDirty(): Promise<import('@academia/contracts').ExerciseSyncRow[]> {
@@ -190,13 +305,13 @@ function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {
     updatedAt: row.updated_at,
     mediaOnline: row.media_online,
     mediaLocal: row.media_local,
-    musculoAlvo: row.musculo_alvo ? (JSON.parse(row.musculo_alvo) as string[]) : [],
-    movementPattern: null,
-    stabilizers: [],
-    executionType: null,
-    nameVariations: [],
-    primaryEquipment: null,
-    secondaryEquipment: null,
-    catalogVersion: 0,
+    musculoAlvo:        row.musculo_alvo     ? (JSON.parse(row.musculo_alvo)     as string[]) : [],
+    movementPattern:    row.movement_pattern ?? null,
+    stabilizers:        row.stabilizers      ? (JSON.parse(row.stabilizers)      as string[]) : [],
+    executionType:      row.execution_type   as ExercisePrimitives['executionType'] ?? null,
+    nameVariations:     row.name_variations  ? (JSON.parse(row.name_variations)  as string[]) : [],
+    primaryEquipment:   row.primary_equipment ?? null,
+    secondaryEquipment: row.secondary_equipment ?? null,
+    catalogVersion:     row.catalog_version ?? 0,
   };
 }
