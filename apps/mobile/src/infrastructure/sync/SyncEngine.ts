@@ -82,34 +82,17 @@ export class SyncEngine {
 
     const { serverChanges, newCursor } = response;
 
+    const applyIfAny = <T>(rows: T[], repo: { applyServerRows(r: T[]): Promise<void> }) =>
+      rows.length > 0 ? repo.applyServerRows(rows) : Promise.resolve();
+
     await Promise.all([
-      serverChanges.exercises.length > 0
-        ? this.exerciseRepo.applyServerRows(serverChanges.exercises)
-        : Promise.resolve(),
-      serverChanges.treinos.length > 0
-        ? this.treinoRepo.applyServerRows(serverChanges.treinos)
-        : Promise.resolve(),
-      serverChanges.treinoExercicios.length > 0
-        ? this.treinoExercicioRepo.applyServerRows(
-            serverChanges.treinoExercicios,
-          )
-        : Promise.resolve(),
-      serverChanges.sessaoTreinos.length > 0
-        ? this.sessaoTreinoRepo.applyServerRows(
-            serverChanges.sessaoTreinos,
-          )
-        : Promise.resolve(),
-      serverChanges.sessaoExercicios.length > 0
-        ? this.sessaoExercicioRepo.applyServerRows(
-            serverChanges.sessaoExercicios,
-          )
-        : Promise.resolve(),
-      serverChanges.seriesRegistradas.length > 0
-        ? this.serieRepo.applyServerRows(serverChanges.seriesRegistradas)
-        : Promise.resolve(),
-      serverChanges.registrosPeso.length > 0
-        ? this.pesoRepo.applyServerRows(serverChanges.registrosPeso)
-        : Promise.resolve(),
+      applyIfAny(serverChanges.exercises, this.exerciseRepo),
+      applyIfAny(serverChanges.treinos, this.treinoRepo),
+      applyIfAny(serverChanges.treinoExercicios, this.treinoExercicioRepo),
+      applyIfAny(serverChanges.sessaoTreinos, this.sessaoTreinoRepo),
+      applyIfAny(serverChanges.sessaoExercicios, this.sessaoExercicioRepo),
+      applyIfAny(serverChanges.seriesRegistradas, this.serieRepo),
+      applyIfAny(serverChanges.registrosPeso, this.pesoRepo),
     ]);
 
     await this.storage.setItem(CURSOR_KEY, newCursor);
