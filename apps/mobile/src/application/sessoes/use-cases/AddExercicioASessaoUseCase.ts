@@ -62,7 +62,7 @@ export class AddExercicioASessaoUseCase {
         grupoMuscularSnapshot: ex.groupMuscle,
         categoriaSnapshot: ex.category,
         equipamentoSnapshot: ex.equipment,
-        musculoAlvoSnapshot: ex.musculoAlvo,
+        musculoAlvoSnapshot: ex.musculoAlvo.length > 0 ? JSON.stringify(ex.musculoAlvo) : null,
         realizado: false,
         seriesRecomendadas: null,
         execucoesRecomendadas: null,

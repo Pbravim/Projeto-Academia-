@@ -79,7 +79,7 @@ export class IniciarSessaoUseCase {
           grupoMuscularSnapshot: ex.groupMuscle,
           categoriaSnapshot: ex.category,
           equipamentoSnapshot: ex.equipment,
-          musculoAlvoSnapshot: ex.musculoAlvo,
+          musculoAlvoSnapshot: ex.musculoAlvo.length > 0 ? JSON.stringify(ex.musculoAlvo) : null,
           realizado: false,
           seriesRecomendadas: p.seriesRecomendadas,
           execucoesRecomendadas: p.execucoesRecomendadas,

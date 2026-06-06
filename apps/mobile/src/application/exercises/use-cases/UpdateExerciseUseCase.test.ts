@@ -109,32 +109,27 @@ describe('UpdateExerciseUseCase', () => {
       name: 'Exercicio Customizado',
       groupMuscle: 'Peito',
       category: 'Composto',
-      musculoAlvo: 'peitoral_medio',
+      musculoAlvo: ['peitoral_medio'],
     });
 
-    expect(updated.musculoAlvo).toBe('peitoral_medio');
+    expect(updated.musculoAlvo).toEqual(['peitoral_medio']);
   });
 
-  it('clears musculoAlvo when null is passed', async () => {
+  it('clears musculoAlvo when empty array is passed', async () => {
     const repo = makeRepo();
     const create = makeCreateUseCase(repo);
     const update = makeUpdateUseCase(repo);
 
-    await create.execute({
-      name: 'Exercicio Customizado',
-      groupMuscle: 'Peito',
-      category: 'Composto',
-      musculoAlvo: 'peitoral_medio',
-    });
+    await create.execute({ name: 'Exercicio Customizado', groupMuscle: 'Peito', category: 'Composto' });
 
     const updated = await update.execute({
       id: 'exercise_1',
       name: 'Exercicio Customizado',
       groupMuscle: 'Peito',
       category: 'Composto',
-      musculoAlvo: null,
+      musculoAlvo: [],
     });
 
-    expect(updated.musculoAlvo).toBeNull();
+    expect(updated.musculoAlvo).toEqual([]);
   });
 });

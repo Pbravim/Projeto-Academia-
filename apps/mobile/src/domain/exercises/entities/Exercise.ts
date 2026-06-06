@@ -14,7 +14,15 @@ export interface ExercisePrimitives {
   updatedAt: string;
   mediaOnline: string | null;
   mediaLocal: string | null;
-  musculoAlvo: string | null;
+  // biomechanical fields (v17/v20)
+  musculoAlvo: string[];
+  movementPattern: string | null;
+  stabilizers: string[];
+  executionType: 'Unilateral' | 'Bilateral' | 'Can Be Both' | null;
+  nameVariations: string[];
+  primaryEquipment: string | null;
+  secondaryEquipment: string | null;
+  catalogVersion: number;
 }
 
 export interface CreateExerciseProps {
@@ -28,7 +36,14 @@ export interface CreateExerciseProps {
   isCustom?: boolean;
   mediaOnline?: string | null;
   mediaLocal?: string | null;
-  musculoAlvo?: string | null;
+  musculoAlvo?: string[];
+  movementPattern?: string | null;
+  stabilizers?: string[];
+  executionType?: 'Unilateral' | 'Bilateral' | 'Can Be Both' | null;
+  nameVariations?: string[];
+  primaryEquipment?: string | null;
+  secondaryEquipment?: string | null;
+  catalogVersion?: number;
 }
 
 export interface UpdateExerciseProps {
@@ -38,7 +53,13 @@ export interface UpdateExerciseProps {
   equipment?: string | null;
   mediaOnline?: string | null;
   mediaLocal?: string | null;
-  musculoAlvo?: string | null;
+  musculoAlvo?: string[];
+  movementPattern?: string | null;
+  stabilizers?: string[];
+  executionType?: 'Unilateral' | 'Bilateral' | 'Can Be Both' | null;
+  nameVariations?: string[];
+  primaryEquipment?: string | null;
+  secondaryEquipment?: string | null;
 }
 
 export class Exercise {
@@ -51,6 +72,15 @@ export class Exercise {
     const equipment = normalizeOptionalText(input.equipment);
     const createdAt = input.createdAt.toISOString();
     const updatedAt = (input.updatedAt ?? input.createdAt).toISOString();
+
+    const musculoAlvo = input.musculoAlvo ?? [];
+    const movementPattern = input.movementPattern ?? null;
+    const stabilizers = input.stabilizers ?? [];
+    const executionType = input.executionType ?? null;
+    const nameVariations = input.nameVariations ?? [];
+    const primaryEquipment = normalizeOptionalText(input.primaryEquipment);
+    const secondaryEquipment = normalizeOptionalText(input.secondaryEquipment);
+    const catalogVersion = input.catalogVersion ?? 0;
 
     return new Exercise({
       id: input.id,
@@ -65,7 +95,14 @@ export class Exercise {
       updatedAt,
       mediaOnline: normalizeOptionalText(input.mediaOnline),
       mediaLocal: normalizeOptionalText(input.mediaLocal),
-      musculoAlvo: normalizeOptionalText(input.musculoAlvo),
+      musculoAlvo,
+      movementPattern,
+      stabilizers,
+      executionType,
+      nameVariations,
+      primaryEquipment,
+      secondaryEquipment,
+      catalogVersion,
     });
   }
 
@@ -92,7 +129,14 @@ export class Exercise {
       updatedAt: updatedAt.toISOString(),
       mediaOnline: 'mediaOnline' in input ? normalizeOptionalText(input.mediaOnline) : current.mediaOnline,
       mediaLocal: 'mediaLocal' in input ? normalizeOptionalText(input.mediaLocal) : current.mediaLocal,
-      musculoAlvo: 'musculoAlvo' in input ? normalizeOptionalText(input.musculoAlvo) : current.musculoAlvo,
+      musculoAlvo: 'musculoAlvo' in input ? (input.musculoAlvo ?? []) : current.musculoAlvo,
+      movementPattern: 'movementPattern' in input ? (input.movementPattern ?? null) : current.movementPattern,
+      stabilizers: 'stabilizers' in input ? (input.stabilizers ?? []) : current.stabilizers,
+      executionType: 'executionType' in input ? (input.executionType ?? null) : current.executionType,
+      nameVariations: 'nameVariations' in input ? (input.nameVariations ?? []) : current.nameVariations,
+      primaryEquipment: 'primaryEquipment' in input ? normalizeOptionalText(input.primaryEquipment) : current.primaryEquipment,
+      secondaryEquipment: 'secondaryEquipment' in input ? normalizeOptionalText(input.secondaryEquipment) : current.secondaryEquipment,
+      catalogVersion: current.catalogVersion,
     });
   }
 

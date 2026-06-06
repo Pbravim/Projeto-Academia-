@@ -80,7 +80,7 @@ export class SugerirSubstitutosUseCase {
         ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
       };
 
-      if (musculoAlvo && ep.musculoAlvo === musculoAlvo) {
+      if (musculoAlvo && ep.musculoAlvo.includes(musculoAlvo)) {
         camada1.push(candidato);
       } else if (temIntersecaoDeGrupo(ep.groupMuscle, grupoMuscular)) {
         camada2.push({ ...candidato, enfaseDiferente: true });

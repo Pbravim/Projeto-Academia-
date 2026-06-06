@@ -44,7 +44,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
         currentExercise.updatedAt,
         currentExercise.mediaOnline,
         currentExercise.mediaLocal,
-        currentExercise.musculoAlvo,
+        currentExercise.musculoAlvo.length > 0 ? JSON.stringify(currentExercise.musculoAlvo) : null,
       ]
     );
   }
@@ -190,6 +190,13 @@ function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {
     updatedAt: row.updated_at,
     mediaOnline: row.media_online,
     mediaLocal: row.media_local,
-    musculoAlvo: row.musculo_alvo ?? null,
+    musculoAlvo: row.musculo_alvo ? (JSON.parse(row.musculo_alvo) as string[]) : [],
+    movementPattern: null,
+    stabilizers: [],
+    executionType: null,
+    nameVariations: [],
+    primaryEquipment: null,
+    secondaryEquipment: null,
+    catalogVersion: 0,
   };
 }
