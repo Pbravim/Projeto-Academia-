@@ -46,6 +46,8 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
   }
 
   private readonly alternativasById = new Map<string, Set<string>>();
+  private readonly equivalentById = new Map<string, Set<string>>();
+  private readonly muscleGroupById = new Map<string, Set<string>>();
 
   async listAlternativas(exercicioId: string): Promise<Exercise[]> {
     const ids = this.alternativasById.get(exercicioId) ?? new Set();
@@ -60,5 +62,46 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
 
   async removeAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
     this.alternativasById.get(exercicioId)?.delete(alternativaId);
+  }
+
+  async findByNameOrVariation(query: string): Promise<Exercise[]> {
+    const q = query.trim().toLowerCase();
+    const results: Exercise[] = [];
+    for (const exercise of this.exercisesById.values()) {
+      const p = exercise.toPrimitives();
+      const inName = p.normalizedName.includes(q);
+      const inVariations = p.nameVariations.some((v) => v.toLowerCase().includes(q));
+      if (inName || inVariations) results.push(exercise);
+    }
+    return results;
+  }
+
+  async listEquivalentAlternativas(exercicioId: string): Promise<Exercise[]> {
+    const ids = this.equivalentById.get(exercicioId) ?? new Set();
+    return [...ids].map((id) => this.exercisesById.get(id)).filter(Boolean) as Exercise[];
+  }
+
+  async addEquivalentAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    const set = this.equivalentById.get(exercicioId) ?? new Set<string>();
+    set.add(alternativaId);
+    this.equivalentById.set(exercicioId, set);
+  }
+
+  async listMuscleGroupAlternativas(exercicioId: string): Promise<Exercise[]> {
+    const ids = this.muscleGroupById.get(exercicioId) ?? new Set();
+    return [...ids].map((id) => this.exercisesById.get(id)).filter(Boolean) as Exercise[];
+  }
+
+  async addMuscleGroupAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    const set = this.muscleGroupById.get(exercicioId) ?? new Set<string>();
+    set.add(alternativaId);
+    this.muscleGroupById.set(exercicioId, set);
+  }
+
+  async upsertCatalogExercise(exercise: Exercise, equivalentIds: string[], muscleGroupIds: string[]): Promise<void> {
+    const p = exercise.toPrimitives();
+    this.exercisesById.set(p.id, exercise);
+    for (const altId of equivalentIds) await this.addEquivalentAlternativa(p.id, altId);
+    for (const altId of muscleGroupIds) await this.addMuscleGroupAlternativa(p.id, altId);
   }
 }
