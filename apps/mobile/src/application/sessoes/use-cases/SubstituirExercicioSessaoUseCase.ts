@@ -59,7 +59,8 @@ export class SubstituirExercicioSessaoUseCase {
       ex.groupMuscle,
       ex.category,
       ex.equipment,
-      ex.musculoAlvo.length > 0 ? JSON.stringify(ex.musculoAlvo) : null,
+      ex.musculoAlvo,
+      ex.movementPattern,
       input.motivo,
     );
 

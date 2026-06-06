@@ -13,6 +13,7 @@ interface SessaoExercicioRow {
   categoria_snapshot: string;
   equipamento_snapshot: string | null;
   musculo_alvo_snapshot: string | null;
+  movement_pattern_snapshot: string | null;
   realizado: number;
   series_recomendadas: number | null;
   execucoes_recomendadas: number | null;
@@ -32,9 +33,9 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     const p = se.toPrimitives();
     await this.database.run(
       `INSERT OR REPLACE INTO sessao_exercicios
-        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, substituido_por_exercicio_id, substituicao_motivo, nome_original_snapshot, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
-      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, p.musculoAlvoSnapshot ?? null, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null, p.substituidoPorExercicioId ?? null, p.substituicaoMotivo ?? null, p.nomeOriginalSnapshot ?? null, nowIso()]
+        (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, movement_pattern_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, substituido_por_exercicio_id, substituicao_motivo, nome_original_snapshot, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+      [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, JSON.stringify(p.musculoAlvoSnapshot), p.movementPatternSnapshot ?? null, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null, p.substituidoPorExercicioId ?? null, p.substituicaoMotivo ?? null, p.nomeOriginalSnapshot ?? null, nowIso()]
     );
   }
 
@@ -89,6 +90,7 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
       id: string; sessao_treino_id: string; exercicio_id: string; ordem: number;
       nome_snapshot: string; grupo_muscular_snapshot: string; categoria_snapshot: string;
       equipamento_snapshot: string | null; musculo_alvo_snapshot: string | null;
+      movement_pattern_snapshot: string | null;
       nome_original_snapshot: string | null; realizado: number;
       series_recomendadas: number | null; execucoes_recomendadas: number | null;
       carga_padrao: number | null; tempo_descanso_segundos: number | null;
@@ -97,7 +99,7 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
       created_at: string; updated_at: string; deleted_at: string | null;
     }>(
       `SELECT id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
-              categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, nome_original_snapshot,
+              categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, movement_pattern_snapshot, nome_original_snapshot,
               realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
               metodo, grupo_id, substituido_por_exercicio_id, substituicao_motivo,
               created_at, updated_at, deleted_at
@@ -154,7 +156,10 @@ function mapRow(row: SessaoExercicioRow): SessaoExercicioPrimitives {
     grupoMuscularSnapshot: row.grupo_muscular_snapshot,
     categoriaSnapshot: row.categoria_snapshot,
     equipamentoSnapshot: row.equipamento_snapshot,
-    musculoAlvoSnapshot: row.musculo_alvo_snapshot ?? null,
+    musculoAlvoSnapshot: row.musculo_alvo_snapshot
+      ? (JSON.parse(row.musculo_alvo_snapshot) as string[])
+      : [],
+    movementPatternSnapshot: row.movement_pattern_snapshot ?? null,
     realizado: row.realizado === 1,
     seriesRecomendadas: row.series_recomendadas ?? null,
     execucoesRecomendadas: row.execucoes_recomendadas ?? null,

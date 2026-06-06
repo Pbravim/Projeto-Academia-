@@ -56,9 +56,19 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
       nomeSnapshot: 'Supino',
       grupoMuscularSnapshot: 'Peito',
       categoriaSnapshot: 'Composto',
+      equipamentoSnapshot: null,
+      musculoAlvoSnapshot: [],
+      movementPatternSnapshot: null,
+      realizado: false,
       seriesRecomendadas: 3,
       execucoesRecomendadas: 10,
       cargaPadrao: 50,
+      tempoDescansoSegundos: null,
+      metodo: 'normal',
+      grupoId: null,
+      substituidoPorExercicioId: null,
+      substituicaoMotivo: null,
+      nomeOriginalSnapshot: null,
     });
     await sessaoExercicioRepository.save(sessaoExercicio);
 
@@ -109,6 +119,19 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
       nomeSnapshot: 'Supino',
       grupoMuscularSnapshot: 'Peito',
       categoriaSnapshot: 'Composto',
+      equipamentoSnapshot: null,
+      musculoAlvoSnapshot: [],
+      movementPatternSnapshot: null,
+      realizado: false,
+      seriesRecomendadas: null,
+      execucoesRecomendadas: null,
+      cargaPadrao: null,
+      tempoDescansoSegundos: null,
+      metodo: 'normal',
+      grupoId: null,
+      substituidoPorExercicioId: null,
+      substituicaoMotivo: null,
+      nomeOriginalSnapshot: null,
     });
     await sessaoExercicioRepository.save(sessaoExercicio);
 

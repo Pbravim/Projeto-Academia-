@@ -9,7 +9,8 @@ export interface SessaoExercicioPrimitives {
   grupoMuscularSnapshot: string;
   categoriaSnapshot: string;
   equipamentoSnapshot: string | null;
-  musculoAlvoSnapshot: string | null;
+  musculoAlvoSnapshot: string[];
+  movementPatternSnapshot: string | null;
   realizado: boolean;
   seriesRecomendadas: number | null;
   execucoesRecomendadas: number | null;
@@ -48,7 +49,8 @@ export class SessaoExercicio {
     novoGrupoMuscular: string,
     novaCategoria: string,
     novoEquipamento: string | null,
-    novoMusculoAlvo: string | null,
+    novoMusculoAlvo: string[],
+    novoMovementPattern: string | null,
     motivo: SubstituicaoMotivo | null,
   ): SessaoExercicio {
     return new SessaoExercicio({
@@ -59,6 +61,7 @@ export class SessaoExercicio {
       categoriaSnapshot: novaCategoria,
       equipamentoSnapshot: novoEquipamento,
       musculoAlvoSnapshot: novoMusculoAlvo,
+      movementPatternSnapshot: novoMovementPattern,
       cargaPadrao: null,
       seriesRecomendadas: null,
       execucoesRecomendadas: null,

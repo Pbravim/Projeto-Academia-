@@ -16,7 +16,7 @@ function make(id: string, sessaoId: string, exId: string): SessaoExercicio {
   return SessaoExercicio.restore({
     id, sessaoTreinoId: sessaoId, exercicioId: exId, ordem: 0,
     nomeSnapshot: 'X', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto',
-    equipamentoSnapshot: null, musculoAlvoSnapshot: null, realizado: false,
+    equipamentoSnapshot: null, musculoAlvoSnapshot: [], movementPatternSnapshot: null, realizado: false,
     seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
     tempoDescansoSegundos: null, metodo: 'normal', grupoId: null,
     substituidoPorExercicioId: null, substituicaoMotivo: null, nomeOriginalSnapshot: null,

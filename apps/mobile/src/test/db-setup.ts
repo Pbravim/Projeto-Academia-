@@ -169,6 +169,9 @@ export function createTestDatabase(): SQLiteDatabaseClient {
        alternativa_id TEXT NOT NULL,
        PRIMARY KEY (exercicio_id, alternativa_id)
      );`,
+
+    // v21: movement_pattern_snapshot in sessao_exercicios
+    `ALTER TABLE sessao_exercicios ADD COLUMN movement_pattern_snapshot TEXT;`,
   ];
 
   for (const migration of migrations) {

@@ -6,7 +6,7 @@ import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercici
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
 import { SugerirSubstitutosUseCase } from './SugerirSubstitutosUseCase';
 
-function makeSE(id: string, exercicioId: string, grupoMuscular = 'Peito', musculoAlvo: string | null = null) {
+function makeSE(id: string, exercicioId: string, grupoMuscular = 'Peito', musculoAlvo: string[] = []) {
   return SessaoExercicio.create({
     id,
     sessaoTreinoId: 's1',
@@ -17,6 +17,7 @@ function makeSE(id: string, exercicioId: string, grupoMuscular = 'Peito', muscul
     categoriaSnapshot: 'Composto',
     equipamentoSnapshot: null,
     musculoAlvoSnapshot: musculoAlvo,
+    movementPatternSnapshot: null,
     realizado: false,
     seriesRecomendadas: null,
     execucoesRecomendadas: null,

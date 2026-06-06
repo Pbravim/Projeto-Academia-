@@ -27,6 +27,19 @@ function makeSessaoExercicio(id: string, sessaoId: string, exercicioId: string) 
     nomeSnapshot: 'Exercício',
     grupoMuscularSnapshot: 'Peito',
     categoriaSnapshot: 'Composto',
+    equipamentoSnapshot: null,
+    musculoAlvoSnapshot: [],
+    movementPatternSnapshot: null,
+    realizado: false,
+    seriesRecomendadas: null,
+    execucoesRecomendadas: null,
+    cargaPadrao: null,
+    tempoDescansoSegundos: null,
+    metodo: 'normal',
+    grupoId: null,
+    substituidoPorExercicioId: null,
+    substituicaoMotivo: null,
+    nomeOriginalSnapshot: null,
   });
 }
 
