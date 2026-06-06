@@ -50,7 +50,6 @@ export class SugerirSubstitutosUseCase {
       this.deps.exerciseRepository.listAlternativas(p.exercicioId),
     ]);
 
-    const musculoAlvo = p.musculoAlvoSnapshot;
     const grupoMuscular = p.grupoMuscularSnapshot;
 
     const idsPredefinidos = new Set(alternativasPredefinidas.map((e) => e.toPrimitives().id));
@@ -67,26 +66,21 @@ export class SugerirSubstitutosUseCase {
       }));
 
     const camada1: CandidatoSubstituto[] = [];
-    const camada2: CandidatoSubstituto[] = [];
 
     for (const ex of todosExercicios) {
       const ep = ex.toPrimitives();
       if (idsNaSessao.has(ep.id) || idsPredefinidos.has(ep.id)) continue;
 
-      const candidato: CandidatoSubstituto = {
-        exercicio: ep,
-        predefinido: false,
-        enfaseDiferente: false,
-        ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
-      };
-
-      if (musculoAlvo && ep.musculoAlvo.includes(musculoAlvo)) {
-        camada1.push(candidato);
-      } else if (temIntersecaoDeGrupo(ep.groupMuscle, grupoMuscular)) {
-        camada2.push({ ...candidato, enfaseDiferente: true });
+      if (temIntersecaoDeGrupo(ep.groupMuscle, grupoMuscular)) {
+        camada1.push({
+          exercicio: ep,
+          predefinido: false,
+          enfaseDiferente: true,
+          ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
+        });
       }
     }
 
-    return [...camada0, ...camada1, ...camada2];
+    return [...camada0, ...camada1];
   }
 }
