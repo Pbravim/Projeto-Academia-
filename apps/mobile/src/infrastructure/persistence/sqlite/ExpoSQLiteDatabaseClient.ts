@@ -542,6 +542,34 @@ const migrations: string[] = [
    UPDATE registros_peso     SET updated_at = COALESCE(data_registro, '2024-01-01T00:00:00.000Z') WHERE updated_at IS NULL;
    UPDATE exercise_alternatives SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;
    UPDATE settings           SET updated_at = '2024-01-01T00:00:00.000Z' WHERE updated_at IS NULL;`,
+
+  // v20: exercise intelligence — structured biomechanical fields + typed alternatives
+  // musculo_alvo column format changes from plain string to JSON array.
+  // sessao_exercicios.musculo_alvo_snapshot also becomes JSON array.
+  `ALTER TABLE exercises ADD COLUMN movement_pattern TEXT;
+   ALTER TABLE exercises ADD COLUMN stabilizers TEXT;
+   ALTER TABLE exercises ADD COLUMN execution_type TEXT;
+   ALTER TABLE exercises ADD COLUMN name_variations TEXT;
+   ALTER TABLE exercises ADD COLUMN primary_equipment TEXT;
+   ALTER TABLE exercises ADD COLUMN secondary_equipment TEXT;
+   ALTER TABLE exercises ADD COLUMN catalog_version INTEGER NOT NULL DEFAULT 0;
+   CREATE TABLE IF NOT EXISTS exercise_equivalent_alternatives (
+     exercicio_id   TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+     alternativa_id TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+     PRIMARY KEY (exercicio_id, alternativa_id)
+   );
+   CREATE TABLE IF NOT EXISTS exercise_muscle_group_alternatives (
+     exercicio_id   TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+     alternativa_id TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+     PRIMARY KEY (exercicio_id, alternativa_id)
+   );
+   ALTER TABLE sessao_exercicios ADD COLUMN movement_pattern_snapshot TEXT;
+   UPDATE exercises
+     SET musculo_alvo = json_array(musculo_alvo)
+     WHERE musculo_alvo IS NOT NULL AND musculo_alvo NOT LIKE '[%';
+   UPDATE sessao_exercicios
+     SET musculo_alvo_snapshot = json_array(musculo_alvo_snapshot)
+     WHERE musculo_alvo_snapshot IS NOT NULL AND musculo_alvo_snapshot NOT LIKE '[%';`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {
