@@ -82,7 +82,8 @@ export function ExerciseCatalogScreen({
           ...section,
           cards: section.cards.filter((card) =>
             card.title.toLowerCase().includes(activeSearch.toLowerCase()) ||
-            section.groupMuscle.toLowerCase().includes(activeSearch.toLowerCase())
+            section.groupMuscle.toLowerCase().includes(activeSearch.toLowerCase()) ||
+            card.nameVariations.some((v) => v.toLowerCase().includes(activeSearch.toLowerCase()))
           ),
         }))
         .filter((section) => section.cards.length > 0)
@@ -235,7 +236,8 @@ export function ExerciseCatalogScreen({
                     !alternativas.some((a) => a.id === ex.id) &&
                     (substSearch.length === 0 ||
                       ex.name.toLowerCase().includes(substSearch.toLowerCase()) ||
-                      ex.groupMuscle.toLowerCase().includes(substSearch.toLowerCase()))
+                      ex.groupMuscle.toLowerCase().includes(substSearch.toLowerCase()) ||
+                      ex.nameVariations.some((v) => v.toLowerCase().includes(substSearch.toLowerCase())))
                   )
                   .slice(0, 8)
                   .map((ex) => (

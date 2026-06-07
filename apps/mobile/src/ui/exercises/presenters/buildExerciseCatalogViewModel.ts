@@ -7,6 +7,7 @@ export interface ExerciseCardViewModel {
   subtitle: string;
   meta: string;
   ultimoPeso: string | null;
+  nameVariations: string[];
 }
 
 export interface ExerciseSectionViewModel {
@@ -59,6 +60,7 @@ export function buildExerciseCatalogViewModel(
       subtitle: exercise.category ? `${exercise.groupMuscle} · ${exercise.category}` : exercise.groupMuscle,
       meta: exercise.equipment ? `Equipamento: ${exercise.equipment}` : 'Equipamento livre',
       ultimoPeso: ultima ? `Ultimo: ${ultima.cargaKg} kg × ${ultima.repeticoes} rep` : null,
+      nameVariations: exercise.nameVariations,
     };
     for (const group of groups) {
       const list = byGroup.get(group) ?? [];
