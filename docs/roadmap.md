@@ -38,6 +38,18 @@
 
 ## Prioridade Média
 
+### Sub-projeto 6: i18n / Language Switcher
+
+**O que:** infraestrutura de internacionalização (i18next + react-i18next + expo-localization) + seletor de idioma na tela de Perfil (PT-BR / English / Automático), com extração das ~176+ strings hardcoded em PT-BR espalhadas por 38 arquivos (7 áreas de feature + use-cases/entidades).
+
+**Por que:** os recursos de trainer↔client (sub-projetos 3-4) podem envolver usuários que não falam português; suporte a inglês amplia o alcance.
+
+**Spec completa:** `docs/superpowers/specs/2026-06-07-i18n-language-switcher-design.md`
+
+**Sequenciamento:** fila para depois do sub-projeto 5 — não bloqueia nem é bloqueado por ele.
+
+---
+
 ### 1. Sincronização / Backup na nuvem
 
 **O que:** backup do banco local em conta do usuário (iCloud / Google Drive / backend próprio)  
