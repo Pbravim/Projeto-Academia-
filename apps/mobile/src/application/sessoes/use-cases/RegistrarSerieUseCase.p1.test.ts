@@ -80,6 +80,9 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
       seriesRecomendadas: 3,
       execucoesRecomendadas: 10,
       cargaPadrao: 50,
+      tempoDescansoSegundos: null,
+      metodo: 'normal',
+      grupoId: null,
     });
     await treinoExercicioRepository.save(treinoExercicio);
 

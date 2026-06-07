@@ -42,9 +42,9 @@ describe('GetHistoricoExercicioUseCase', () => {
       dataExecucao: '2026-04-01T10:00:00.000Z',
       nomeSnapshot: 'Supino reto',
       series: [
-        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1 },
-        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 2 },
-        { id: 's3', cargaKg: 90, repeticoes: 6, observacao: 'pesado', ordem: 3 },
+        { id: 's1', cargaKg: 80, repeticoes: 10, observacao: null, ordem: 1, tipoSerie: 'valida' },
+        { id: 's2', cargaKg: 85, repeticoes: 8, observacao: null, ordem: 2, tipoSerie: 'valida' },
+        { id: 's3', cargaKg: 90, repeticoes: 6, observacao: 'pesado', ordem: 3, tipoSerie: 'valida' },
       ],
     });
 

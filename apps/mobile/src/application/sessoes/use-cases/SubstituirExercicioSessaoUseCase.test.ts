@@ -47,10 +47,8 @@ function makeExercise(id: string) {
   return Exercise.create({
     id,
     name: `Exercício ${id}`,
-    normalizedName: `exercicio ${id}`,
     groupMuscle: 'Peito',
     category: 'Composto',
-    loadUnit: 'kg',
     isCustom: false,
     createdAt: new Date('2026-01-01'),
   });
