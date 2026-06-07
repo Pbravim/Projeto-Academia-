@@ -6,13 +6,21 @@
 
 ## Objetivo
 
-Enriquecer o modelo de dados de exercícios com informações biomecânicas estruturadas e melhorar o engine de sugestão de substitutos com camadas de similaridade graduadas.
+Conduzir uma pesquisa completa do catálogo de exercícios em duas frentes:
+
+1. **Enriquecimento + completude** — adicionar informações biomecânicas estruturadas aos exercícios de força já existentes **e** completar cada grupo muscular com os exercícios que faltam. A pesquisa cobre o universo real do sub-grupo (todos os agachamentos, todas as puxadas verticais, etc.), não apenas os registros que hoje têm GIF/seed. Os que faltam são criados como registros novos (`gif_path: null`). Catálogo atual cobre só `category: 'Composto' | 'Isolado'`.
+2. **Expansão** — pesquisar e criar novos registros para categorias hoje ausentes do catálogo: `Cardio`, `Warm-Up`, `Mobility`, `Flexibility`, `Rehabilitation`.
+
+> **Mídia não limita escopo (regra global).** O catálogo de GIFs existente cobre só força e está sendo substituído por mídia custom feita à mão. Portanto a disponibilidade de GIF **nunca** define quais exercícios entram no catálogo — nem no enriquecimento, nem na expansão. Pesquise o universo real do sub-grupo; mídia é um passo separado e posterior.
+
+Em paralelo, melhorar o engine de sugestão de substitutos com camadas de similaridade graduadas.
 
 Funcionalidades habilitadas pelo sub-projeto:
 - Substituição por equivalência biomecânica (quase igual → similar → mesmo grupo)
 - Busca por variações de nome
 - Filtro por equipamento com vocabulário controlado
 - Análise de músculos-alvo com granularidade real
+- Catálogo com cobertura de cardio, mobilidade, aquecimento, alongamento e reabilitação — hoje inexistente
 
 ---
 
@@ -36,9 +44,12 @@ Arquivo: `apps/mobile/src/domain/exercises/entities/Exercise.ts`
 
 ```typescript
 movement_pattern: MovementPattern | null
-// 'Horizontal Push' | 'Vertical Push' | 'Horizontal Pull' | 'Vertical Pull'
+// 'Horizontal Push' | 'Vertical Push' | 'Horizontal Pull' | 'Vertical Pull' | 'Horizontal Adduction'
 // | 'Squat' | 'Hinge' | 'Lunge' | 'Rotation' | 'Anti-Rotation'
 // | 'Carry' | 'Gait' | 'Jump' | 'Sprint'
+// 'Horizontal Adduction' = single-joint fly/crossover/pec-deck movements (no elbow extension);
+// kept distinct from 'Horizontal Push' so the substitution algorithm doesn't rank flys as
+// near-identical to compound presses
 
 musculo_alvo: string[]          // era string | null — agora array de primários
 stabilizers: string[]           // músculos estabilizadores (informativo)
@@ -124,9 +135,18 @@ export interface CandidatoSubstituto {
 
 ---
 
-## Pesquisa de Dados
+## Pesquisa de Dados — Enriquecimento + Completude (por grupo muscular)
 
-Usar a skill `exercise-intelligence-research` para pesquisar e gerar os registros JSON de cada exercício, depois popular nos seeds do catálogo e nos dados existentes.
+Usar a skill `exercise-intelligence-research` para pesquisar o **universo real de cada sub-grupo** (ex: `peito_press` = todos os supinos/presses de peito relevantes, não só os 18 que já têm GIF/seed). Cada sessão produz duas coisas:
+
+1. **Enriquece** os registros já presentes no catálogo (entradas `seed-ex-XXX` / `gif-ex-XXX`), preenchendo os campos biomecânicos.
+2. **Cria registros novos** para os exercícios do sub-grupo que ainda não existem no catálogo — `gif_path: null`, pelo pipeline normal de seeds, com os mesmos campos preenchidos na criação.
+
+Uma sessão = cobertura completa do sub-grupo. A presença de GIF **não** limita o que entra (ver regra global no topo).
+
+**Convenção de ID para registros novos:** continuar a sequência `seed-ex-NNN` a partir de `seed-ex-044` (último usado: `seed-ex-043`). Não renomear IDs existentes — eles são referenciados em `equivalent_alternatives` / `muscle_group_alternatives` e nas sessões de treino.
+
+No manifest, cada sessão registra em `covers` tanto os IDs enriquecidos quanto os IDs novos criados; usar `research_notes` para listar quais foram criados e por quê.
 
 Campos obrigatórios por exercício pesquisado:
 - `movement_pattern`
@@ -141,11 +161,54 @@ Campos obrigatórios por exercício pesquisado:
 
 ---
 
+## Pesquisa de Dados — Expansão (novas categorias)
+
+> Diferente do enriquecimento acima, estas sessões **criam registros novos** — não há GIFs, IDs ou dados prévios para basear a pesquisa, e os GIFs **não devem ser usados como critério de escopo** (o catálogo de mídia existente cobre só força; isso não deve limitar quais exercícios de cardio/mobilidade/reabilitação entram no catálogo).
+
+### Sessões planejadas
+
+Pesquisa completa por sub-grupo, no mesmo padrão de profundidade das sessões de força (15-20 exercícios cada):
+
+| Sessão | Escopo |
+|--------|--------|
+| `cardio_steady_state` | Cardio contínuo/constante: esteira, bike, elíptico, remo, escada, natação |
+| `cardio_hiit_funcional` | Cardio intervalado e funcional: burpees, corda, kettlebell swings, battle ropes, box jumps, sprints |
+| `mobilidade_inferior` | Mobilidade de quadril, joelho e tornozelo |
+| `mobilidade_superior_coluna` | Mobilidade de ombro, coluna torácica, punho e pescoço |
+| `alongamento_estatico` | Alongamentos estáticos para os principais grupos musculares |
+| `aquecimento_dinamico` | Aquecimento dinâmico pré-treino (drills full-body) |
+| `reabilitacao_ombro_cotovelo` | Reabilitação/prevenção de ombro e cotovelo (manguito rotador, escápula) |
+| `reabilitacao_quadril_joelho` | Reabilitação/prevenção de quadril e joelho |
+| `reabilitacao_lombar_core` | Reabilitação/prevenção lombar e estabilização de core |
+
+### Sessões adicionais — força com equipamentos sub-representados
+
+O vocabulário controlado de `primary_equipment` (ver seção acima) inclui equipamentos que o catálogo atual praticamente não usa: `Kettlebell`, `Landmine`, `Suspension Trainer`, `Hack Squat Machine`, `Leg Press`, `Pec Deck`, `Chest Supported Row`, `Resistance Band`. Estas sessões pesquisam e criam exercícios de força/hipertrofia novos para preencher essas lacunas — mesmo padrão de criação (não enriquecimento) das sessões de expansão acima:
+
+| Sessão | Escopo |
+|--------|--------|
+| `forca_kettlebell` | Swings, snatches, cleans, goblet squats, Turkish get-ups, complexos |
+| `forca_landmine` | Press, remadas, rotações e agachamentos com landmine |
+| `forca_suspension_trainer` | Remadas, presses, flexões e core no TRX/suspension trainer |
+| `forca_maquinas_especializadas` | Variações específicas de hack squat, leg press, peck deck e chest-supported row |
+| `forca_elastico_funcional` | Força funcional com faixas elásticas (presses, remadas, extensões, ativações) |
+
+### Regras específicas
+
+- Os registros são criados pelo pipeline normal de seeds (`ExerciseSeedLoader` → `CreateExerciseUseCase`), com `gif_path: null`. Mídia, se vier a existir, é adicionada depois — fora do escopo desta pesquisa.
+- Os campos de enriquecimento (`movement_pattern`, `musculo_alvo[]`, `stabilizers[]`, `execution_type`, `name_variations[]`, `primary_equipment` / `secondary_equipment`) são preenchidos **na criação** — não há uma segunda passada de enriquecimento para esses registros.
+- `movement_pattern` pode ser `null` quando o vocabulário de padrões de movimento (focado em força) não se aplica (ex: cardio contínuo, alongamento estático passivo) — documentar o motivo nas `research_notes` da sessão no manifest.
+- `category` passa a usar os valores ainda não exercitados no catálogo: `Cardio`, `Warm-Up`, `Mobility`, `Flexibility`, `Rehabilitation`.
+- `equivalent_alternatives` / `muscle_group_alternatives` só fazem sentido quando há uma noção real de substituição (ex: variações de alongamento por ângulo/equipamento); registros isolados podem ficar com arrays vazios.
+
+---
+
 ## Ordem de Implementação Sugerida
 
 1. Adicionar campos à entidade `Exercise` e migration v17
 2. Atualizar `ExerciseRepository` + implementação SQLite
-3. Pesquisar e popular dados dos exercícios do catálogo (skill `exercise-intelligence-research`)
-4. Atualizar `SugerirSubstitutosUseCase` com as 3 camadas
-5. Atualizar `SubstituirExercicioModal` para exibir os novos labels
-6. Expandir busca para incluir `name_variations`
+3. Pesquisar e enriquecer os exercícios de força já existentes (skill `exercise-intelligence-research`, sessões de enriquecimento)
+4. Pesquisar e criar os novos exercícios de cardio/mobilidade/aquecimento/alongamento/reabilitação (skill `exercise-intelligence-research`, sessões de expansão)
+5. Atualizar `SugerirSubstitutosUseCase` com as 3 camadas
+6. Atualizar `SubstituirExercicioModal` para exibir os novos labels
+7. Expandir busca para incluir `name_variations`
