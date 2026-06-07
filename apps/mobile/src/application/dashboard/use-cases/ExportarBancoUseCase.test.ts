@@ -1,4 +1,5 @@
 import { describe, beforeEach, expect, it, vi } from 'vitest';
+import type { DatabaseExportPort } from '../../../domain/dashboard/ports/DatabaseExportPort';
 import { ExportarBancoUseCase } from './ExportarBancoUseCase';
 
 // Tracks how many times File has been constructed within the current test.
@@ -38,7 +39,7 @@ describe('ExportarBancoUseCase', () => {
     const databaseClient = {
       checkpointWal: vi.fn().mockResolvedValue(undefined),
       databaseFileName: 'academia.db',
-    } as never;
+    } as unknown as DatabaseExportPort;
     const useCase = new ExportarBancoUseCase({ databaseClient });
     await useCase.execute();
     expect(databaseClient.checkpointWal).toHaveBeenCalled();
@@ -51,7 +52,7 @@ describe('ExportarBancoUseCase', () => {
     const databaseClient = {
       checkpointWal: vi.fn().mockResolvedValue(undefined),
       databaseFileName: 'academia.db',
-    } as never;
+    } as unknown as DatabaseExportPort;
     const useCase = new ExportarBancoUseCase({ databaseClient });
     await expect(useCase.execute()).rejects.toThrow('Compartilhamento nao disponivel neste dispositivo.');
   });
