@@ -21,6 +21,11 @@ export interface ExerciseDraft {
   equipment: string;
   mediaOnline: string;
   mediaLocal: string | null;
+  musculoAlvo: string;
+  movementPattern: string;
+  executionType: string;
+  primaryEquipment: string;
+  secondaryEquipment: string;
 }
 
 export interface ExerciseCatalogControllerDependencies {
@@ -62,6 +67,11 @@ const initialDraft: ExerciseDraft = {
   equipment: '',
   mediaOnline: '',
   mediaLocal: null,
+  musculoAlvo: '',
+  movementPattern: '',
+  executionType: '',
+  primaryEquipment: '',
+  secondaryEquipment: '',
 };
 
 export function useExerciseCatalogController(
@@ -132,6 +142,11 @@ export function useExerciseCatalogController(
       equipment: exercise.equipment ?? '',
       mediaOnline: exercise.mediaOnline ?? '',
       mediaLocal: exercise.mediaLocal ?? null,
+      musculoAlvo: exercise.musculoAlvo.join(', '),
+      movementPattern: exercise.movementPattern ?? '',
+      executionType: exercise.executionType ?? '',
+      primaryEquipment: exercise.primaryEquipment ?? '',
+      secondaryEquipment: exercise.secondaryEquipment ?? '',
     });
     setErrorMessage(null);
     setFeedbackMessage(null);
@@ -168,12 +183,24 @@ export function useExerciseCatalogController(
 
     // '__outro__' é sentinela do ChipPicker (clicou "Outro" mas não digitou nada).
     // Tratado como vazio para acionar a validação do domínio corretamente.
+    const stripOutro = (value: string) => (value === '__outro__' ? '' : value);
+    const toListOrUndefined = (value: string) => {
+      const items = value.split(',').map((s) => s.trim()).filter(Boolean);
+      return items.length > 0 ? items : undefined;
+    };
+    const executionType = stripOutro(draft.executionType);
+
     const cleanDraft = {
       ...draft,
-      category: draft.category === '__outro__' ? '' : draft.category,
-      equipment: draft.equipment === '__outro__' ? '' : draft.equipment,
+      category: stripOutro(draft.category),
+      equipment: stripOutro(draft.equipment),
       mediaOnline: draft.mediaOnline.trim() || undefined,
       mediaLocal: draft.mediaLocal ?? undefined,
+      musculoAlvo: toListOrUndefined(draft.musculoAlvo),
+      movementPattern: stripOutro(draft.movementPattern) || undefined,
+      primaryEquipment: stripOutro(draft.primaryEquipment) || undefined,
+      secondaryEquipment: stripOutro(draft.secondaryEquipment) || undefined,
+      executionType: (executionType || undefined) as 'Unilateral' | 'Bilateral' | 'Can Be Both' | undefined,
     };
 
     try {

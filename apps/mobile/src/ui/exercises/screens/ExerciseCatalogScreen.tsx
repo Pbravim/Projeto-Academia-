@@ -4,7 +4,10 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, 
 import { buildExerciseCatalogViewModel, type CatalogSortMode } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
 import { ExerciseSection } from '../components/ExerciseSection';
-import { Field, MultiChipPicker, ChipPicker, CATEGORIES, EQUIPMENTS, MediaFields } from '../components/ExerciseFormFields';
+import {
+  Field, MultiChipPicker, ChipPicker, MediaFields,
+  CATEGORIES, EQUIPMENTS, MOVEMENT_PATTERNS, EXECUTION_TYPES, PRIMARY_EQUIPMENTS,
+} from '../components/ExerciseFormFields';
 import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
 import { useTheme } from '../../shared/theme';
 import { normalizeText } from '../../../shared/utils/normalizeText';
@@ -51,6 +54,10 @@ export function ExerciseCatalogScreen({
   );
   const availableEquipments = useMemo(
     () => [...new Set(exercises.map((e) => e.equipment).filter((eq): eq is string => !!eq))].sort(),
+    [exercises]
+  );
+  const musculoAlvoOptions = useMemo(
+    () => [...new Set(exercises.flatMap((e) => e.musculoAlvo))].sort(),
     [exercises]
   );
 
@@ -173,6 +180,48 @@ export function ExerciseCatalogScreen({
           customPlaceholder="Digite o equipamento"
           value={draft.equipment}
           onChange={(value) => onChangeField('equipment', value)}
+        />
+
+        <Text style={styles.helperText}>
+          Campos biomecânicos — usados pelo motor de sugestão de substitutos. Escolha "Outro" para registrar um valor não listado.
+        </Text>
+
+        <ChipPicker
+          label="Padrão de movimento"
+          options={MOVEMENT_PATTERNS}
+          customPlaceholder="Digite o padrão de movimento"
+          value={draft.movementPattern}
+          onChange={(value) => onChangeField('movementPattern', value)}
+        />
+        <ChipPicker
+          label="Tipo de execução"
+          options={EXECUTION_TYPES}
+          allowCustom={false}
+          value={draft.executionType}
+          onChange={(value) => onChangeField('executionType', value)}
+        />
+        <ChipPicker
+          label="Equipamento principal"
+          options={PRIMARY_EQUIPMENTS}
+          customPlaceholder="Digite o equipamento principal"
+          value={draft.primaryEquipment}
+          onChange={(value) => onChangeField('primaryEquipment', value)}
+        />
+        <ChipPicker
+          label="Equipamento secundário"
+          options={PRIMARY_EQUIPMENTS}
+          customPlaceholder="Digite o equipamento secundário"
+          value={draft.secondaryEquipment}
+          onChange={(value) => onChangeField('secondaryEquipment', value)}
+        />
+        <MultiChipPicker
+          label="Músculos alvo"
+          options={musculoAlvoOptions}
+          placeholder="Selecionar músculos"
+          customPlaceholder="Nome do músculo..."
+          required={false}
+          value={draft.musculoAlvo}
+          onChange={(value) => onChangeField('musculoAlvo', value)}
         />
 
         <MediaFields

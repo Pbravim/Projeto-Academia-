@@ -30,6 +30,19 @@ export const EQUIPMENTS = [
   'Peso corporal', 'Elastico', 'Smith', 'Kettlebell',
 ];
 
+export const MOVEMENT_PATTERNS = [
+  'Horizontal Push', 'Vertical Push', 'Horizontal Pull', 'Vertical Pull', 'Horizontal Adduction',
+  'Squat', 'Hinge', 'Lunge', 'Rotation', 'Anti-Rotation', 'Carry', 'Gait', 'Jump', 'Sprint',
+];
+
+export const EXECUTION_TYPES = ['Unilateral', 'Bilateral', 'Can Be Both'];
+
+export const PRIMARY_EQUIPMENTS = [
+  'Barbell', 'Dumbbell', 'Cable', 'Smith Machine', 'Hack Squat Machine',
+  'Leg Press', 'Pec Deck', 'Chest Supported Row', 'Bodyweight',
+  'Resistance Band', 'Kettlebell', 'Landmine', 'Suspension Trainer',
+];
+
 // ─── Field simples ────────────────────────────────────────────────────────────
 
 interface FieldProps {
@@ -65,11 +78,24 @@ export function Field({ label, placeholder, value, onChangeText, editable = true
 // ─── MultiChipPicker → MultiSelectField ──────────────────────────────────────
 
 interface MultiChipPickerProps {
+  label?: string;
+  options?: string[];
+  placeholder?: string;
+  customPlaceholder?: string;
+  required?: boolean;
   value: string;
   onChange: (value: string) => void;
 }
 
-export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
+export function MultiChipPicker({
+  label = 'Grupo muscular',
+  options = MUSCLE_GROUPS,
+  placeholder = 'Selecionar grupos',
+  customPlaceholder = 'Nome do grupo...',
+  required = true,
+  value,
+  onChange,
+}: MultiChipPickerProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [open, setOpen] = useState(false);
@@ -77,8 +103,8 @@ export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
 
   const toArray = (v: string) => v.split(',').map((s) => s.trim()).filter(Boolean);
   const selected = toArray(value);
-  const predefined = selected.filter((s) => MUSCLE_GROUPS.includes(s));
-  const custom = selected.filter((s) => !MUSCLE_GROUPS.includes(s));
+  const predefined = selected.filter((s) => options.includes(s));
+  const custom = selected.filter((s) => !options.includes(s));
 
   const displayValue = selected.length === 0
     ? null
@@ -110,13 +136,13 @@ export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
 
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>Grupo muscular<Text style={styles.requiredMark}> *</Text></Text>
+      <Text style={styles.fieldLabel}>{label}{required ? <Text style={styles.requiredMark}> *</Text> : null}</Text>
       <Pressable
         onPress={() => setOpen(true)}
         style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
       >
         <Text style={[styles.selectValue, !displayValue && styles.selectPlaceholder]}>
-          {displayValue ?? 'Selecionar grupos'}
+          {displayValue ?? placeholder}
         </Text>
         <Text style={styles.selectChevron}>▼</Text>
       </Pressable>
@@ -125,9 +151,9 @@ export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
         <View style={styles.sheet}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.sheetTitle}>Grupo muscular</Text>
+          <Text style={styles.sheetTitle}>{label}</Text>
           <ScrollView style={styles.sheetScroll} showsVerticalScrollIndicator={false}>
-            {MUSCLE_GROUPS.map((group) => {
+            {options.map((group) => {
               const active = predefined.includes(group);
               return (
                 <Pressable
@@ -156,7 +182,7 @@ export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
             <View style={styles.customInputRow}>
               <TextInput
                 style={styles.customInput}
-                placeholder="Nome do grupo..."
+                placeholder={customPlaceholder}
                 placeholderTextColor={c.inputPlaceholder}
                 value={customText}
                 onChangeText={setCustomText}
@@ -182,12 +208,13 @@ export function MultiChipPicker({ value, onChange }: MultiChipPickerProps) {
 interface ChipPickerProps {
   label: string;
   options?: string[];
-  customPlaceholder: string;
+  customPlaceholder?: string;
+  allowCustom?: boolean;
   value: string;
   onChange: (value: string) => void;
 }
 
-export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, value, onChange }: ChipPickerProps) {
+export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, allowCustom = true, value, onChange }: ChipPickerProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [open, setOpen] = useState(false);
@@ -242,28 +269,32 @@ export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, val
               );
             })}
 
-            <View style={styles.sheetDivider} />
-            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
-            {isCustom ? (
-              <View style={styles.sheetRow}>
-                <Text style={[styles.sheetRowText, styles.sheetRowTextActive]}>{value}</Text>
-                <Text style={styles.radioCheck}>✓</Text>
-              </View>
+            {allowCustom ? (
+              <>
+                <View style={styles.sheetDivider} />
+                <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+                {isCustom ? (
+                  <View style={styles.sheetRow}>
+                    <Text style={[styles.sheetRowText, styles.sheetRowTextActive]}>{value}</Text>
+                    <Text style={styles.radioCheck}>✓</Text>
+                  </View>
+                ) : null}
+                <View style={styles.customInputRow}>
+                  <TextInput
+                    style={styles.customInput}
+                    placeholder={customPlaceholder}
+                    placeholderTextColor={c.inputPlaceholder}
+                    value={customText}
+                    onChangeText={setCustomText}
+                    onSubmitEditing={confirmCustom}
+                    returnKeyType="done"
+                  />
+                  <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
+                    <Text style={styles.addCustomBtnText}>OK</Text>
+                  </Pressable>
+                </View>
+              </>
             ) : null}
-            <View style={styles.customInputRow}>
-              <TextInput
-                style={styles.customInput}
-                placeholder={customPlaceholder}
-                placeholderTextColor={c.inputPlaceholder}
-                value={customText}
-                onChangeText={setCustomText}
-                onSubmitEditing={confirmCustom}
-                returnKeyType="done"
-              />
-              <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
-                <Text style={styles.addCustomBtnText}>OK</Text>
-              </Pressable>
-            </View>
           </ScrollView>
         </View>
       </Modal>

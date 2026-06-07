@@ -10,6 +10,11 @@ export interface CreateExerciseInput {
   equipment?: string;
   mediaOnline?: string;
   mediaLocal?: string;
+  musculoAlvo?: string[];
+  movementPattern?: string;
+  executionType?: 'Unilateral' | 'Bilateral' | 'Can Be Both';
+  primaryEquipment?: string;
+  secondaryEquipment?: string;
 }
 
 interface CreateExerciseUseCaseDependencies {
@@ -35,6 +40,11 @@ export class CreateExerciseUseCase {
       equipment: input.equipment,
       mediaOnline: input.mediaOnline,
       mediaLocal: input.mediaLocal,
+      musculoAlvo: input.musculoAlvo,
+      movementPattern: input.movementPattern,
+      executionType: input.executionType,
+      primaryEquipment: input.primaryEquipment,
+      secondaryEquipment: input.secondaryEquipment,
       createdAt: this.dependencies.now(),
     });
 

@@ -12,6 +12,10 @@ export interface UpdateExerciseInput {
   mediaOnline?: string;
   mediaLocal?: string;
   musculoAlvo?: string[];
+  movementPattern?: string;
+  executionType?: 'Unilateral' | 'Bilateral' | 'Can Be Both';
+  primaryEquipment?: string;
+  secondaryEquipment?: string;
 }
 
 interface UpdateExerciseUseCaseDependencies {
