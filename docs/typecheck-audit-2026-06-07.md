@@ -1,5 +1,11 @@
 # Typecheck Audit — 2026-06-07
 
+> **Status: RESOLVED.** All 27 errors below were fixed across commits
+> `a705308` (Group A), `2fed0d3` (Group B), `f4ed2c1` (Group C), and `b6b3a0e`
+> (Group D + the two cascading errors that surfaced once the others were
+> fixed). `npm --prefix apps/mobile run typecheck` now reports zero errors;
+> all 311 tests still pass. Kept below for historical reference.
+
 Pre-existing typecheck errors found while finishing sub-project 5 (exercise
 intelligence). None of these block sub-5 — they predate it (verified against
 `034d39b`, the commit before this session's work: 29 errors there vs 27 now).
