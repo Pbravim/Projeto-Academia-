@@ -25,7 +25,14 @@ const exA: ExercisePrimitives = {
   updatedAt: '2024-01-01T00:00:00Z',
   mediaOnline: null,
   mediaLocal: null,
-  musculoAlvo: 'Peito',
+  musculoAlvo: ['Peito'],
+  movementPattern: null,
+  stabilizers: [],
+  executionType: null,
+  nameVariations: [],
+  primaryEquipment: null,
+  secondaryEquipment: null,
+  catalogVersion: 0,
 };
 
 const createMockDependencies = (

@@ -5,7 +5,7 @@ vi.mock('expo-file-system', () => ({
   File: class {},
   Paths: { document: '/mock' },
   Directory: class {},
-}), { virtual: true });
+}));
 
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';

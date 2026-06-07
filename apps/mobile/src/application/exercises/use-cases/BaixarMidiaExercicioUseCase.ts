@@ -55,8 +55,11 @@ export class BaixarMidiaExercicioUseCase {
       idempotent: true,
     });
 
+    // Extract filename from downloaded file URI
+    const downloadedFileName = downloadedFile.uri.split('/').pop() ?? '';
+
     // Rename if needed to match exercicioId
-    if (downloadedFile.name !== `${exercicioId}.${ext}`) {
+    if (downloadedFileName !== `${exercicioId}.${ext}`) {
       // The downloaded file is already at the right location, just use its URI
       const finalLocalUri = localFile.uri;
       await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, finalLocalUri);

@@ -189,7 +189,7 @@ export function createTestDatabase(): SQLiteDatabaseClient {
 }
 
 class BetterSQLiteAdapter implements SQLiteDatabaseClient {
-  constructor(private readonly db: Database.Database) {}
+  constructor(private readonly db: Database) {}
 
   async exec(statement: string): Promise<void> {
     this.db.exec(statement);
@@ -213,7 +213,7 @@ class BetterSQLiteAdapter implements SQLiteDatabaseClient {
   async getFirst<T>(statement: string, params?: SQLiteBindParams): Promise<T | null> {
     const stmt = this.db.prepare(statement);
     const result = params ? stmt.get(...params) : stmt.get();
-    return result || null;
+    return (result ?? null) as T | null;
   }
 
   async getAll<T>(statement: string, params?: SQLiteBindParams): Promise<T[]> {
