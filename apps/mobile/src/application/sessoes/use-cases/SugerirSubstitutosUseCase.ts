@@ -4,6 +4,21 @@ import type { HistoricoRepository, UltimaExecucaoValida } from '../../../domain/
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
+export type SimilaridadeNivel = 'quase_igual' | 'similar' | 'mesmo_grupo';
+
+export interface CandidatoSubstituto {
+  exercicio: ExercisePrimitives;
+  predefinido: boolean;
+  similaridade: SimilaridadeNivel;
+  ultimaExecucao: UltimaExecucaoValida | null;
+}
+
+interface Dependencies {
+  sessaoExercicioRepository: SessaoExercicioRepository;
+  exerciseRepository: ExerciseRepository;
+  historicoRepository: HistoricoRepository;
+}
+
 function splitGrupos(groupMuscle: string): string[] {
   return groupMuscle.split(',').map((g) => g.trim()).filter(Boolean);
 }
@@ -14,25 +29,12 @@ function temIntersecaoDeGrupo(a: string, b: string): boolean {
   return ga.some((g) => gb.has(g));
 }
 
-export interface CandidatoSubstituto {
-  exercicio: ExercisePrimitives;
-  predefinido: boolean;
-  enfaseDiferente: boolean;
-  ultimaExecucao: UltimaExecucaoValida | null;
+function musculoOverlap(a: string[], b: string[]): number {
+  if (a.length === 0 || b.length === 0) return 0;
+  const setB = new Set(b);
+  return a.filter((m) => setB.has(m)).length / Math.max(a.length, b.length);
 }
 
-interface Dependencies {
-  sessaoExercicioRepository: SessaoExercicioRepository;
-  exerciseRepository: ExerciseRepository;
-  historicoRepository: HistoricoRepository;
-}
-
-/**
- * Dado um sessaoExercicioId, retorna candidatos a substituto ordenados por relevância:
- *   1. Mesmo musculo_alvo
- *   2. Mesmo group_muscle (ênfase diferente) — marcados com enfaseDiferente: true
- * Exclui exercícios já presentes na sessão.
- */
 export class SugerirSubstitutosUseCase {
   constructor(private readonly deps: Dependencies) {}
 
@@ -44,43 +46,54 @@ export class SugerirSubstitutosUseCase {
     const todosNaSessao = await this.deps.sessaoExercicioRepository.listBySessaoId(p.sessaoTreinoId);
     const idsNaSessao = new Set(todosNaSessao.map((se) => se.toPrimitives().exercicioId));
 
-    const [todosExercicios, ultimasExecucoes, alternativasPredefinidas] = await Promise.all([
+    const [todosExercicios, ultimasExecucoes, equivalentes] = await Promise.all([
       this.deps.exerciseRepository.list(),
       this.deps.historicoRepository.getUltimasExecucoesValidas(),
-      this.deps.exerciseRepository.listAlternativas(p.exercicioId),
+      this.deps.exerciseRepository.listEquivalentAlternativas(p.exercicioId),
     ]);
 
-    const grupoMuscular = p.grupoMuscularSnapshot;
+    const musculos = p.musculoAlvoSnapshot;   // string[]
+    const grupo = p.grupoMuscularSnapshot;
+    const pattern = p.movementPatternSnapshot;
 
-    const idsPredefinidos = new Set(alternativasPredefinidas.map((e) => e.toPrimitives().id));
+    const idsPredefinidos = new Set(equivalentes.map((e) => e.toPrimitives().id));
 
-    // Layer 0 — pre-defined substitutes
-    const camada0: CandidatoSubstituto[] = alternativasPredefinidas
+    const camada0: CandidatoSubstituto[] = equivalentes
       .map((ex) => ex.toPrimitives())
       .filter((ep) => !idsNaSessao.has(ep.id))
       .map((ep) => ({
         exercicio: ep,
         predefinido: true,
-        enfaseDiferente: false,
+        similaridade: 'quase_igual' as SimilaridadeNivel,
         ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
       }));
 
     const camada1: CandidatoSubstituto[] = [];
+    const camada2: CandidatoSubstituto[] = [];
+    const camada3: CandidatoSubstituto[] = [];
 
     for (const ex of todosExercicios) {
       const ep = ex.toPrimitives();
       if (idsNaSessao.has(ep.id) || idsPredefinidos.has(ep.id)) continue;
 
-      if (temIntersecaoDeGrupo(ep.groupMuscle, grupoMuscular)) {
-        camada1.push({
-          exercicio: ep,
-          predefinido: false,
-          enfaseDiferente: true,
-          ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
-        });
+      const base: Omit<CandidatoSubstituto, 'similaridade'> = {
+        exercicio: ep,
+        predefinido: false,
+        ultimaExecucao: ultimasExecucoes.get(ep.id) ?? null,
+      };
+
+      const samePattern = pattern !== null && ep.movementPattern === pattern;
+      const overlap = musculoOverlap(musculos, ep.musculoAlvo);
+
+      if (samePattern && overlap >= 0.5) {
+        camada1.push({ ...base, similaridade: 'quase_igual' });
+      } else if (samePattern) {
+        camada2.push({ ...base, similaridade: 'similar' });
+      } else if (temIntersecaoDeGrupo(ep.groupMuscle, grupo)) {
+        camada3.push({ ...base, similaridade: 'mesmo_grupo' });
       }
     }
 
-    return [...camada0, ...camada1];
+    return [...camada0, ...camada1, ...camada2, ...camada3];
   }
 }

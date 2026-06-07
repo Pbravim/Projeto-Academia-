@@ -6,7 +6,13 @@ import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercici
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
 import { SugerirSubstitutosUseCase } from './SugerirSubstitutosUseCase';
 
-function makeSE(id: string, exercicioId: string, grupoMuscular = 'Peito', musculoAlvo: string[] = []) {
+function makeSE(
+  id: string,
+  exercicioId: string,
+  grupoMuscular = 'Peito',
+  musculoAlvo: string[] = [],
+  movementPattern: string | null = null,
+) {
   return SessaoExercicio.create({
     id,
     sessaoTreinoId: 's1',
@@ -17,7 +23,7 @@ function makeSE(id: string, exercicioId: string, grupoMuscular = 'Peito', muscul
     categoriaSnapshot: 'Composto',
     equipamentoSnapshot: null,
     musculoAlvoSnapshot: musculoAlvo,
-    movementPatternSnapshot: null,
+    movementPatternSnapshot: movementPattern,
     realizado: false,
     seriesRecomendadas: null,
     execucoesRecomendadas: null,
@@ -37,6 +43,22 @@ function makeExercise(id: string, groupMuscle: string) {
     name: `Ex-${id}`,
     groupMuscle,
     createdAt: new Date('2026-01-01'),
+  });
+}
+
+function makeExerciseWithPattern(
+  id: string,
+  groupMuscle: string,
+  musculoAlvo: string[] = [],
+  movementPattern: string | null = null,
+) {
+  return Exercise.create({
+    id,
+    name: `Ex-${id}`,
+    groupMuscle,
+    createdAt: new Date('2026-01-01'),
+    musculoAlvo,
+    movementPattern,
   });
 }
 
@@ -113,5 +135,58 @@ describe('SugerirSubstitutosUseCase', () => {
     const result = await useCase.execute('se1');
     const ids = result.map((r) => r.exercicio.id);
     expect(ids).not.toContain('ex2');
+  });
+
+  it('layer 1 (quase_igual): same movement AND muscle overlap ranks above same-group-only', async () => {
+    const seRepo = new InMemorySessaoExercicioRepository();
+    const exRepo = new InMemoryExerciseRepository();
+
+    // The exercise being substituted
+    await seRepo.save(makeSE('se1', 'ex1', 'Peito', ['peitoral_medio'], 'Horizontal Push'));
+    await exRepo.save(makeExerciseWithPattern('ex1', 'Peito', ['peitoral_medio'], 'Horizontal Push'));
+    // quase_igual — same pattern AND muscle
+    await exRepo.save(makeExerciseWithPattern('ex2', 'Peito', ['peitoral_medio'], 'Horizontal Push'));
+    // similar — same pattern, different muscle
+    await exRepo.save(makeExerciseWithPattern('ex3', 'Peito', ['peitoral_inferior'], 'Horizontal Push'));
+    // mesmo_grupo — different pattern, same group
+    await exRepo.save(makeExerciseWithPattern('ex4', 'Peito', ['peitoral_medio'], 'Vertical Push'));
+
+    const useCase = new SugerirSubstitutosUseCase({
+      sessaoExercicioRepository: seRepo,
+      exerciseRepository: exRepo,
+      historicoRepository: new InMemoryHistoricoRepository(),
+    });
+
+    const result = await useCase.execute('se1');
+    const ex2 = result.find((r) => r.exercicio.id === 'ex2');
+    const ex3 = result.find((r) => r.exercicio.id === 'ex3');
+    const ex4 = result.find((r) => r.exercicio.id === 'ex4');
+
+    expect(ex2?.similaridade).toBe('quase_igual');
+    expect(ex3?.similaridade).toBe('similar');
+    expect(ex4?.similaridade).toBe('mesmo_grupo');
+
+    const ids = result.map((r) => r.exercicio.id);
+    expect(ids.indexOf('ex2')).toBeLessThan(ids.indexOf('ex3'));
+    expect(ids.indexOf('ex3')).toBeLessThan(ids.indexOf('ex4'));
+  });
+
+  it('falls back gracefully when exercises have no movement_pattern set', async () => {
+    const seRepo = new InMemorySessaoExercicioRepository();
+    const exRepo = new InMemoryExerciseRepository();
+
+    await seRepo.save(makeSE('se1', 'ex1', 'Peito', []));
+    await exRepo.save(makeExercise('ex1', 'Peito'));
+    await exRepo.save(makeExercise('ex2', 'Peito'));
+
+    const useCase = new SugerirSubstitutosUseCase({
+      sessaoExercicioRepository: seRepo,
+      exerciseRepository: exRepo,
+      historicoRepository: new InMemoryHistoricoRepository(),
+    });
+
+    const result = await useCase.execute('se1');
+    expect(result.map((r) => r.exercicio.id)).toContain('ex2');
+    expect(result[0].similaridade).toBe('mesmo_grupo');
   });
 });
