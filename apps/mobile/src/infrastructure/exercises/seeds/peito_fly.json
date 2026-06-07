@@ -1,5 +1,5 @@
 {
-  "catalog_version": 2,
+  "catalog_version": 3,
   "exercises": [
     {
       "id": "seed-ex-005",
@@ -240,6 +240,70 @@
       "execution_type": "Bilateral",
       "equivalent_alternatives": ["gif-ex-021", "gif-ex-028"],
       "muscle_group_alternatives": []
+    },
+    {
+      "id": "seed-ex-066",
+      "name": "Crucifixo Declinado com Halteres",
+      "name_variations": ["Decline Dumbbell Fly", "Crucifixo Declinado Haltere", "Decline DB Chest Fly"],
+      "group_muscle": "Peito",
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Decline Bench",
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
+      "stabilizers": ["biceps_braquial", "coracobrachialis"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-017", "gif-ex-012", "gif-ex-015"],
+      "muscle_group_alternatives": ["seed-ex-003", "seed-ex-044"]
+    },
+    {
+      "id": "seed-ex-067",
+      "name": "Crossover Unilateral no Cabo",
+      "name_variations": ["Single-Arm Cable Fly", "One-Arm Cable Crossover", "Cable Isolateral Standing Fly", "Crucifixo Unilateral no Cabo"],
+      "group_muscle": "Peito",
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["biceps_braquial", "coracobrachialis", "core", "obliquos"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-006", "gif-ex-013", "gif-ex-011"],
+      "muscle_group_alternatives": ["seed-ex-064", "seed-ex-001"]
+    },
+    {
+      "id": "seed-ex-068",
+      "name": "Voador Unilateral na Maquina",
+      "name_variations": ["Single-Arm Pec Deck Fly", "Iso-Lateral Pec Deck", "Lever Isolateral Pec Deck Fly", "Voador Isolateral"],
+      "group_muscle": "Peito",
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Pec Deck",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_medio"],
+      "stabilizers": ["biceps_braquial", "core", "obliquos"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["gif-ex-021", "gif-ex-028", "gif-ex-035"],
+      "muscle_group_alternatives": ["seed-ex-065"]
+    },
+    {
+      "id": "seed-ex-069",
+      "name": "Crucifixo no Chao com Halteres",
+      "name_variations": ["Floor Dumbbell Fly", "Crucifixo no Solo", "Floor Chest Fly"],
+      "group_muscle": "Peito",
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Solo",
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["biceps_braquial", "coracobrachialis"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-005", "gif-ex-011"],
+      "muscle_group_alternatives": ["seed-ex-052"]
     }
   ]
 }
