@@ -21,8 +21,9 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
   const [selecionado, setSelecionado] = useState<string | null>(null);
 
   const predefinidos = candidatos.filter((c) => c.predefinido);
-  const camada1 = candidatos.filter((c) => !c.predefinido && !c.enfaseDiferente);
-  const camada2 = candidatos.filter((c) => !c.predefinido && c.enfaseDiferente);
+  const quaseIguais = candidatos.filter((c) => !c.predefinido && c.similaridade === 'quase_igual');
+  const similares   = candidatos.filter((c) => !c.predefinido && c.similaridade === 'similar');
+  const mesmoGrupo  = candidatos.filter((c) => !c.predefinido && c.similaridade === 'mesmo_grupo');
 
   const handleSelecionado = (id: string) => setSelecionado((prev) => (prev === id ? null : id));
 
@@ -65,10 +66,10 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
               </>
             ) : null}
 
-            {camada1.length > 0 ? (
+            {quaseIguais.length > 0 ? (
               <>
-                <Text style={styles.sectionLabel}>Mesmo músculo</Text>
-                {camada1.map((cand) => (
+                <Text style={styles.sectionLabel}>Quase igual</Text>
+                {quaseIguais.map((cand) => (
                   <CandidatoRow
                     key={cand.exercicio.id}
                     candidato={cand}
@@ -81,10 +82,26 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
               </>
             ) : null}
 
-            {camada2.length > 0 ? (
+            {similares.length > 0 ? (
+              <>
+                <Text style={styles.sectionLabel}>Similar</Text>
+                {similares.map((cand) => (
+                  <CandidatoRow
+                    key={cand.exercicio.id}
+                    candidato={cand}
+                    selected={selecionado === cand.exercicio.id}
+                    onPress={() => handleSelecionado(cand.exercicio.id)}
+                    styles={styles}
+                    theme={c}
+                  />
+                ))}
+              </>
+            ) : null}
+
+            {mesmoGrupo.length > 0 ? (
               <>
                 <Text style={styles.sectionLabel}>Mesmo grupo muscular</Text>
-                {camada2.map((cand) => (
+                {mesmoGrupo.map((cand) => (
                   <CandidatoRow
                     key={cand.exercicio.id}
                     candidato={cand}
@@ -170,7 +187,6 @@ function CandidatoRow({
         </Text>
         <Text style={styles.candidatoMeta}>
           {ex.groupMuscle}{ex.equipment ? ` · ${ex.equipment}` : ''}
-          {candidato.enfaseDiferente ? '  ⚠ Ênfase diferente' : ''}
         </Text>
         {candidato.ultimaExecucao ? (
           <Text style={styles.candidatoUltimo}>
