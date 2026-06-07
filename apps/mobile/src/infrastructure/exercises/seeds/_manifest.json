@@ -3,15 +3,50 @@
   "_scope_rule": "Cada sessão de força cobre o UNIVERSO REAL do sub-grupo (todos os presses de peito, etc.), não só os registros com GIF/seed. Enriquece os IDs existentes E cria registros novos (gif_path:null, IDs novos a partir de seed-ex-044) para os que faltam. Disponibilidade de GIF nunca limita escopo — os GIFs estão sendo substituídos por mídia custom.",
   "sessions": {
     "peito_press": {
-      "status": "needs_completion",
+      "status": "complete",
       "reopened_at": "2026-06-07",
       "reopen_reason": "Enriquecimento dos IDs existentes está completo, mas a sessão foi limitada ao inventário de GIF/seed (18 exercícios). Sob a nova regra de completude, falta pesquisar o universo real de presses de peito e criar registros novos para os que faltam.",
-      "exercise_count": 18,
+      "exercise_count": 40,
       "researched_at": "2026-06-05",
       "catalog_version": 2,
       "enriched_at": "2026-06-07",
+      "completed_at": "2026-06-07",
       "enrichment_notes": "v2: fixed musculo_alvo typos — gif-ex-034 'peitoral_lateral' -> 'peitoral_esternal' (pec major has no lateral head); seed-ex-003 'peitoral_esternal_inferior' -> 'peitoral_esternal' (redundant with peitoral_inferior)",
-      "covers": ["seed-ex-001","seed-ex-002","seed-ex-003","seed-ex-004","gif-ex-001","gif-ex-002","gif-ex-003","gif-ex-004","gif-ex-005","gif-ex-006","gif-ex-007","gif-ex-008","gif-ex-018","gif-ex-019","gif-ex-020","gif-ex-032","gif-ex-033","gif-ex-034"]
+      "completion_notes": "Universo real de presses de peito completado e auditado contra 5 fontes independentes (fitliferegime 75+, BarBend, Muscle&Strength, ExRx.net, MuscleWiki + bodybuilding.com). 40 registros (18 GIF/seed + 22 novos seed-ex-044..065). Lote 1 (044-054): supino declinado halteres, flexão (reta/inclinada/declinada), mergulho/dip, press inclinado/declinado na máquina, press de peito no cabo em pé, floor press (halteres/barra), supino pegada invertida. Lote 2 (055-063): supino halteres pegada neutra, squeeze press, supino reto no cabo (deitado), supino declinado no cabo, flexão na parede, flexão de joelhos, flexão aberta, supino guilhotina, mergulho assistido na máquina. Lote 3 (064-065, após auditoria ExRx que distingue exercícios iso-laterais): press de peito no cabo unilateral, press peitoral unilateral na máquina (iso-lateral). O unilateral com halteres já existia (gif-ex-002). Fechamento: a 5ª fonte (MuscleWiki/bodybuilding.com) não retornou nenhum exercício novo distinto — só variantes de tempo/estabilidade já cobertas (bosu push-up, eccentric-only push-up, self-assisted bar dip) ou já excluídas (board/pin/pause press, band press). gif_path null (mídia é assunto separado).",
+      "research_sources": {
+        "_comment": "Sites consultados durante a pesquisa do universo de presses de peito — informativo, NÃO lido pelo app.",
+        "databases_consulted": [
+          "https://fitliferegime.com/chest-exercises-name-with-image/",
+          "https://barbend.com/floor-press/",
+          "https://www.muscleandstrength.com/exercises/chest",
+          "https://www.muscleandstrength.com/exercises/close-grip-dumbbell-press.html",
+          "https://exrx.net/Lists/ExList/ChestWt",
+          "https://musclewiki.com/exercises/chest",
+          "https://shop.bodybuilding.com/blogs/training/10-best-chest-exercises-for-building-muscle"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de press de peito existentes mas DELIBERADAMENTE fora desta sessão — para auditorias futuras não os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "forca_landmine": ["Landmine Chest Press"],
+          "forca_elastico_funcional": ["Standing Band Chest Press", "Standing Incline/Decline Band Press", "Banded Push-Up"],
+          "forca_kettlebell": ["Kettlebell Floor Press", "Kettlebell Bench Press"],
+          "triceps": ["Close-Grip Bench Press", "Close-Grip / Diamond Push-Up"]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variações de técnica/ROM/posição/pegada que não geram estímulo distinto o suficiente para registro próprio — cobertas por registros existentes via algoritmo Layer 1 (mesmo movement_pattern + musculo_alvo).",
+          "powerlifting_rom_pause_cues": ["Spoto Press", "Pin Press", "Board Press", "Larsen Press"],
+          "reverse_grip_combos": ["Incline Reverse-Grip Bench Press", "Dumbbell Reverse Press", "Incline Dumbbell Reverse-Grip Press"],
+          "equipment_position_microvariants": ["Smith Machine Hex Press", "Lying Machine Chest Press", "Seated Cable Chest Press", "Dumbbell Incline Press on Exercise Ball", "Dumbbell Push-Ups (on handles)", "Lever Chest Press plate-loaded vs selectorized (mesmo exercício — gif-ex-018 cobre, 'Hammer Strength' é name_variation)"],
+          "load_rom_pushup_variants": ["Deficit Push-Up (ROM estendido do push-up 045)", "Weighted Push-Up (variação de carga)", "Ring Dip (variação de estabilização do dip 048)"],
+          "athletic_plyo_core_pushups": ["Spider-Man Push-Up", "Shoulder Tap Push-Up", "Hindu Push-Up", "Single-Leg Push-Up", "Clapping/Plyo Push-Up", "T Push-Up", "Archer Push-Up (progressão unilateral avançada)"]
+        }
+      },
+      "conventions": {
+        "machine_press": "Chest press machine mapeada para primary_equipment 'Pec Deck' (gif-ex-018 precedente) — vocabulário controlado não tem 'Machine'/'Hammer Strength' genérico.",
+        "dips": "Dip e dip assistido classificados como Horizontal Push, ênfase peitoral_inferior (mimetiza supino declinado), para o algoritmo de substituição agrupá-los com presses. Mergulho assistido (seed-ex-063) usa primary_equipment 'Bodyweight' + secondary 'Maquina Assistida' (precedente do Graviton em costas_pull_vertical)."
+      },
+      "covers": ["seed-ex-001","seed-ex-002","seed-ex-003","seed-ex-004","seed-ex-044","seed-ex-045","seed-ex-046","seed-ex-047","seed-ex-048","seed-ex-049","seed-ex-050","seed-ex-051","seed-ex-052","seed-ex-053","seed-ex-054","seed-ex-055","seed-ex-056","seed-ex-057","seed-ex-058","seed-ex-059","seed-ex-060","seed-ex-061","seed-ex-062","seed-ex-063","seed-ex-064","seed-ex-065","gif-ex-001","gif-ex-002","gif-ex-003","gif-ex-004","gif-ex-005","gif-ex-006","gif-ex-007","gif-ex-008","gif-ex-018","gif-ex-019","gif-ex-020","gif-ex-032","gif-ex-033","gif-ex-034"]
     },
     "peito_fly": {
       "status": "needs_completion",
