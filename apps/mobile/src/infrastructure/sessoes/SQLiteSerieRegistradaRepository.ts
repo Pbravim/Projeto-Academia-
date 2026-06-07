@@ -139,6 +139,6 @@ function mapRow(row: SerieRegistradaRow): SerieRegistradaPrimitives {
     cargaKg: row.carga_kg,
     repeticoes: row.repeticoes,
     observacao: row.observacao,
-    tipoSerie: (row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida') as const,
+    tipoSerie: row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida',
   };
 }

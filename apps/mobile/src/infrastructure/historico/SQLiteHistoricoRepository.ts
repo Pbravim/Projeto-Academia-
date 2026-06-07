@@ -159,7 +159,7 @@ function groupBySession(rows: HistoricoRow[]): ExecucaoExercicio[] {
         repeticoes: row.repeticoes,
         observacao: row.observacao,
         ordem: row.ordem!,
-        tipoSerie: (row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida') as const,
+        tipoSerie: row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida',
       };
       sessaoMap.get(row.sessao_treino_id)!.series.push(serie);
     }
