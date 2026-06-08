@@ -138,10 +138,51 @@
         ]
       },
       "covers": ["seed-ex-009","seed-ex-010","seed-ex-071","seed-ex-072","seed-ex-073","seed-ex-074","seed-ex-075","seed-ex-076","seed-ex-077","gif-ex-029","gif-ex-036","gif-ex-038","gif-ex-039","gif-ex-040","gif-ex-041","gif-ex-049","gif-ex-050","gif-ex-051","gif-ex-052","gif-ex-055","gif-ex-056","gif-ex-057"]
+    },
+    "costas_pull_horizontal": {
+      "status": "complete",
+      "exercise_count": 23,
+      "researched_at": "2026-06-07",
+      "catalog_version": 1,
+      "completed_at": "2026-06-07",
+      "research_notes": "Primeira sessão criada já sob a regra de ≥10 bases. O catálogo original (ExpoSQLiteDatabaseClient.ts) já tinha 19 remadas (seed-ex-011/012/013 + gif-ex-037,042-047,058-066) — enriquecidas aqui com movement_pattern 'Horizontal Pull', musculo_alvo por array, primary_equipment e alternativas. Auditado contra 12+ bases (BarBend, NASM, ISSA, Strength Warehouse, Hevy, OPEX, PureGym, JEFIT, SetForSet, RitFit, weighttraining.guide, soletreadmills). +4 registros novos distintos (seed-ex-078..081): remada Pendlay (dead-stop), remada curvada supinada/Yates (reverse-grip), remada invertida (peso corporal — faltava o horizontal pull de peso corporal), seal row (banco prono estrito). Fechamento: nenhuma base trouxe remada distinta fora do que já existia/foi adicionado/roteado.",
+      "scope_exclusions": {
+        "routed_to_other_sessions": {
+          "ombros_lateral": ["Face Pull (gif-ex-048 — deltoide posterior, já no catálogo como Ombros)", "Remada Alta / Upright Row (gif-ex-078,172,173,174 — trapézio/ombro, não é horizontal pull de dorsal)"],
+          "forca_kettlebell": ["Kettlebell Row", "Renegade Row (kettlebell/halteres — full-body/core)"],
+          "forca_suspension_trainer": ["TRX Row (a remada invertida de peso corporal em barra está coberta por seed-ex-080)"]
+        },
+        "excluded_as_non_distinct": {
+          "technique_load_variants": ["Kroc Row (remada de halter alta-repetição/momentum)", "Gironda Row", "Helms Row (variante de chest-supported)"],
+          "grip_width_microvariants": ["Wide vs Close vs Neutral seated cable row (cobertos por seed-ex-013 + gif-ex-047/059)"],
+          "position_variants": ["Chest-Supported T-Bar Row (variante de apoio do T-bar gif-ex-046)", "Incline Bench Cable Row"]
+        }
+      },
+      "conventions": {
+        "machine_row": "Remada na máquina (gif-ex-044) mapeada para primary_equipment 'Chest Supported Row' (valor do vocabulário controlado).",
+        "t_bar_landmine": "Remadas cavalinho/T-bar (gif-ex-046, gif-ex-061, gif-ex-066) mapeadas para primary_equipment 'Landmine' (T-bar é variante de landmine; vocabulário não tem 'T-Bar'). São registros EXISTENTES de remada e ficam nesta sessão — a sessão de expansão forca_landmine é só para landmine novos.",
+        "band_row": "Remada com elástico (gif-ex-037) é registro existente com GIF; fica nesta sessão (precedente da barra-fixa-assistida-elástico gif-ex-036 na vertical). forca_elastico_funcional é só para elásticos novos."
+      },
+      "research_sources": {
+        "databases_consulted": [
+          "https://exrx.net/Lists/ExList/BackWt",
+          "https://barbend.com/row-variations/",
+          "https://barbend.com/reverse-grip-bent-over-row/",
+          "https://blog.nasm.org/three-awesome-row-exercise-variations",
+          "https://www.issaonline.com/blog/post/dumbbell-row-muscles-worked-proper-form-variations-more",
+          "https://strengthwarehouseusa.com/blogs/resources/lat-pulldown-vs-seated-row",
+          "https://www.opexfit.com/blog/10-row-variations-for-the-horizontal-pull-pattern",
+          "https://www.puregym.com/exercises/back/rows/",
+          "https://www.jefit.com/exercises/52/t-bar-row",
+          "https://www.setforset.com/blogs/news/t-bar-row-alternatives",
+          "https://www.ritfitsports.com/blogs/article/what-to-do-instead-of-t-bar-rows-top-alternatives-to-build-a-thick-back",
+          "https://weighttraining.guide/exercises/t-bar-row/"
+        ]
+      },
+      "covers": ["seed-ex-011","seed-ex-012","seed-ex-013","seed-ex-078","seed-ex-079","seed-ex-080","seed-ex-081","gif-ex-037","gif-ex-042","gif-ex-043","gif-ex-044","gif-ex-045","gif-ex-046","gif-ex-047","gif-ex-058","gif-ex-059","gif-ex-060","gif-ex-061","gif-ex-062","gif-ex-063","gif-ex-064","gif-ex-065","gif-ex-066"]
     }
   },
   "pending_sessions": [
-    "costas_pull_horizontal",
     "ombros_press",
     "ombros_lateral",
     "biceps",
