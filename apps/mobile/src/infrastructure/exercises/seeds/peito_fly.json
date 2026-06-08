@@ -1,5 +1,5 @@
 {
-  "catalog_version": 3,
+  "catalog_version": 4,
   "exercises": [
     {
       "id": "seed-ex-005",
@@ -304,6 +304,22 @@
       "execution_type": "Bilateral",
       "equivalent_alternatives": ["seed-ex-005", "gif-ex-011"],
       "muscle_group_alternatives": ["seed-ex-052"]
+    },
+    {
+      "id": "seed-ex-070",
+      "name": "Crucifixo Unilateral com Haltere",
+      "name_variations": ["One-Arm Dumbbell Fly", "Single-Arm Dumbbell Fly", "Crucifixo Unilateral Haltere"],
+      "group_muscle": "Peito",
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Flat Bench",
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["biceps_braquial", "coracobrachialis", "core", "obliquos"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-005", "seed-ex-067", "gif-ex-013"],
+      "muscle_group_alternatives": ["gif-ex-002"]
     }
   ]
 }

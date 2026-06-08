@@ -52,13 +52,13 @@
       "status": "complete",
       "reopened_at": "2026-06-07",
       "reopen_reason": "Enriquecimento completo, mas limitado ao inventário de GIF/seed (15 exercícios). Falta pesquisar o universo real de flys/crossovers/pec-deck e criar registros novos para os que faltam.",
-      "exercise_count": 19,
+      "exercise_count": 20,
       "researched_at": "2026-06-05",
-      "catalog_version": 3,
+      "catalog_version": 4,
       "enriched_at": "2026-06-07",
       "completed_at": "2026-06-07",
       "enrichment_notes": "v2: retagged movement_pattern from 'Horizontal Push' to new 'Horizontal Adduction' for all 15 single-joint fly/crossover/pec-deck exercises — they were misclassified as the same pattern as compound presses, which would have made the substitution algorithm rank flys as 'quase igual' to bench presses (Layer 1 matches on movement_pattern + musculo_alvo overlap)",
-      "completion_notes": "v3: universo de fly/adução horizontal auditado contra ExRx.net, gymgeek, e guias de fly (Legion/ACE/Mikolo). +4 registros novos (seed-ex-066..069): crucifixo declinado com halteres, crossover unilateral no cabo (iso-lateral), voador unilateral na máquina (iso-lateral pec deck), crucifixo no chão com halteres (ROM limitado). O inventário de cabo já era exaustivo (alta/média/baixa polia × inclinado/declinado). Fechamento: gymgeek/ExRx não retornaram mais nada distinto fora do que foi adicionado ou roteado. gif_path null.",
+      "completion_notes": "v3: universo de fly/adução horizontal auditado contra ExRx.net, gymgeek, e guias de fly (Legion/ACE/Mikolo). +4 registros novos (seed-ex-066..069): crucifixo declinado com halteres, crossover unilateral no cabo (iso-lateral), voador unilateral na máquina (iso-lateral pec deck), crucifixo no chão com halteres (ROM limitado). v4: auditoria estendida para o mínimo de 6 bases (regra atualizada) — +Muscle&Strength e +bodybuilding.com. M&S acrescentou 1 distinto (crucifixo unilateral com haltere, seed-ex-070 — análogo free-weight aos unilaterais de cabo/máquina); bodybuilding.com (6ª base) retornou 0 novos, confirmando fechamento. gif_path null.",
       "scope_exclusions": {
         "routed_to_other_sessions": {
           "forca_suspension_trainer": ["Suspended Fly", "TRX Chest Fly"],
@@ -68,7 +68,7 @@
         "excluded_as_non_distinct": {
           "stimulus_covered_elsewhere": ["Svend Press (adução com anilha — estímulo ≈ squeeze press seed-ex-056; equipamento 'anilha/plate' fora do vocabulário controlado)"],
           "stability_equipment_variants": ["Stability Ball Chest Fly (variante de estabilidade do crucifixo reto seed-ex-005)"],
-          "hybrid_niche": ["Around-the-World (híbrido pullover/fly, parcialmente sagital)"],
+          "hybrid_niche": ["Around-the-World (híbrido pullover/fly, parcialmente sagital)", "Cable Iron Cross (hold isométrico — variante do crossover em pé)"],
           "isolateral_angle_variants_folded": ["Cable Isolateral Lying Fly", "Cable Isolateral Incline Fly (dobrados em seed-ex-067 — um fly unilateral cobre o estímulo; os ângulos já existem na forma bilateral)"]
         }
       },
@@ -77,10 +77,12 @@
           "https://exrx.net/Lists/ExList/ChestWt",
           "https://gymgeek.com/exercises/chest/chest-flys/",
           "https://legionathletics.com/cable-chest-fly/",
-          "https://www.acefitness.org/certifiednewsarticle/3003/what-are-the-top-3-most-effective-chest-exercises/"
+          "https://www.acefitness.org/certifiednewsarticle/3003/what-are-the-top-3-most-effective-chest-exercises/",
+          "https://www.muscleandstrength.com/exercises/chest",
+          "https://shop.bodybuilding.com/blogs/training/10-best-chest-exercises-for-building-muscle"
         ]
       },
-      "covers": ["seed-ex-005","seed-ex-006","seed-ex-066","seed-ex-067","seed-ex-068","seed-ex-069","gif-ex-009","gif-ex-010","gif-ex-011","gif-ex-012","gif-ex-013","gif-ex-014","gif-ex-015","gif-ex-016","gif-ex-017","gif-ex-021","gif-ex-027","gif-ex-028","gif-ex-035"]
+      "covers": ["seed-ex-005","seed-ex-006","seed-ex-066","seed-ex-067","seed-ex-068","seed-ex-069","seed-ex-070","gif-ex-009","gif-ex-010","gif-ex-011","gif-ex-012","gif-ex-013","gif-ex-014","gif-ex-015","gif-ex-016","gif-ex-017","gif-ex-021","gif-ex-027","gif-ex-028","gif-ex-035"]
     },
     "costas_pull_vertical": {
       "status": "needs_completion",
