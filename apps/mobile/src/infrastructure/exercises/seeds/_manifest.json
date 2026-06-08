@@ -85,14 +85,45 @@
       "covers": ["seed-ex-005","seed-ex-006","seed-ex-066","seed-ex-067","seed-ex-068","seed-ex-069","seed-ex-070","gif-ex-009","gif-ex-010","gif-ex-011","gif-ex-012","gif-ex-013","gif-ex-014","gif-ex-015","gif-ex-016","gif-ex-017","gif-ex-021","gif-ex-027","gif-ex-028","gif-ex-035"]
     },
     "costas_pull_vertical": {
-      "status": "needs_completion",
+      "status": "complete",
       "reopened_at": "2026-06-07",
       "reopen_reason": "Enriquecimento completo, mas limitado ao inventário de GIF/seed (15 exercícios). Falta pesquisar o universo real de puxadas verticais (incl. variações sem GIF) e criar registros novos para os que faltam.",
-      "exercise_count": 15,
+      "exercise_count": 22,
       "researched_at": "2026-06-07",
-      "catalog_version": 1,
+      "catalog_version": 2,
+      "completed_at": "2026-06-07",
       "research_notes": "gif-ex-029 'Pullover com Halteres' classified as Vertical Pull on mechanical grounds (overhead-to-torso arc mirrors pulldown joint action), but EMG literature shows pectoralis major sternal head as the dominant mover (~50%) vs latissimus dorsi (~22%) — musculo_alvo set to ['peitoral_esternal','grande_dorsal'] and confidence kept conservative; flag for review if substitution ranking against lat pulldowns looks off. Equipment vocabulary gap: 'Graviton' (assisted pull-up machine, gif-ex-052) has no entry in the controlled primary_equipment vocabulary — mapped to 'Bodyweight' with the machine noted in secondary_equipment.",
-      "covers": ["seed-ex-009","seed-ex-010","gif-ex-029","gif-ex-036","gif-ex-038","gif-ex-039","gif-ex-040","gif-ex-041","gif-ex-049","gif-ex-050","gif-ex-051","gif-ex-052","gif-ex-055","gif-ex-056","gif-ex-057"]
+      "completion_notes": "v2: universo de puxada vertical auditado contra 6+ bases (BarBend, NASM, ISSA, Strength Warehouse, Gymshark, Hevy, fitliferegime, OPEX, ExRx.net, Muscle&Strength). O inventário GIF cobria muitas variações de pegada de barra fixa e puxada aberta, mas faltavam exercícios distintos. +7 registros novos (seed-ex-071..077): barra fixa supinada (chin-up), barra fixa pegada neutra, puxada supinada (reverse-grip), puxada pegada neutra, pulldown com braços estendidos (straight-arm/pullover na polia — isolação de dorsal), puxada na máquina (lever/iso-lateral), pullover com barra. Fechamento: Muscle&Strength (6ª base) retornou 0 novos distintos. gif_path null.",
+      "scope_exclusions": {
+        "routed_to_other_sessions": {
+          "costas_pull_horizontal": ["Todas as remadas (horizontal pull) — sessão separada"],
+          "forca_maquinas_especializadas": ["Pullover Machine / Lever Pullover (sem valor no vocabulário de equipamento controlado)"],
+          "forca_suspension_trainer": ["Suspension/TRX Pull-Up"]
+        },
+        "excluded_as_non_distinct": {
+          "grip_width_microvariants": ["Close/Narrow-Grip Pull-Up", "Close-Grip Chin-Up", "Wide Neutral Pulldown"],
+          "load_momentum_variants": ["Weighted Pull-Up/Chin-Up (carga)", "Kipping Pull-Up (momentum/CrossFit)", "L-Sit Pull-Up (variante de core)"],
+          "position_attachment_variants": ["Kneeling Lat Pulldown (posição)", "Rope Straight-Arm Pulldown (acessório do straight-arm seed-ex-075)", "Standing Lat Pulldown"],
+          "advanced_unilateral_progressions": ["One-Arm Pull-Up", "Archer Pull-Up", "Typewriter Pull-Up", "Commando Pull-Up", "Mixed-Grip Pull-Up"]
+        }
+      },
+      "conventions": {
+        "machine_pulldown": "Puxada na máquina (seed-ex-076): primary_equipment 'Cable' (agrupa com pulldowns de cabo para a substituição, mesmo estímulo), equipment(PT) 'Maquina', secondary 'Maquina Articulada' — vocabulário controlado não tem valor para máquina de puxada (precedente do Graviton gif-ex-052).",
+        "straight_arm_pulldown": "Straight-arm pulldown (seed-ex-075) marcado como Vertical Pull + Isolado, musculo_alvo grande_dorsal — espelha o pullover (gif-ex-029); é extensão de ombro com braço reto, isolação de dorsal no plano vertical/sagital."
+      },
+      "research_sources": {
+        "databases_consulted": [
+          "https://exrx.net/Lists/ExList/BackWt",
+          "https://barbend.com/lat-pulldown/",
+          "https://blog.nasm.org/biomechanics-of-the-lat-pulldown",
+          "https://www.issaonline.com/blog/post/lat-pulldown-exercise-guide-benefits-variations-mistakes",
+          "https://strengthwarehouseusa.com/blogs/resources/lat-pulldown-variations",
+          "https://www.hevyapp.com/21-pullup-variations/",
+          "https://fitliferegime.com/different-types-of-pull-ups-and-chin-ups-variations/",
+          "https://www.muscleandstrength.com/articles/7-lat-pull-down-variations-for-bigger-back"
+        ]
+      },
+      "covers": ["seed-ex-009","seed-ex-010","seed-ex-071","seed-ex-072","seed-ex-073","seed-ex-074","seed-ex-075","seed-ex-076","seed-ex-077","gif-ex-029","gif-ex-036","gif-ex-038","gif-ex-039","gif-ex-040","gif-ex-041","gif-ex-049","gif-ex-050","gif-ex-051","gif-ex-052","gif-ex-055","gif-ex-056","gif-ex-057"]
     }
   },
   "pending_sessions": [
