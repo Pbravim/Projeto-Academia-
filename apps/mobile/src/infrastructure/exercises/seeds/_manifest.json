@@ -13,6 +13,7 @@
       "completed_at": "2026-06-07",
       "enrichment_notes": "v2: fixed musculo_alvo typos — gif-ex-034 'peitoral_lateral' -> 'peitoral_esternal' (pec major has no lateral head); seed-ex-003 'peitoral_esternal_inferior' -> 'peitoral_esternal' (redundant with peitoral_inferior)",
       "completion_notes": "Universo real de presses de peito completado e auditado contra 5 fontes independentes (fitliferegime 75+, BarBend, Muscle&Strength, ExRx.net, MuscleWiki + bodybuilding.com). 40 registros (18 GIF/seed + 22 novos seed-ex-044..065). Lote 1 (044-054): supino declinado halteres, flexão (reta/inclinada/declinada), mergulho/dip, press inclinado/declinado na máquina, press de peito no cabo em pé, floor press (halteres/barra), supino pegada invertida. Lote 2 (055-063): supino halteres pegada neutra, squeeze press, supino reto no cabo (deitado), supino declinado no cabo, flexão na parede, flexão de joelhos, flexão aberta, supino guilhotina, mergulho assistido na máquina. Lote 3 (064-065, após auditoria ExRx que distingue exercícios iso-laterais): press de peito no cabo unilateral, press peitoral unilateral na máquina (iso-lateral). O unilateral com halteres já existia (gif-ex-002). Fechamento: a 5ª fonte (MuscleWiki/bodybuilding.com) não retornou nenhum exercício novo distinto — só variantes de tempo/estabilidade já cobertas (bosu push-up, eccentric-only push-up, self-assisted bar dip) ou já excluídas (board/pin/pause press, band press). gif_path null (mídia é assunto separado).",
+      "reaudit_2026_06_07": "Re-auditado para a regra de ≥10 bases. +5 bases novas (Hevy, gymgeek, NASM, ISSA, ACE) → 11 bases no total. 0 exercícios novos distintos: tudo nomeado já estava coberto ou excluído (pause/close-grip bench, weighted/plyo push-up, seated chest press, seated incline/decline cable press = variantes de posição, bandas roteadas). Fechamento mantido em 40 registros.",
       "research_sources": {
         "_comment": "Sites consultados durante a pesquisa do universo de presses de peito — informativo, NÃO lido pelo app.",
         "databases_consulted": [
@@ -22,7 +23,12 @@
           "https://www.muscleandstrength.com/exercises/close-grip-dumbbell-press.html",
           "https://exrx.net/Lists/ExList/ChestWt",
           "https://musclewiki.com/exercises/chest",
-          "https://shop.bodybuilding.com/blogs/training/10-best-chest-exercises-for-building-muscle"
+          "https://shop.bodybuilding.com/blogs/training/10-best-chest-exercises-for-building-muscle",
+          "https://www.hevyapp.com/compound-isolation-chest-exercises/",
+          "https://gymgeek.com/exercises/chest/bench-press/",
+          "https://blog.nasm.org/biomechanics-of-the-bench-press",
+          "https://issaonline.com/blog/index.cfm/2019/bench-press-variations-for-any-client",
+          "https://www.acefitness.org/resources/everyone/exercise-library/25/incline-chest-press/"
         ]
       },
       "scope_exclusions": {
@@ -72,6 +78,7 @@
           "isolateral_angle_variants_folded": ["Cable Isolateral Lying Fly", "Cable Isolateral Incline Fly (dobrados em seed-ex-067 — um fly unilateral cobre o estímulo; os ângulos já existem na forma bilateral)"]
         }
       },
+      "reaudit_2026_06_07": "Re-auditado para a regra de ≥10 bases. +4 bases novas (Strength Warehouse, BarBend, fitliferegime, Hevy) → 10 bases no total. 0 exercícios novos distintos: seated chest flye = variante de posição (pec deck sentado já coberto), reverse pec deck = deltoide posterior (já roteado para ombros_lateral), incline twist fly = variante de supinação nicho. Fechamento mantido em 20 registros.",
       "research_sources": {
         "databases_consulted": [
           "https://exrx.net/Lists/ExList/ChestWt",
@@ -79,7 +86,11 @@
           "https://legionathletics.com/cable-chest-fly/",
           "https://www.acefitness.org/certifiednewsarticle/3003/what-are-the-top-3-most-effective-chest-exercises/",
           "https://www.muscleandstrength.com/exercises/chest",
-          "https://shop.bodybuilding.com/blogs/training/10-best-chest-exercises-for-building-muscle"
+          "https://shop.bodybuilding.com/blogs/training/10-best-chest-exercises-for-building-muscle",
+          "https://strengthwarehouseusa.com/blogs/resources/chest-fly-muscles-worked",
+          "https://barbend.com/dumbbell-flye-variations/",
+          "https://fitliferegime.com/cable-fly-muscle-worked-alternate-variations/",
+          "https://www.hevyapp.com/compound-isolation-chest-exercises/"
         ]
       },
       "covers": ["seed-ex-005","seed-ex-006","seed-ex-066","seed-ex-067","seed-ex-068","seed-ex-069","seed-ex-070","gif-ex-009","gif-ex-010","gif-ex-011","gif-ex-012","gif-ex-013","gif-ex-014","gif-ex-015","gif-ex-016","gif-ex-017","gif-ex-021","gif-ex-027","gif-ex-028","gif-ex-035"]
@@ -111,6 +122,7 @@
         "machine_pulldown": "Puxada na máquina (seed-ex-076): primary_equipment 'Cable' (agrupa com pulldowns de cabo para a substituição, mesmo estímulo), equipment(PT) 'Maquina', secondary 'Maquina Articulada' — vocabulário controlado não tem valor para máquina de puxada (precedente do Graviton gif-ex-052).",
         "straight_arm_pulldown": "Straight-arm pulldown (seed-ex-075) marcado como Vertical Pull + Isolado, musculo_alvo grande_dorsal — espelha o pullover (gif-ex-029); é extensão de ombro com braço reto, isolação de dorsal no plano vertical/sagital."
       },
+      "reaudit_2026_06_07": "Re-auditado para a regra de ≥10 bases. +2 bases novas (Gymshark, MuscleWiki) → 10 bases no total. 0 exercícios novos distintos: MuscleWiki lista 'Machine Pulldown' (coberto por seed-ex-076); pull-up/chin-up/lat pulldown/single-arm/pullover todos cobertos. Fechamento mantido em 22 registros.",
       "research_sources": {
         "databases_consulted": [
           "https://exrx.net/Lists/ExList/BackWt",
@@ -120,7 +132,9 @@
           "https://strengthwarehouseusa.com/blogs/resources/lat-pulldown-variations",
           "https://www.hevyapp.com/21-pullup-variations/",
           "https://fitliferegime.com/different-types-of-pull-ups-and-chin-ups-variations/",
-          "https://www.muscleandstrength.com/articles/7-lat-pull-down-variations-for-bigger-back"
+          "https://www.muscleandstrength.com/articles/7-lat-pull-down-variations-for-bigger-back",
+          "https://row.gymshark.com/blog/article/master-the-lat-pulldown",
+          "https://musclewiki.com/exercises/lats"
         ]
       },
       "covers": ["seed-ex-009","seed-ex-010","seed-ex-071","seed-ex-072","seed-ex-073","seed-ex-074","seed-ex-075","seed-ex-076","seed-ex-077","gif-ex-029","gif-ex-036","gif-ex-038","gif-ex-039","gif-ex-040","gif-ex-041","gif-ex-049","gif-ex-050","gif-ex-051","gif-ex-052","gif-ex-055","gif-ex-056","gif-ex-057"]
