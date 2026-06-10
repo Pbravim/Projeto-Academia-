@@ -1,0 +1,27 @@
+name: Validate Exercise Seeds
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/src/infrastructure/exercises/seeds/**'
+      - 'apps/mobile/src/infrastructure/persistence/sqlite/ExpoSQLiteDatabaseClient.ts'
+      - 'scripts/validate_exercise_seeds.py'
+  pull_request:
+    paths:
+      - 'apps/mobile/src/infrastructure/exercises/seeds/**'
+      - 'apps/mobile/src/infrastructure/persistence/sqlite/ExpoSQLiteDatabaseClient.ts'
+      - 'scripts/validate_exercise_seeds.py'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar seeds de exercícios
+        run: python scripts/validate_exercise_seeds.py
+      - name: Listar review_flags abertos (informativo)
+        run: python scripts/validate_exercise_seeds.py --list-flags
