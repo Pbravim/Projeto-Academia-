@@ -137,7 +137,7 @@ export function useExerciseCatalogController(
     setEditingExerciseId(exercise.id);
     setDraft({
       name: exercise.name,
-      groupMuscle: exercise.groupMuscle,
+      groupMuscle: exercise.groupMuscles.join(', '),
       category: exercise.category,
       equipment: exercise.equipment ?? '',
       mediaOnline: exercise.mediaOnline ?? '',
@@ -190,8 +190,12 @@ export function useExerciseCatalogController(
     };
     const executionType = stripOutro(draft.executionType);
 
+    // O draft mantém groupMuscle como string com vírgulas (formato do multi-select);
+    // o domínio recebe o array.
+    const { groupMuscle: groupMuscleDraft, ...draftRest } = draft;
     const cleanDraft = {
-      ...draft,
+      ...draftRest,
+      groupMuscles: toListOrUndefined(groupMuscleDraft) ?? [],
       category: stripOutro(draft.category),
       equipment: stripOutro(draft.equipment),
       mediaOnline: draft.mediaOnline.trim() || undefined,

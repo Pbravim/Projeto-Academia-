@@ -15,7 +15,7 @@ describe('CreateExerciseUseCase', () => {
 
     const createdExercise = await useCase.execute({
       name: 'Supino reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       equipment: 'Barra olimpica',
     });
@@ -37,7 +37,7 @@ describe('CreateExerciseUseCase', () => {
 
     await useCase.execute({
       name: 'Supino reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       equipment: 'Barra olimpica',
     });
@@ -45,7 +45,7 @@ describe('CreateExerciseUseCase', () => {
     await expect(
       useCase.execute({
         name: '  supino   reto ',
-        groupMuscle: 'Peito',
+        groupMuscles: ['Peito'],
         category: 'Composto',
       })
     ).rejects.toThrow(DuplicateExerciseError);

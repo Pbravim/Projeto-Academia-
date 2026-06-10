@@ -6,7 +6,7 @@ import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
 export interface UpdateExerciseInput {
   id: string;
   name: string;
-  groupMuscle: string;
+  groupMuscles: string[];
   category: string;
   equipment?: string;
   mediaOnline?: string;

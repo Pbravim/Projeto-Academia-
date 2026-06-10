@@ -4,370 +4,894 @@
     {
       "id": "seed-ex-011",
       "name": "Remada Curvada com Barra",
-      "name_variations": ["Bent-Over Barbell Row", "Remada Curvada", "Barbell Row", "Remada Pronada com Barra"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Bent-Over Barbell Row",
+        "Remada Curvada",
+        "Barbell Row",
+        "Remada Pronada com Barra"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-062", "gif-ex-065", "seed-ex-078", "gif-ex-046"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009", "seed-ex-075"]
+      "equivalent_alternatives": [
+        "gif-ex-062",
+        "gif-ex-065",
+        "seed-ex-078",
+        "gif-ex-046"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009",
+        "seed-ex-075"
+      ]
     },
     {
       "id": "seed-ex-012",
       "name": "Remada Unilateral com Haltere",
-      "name_variations": ["Single-Arm Dumbbell Row", "Remada Serrote", "One-Arm Dumbbell Row", "Remada Unilateral"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Single-Arm Dumbbell Row",
+        "Remada Serrote",
+        "One-Arm Dumbbell Row",
+        "Remada Unilateral"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior", "romboides"],
-      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior",
+        "romboides"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "core",
+        "obliquo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["gif-ex-045", "gif-ex-064", "gif-ex-060"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-045",
+        "gif-ex-064",
+        "gif-ex-060"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "seed-ex-013",
       "name": "Remada Baixa no Cabo",
-      "name_variations": ["Seated Cable Row", "Remada Sentada no Cabo", "Low Cable Row", "Remada Baixa Pegada Fechada"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Seated Cable Row",
+        "Remada Sentada no Cabo",
+        "Low Cable Row",
+        "Remada Baixa Pegada Fechada"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Baixa",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "eretores_espinha"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "eretores_espinha"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-047", "gif-ex-059", "gif-ex-044"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-047",
+        "gif-ex-059",
+        "gif-ex-044"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-037",
       "name": "Remada Aberta com Elastico",
-      "name_variations": ["Banded Wide-Grip Row", "Remada Aberta na Faixa Elastica", "Resistance Band Wide Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Banded Wide-Grip Row",
+        "Remada Aberta na Faixa Elastica",
+        "Resistance Band Wide Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Elastico",
       "primary_equipment": "Resistance Band",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["romboides", "trapezio_medio", "deltoide_posterior"],
-      "stabilizers": ["biceps_braquial", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "romboides",
+        "trapezio_medio",
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-047", "gif-ex-058"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "gif-ex-047",
+        "gif-ex-058"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-042",
       "name": "Remada com Halteres",
-      "name_variations": ["Two-Arm Dumbbell Row", "Remada Curvada com Halteres", "Bent-Over Dumbbell Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Two-Arm Dumbbell Row",
+        "Remada Curvada com Halteres",
+        "Bent-Over Dumbbell Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-064", "seed-ex-011", "seed-ex-012"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-064",
+        "seed-ex-011",
+        "seed-ex-012"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-043",
       "name": "Remada no Banco Inclinado",
-      "name_variations": ["Chest-Supported Incline Dumbbell Row", "Remada Apoiada no Banco Inclinado", "Incline Bench Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Chest-Supported Incline Dumbbell Row",
+        "Remada Apoiada no Banco Inclinado",
+        "Incline Bench Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-058", "gif-ex-065", "seed-ex-081"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "gif-ex-058",
+        "gif-ex-065",
+        "seed-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-044",
       "name": "Remada na Maquina",
-      "name_variations": ["Machine Row", "Remada Sentada na Maquina", "Seated Machine Row", "Hammer Strength Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Machine Row",
+        "Remada Sentada na Maquina",
+        "Seated Machine Row",
+        "Hammer Strength Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
       "primary_equipment": "Chest Supported Row",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-013", "gif-ex-043", "gif-ex-047"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-013",
+        "gif-ex-043",
+        "gif-ex-047"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-045",
       "name": "Remada Unilateral com Haltere Variacao",
-      "name_variations": ["Single-Arm Dumbbell Row Variation", "Remada Serrote Variacao", "Bench-Supported One-Arm Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Single-Arm Dumbbell Row Variation",
+        "Remada Serrote Variacao",
+        "Bench-Supported One-Arm Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior", "romboides"],
-      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior",
+        "romboides"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "core",
+        "obliquo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["seed-ex-012", "gif-ex-060", "gif-ex-066"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "seed-ex-012",
+        "gif-ex-060",
+        "gif-ex-066"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-046",
       "name": "Remada Cavalinho T-Bar Row",
-      "name_variations": ["T-Bar Row", "Remada Cavalinho", "Landmine T-Bar Row", "Remada T"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "T-Bar Row",
+        "Remada Cavalinho",
+        "Landmine T-Bar Row",
+        "Remada T"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Landmine",
       "secondary_equipment": "T-Bar Handle",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-061", "seed-ex-011", "gif-ex-044"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-061",
+        "seed-ex-011",
+        "gif-ex-044"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-047",
       "name": "Remada no Cabo Pegada Aberta",
-      "name_variations": ["Wide-Grip Cable Row", "Remada Cabo Pegada Larga", "Wide Seated Cable Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Wide-Grip Cable Row",
+        "Remada Cabo Pegada Larga",
+        "Wide Seated Cable Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Baixa",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["romboides", "trapezio_medio", "deltoide_posterior"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha"],
+      "musculo_alvo": [
+        "romboides",
+        "trapezio_medio",
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-013", "gif-ex-059", "gif-ex-037"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-013",
+        "gif-ex-059",
+        "gif-ex-037"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-058",
       "name": "Remada Aberta no Banco Inclinado com Halteres",
-      "name_variations": ["Wide-Grip Chest-Supported Dumbbell Row", "Remada Aberta Apoiada no Banco", "Incline Wide Dumbbell Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Wide-Grip Chest-Supported Dumbbell Row",
+        "Remada Aberta Apoiada no Banco",
+        "Incline Wide Dumbbell Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["romboides", "trapezio_medio", "deltoide_posterior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior"],
+      "musculo_alvo": [
+        "romboides",
+        "trapezio_medio",
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-043", "gif-ex-037", "gif-ex-047"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "gif-ex-043",
+        "gif-ex-037",
+        "gif-ex-047"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-059",
       "name": "Remada Baixa no Pulley Supinada",
-      "name_variations": ["Underhand Wide Cable Row", "Remada Baixa Pegada Supinada Aberta", "Supinated Cable Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Underhand Wide Cable Row",
+        "Remada Baixa Pegada Supinada Aberta",
+        "Supinated Cable Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Baixa",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "eretores_espinha"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "eretores_espinha"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-013", "gif-ex-047", "gif-ex-063"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-073"]
+      "equivalent_alternatives": [
+        "seed-ex-013",
+        "gif-ex-047",
+        "gif-ex-063"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-073"
+      ]
     },
     {
       "id": "gif-ex-060",
       "name": "Remada Baixa Unilateral no Cross",
-      "name_variations": ["Single-Arm Cable Row", "Remada Unilateral na Polia", "One-Arm Seated Cable Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Single-Arm Cable Row",
+        "Remada Unilateral na Polia",
+        "One-Arm Seated Cable Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior", "romboides"],
-      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior",
+        "romboides"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "core",
+        "obliquo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["seed-ex-012", "gif-ex-045", "seed-ex-013"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "seed-ex-012",
+        "gif-ex-045",
+        "seed-ex-013"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-061",
       "name": "Remada Cavalinho com Barra",
-      "name_variations": ["Landmine Row", "Remada Cavalinho Barra", "Barbell T-Bar Row", "Meadows Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Landmine Row",
+        "Remada Cavalinho Barra",
+        "Barbell T-Bar Row",
+        "Meadows Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Landmine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-046", "seed-ex-011", "gif-ex-066"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-046",
+        "seed-ex-011",
+        "gif-ex-066"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-062",
       "name": "Remada Inclinada no Smith",
-      "name_variations": ["Smith Machine Bent-Over Row", "Remada Curvada no Smith", "Smith Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Smith Machine Bent-Over Row",
+        "Remada Curvada no Smith",
+        "Smith Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Smith",
       "primary_equipment": "Smith Machine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-011", "gif-ex-065", "seed-ex-078"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "seed-ex-011",
+        "gif-ex-065",
+        "seed-ex-078"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-063",
       "name": "Remada Banco Pegada Supinada Fechada",
-      "name_variations": ["Chest-Supported Close Underhand Row", "Remada Apoiada Supinada Fechada", "Supinated Chest-Supported Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Chest-Supported Close Underhand Row",
+        "Remada Apoiada Supinada Fechada",
+        "Supinated Chest-Supported Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-065", "seed-ex-079", "gif-ex-059"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-073"]
+      "equivalent_alternatives": [
+        "gif-ex-065",
+        "seed-ex-079",
+        "gif-ex-059"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-073"
+      ]
     },
     {
       "id": "gif-ex-064",
       "name": "Remada Livre com Halteres",
-      "name_variations": ["Free-Standing Dumbbell Row", "Remada Curvada Livre com Halteres", "Bent-Over Dumbbell Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Free-Standing Dumbbell Row",
+        "Remada Curvada Livre com Halteres",
+        "Bent-Over Dumbbell Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-042", "seed-ex-011", "seed-ex-012"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-042",
+        "seed-ex-011",
+        "seed-ex-012"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "gif-ex-065",
       "name": "Remada Banco Inclinado Pegada Pronada",
-      "name_variations": ["Chest-Supported Pronated Barbell Row", "Remada Apoiada Pronada com Barra", "Incline Pronated Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Chest-Supported Pronated Barbell Row",
+        "Remada Apoiada Pronada com Barra",
+        "Incline Pronated Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-043", "gif-ex-063", "seed-ex-081"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "gif-ex-043",
+        "gif-ex-063",
+        "seed-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-066",
       "name": "Remada Unilateral Cavalinho Fechada",
-      "name_variations": ["Single-Arm Landmine Row", "Remada Unilateral Cavalinho", "Meadows Row", "Close-Grip Landmine Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Single-Arm Landmine Row",
+        "Remada Unilateral Cavalinho",
+        "Meadows Row",
+        "Close-Grip Landmine Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Landmine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "core",
+        "obliquo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["gif-ex-061", "seed-ex-012", "gif-ex-045"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "gif-ex-061",
+        "seed-ex-012",
+        "gif-ex-045"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "seed-ex-078",
       "name": "Remada Pendlay",
-      "name_variations": ["Pendlay Row", "Remada Curvada Dead-Stop", "Dead-Stop Barbell Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Pendlay Row",
+        "Remada Curvada Dead-Stop",
+        "Dead-Stop Barbell Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-011", "gif-ex-062", "gif-ex-046"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+      "equivalent_alternatives": [
+        "seed-ex-011",
+        "gif-ex-062",
+        "gif-ex-046"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-009"
+      ]
     },
     {
       "id": "seed-ex-079",
       "name": "Remada Curvada Supinada com Barra",
-      "name_variations": ["Yates Row", "Reverse-Grip Bent-Over Row", "Remada Supinada com Barra", "Underhand Barbell Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Yates Row",
+        "Reverse-Grip Bent-Over Row",
+        "Remada Supinada com Barra",
+        "Underhand Barbell Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "eretores_espinha", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "eretores_espinha",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-011", "gif-ex-063", "gif-ex-059"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-073"]
+      "equivalent_alternatives": [
+        "seed-ex-011",
+        "gif-ex-063",
+        "gif-ex-059"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-073"
+      ]
     },
     {
       "id": "seed-ex-080",
       "name": "Remada Invertida",
-      "name_variations": ["Inverted Row", "Australian Pull-Up", "Remada Australiana", "Bodyweight Row"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Inverted Row",
+        "Australian Pull-Up",
+        "Remada Australiana",
+        "Bodyweight Row"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": "Barra Baixa",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-013", "gif-ex-044", "gif-ex-042"],
-      "muscle_group_alternatives": ["seed-ex-009", "seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-013",
+        "gif-ex-044",
+        "gif-ex-042"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-010"
+      ]
     },
     {
       "id": "seed-ex-081",
       "name": "Seal Row",
-      "name_variations": ["Seal Row", "Remada Foca", "Prone Bench Barbell Row", "Remada Prona no Banco"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Seal Row",
+        "Remada Foca",
+        "Prone Bench Barbell Row",
+        "Remada Prona no Banco"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Banco Alto",
       "movement_pattern": "Horizontal Pull",
-      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "romboides",
+        "trapezio_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-043", "gif-ex-065", "gif-ex-044"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "gif-ex-043",
+        "gif-ex-065",
+        "gif-ex-044"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     }
   ]
 }

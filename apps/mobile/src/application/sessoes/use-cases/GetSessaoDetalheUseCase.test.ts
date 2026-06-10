@@ -57,7 +57,7 @@ function makeExercise(id: string) {
   return Exercise.create({
     id,
     name: 'Supino',
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     category: 'Musculação',
     createdAt: new Date('2026-01-01'),
     isCustom: false,
@@ -130,7 +130,7 @@ describe('GetSessaoDetalheUseCase', () => {
     const exercise = Exercise.create({
       id: 'ex1',
       name: 'Supino',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       createdAt: new Date('2026-01-01'),
       mediaOnline: 'https://example.com/video.mp4',
       mediaLocal: null,

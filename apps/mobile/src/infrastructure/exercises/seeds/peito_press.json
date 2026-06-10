@@ -1,98 +1,216 @@
 {
-  "catalog_version": 2,
+  "catalog_version": 3,
   "exercises": [
     {
       "id": "seed-ex-001",
       "name": "Supino Reto com Barra",
-      "name_variations": ["Supino Reto", "Bench Press", "Barbell Bench Press", "Supino Plano com Barra"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Supino Reto",
+        "Bench Press",
+        "Barbell Bench Press",
+        "Supino Plano com Barra"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-004", "gif-ex-004", "gif-ex-018"],
-      "muscle_group_alternatives": ["seed-ex-005", "seed-ex-006", "gif-ex-021"]
+      "equivalent_alternatives": [
+        "seed-ex-004",
+        "gif-ex-004",
+        "gif-ex-018"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-005",
+        "seed-ex-006",
+        "gif-ex-021"
+      ]
     },
     {
       "id": "seed-ex-002",
       "name": "Supino Inclinado com Barra",
-      "name_variations": ["Supino Inclinado", "Incline Bench Press", "Incline Barbell Press"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Supino Inclinado",
+        "Incline Bench Press",
+        "Incline Barbell Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-005", "gif-ex-006", "gif-ex-007", "gif-ex-032", "gif-ex-033"],
-      "muscle_group_alternatives": ["gif-ex-009", "gif-ex-014", "gif-ex-016"]
+      "equivalent_alternatives": [
+        "gif-ex-005",
+        "gif-ex-006",
+        "gif-ex-007",
+        "gif-ex-032",
+        "gif-ex-033"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-009",
+        "gif-ex-014",
+        "gif-ex-016"
+      ]
     },
     {
       "id": "seed-ex-003",
       "name": "Supino Declinado com Barra",
-      "name_variations": ["Supino Declinado", "Decline Bench Press", "Decline Barbell Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Supino Declinado",
+        "Decline Bench Press",
+        "Decline Barbell Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Decline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-008"],
-      "muscle_group_alternatives": ["gif-ex-012", "gif-ex-015", "gif-ex-017"]
+      "equivalent_alternatives": [
+        "gif-ex-008"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-012",
+        "gif-ex-015",
+        "gif-ex-017"
+      ]
     },
     {
       "id": "seed-ex-004",
       "name": "Supino Reto com Haltere",
-      "name_variations": ["Supino com Haltere", "Dumbbell Bench Press", "Supino Haltere"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Supino com Haltere",
+        "Dumbbell Bench Press",
+        "Supino Haltere"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001", "gif-ex-004", "gif-ex-018"],
-      "muscle_group_alternatives": ["seed-ex-005", "seed-ex-006", "gif-ex-021"]
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "gif-ex-004",
+        "gif-ex-018"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-005",
+        "seed-ex-006",
+        "gif-ex-021"
+      ]
     },
     {
       "id": "gif-ex-001",
       "name": "Supino Reto Pes Elevados",
-      "name_variations": ["Bench Press Feet Up", "Supino Pés no Banco"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Bench Press Feet Up",
+        "Supino Pés no Banco"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001", "seed-ex-004"],
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "seed-ex-004"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-002",
       "name": "Supino Reto Unilateral com Halteres",
-      "name_variations": ["One Arm Dumbbell Press", "Supino Unilateral"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "One Arm Dumbbell Press",
+        "Supino Unilateral"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["rotador_externo", "core", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "core",
+        "obliquos"
+      ],
       "execution_type": "Unilateral",
       "equivalent_alternatives": [],
       "muscle_group_alternatives": []
@@ -100,15 +218,26 @@
     {
       "id": "gif-ex-003",
       "name": "Supino Alternado com Halteres",
-      "name_variations": ["Alternating Dumbbell Press", "Supino Alternado"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Alternating Dumbbell Press",
+        "Supino Alternado"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["rotador_externo", "core"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "core"
+      ],
       "execution_type": "Can Be Both",
       "equivalent_alternatives": [],
       "muscle_group_alternatives": []
@@ -116,530 +245,1174 @@
     {
       "id": "gif-ex-004",
       "name": "Supino no Smith",
-      "name_variations": ["Smith Machine Bench Press", "Supino Smith", "Supino no Guia"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Smith Machine Bench Press",
+        "Supino Smith",
+        "Supino no Guia"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Smith",
       "primary_equipment": "Smith Machine",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001", "seed-ex-004", "gif-ex-018"],
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "seed-ex-004",
+        "gif-ex-018"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-005",
       "name": "Supino Inclinado com Halteres",
-      "name_variations": ["Incline Dumbbell Press", "Supino Inclinado Haltere"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Incline Dumbbell Press",
+        "Supino Inclinado Haltere"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["rotador_externo", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-006", "gif-ex-007"],
-      "muscle_group_alternatives": ["gif-ex-009", "gif-ex-014"]
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-006",
+        "gif-ex-007"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-009",
+        "gif-ex-014"
+      ]
     },
     {
       "id": "gif-ex-006",
       "name": "Supino Inclinado no Smith",
-      "name_variations": ["Incline Smith Press", "Smith Inclinado"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Incline Smith Press",
+        "Smith Inclinado"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Smith",
       "primary_equipment": "Smith Machine",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-005", "gif-ex-007"],
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005",
+        "gif-ex-007"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-007",
       "name": "Supino Inclinado com Barra Variacao",
-      "name_variations": ["Incline Barbell Press Variation"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Incline Barbell Press Variation"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["rotador_externo", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-005", "gif-ex-006"],
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005",
+        "gif-ex-006"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-008",
       "name": "Supino Declinado no Smith",
-      "name_variations": ["Decline Smith Press", "Smith Declinado"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Decline Smith Press",
+        "Smith Declinado"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Smith",
       "primary_equipment": "Smith Machine",
       "secondary_equipment": "Decline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_inferior"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-003"],
+      "equivalent_alternatives": [
+        "seed-ex-003"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-018",
       "name": "Press Peitoral na Maquina",
-      "name_variations": ["Chest Press Machine", "Maquina de Supino", "Hammer Strength Chest Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Chest Press Machine",
+        "Maquina de Supino",
+        "Hammer Strength Chest Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Pec Deck",
+      "primary_equipment": "Selectorized Machine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001", "seed-ex-004", "gif-ex-004"],
-      "muscle_group_alternatives": ["gif-ex-021", "gif-ex-028"]
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "seed-ex-004",
+        "gif-ex-004"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028"
+      ]
     },
     {
       "id": "gif-ex-019",
       "name": "Press Peitoral Variacao",
-      "name_variations": ["Chest Press Variation"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Chest Press Variation"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Pec Deck",
+      "primary_equipment": "Selectorized Machine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-018"],
+      "equivalent_alternatives": [
+        "gif-ex-018"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-020",
       "name": "Press Inclinado no Cabo",
-      "name_variations": ["Incline Cable Press", "Cable Incline Press"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Incline Cable Press",
+        "Cable Incline Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-005"],
-      "muscle_group_alternatives": ["gif-ex-010", "gif-ex-014"]
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-010",
+        "gif-ex-014"
+      ]
     },
     {
       "id": "gif-ex-032",
       "name": "Supino Inclinado no Cabo",
-      "name_variations": ["Incline Cable Bench Press"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Incline Cable Bench Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-005"],
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-033",
       "name": "Supino Inclinado no Smith Bonus",
-      "name_variations": ["Smith Incline Bench Press Bonus"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Smith Incline Bench Press Bonus"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Smith",
       "primary_equipment": "Smith Machine",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-006"],
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-006"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-034",
       "name": "Supino Reto Pegada Aberta",
-      "name_variations": ["Wide Grip Bench Press", "Supino Pegada Larga"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Wide Grip Bench Press",
+        "Supino Pegada Larga"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001"],
+      "equivalent_alternatives": [
+        "seed-ex-001"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "seed-ex-044",
       "name": "Supino Declinado com Halteres",
-      "name_variations": ["Decline Dumbbell Press", "Supino Declinado Haltere", "Decline DB Bench Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Decline Dumbbell Press",
+        "Supino Declinado Haltere",
+        "Decline DB Bench Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Decline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-003", "gif-ex-008", "seed-ex-050"],
-      "muscle_group_alternatives": ["gif-ex-012", "gif-ex-015", "gif-ex-017"]
+      "equivalent_alternatives": [
+        "seed-ex-003",
+        "gif-ex-008",
+        "seed-ex-050"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-012",
+        "gif-ex-015",
+        "gif-ex-017"
+      ]
     },
     {
       "id": "seed-ex-045",
       "name": "Flexao de Braco",
-      "name_variations": ["Push-Up", "Flexao", "Flexao Tradicional", "Apoio de Frente", "Press-Up"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Push-Up",
+        "Flexao",
+        "Flexao Tradicional",
+        "Apoio de Frente",
+        "Press-Up"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "obliquos"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-046", "seed-ex-047"],
-      "muscle_group_alternatives": ["seed-ex-001", "seed-ex-004", "seed-ex-048", "gif-ex-018"]
+      "equivalent_alternatives": [
+        "seed-ex-046",
+        "seed-ex-047"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "seed-ex-004",
+        "seed-ex-048",
+        "gif-ex-018"
+      ]
     },
     {
       "id": "seed-ex-046",
       "name": "Flexao Declinada",
-      "name_variations": ["Decline Push-Up", "Flexao com Pes Elevados", "Feet-Elevated Push-Up"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Decline Push-Up",
+        "Flexao com Pes Elevados",
+        "Feet-Elevated Push-Up"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": "Banco",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["core", "serratus_anterior", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "obliquos"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-045", "seed-ex-047"],
-      "muscle_group_alternatives": ["seed-ex-002", "gif-ex-005", "gif-ex-009"]
+      "equivalent_alternatives": [
+        "seed-ex-045",
+        "seed-ex-047"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005",
+        "gif-ex-009"
+      ]
     },
     {
       "id": "seed-ex-047",
       "name": "Flexao Inclinada",
-      "name_variations": ["Incline Push-Up", "Flexao com Maos Elevadas", "Hands-Elevated Push-Up", "Flexao no Banco"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Incline Push-Up",
+        "Flexao com Maos Elevadas",
+        "Hands-Elevated Push-Up",
+        "Flexao no Banco"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": "Banco",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "obliquos"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-045", "seed-ex-046"],
-      "muscle_group_alternatives": ["seed-ex-003", "gif-ex-008", "seed-ex-048"]
+      "equivalent_alternatives": [
+        "seed-ex-045",
+        "seed-ex-046"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-003",
+        "gif-ex-008",
+        "seed-ex-048"
+      ]
     },
     {
       "id": "seed-ex-048",
       "name": "Mergulho para Peito",
-      "name_variations": ["Chest Dip", "Paralelas para Peito", "Mergulho nas Paralelas", "Dip de Peito"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Chest Dip",
+        "Paralelas para Peito",
+        "Mergulho nas Paralelas",
+        "Dip de Peito"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": "Barras Paralelas",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-003", "gif-ex-008", "seed-ex-044"],
-      "muscle_group_alternatives": ["seed-ex-001", "gif-ex-012", "gif-ex-017"]
+      "equivalent_alternatives": [
+        "seed-ex-003",
+        "gif-ex-008",
+        "seed-ex-044"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "gif-ex-012",
+        "gif-ex-017"
+      ]
     },
     {
       "id": "seed-ex-049",
       "name": "Press Peitoral Inclinado na Maquina",
-      "name_variations": ["Incline Machine Chest Press", "Maquina de Supino Inclinado", "Incline Hammer Strength Press"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Incline Machine Chest Press",
+        "Maquina de Supino Inclinado",
+        "Incline Hammer Strength Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Pec Deck",
+      "primary_equipment": "Selectorized Machine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-005", "gif-ex-006"],
-      "muscle_group_alternatives": ["gif-ex-009", "gif-ex-014"]
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005",
+        "gif-ex-006"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-009",
+        "gif-ex-014"
+      ]
     },
     {
       "id": "seed-ex-050",
       "name": "Press Peitoral Declinado na Maquina",
-      "name_variations": ["Decline Machine Chest Press", "Maquina de Supino Declinado", "Decline Hammer Strength Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Decline Machine Chest Press",
+        "Maquina de Supino Declinado",
+        "Decline Hammer Strength Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Pec Deck",
+      "primary_equipment": "Selectorized Machine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-003", "gif-ex-008", "seed-ex-044"],
-      "muscle_group_alternatives": ["gif-ex-012", "gif-ex-017"]
+      "equivalent_alternatives": [
+        "seed-ex-003",
+        "gif-ex-008",
+        "seed-ex-044"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-012",
+        "gif-ex-017"
+      ]
     },
     {
       "id": "seed-ex-051",
       "name": "Press de Peito no Cabo em Pe",
-      "name_variations": ["Standing Cable Chest Press", "Press no Cabo em Pe", "Cable Chest Press", "Crossover Press"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Standing Cable Chest Press",
+        "Press no Cabo em Pe",
+        "Cable Chest Press",
+        "Crossover Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "obliquos"
+      ],
       "execution_type": "Can Be Both",
-      "equivalent_alternatives": ["seed-ex-001", "gif-ex-018", "gif-ex-004"],
-      "muscle_group_alternatives": ["gif-ex-021", "gif-ex-028"]
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "gif-ex-018",
+        "gif-ex-004"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028"
+      ]
     },
     {
       "id": "seed-ex-052",
       "name": "Floor Press com Halteres",
-      "name_variations": ["Dumbbell Floor Press", "Supino no Chao com Halteres", "DB Floor Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Dumbbell Floor Press",
+        "Supino no Chao com Halteres",
+        "DB Floor Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Solo",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-004", "seed-ex-053"],
-      "muscle_group_alternatives": ["seed-ex-001", "gif-ex-021"]
+      "equivalent_alternatives": [
+        "seed-ex-004",
+        "seed-ex-053"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "gif-ex-021"
+      ]
     },
     {
       "id": "seed-ex-053",
       "name": "Floor Press com Barra",
-      "name_variations": ["Barbell Floor Press", "Supino no Chao com Barra", "Floor Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Barbell Floor Press",
+        "Supino no Chao com Barra",
+        "Floor Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Solo",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001", "seed-ex-052"],
-      "muscle_group_alternatives": ["seed-ex-004", "gif-ex-021"]
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "seed-ex-052"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-004",
+        "gif-ex-021"
+      ]
     },
     {
       "id": "seed-ex-054",
       "name": "Supino com Pegada Invertida",
-      "name_variations": ["Reverse-Grip Bench Press", "Supino Pegada Supinada", "Reverse Grip Barbell Press", "Supino Invertido"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Reverse-Grip Bench Press",
+        "Supino Pegada Supinada",
+        "Reverse Grip Barbell Press",
+        "Supino Invertido"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-007", "seed-ex-049"],
-      "muscle_group_alternatives": ["gif-ex-009", "gif-ex-014"]
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-007",
+        "seed-ex-049"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-009",
+        "gif-ex-014"
+      ]
     },
     {
       "id": "seed-ex-055",
       "name": "Supino Reto com Halteres Pegada Neutra",
-      "name_variations": ["Neutral Grip Dumbbell Bench Press", "Supino Pegada Neutra", "Palms-In Dumbbell Press", "Hex Press"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Neutral Grip Dumbbell Bench Press",
+        "Supino Pegada Neutra",
+        "Palms-In Dumbbell Press",
+        "Hex Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-004", "seed-ex-052", "gif-ex-004"],
-      "muscle_group_alternatives": ["seed-ex-001", "gif-ex-021"]
+      "equivalent_alternatives": [
+        "seed-ex-004",
+        "seed-ex-052",
+        "gif-ex-004"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "gif-ex-021"
+      ]
     },
     {
       "id": "seed-ex-056",
       "name": "Supino com Halteres Pressionados",
-      "name_variations": ["Dumbbell Squeeze Press", "Crush Press", "Squeeze Press", "Supino Squeeze"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Dumbbell Squeeze Press",
+        "Crush Press",
+        "Squeeze Press",
+        "Supino Squeeze"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-055", "seed-ex-004"],
-      "muscle_group_alternatives": ["gif-ex-021", "gif-ex-028"]
+      "equivalent_alternatives": [
+        "seed-ex-055",
+        "seed-ex-004"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028"
+      ]
     },
     {
       "id": "seed-ex-057",
       "name": "Supino Reto no Cabo",
-      "name_variations": ["Cable Flat Bench Press", "Lying Cable Press", "Supino no Cabo Deitado", "Flat Cable Press"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Cable Flat Bench Press",
+        "Lying Cable Press",
+        "Supino no Cabo Deitado",
+        "Flat Cable Press"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-001", "gif-ex-018", "seed-ex-051"],
-      "muscle_group_alternatives": ["gif-ex-021", "gif-ex-028"]
+      "equivalent_alternatives": [
+        "seed-ex-001",
+        "gif-ex-018",
+        "seed-ex-051"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028"
+      ]
     },
     {
       "id": "seed-ex-058",
       "name": "Supino Declinado no Cabo",
-      "name_variations": ["Cable Decline Bench Press", "Decline Cable Press", "Supino Declinado no Cabo Deitado"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Cable Decline Bench Press",
+        "Decline Cable Press",
+        "Supino Declinado no Cabo Deitado"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Decline Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-003", "gif-ex-008", "seed-ex-050"],
-      "muscle_group_alternatives": ["gif-ex-012", "gif-ex-017"]
+      "equivalent_alternatives": [
+        "seed-ex-003",
+        "gif-ex-008",
+        "seed-ex-050"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-012",
+        "gif-ex-017"
+      ]
     },
     {
       "id": "seed-ex-059",
       "name": "Flexao na Parede",
-      "name_variations": ["Wall Push-Up", "Flexao em Pe na Parede", "Wall Press-Up"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Wall Push-Up",
+        "Flexao em Pe na Parede",
+        "Wall Press-Up"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": "Parede",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-060", "seed-ex-047"],
-      "muscle_group_alternatives": ["seed-ex-045"]
+      "equivalent_alternatives": [
+        "seed-ex-060",
+        "seed-ex-047"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-045"
+      ]
     },
     {
       "id": "seed-ex-060",
       "name": "Flexao de Joelhos",
-      "name_variations": ["Knee Push-Up", "Flexao com Apoio dos Joelhos", "Modified Push-Up", "Flexao Adaptada"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Knee Push-Up",
+        "Flexao com Apoio dos Joelhos",
+        "Modified Push-Up",
+        "Flexao Adaptada"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-045", "seed-ex-059", "seed-ex-047"],
-      "muscle_group_alternatives": ["seed-ex-001"]
+      "equivalent_alternatives": [
+        "seed-ex-045",
+        "seed-ex-059",
+        "seed-ex-047"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001"
+      ]
     },
     {
       "id": "seed-ex-061",
       "name": "Flexao Aberta",
-      "name_variations": ["Wide Push-Up", "Flexao com Pegada Larga", "Wide-Grip Push-Up"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Wide Push-Up",
+        "Flexao com Pegada Larga",
+        "Wide-Grip Push-Up"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "serratus_anterior", "rotador_externo"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "rotador_externo"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-045", "seed-ex-046"],
-      "muscle_group_alternatives": ["seed-ex-001", "gif-ex-034"]
+      "equivalent_alternatives": [
+        "seed-ex-045",
+        "seed-ex-046"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "gif-ex-034"
+      ]
     },
     {
       "id": "seed-ex-062",
       "name": "Supino Guilhotina",
-      "name_variations": ["Guillotine Press", "Barbell Guillotine Press", "Neck Press", "Supino na Direcao do Pescoco"],
-      "group_muscle": "Peito, Ombros, Triceps",
+      "name_variations": [
+        "Guillotine Press",
+        "Barbell Guillotine Press",
+        "Neck Press",
+        "Supino na Direcao do Pescoco"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Ombros",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-002", "gif-ex-034", "seed-ex-054"],
-      "muscle_group_alternatives": ["gif-ex-009"]
+      "equivalent_alternatives": [
+        "seed-ex-002",
+        "gif-ex-034",
+        "seed-ex-054"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-009"
+      ]
     },
     {
       "id": "seed-ex-063",
       "name": "Mergulho Assistido na Maquina",
-      "name_variations": ["Assisted Chest Dip", "Machine Dip", "Mergulho na Maquina Assistida", "Dip Assistido", "Graviton para Peito"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Assisted Chest Dip",
+        "Machine Dip",
+        "Mergulho na Maquina Assistida",
+        "Dip Assistido",
+        "Graviton para Peito"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Bodyweight",
-      "secondary_equipment": "Maquina Assistida",
+      "primary_equipment": "Assisted Machine",
+      "secondary_equipment": "Bodyweight",
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["rotador_externo", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-048"],
-      "muscle_group_alternatives": ["seed-ex-003", "gif-ex-008"]
+      "equivalent_alternatives": [
+        "seed-ex-048"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-003",
+        "gif-ex-008"
+      ]
     },
     {
       "id": "seed-ex-064",
       "name": "Press de Peito no Cabo Unilateral",
-      "name_variations": ["Single-Arm Cable Chest Press", "One-Arm Cable Press", "Cable Isolateral Standing Chest Press", "Press Unilateral no Cabo"],
-      "group_muscle": "Peito, Triceps, Ombros",
+      "name_variations": [
+        "Single-Arm Cable Chest Press",
+        "One-Arm Cable Press",
+        "Cable Isolateral Standing Chest Press",
+        "Press Unilateral no Cabo"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps",
+        "Ombros"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "obliquos", "serratus_anterior", "rotador_externo"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "obliquos",
+        "serratus_anterior",
+        "rotador_externo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["seed-ex-051", "gif-ex-002"],
-      "muscle_group_alternatives": ["gif-ex-021", "gif-ex-028"]
+      "equivalent_alternatives": [
+        "seed-ex-051",
+        "gif-ex-002"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028"
+      ]
     },
     {
       "id": "seed-ex-065",
       "name": "Press Peitoral Unilateral na Maquina",
-      "name_variations": ["Single-Arm Machine Chest Press", "Iso-Lateral Chest Press", "Lever Isolateral Chest Press", "Press Peitoral Isolateral"],
-      "group_muscle": "Peito, Triceps",
+      "name_variations": [
+        "Single-Arm Machine Chest Press",
+        "Iso-Lateral Chest Press",
+        "Lever Isolateral Chest Press",
+        "Press Peitoral Isolateral"
+      ],
+      "group_muscles": [
+        "Peito",
+        "Triceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Pec Deck",
+      "primary_equipment": "Plate-Loaded Machine",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Push",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["core", "obliquos", "serratus_anterior"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "core",
+        "obliquos",
+        "serratus_anterior"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["gif-ex-018", "gif-ex-019", "gif-ex-002"],
-      "muscle_group_alternatives": ["gif-ex-028"]
+      "equivalent_alternatives": [
+        "gif-ex-018",
+        "gif-ex-019",
+        "gif-ex-002"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-028"
+      ]
     }
   ]
 }

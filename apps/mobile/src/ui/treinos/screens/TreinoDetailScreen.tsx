@@ -29,14 +29,14 @@ function grupoColor(n: number): string {
   return '#0891b2';
 }
 
-function primaryGroup(groupMuscle: string): string {
-  return groupMuscle.split(',')[0].trim();
+function primaryGroup(groupMuscles: string[]): string {
+  return groupMuscles[0] ?? 'Outros';
 }
 
 function groupExercises(exercises: ExercisePrimitives[]): { group: string; items: ExercisePrimitives[] }[] {
   const byGroup = new Map<string, ExercisePrimitives[]>();
   for (const ex of exercises) {
-    const group = primaryGroup(ex.groupMuscle);
+    const group = primaryGroup(ex.groupMuscles);
     const list = byGroup.get(group) ?? [];
     list.push(ex);
     byGroup.set(group, list);
@@ -168,7 +168,7 @@ export function TreinoDetailScreen({
 
   const filteredExercises = notAddedExercises.filter((e) =>
     e.name.toLowerCase().includes(search.toLowerCase()) ||
-    e.groupMuscle.toLowerCase().includes(search.toLowerCase())
+    e.groupMuscles.join(', ').toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleSelect = (id: string) => {

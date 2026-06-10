@@ -55,9 +55,13 @@ import { SQLiteExerciseRepository } from '../infrastructure/exercises/SQLiteExer
 import { ExerciseSeedLoader, type SeedFile } from '../infrastructure/exercises/ExerciseSeedLoader';
 import peitoPressJson from '../infrastructure/exercises/seeds/peito_press.json';
 import peitoFlyJson from '../infrastructure/exercises/seeds/peito_fly.json';
+import costasPullVerticalJson from '../infrastructure/exercises/seeds/costas_pull_vertical.json';
+import costasPullHorizontalJson from '../infrastructure/exercises/seeds/costas_pull_horizontal.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
+const costasPullVertical = costasPullVerticalJson as SeedFile;
+const costasPullHorizontal = costasPullHorizontalJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -78,6 +82,8 @@ void (async () => {
     await Promise.all([
       seedLoader.loadSeedFile(peitoPress),
       seedLoader.loadSeedFile(peitoFly),
+      seedLoader.loadSeedFile(costasPullVertical),
+      seedLoader.loadSeedFile(costasPullHorizontal),
     ]);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));

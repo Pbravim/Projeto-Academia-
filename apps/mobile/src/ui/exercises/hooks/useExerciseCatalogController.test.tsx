@@ -16,7 +16,7 @@ const exA: ExercisePrimitives = {
   id: 'e1',
   name: 'Supino',
   normalizedName: 'supino',
-  groupMuscle: 'Peito',
+  groupMuscles: ['Peito'],
   category: 'Frio',
   equipment: 'Haltere',
   loadUnit: 'kg',
@@ -193,7 +193,7 @@ describe('useExerciseCatalogController', () => {
     });
 
     expect(result.current.draft.name).toBe(exA.name);
-    expect(result.current.draft.groupMuscle).toBe(exA.groupMuscle);
+    expect(result.current.draft.groupMuscle).toBe(exA.groupMuscles.join(', '));
     expect(result.current.editingExerciseId).toBe(exA.id);
   });
 

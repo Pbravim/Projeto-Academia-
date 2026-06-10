@@ -34,7 +34,7 @@ function makeExercise(id: string, mediaOnline: string | null) {
   return Exercise.create({
     id,
     name: 'Supino',
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     isCustom: false,
     mediaOnline: mediaOnline ?? undefined,
     createdAt: new Date('2026-01-01'),

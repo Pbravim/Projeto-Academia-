@@ -4,322 +4,642 @@
     {
       "id": "seed-ex-005",
       "name": "Crucifixo com Haltere",
-      "name_variations": ["Crucifixo", "Dumbbell Fly", "Fly com Haltere", "Dumbbell Chest Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Crucifixo",
+        "Dumbbell Fly",
+        "Fly com Haltere",
+        "Dumbbell Chest Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["biceps_braquial", "coracobrachialis"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "coracobrachialis"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-011", "gif-ex-013", "gif-ex-021", "gif-ex-028"],
-      "muscle_group_alternatives": ["seed-ex-001", "seed-ex-004"]
+      "equivalent_alternatives": [
+        "gif-ex-011",
+        "gif-ex-013",
+        "gif-ex-021",
+        "gif-ex-028"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "seed-ex-004"
+      ]
     },
     {
       "id": "seed-ex-006",
       "name": "Crossover no Cabo",
-      "name_variations": ["Cable Crossover", "Cross Over", "Polia Cruzada", "Cable Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Cable Crossover",
+        "Cross Over",
+        "Polia Cruzada",
+        "Cable Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["biceps_braquial", "coracobrachialis"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "coracobrachialis"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-013", "gif-ex-021"],
-      "muscle_group_alternatives": ["seed-ex-001", "seed-ex-004"]
+      "equivalent_alternatives": [
+        "gif-ex-013",
+        "gif-ex-021"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "seed-ex-004"
+      ]
     },
     {
       "id": "gif-ex-009",
       "name": "Crucifixo Inclinado com Halteres",
-      "name_variations": ["Incline Dumbbell Fly", "Crucifixo Inclinado"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Incline Dumbbell Fly",
+        "Crucifixo Inclinado"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_superior",
+        "peitoral_clavicular"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-010", "gif-ex-014", "gif-ex-016", "gif-ex-027"],
-      "muscle_group_alternatives": ["seed-ex-002", "gif-ex-005"]
+      "equivalent_alternatives": [
+        "gif-ex-010",
+        "gif-ex-014",
+        "gif-ex-016",
+        "gif-ex-027"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-002",
+        "gif-ex-005"
+      ]
     },
     {
       "id": "gif-ex-010",
       "name": "Crucifixo Inclinado no Cabo",
-      "name_variations": ["Incline Cable Fly", "Cable Incline Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Incline Cable Fly",
+        "Cable Incline Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-009", "gif-ex-014", "gif-ex-016"],
-      "muscle_group_alternatives": ["seed-ex-002"]
+      "equivalent_alternatives": [
+        "gif-ex-009",
+        "gif-ex-014",
+        "gif-ex-016"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-002"
+      ]
     },
     {
       "id": "gif-ex-011",
       "name": "Crucifixo Polia Baixa",
-      "name_variations": ["Low Cable Fly", "Polia Baixa Peito", "Cable Fly Polia Baixa"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Low Cable Fly",
+        "Polia Baixa Peito",
+        "Cable Fly Polia Baixa"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-005", "gif-ex-013"],
+      "equivalent_alternatives": [
+        "seed-ex-005",
+        "gif-ex-013"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-012",
       "name": "Cross Over Polia Alta",
-      "name_variations": ["High Cable Crossover", "Polia Alta Crossover"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "High Cable Crossover",
+        "Polia Alta Crossover"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_inferior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_inferior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-015", "gif-ex-017"],
-      "muscle_group_alternatives": ["seed-ex-003"]
+      "equivalent_alternatives": [
+        "gif-ex-015",
+        "gif-ex-017"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-003"
+      ]
     },
     {
       "id": "gif-ex-013",
       "name": "Cross Over Polia Media",
-      "name_variations": ["Mid Cable Crossover", "Cable Fly Neutro"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Mid Cable Crossover",
+        "Cable Fly Neutro"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-006", "gif-ex-011"],
+      "equivalent_alternatives": [
+        "seed-ex-006",
+        "gif-ex-011"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-014",
       "name": "Cross Over Polia Baixa",
-      "name_variations": ["Low to High Cable Fly", "Polia Baixa para Cima"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Low to High Cable Fly",
+        "Polia Baixa para Cima"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-010", "gif-ex-016"],
-      "muscle_group_alternatives": ["seed-ex-002"]
+      "equivalent_alternatives": [
+        "gif-ex-010",
+        "gif-ex-016"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-002"
+      ]
     },
     {
       "id": "gif-ex-015",
       "name": "Crucifixo Cabo Alto",
-      "name_variations": ["High Cable Fly", "Cable Fly Alto"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "High Cable Fly",
+        "Cable Fly Alto"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_inferior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_inferior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-012", "gif-ex-017"],
-      "muscle_group_alternatives": ["seed-ex-003"]
+      "equivalent_alternatives": [
+        "gif-ex-012",
+        "gif-ex-017"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-003"
+      ]
     },
     {
       "id": "gif-ex-016",
       "name": "Crucifixo Cabo Baixo",
-      "name_variations": ["Low Cable Chest Fly", "Cable Fly Inferior"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Low Cable Chest Fly",
+        "Cable Fly Inferior"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-009", "gif-ex-014"],
+      "equivalent_alternatives": [
+        "gif-ex-009",
+        "gif-ex-014"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-017",
       "name": "Crucifixo Declinado no Cabo",
-      "name_variations": ["Decline Cable Fly", "Crucifixo Declinado"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Decline Cable Fly",
+        "Crucifixo Declinado"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_inferior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_inferior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-012", "gif-ex-015"],
-      "muscle_group_alternatives": ["seed-ex-003"]
+      "equivalent_alternatives": [
+        "gif-ex-012",
+        "gif-ex-015"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-003"
+      ]
     },
     {
       "id": "gif-ex-021",
       "name": "Peck Deck",
-      "name_variations": ["Pec Deck", "Voador", "Butterfly Machine", "Maquina Voador"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Pec Deck",
+        "Voador",
+        "Butterfly Machine",
+        "Maquina Voador"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Maquina",
       "primary_equipment": "Pec Deck",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-005", "gif-ex-013", "gif-ex-028", "gif-ex-035"],
-      "muscle_group_alternatives": ["seed-ex-001", "gif-ex-018"]
+      "equivalent_alternatives": [
+        "seed-ex-005",
+        "gif-ex-013",
+        "gif-ex-028",
+        "gif-ex-035"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-001",
+        "gif-ex-018"
+      ]
     },
     {
       "id": "gif-ex-027",
       "name": "Crucifixo Inclinado Banco com Halteres",
-      "name_variations": ["Incline Bench Dumbbell Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Incline Bench Dumbbell Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Incline Bench",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_superior"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_superior"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-009", "gif-ex-010"],
+      "equivalent_alternatives": [
+        "gif-ex-009",
+        "gif-ex-010"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-028",
       "name": "Crucifixo Maquina",
-      "name_variations": ["Machine Fly", "Maquina Crucifixo", "Chest Fly Machine"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Machine Fly",
+        "Maquina Crucifixo",
+        "Chest Fly Machine"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Maquina",
       "primary_equipment": "Pec Deck",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-005", "gif-ex-021", "gif-ex-035"],
+      "equivalent_alternatives": [
+        "seed-ex-005",
+        "gif-ex-021",
+        "gif-ex-035"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "gif-ex-035",
       "name": "Voador Maquina",
-      "name_variations": ["Fly Machine", "Voador", "Pec Deck Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Fly Machine",
+        "Voador",
+        "Pec Deck Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Maquina",
       "primary_equipment": "Pec Deck",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["biceps_braquial"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-021", "gif-ex-028"],
+      "equivalent_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028"
+      ],
       "muscle_group_alternatives": []
     },
     {
       "id": "seed-ex-066",
       "name": "Crucifixo Declinado com Halteres",
-      "name_variations": ["Decline Dumbbell Fly", "Crucifixo Declinado Haltere", "Decline DB Chest Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Decline Dumbbell Fly",
+        "Crucifixo Declinado Haltere",
+        "Decline DB Chest Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Decline Bench",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_inferior", "peitoral_esternal"],
-      "stabilizers": ["biceps_braquial", "coracobrachialis"],
+      "musculo_alvo": [
+        "peitoral_inferior",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "coracobrachialis"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-017", "gif-ex-012", "gif-ex-015"],
-      "muscle_group_alternatives": ["seed-ex-003", "seed-ex-044"]
+      "equivalent_alternatives": [
+        "gif-ex-017",
+        "gif-ex-012",
+        "gif-ex-015"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-003",
+        "seed-ex-044"
+      ]
     },
     {
       "id": "seed-ex-067",
       "name": "Crossover Unilateral no Cabo",
-      "name_variations": ["Single-Arm Cable Fly", "One-Arm Cable Crossover", "Cable Isolateral Standing Fly", "Crucifixo Unilateral no Cabo"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Single-Arm Cable Fly",
+        "One-Arm Cable Crossover",
+        "Cable Isolateral Standing Fly",
+        "Crucifixo Unilateral no Cabo"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["biceps_braquial", "coracobrachialis", "core", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "coracobrachialis",
+        "core",
+        "obliquos"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["seed-ex-006", "gif-ex-013", "gif-ex-011"],
-      "muscle_group_alternatives": ["seed-ex-064", "seed-ex-001"]
+      "equivalent_alternatives": [
+        "seed-ex-006",
+        "gif-ex-013",
+        "gif-ex-011"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-064",
+        "seed-ex-001"
+      ]
     },
     {
       "id": "seed-ex-068",
       "name": "Voador Unilateral na Maquina",
-      "name_variations": ["Single-Arm Pec Deck Fly", "Iso-Lateral Pec Deck", "Lever Isolateral Pec Deck Fly", "Voador Isolateral"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Single-Arm Pec Deck Fly",
+        "Iso-Lateral Pec Deck",
+        "Lever Isolateral Pec Deck Fly",
+        "Voador Isolateral"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Maquina",
       "primary_equipment": "Pec Deck",
       "secondary_equipment": null,
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio"],
-      "stabilizers": ["biceps_braquial", "core", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_medio"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "core",
+        "obliquos"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["gif-ex-021", "gif-ex-028", "gif-ex-035"],
-      "muscle_group_alternatives": ["seed-ex-065"]
+      "equivalent_alternatives": [
+        "gif-ex-021",
+        "gif-ex-028",
+        "gif-ex-035"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-065"
+      ]
     },
     {
       "id": "seed-ex-069",
       "name": "Crucifixo no Chao com Halteres",
-      "name_variations": ["Floor Dumbbell Fly", "Crucifixo no Solo", "Floor Chest Fly"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "Floor Dumbbell Fly",
+        "Crucifixo no Solo",
+        "Floor Chest Fly"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Solo",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["biceps_braquial", "coracobrachialis"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "coracobrachialis"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-005", "gif-ex-011"],
-      "muscle_group_alternatives": ["seed-ex-052"]
+      "equivalent_alternatives": [
+        "seed-ex-005",
+        "gif-ex-011"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-052"
+      ]
     },
     {
       "id": "seed-ex-070",
       "name": "Crucifixo Unilateral com Haltere",
-      "name_variations": ["One-Arm Dumbbell Fly", "Single-Arm Dumbbell Fly", "Crucifixo Unilateral Haltere"],
-      "group_muscle": "Peito",
+      "name_variations": [
+        "One-Arm Dumbbell Fly",
+        "Single-Arm Dumbbell Fly",
+        "Crucifixo Unilateral Haltere"
+      ],
+      "group_muscles": [
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Horizontal Adduction",
-      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
-      "stabilizers": ["biceps_braquial", "coracobrachialis", "core", "obliquos"],
+      "musculo_alvo": [
+        "peitoral_medio",
+        "peitoral_esternal"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "coracobrachialis",
+        "core",
+        "obliquos"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["seed-ex-005", "seed-ex-067", "gif-ex-013"],
-      "muscle_group_alternatives": ["gif-ex-002"]
+      "equivalent_alternatives": [
+        "seed-ex-005",
+        "seed-ex-067",
+        "gif-ex-013"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-002"
+      ]
     }
   ]
 }

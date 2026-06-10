@@ -186,7 +186,7 @@ function CandidatoRow({
           {ex.name}
         </Text>
         <Text style={styles.candidatoMeta}>
-          {ex.groupMuscle}{ex.equipment ? ` · ${ex.equipment}` : ''}
+          {ex.groupMuscles.join(', ')}{ex.equipment ? ` · ${ex.equipment}` : ''}
         </Text>
         {candidato.ultimaExecucao ? (
           <Text style={styles.candidatoUltimo}>

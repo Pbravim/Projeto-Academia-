@@ -19,14 +19,13 @@ interface Dependencies {
   historicoRepository: HistoricoRepository;
 }
 
-function splitGrupos(groupMuscle: string): string[] {
-  return groupMuscle.split(',').map((g) => g.trim()).filter(Boolean);
+function splitGrupos(grupoSnapshot: string): string[] {
+  return grupoSnapshot.split(',').map((g) => g.trim()).filter(Boolean);
 }
 
-function temIntersecaoDeGrupo(a: string, b: string): boolean {
-  const ga = splitGrupos(a);
-  const gb = new Set(splitGrupos(b));
-  return ga.some((g) => gb.has(g));
+function temIntersecaoDeGrupo(groups: string[], grupoSnapshot: string): boolean {
+  const gb = new Set(splitGrupos(grupoSnapshot));
+  return groups.some((g) => gb.has(g));
 }
 
 function musculoOverlap(a: string[], b: string[]): number {
@@ -89,7 +88,7 @@ export class SugerirSubstitutosUseCase {
         camada1.push({ ...base, similaridade: 'quase_igual' });
       } else if (samePattern) {
         camada2.push({ ...base, similaridade: 'similar' });
-      } else if (temIntersecaoDeGrupo(ep.groupMuscle, grupo)) {
+      } else if (temIntersecaoDeGrupo(ep.groupMuscles, grupo)) {
         camada3.push({ ...base, similaridade: 'mesmo_grupo' });
       }
     }

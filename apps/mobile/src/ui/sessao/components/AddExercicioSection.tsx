@@ -12,14 +12,14 @@ const GROUP_ORDER = [
   'Abdomen', 'Trapezio', 'Antebraco',
 ];
 
-function primaryGroup(groupMuscle: string): string {
-  return groupMuscle.split(',')[0].trim();
+function primaryGroup(groupMuscles: string[]): string {
+  return groupMuscles[0] ?? 'Outros';
 }
 
 function groupExercises(exercises: ExercisePrimitives[]): { group: string; items: ExercisePrimitives[] }[] {
   const byGroup = new Map<string, ExercisePrimitives[]>();
   for (const ex of exercises) {
-    const group = primaryGroup(ex.groupMuscle);
+    const group = primaryGroup(ex.groupMuscles);
     const list = byGroup.get(group) ?? [];
     list.push(ex);
     byGroup.set(group, list);
@@ -109,7 +109,7 @@ function ExerciseGroup({ group, items, onAdd }: ExerciseGroupProps) {
                 ) : null}
                 <View style={styles.exerciseInfo}>
                   <Text style={styles.exerciseName}>{ex.name}</Text>
-                  <Text style={styles.exerciseMeta}>{ex.category ? `${ex.groupMuscle} · ${ex.category}` : ex.groupMuscle}</Text>
+                  <Text style={styles.exerciseMeta}>{ex.category ? `${ex.groupMuscles.join(', ')} · ${ex.category}` : ex.groupMuscles.join(', ')}</Text>
                 </View>
               </Pressable>
             );

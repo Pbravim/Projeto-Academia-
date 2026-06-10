@@ -59,7 +59,7 @@ export class AddExercicioASessaoUseCase {
         exercicioId: input.exercicioId,
         ordem: count + 1,
         nomeSnapshot: ex.name,
-        grupoMuscularSnapshot: ex.groupMuscle,
+        grupoMuscularSnapshot: ex.groupMuscles.join(', '),
         categoriaSnapshot: ex.category,
         equipamentoSnapshot: ex.equipment,
         musculoAlvoSnapshot: ex.musculoAlvo,

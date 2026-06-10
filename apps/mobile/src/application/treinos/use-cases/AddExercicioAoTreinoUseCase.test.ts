@@ -31,7 +31,7 @@ async function seedExercise(exerciseRepository: InMemoryExerciseRepository, id =
   const exercise = Exercise.create({
     id,
     name: 'Supino reto',
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     category: 'Composto',
     createdAt: new Date(),
   });
@@ -61,7 +61,7 @@ describe('AddExercicioAoTreinoUseCase', () => {
     const repos = makeRepos();
     await seedTreino(repos.treinoRepository);
 
-    const ex2 = Exercise.create({ id: 'exercise_2', name: 'Agachamento', groupMuscle: 'Pernas', category: 'Composto', createdAt: new Date() });
+    const ex2 = Exercise.create({ id: 'exercise_2', name: 'Agachamento', groupMuscles: ['Pernas'], category: 'Composto', createdAt: new Date() });
     await seedExercise(repos.exerciseRepository, 'exercise_1');
     await repos.exerciseRepository.save(ex2);
 

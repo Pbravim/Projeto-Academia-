@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 function make(id: string, name: string): Exercise {
-  return Exercise.create({ id, name, groupMuscle: 'Peito', createdAt: new Date('2026-01-01T00:00:00.000Z'), isCustom: true });
+  return Exercise.create({ id, name, groupMuscles: ['Peito'], createdAt: new Date('2026-01-01T00:00:00.000Z'), isCustom: true });
 }
 
 describe('SQLiteExerciseRepository soft-delete', () => {

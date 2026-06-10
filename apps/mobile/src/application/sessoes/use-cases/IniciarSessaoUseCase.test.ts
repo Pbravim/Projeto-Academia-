@@ -43,7 +43,7 @@ async function seedTreinoComExercicio(repos: ReturnType<typeof makeRepos>) {
   const exercise = Exercise.create({
     id: 'exercise_1',
     name: 'Supino reto',
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     category: 'Composto',
     createdAt: new Date(),
   });
@@ -97,7 +97,7 @@ describe('IniciarSessaoUseCase', () => {
     const exercise = Exercise.create({
       id: 'exercise_1',
       name: 'Supino reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       createdAt: new Date(),
     });
@@ -161,7 +161,7 @@ describe('IniciarSessaoUseCase', () => {
     }).execute({
       id: 'exercise_1',
       name: 'Supino inclinado',
-      groupMuscle: 'Peito Superior',
+      groupMuscles: ['Peito Superior'],
       category: 'Composto',
     });
 

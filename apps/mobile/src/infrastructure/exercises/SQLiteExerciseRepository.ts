@@ -45,7 +45,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
          deleted_at, dirty
        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
       [
-        p.id, p.name, p.normalizedName, p.groupMuscle, p.category, p.equipment,
+        p.id, p.name, p.normalizedName, serializeGroupMuscles(p.groupMuscles), p.category, p.equipment,
         p.loadUnit, p.isCustom ? 1 : 0, p.createdAt, p.updatedAt,
         p.mediaOnline, p.mediaLocal,
         JSON.stringify(p.musculoAlvo),
@@ -238,7 +238,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
          updated_at         = excluded.updated_at
        WHERE exercises.is_custom = 0`,
       [
-        p.id, p.name, p.normalizedName, p.groupMuscle, p.category, p.equipment,
+        p.id, p.name, p.normalizedName, serializeGroupMuscles(p.groupMuscles), p.category, p.equipment,
         p.loadUnit, 0, p.createdAt, now,
         p.mediaOnline, p.mediaLocal,
         JSON.stringify(p.musculoAlvo),
@@ -291,12 +291,25 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
   }
 }
 
+/**
+ * A coluna SQL `group_muscle` permanece TEXT com vírgulas (compat com sync `ExerciseSyncRow.groupMuscle`
+ * e com o catálogo embutido nas migrations); o domínio só enxerga `groupMuscles: string[]`.
+ * Serialização confinada a este arquivo — ver docs/exercises/catalog-maintenance.md §2.
+ */
+function serializeGroupMuscles(groups: string[]): string {
+  return groups.join(', ');
+}
+
+function parseGroupMuscles(value: string): string[] {
+  return value.split(',').map((g) => g.trim()).filter(Boolean);
+}
+
 function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {
   return {
     id: row.id,
     name: row.name,
     normalizedName: row.normalized_name,
-    groupMuscle: row.group_muscle,
+    groupMuscles: parseGroupMuscles(row.group_muscle),
     category: row.category,
     equipment: row.equipment,
     loadUnit: row.load_unit,

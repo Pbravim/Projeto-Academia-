@@ -6,7 +6,7 @@ export interface SeedExerciseEntry {
   id: string;
   name: string;
   name_variations: string[];
-  group_muscle: string;
+  group_muscles: string[];
   category: string;
   equipment: string | null;
   primary_equipment: string | null;
@@ -38,7 +38,7 @@ export class ExerciseSeedLoader {
         id: entry.id,
         name: entry.name,
         normalizedName: normalizeText(entry.name),
-        groupMuscle: entry.group_muscle,
+        groupMuscles: entry.group_muscles,
         category: entry.category,
         equipment: entry.equipment,
         loadUnit: 'kg',

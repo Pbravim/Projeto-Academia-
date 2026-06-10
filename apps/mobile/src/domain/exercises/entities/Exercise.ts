@@ -5,7 +5,7 @@ export interface ExercisePrimitives {
   id: string;
   name: string;
   normalizedName: string;
-  groupMuscle: string;
+  groupMuscles: string[];
   category: string;
   equipment: string | null;
   loadUnit: 'kg';
@@ -28,7 +28,7 @@ export interface ExercisePrimitives {
 export interface CreateExerciseProps {
   id: string;
   name: string;
-  groupMuscle: string;
+  groupMuscles: string[];
   category?: string | null;
   equipment?: string | null;
   createdAt: Date;
@@ -48,7 +48,7 @@ export interface CreateExerciseProps {
 
 export interface UpdateExerciseProps {
   name: string;
-  groupMuscle: string;
+  groupMuscles: string[];
   category?: string | null;
   equipment?: string | null;
   mediaOnline?: string | null;
@@ -67,7 +67,7 @@ export class Exercise {
 
   static create(input: CreateExerciseProps): Exercise {
     const name = requireText(input.name, 'Nome');
-    const groupMuscle = requireText(input.groupMuscle, 'Grupo muscular');
+    const groupMuscles = requireGroups(input.groupMuscles);
     const category = normalizeOptionalText(input.category) ?? '';
     const equipment = normalizeOptionalText(input.equipment);
     const createdAt = input.createdAt.toISOString();
@@ -86,7 +86,7 @@ export class Exercise {
       id: input.id,
       name,
       normalizedName: normalizeText(name),
-      groupMuscle,
+      groupMuscles,
       category,
       equipment,
       loadUnit: 'kg',
@@ -112,7 +112,7 @@ export class Exercise {
 
   static update(current: ExercisePrimitives, input: UpdateExerciseProps, updatedAt: Date): Exercise {
     const name = requireText(input.name, 'Nome');
-    const groupMuscle = requireText(input.groupMuscle, 'Grupo muscular');
+    const groupMuscles = requireGroups(input.groupMuscles);
     const category = normalizeOptionalText(input.category) ?? '';
     const equipment = normalizeOptionalText(input.equipment);
 
@@ -120,7 +120,7 @@ export class Exercise {
       id: current.id,
       name,
       normalizedName: normalizeText(name),
-      groupMuscle,
+      groupMuscles,
       category,
       equipment,
       loadUnit: current.loadUnit,
@@ -143,6 +143,18 @@ export class Exercise {
   toPrimitives(): ExercisePrimitives {
     return { ...this.props };
   }
+}
+
+function requireGroups(values: string[]): string[] {
+  const groups = (values ?? [])
+    .map((g) => g.trim().replace(/\s+/g, ' '))
+    .filter(Boolean);
+
+  if (groups.length === 0) {
+    throw new ExerciseValidationError('Grupo muscular e obrigatorio.');
+  }
+
+  return groups;
 }
 
 function requireText(value: string, label: string): string {

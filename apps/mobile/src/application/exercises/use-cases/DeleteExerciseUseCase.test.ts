@@ -36,7 +36,7 @@ describe('DeleteExerciseUseCase', () => {
     const create = makeCreateUseCase(repo);
     const del = makeDeleteUseCase(repo);
 
-    await create.execute({ name: 'Supino reto', groupMuscle: 'Peito', category: 'Composto' });
+    await create.execute({ name: 'Supino reto', groupMuscles: ['Peito'], category: 'Composto' });
 
     await del.execute('exercise_1');
 
@@ -61,7 +61,7 @@ describe('DeleteExerciseUseCase', () => {
 
     await create.execute({
       name: 'Supino reto com arquivo local',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       mediaLocal: 'file:///data/exercises/ex1_local.mp4',
     });

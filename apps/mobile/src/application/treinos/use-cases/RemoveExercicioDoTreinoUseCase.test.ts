@@ -22,7 +22,7 @@ describe('RemoveExercicioDoTreinoUseCase', () => {
     }).execute({ name: 'Treino A' });
 
     await exerciseRepository.save(
-      Exercise.create({ id: 'exercise_1', name: 'Supino', groupMuscle: 'Peito', category: 'Composto', createdAt: new Date() })
+      Exercise.create({ id: 'exercise_1', name: 'Supino', groupMuscles: ['Peito'], category: 'Composto', createdAt: new Date() })
     );
 
     await new AddExercicioAoTreinoUseCase({

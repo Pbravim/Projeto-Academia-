@@ -1,357 +1,839 @@
 {
-  "catalog_version": 2,
+  "catalog_version": 3,
   "exercises": [
     {
       "id": "seed-ex-009",
       "name": "Barra Fixa",
-      "name_variations": ["Pull-Up", "Dominada Pronada", "Overhand Pull-Up", "Barra Fixa Tradicional"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Pull-Up",
+        "Dominada Pronada",
+        "Overhand Pull-Up",
+        "Barra Fixa Tradicional"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core", "flexores_antebraco"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core",
+        "flexores_antebraco"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-010", "gif-ex-051", "gif-ex-052", "gif-ex-036"],
-      "muscle_group_alternatives": ["seed-ex-011", "seed-ex-013"]
+      "equivalent_alternatives": [
+        "seed-ex-010",
+        "gif-ex-051",
+        "gif-ex-052",
+        "gif-ex-036"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-011",
+        "seed-ex-013"
+      ]
     },
     {
       "id": "seed-ex-010",
       "name": "Puxada Frontal",
-      "name_variations": ["Lat Pulldown", "Puxada Alta na Polia", "Pulldown Frontal", "Puxada na Barra Reta"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Lat Pulldown",
+        "Puxada Alta na Polia",
+        "Pulldown Frontal",
+        "Puxada na Barra Reta"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "trapezio_inferior", "flexores_antebraco"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "trapezio_inferior",
+        "flexores_antebraco"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-039", "gif-ex-057"],
-      "muscle_group_alternatives": ["seed-ex-013", "gif-ex-047"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-039",
+        "gif-ex-057"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-013",
+        "gif-ex-047"
+      ]
     },
     {
       "id": "gif-ex-029",
       "name": "Pullover com Halteres",
-      "name_variations": ["Dumbbell Pullover", "Pullover Deitado no Banco", "Pull-Over com Halter"],
-      "group_muscle": "Costas, Peito",
+      "name_variations": [
+        "Dumbbell Pullover",
+        "Pullover Deitado no Banco",
+        "Pull-Over com Halter"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Haltere",
       "primary_equipment": "Dumbbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["peitoral_esternal", "grande_dorsal"],
-      "stabilizers": ["triceps_cabeca_longa", "deltoide_anterior", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_esternal",
+        "grande_dorsal"
+      ],
+      "stabilizers": [
+        "triceps_cabeca_longa",
+        "deltoide_anterior",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
       "equivalent_alternatives": [],
-      "muscle_group_alternatives": ["seed-ex-010", "gif-ex-021"]
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "gif-ex-021"
+      ],
+      "review_flags": [
+        {
+          "field": "movement_pattern",
+          "concern": "Classificado Vertical Pull por mecânica (arco overhead->tronco espelha pulldown), mas EMG mostra peitoral esternal dominante (~50%) vs grande_dorsal (~22%)",
+          "revisit_when": "se o ranking de substituição vs puxadas verticais parecer errado ao usuário",
+          "flagged_at": "2026-06-07",
+          "source": "_manifest.json costas_pull_vertical.research_notes (migrado para review_flags em 2026-06-10)"
+        }
+      ]
     },
     {
       "id": "gif-ex-036",
       "name": "Barra Fixa Assistida com Elastico",
-      "name_variations": ["Band-Assisted Pull-Up", "Dominada Assistida com Faixa Elastica", "Pull-Up com Elastico"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Band-Assisted Pull-Up",
+        "Dominada Assistida com Faixa Elastica",
+        "Pull-Up com Elastico"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": "Resistance Band",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-052", "gif-ex-051"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-052",
+        "gif-ex-051"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-038",
       "name": "Barra Fixa na Nuca",
-      "name_variations": ["Behind-the-Neck Pull-Up", "Dominada Atras da Nuca", "Barra Fixa Atras da Cabeca"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Behind-the-Neck Pull-Up",
+        "Dominada Atras da Nuca",
+        "Barra Fixa Atras da Cabeca"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "trapezio_inferior", "romboides"],
-      "stabilizers": ["biceps_braquial", "deltoide_posterior", "rotador_externo", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "trapezio_inferior",
+        "romboides"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "deltoide_posterior",
+        "rotador_externo",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-056"],
-      "muscle_group_alternatives": ["seed-ex-011"]
+      "equivalent_alternatives": [
+        "gif-ex-056"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-011"
+      ]
     },
     {
       "id": "gif-ex-039",
       "name": "Puxada Alta Tradicional",
-      "name_variations": ["Wide-Grip Lat Pulldown", "Puxada Pegada Aberta Pronada", "Lat Pulldown Tradicional"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Wide-Grip Lat Pulldown",
+        "Puxada Pegada Aberta Pronada",
+        "Lat Pulldown Tradicional"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "trapezio_inferior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "trapezio_inferior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-010", "gif-ex-040", "gif-ex-057"],
-      "muscle_group_alternatives": ["seed-ex-013", "gif-ex-047"]
+      "equivalent_alternatives": [
+        "seed-ex-010",
+        "gif-ex-040",
+        "gif-ex-057"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-013",
+        "gif-ex-047"
+      ]
     },
     {
       "id": "gif-ex-040",
       "name": "Puxada Alta com Triangulo",
-      "name_variations": ["V-Bar Lat Pulldown", "Puxada Triangulo", "Close-Grip Neutral Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "V-Bar Lat Pulldown",
+        "Puxada Triangulo",
+        "Close-Grip Neutral Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "braquiorradial", "trapezio_inferior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "braquiorradial",
+        "trapezio_inferior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-039", "seed-ex-010", "gif-ex-041"],
-      "muscle_group_alternatives": ["seed-ex-013"]
+      "equivalent_alternatives": [
+        "gif-ex-039",
+        "seed-ex-010",
+        "gif-ex-041"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-013"
+      ]
     },
     {
       "id": "gif-ex-041",
       "name": "Puxada Unilateral no Cabo",
-      "name_variations": ["Single-Arm Lat Pulldown", "Puxada Unilateral na Polia Alta", "One-Arm Cable Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Single-Arm Lat Pulldown",
+        "Puxada Unilateral na Polia Alta",
+        "One-Arm Cable Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "core",
+        "obliquo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["gif-ex-055", "gif-ex-040"],
-      "muscle_group_alternatives": ["gif-ex-045"]
+      "equivalent_alternatives": [
+        "gif-ex-055",
+        "gif-ex-040"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-045"
+      ]
     },
     {
       "id": "gif-ex-049",
       "name": "Barra Fixa Pegada Aberta",
-      "name_variations": ["Wide-Grip Pull-Up", "Dominada Pegada Aberta", "Wide Pull-Up"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Wide-Grip Pull-Up",
+        "Dominada Pegada Aberta",
+        "Wide Pull-Up"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["deltoide_posterior", "romboides", "trapezio_inferior", "flexores_antebraco", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "deltoide_posterior",
+        "romboides",
+        "trapezio_inferior",
+        "flexores_antebraco",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-050", "gif-ex-051", "seed-ex-009"],
-      "muscle_group_alternatives": ["seed-ex-011", "seed-ex-013"]
+      "equivalent_alternatives": [
+        "gif-ex-050",
+        "gif-ex-051",
+        "seed-ex-009"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-011",
+        "seed-ex-013"
+      ]
     },
     {
       "id": "gif-ex-050",
       "name": "Barra Fixa Joelhos Flexionados",
-      "name_variations": ["Bent-Knee Pull-Up", "Dominada com Joelhos Flexionados", "Pull-Up com Pernas Flexionadas"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Bent-Knee Pull-Up",
+        "Dominada com Joelhos Flexionados",
+        "Pull-Up com Pernas Flexionadas"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-051", "gif-ex-049"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-051",
+        "gif-ex-049"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-051",
       "name": "Barra Fixa Pegada Pronada",
-      "name_variations": ["Pronated-Grip Pull-Up", "Dominada Pegada Pronada", "Standard Pull-Up"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Pronated-Grip Pull-Up",
+        "Dominada Pegada Pronada",
+        "Standard Pull-Up"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core", "flexores_antebraco"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core",
+        "flexores_antebraco"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-049", "gif-ex-050", "gif-ex-052"],
-      "muscle_group_alternatives": ["seed-ex-011"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-049",
+        "gif-ex-050",
+        "gif-ex-052"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-011"
+      ]
     },
     {
       "id": "gif-ex-052",
       "name": "Barra no Graviton em Pe",
-      "name_variations": ["Assisted Pull-Up Machine", "Graviton em Pe", "Assisted Pull-Up Standing Platform"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Assisted Pull-Up Machine",
+        "Graviton em Pe",
+        "Assisted Pull-Up Standing Platform"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Graviton",
-      "primary_equipment": "Bodyweight",
-      "secondary_equipment": "Assisted Pull-Up Machine (Graviton)",
+      "primary_equipment": "Assisted Machine",
+      "secondary_equipment": "Bodyweight",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-051", "gif-ex-036"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-051",
+        "gif-ex-036"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "gif-ex-055",
       "name": "Puxada Unilateral no Pulley",
-      "name_variations": ["Single-Arm Pulley Pulldown", "Puxada Unilateral no Pulley Alto", "One-Arm Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Single-Arm Pulley Pulldown",
+        "Puxada Unilateral no Pulley Alto",
+        "One-Arm Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "core",
+        "obliquo"
+      ],
       "execution_type": "Unilateral",
-      "equivalent_alternatives": ["gif-ex-041", "gif-ex-040"],
-      "muscle_group_alternatives": ["gif-ex-045"]
+      "equivalent_alternatives": [
+        "gif-ex-041",
+        "gif-ex-040"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-045"
+      ]
     },
     {
       "id": "gif-ex-056",
       "name": "Puxada na Nuca Pegada Aberta",
-      "name_variations": ["Wide-Grip Behind-the-Neck Pulldown", "Puxada Atras da Nuca Pegada Aberta", "Behind-Neck Lat Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Wide-Grip Behind-the-Neck Pulldown",
+        "Puxada Atras da Nuca Pegada Aberta",
+        "Behind-Neck Lat Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "trapezio_inferior", "romboides"],
-      "stabilizers": ["biceps_braquial", "deltoide_posterior", "rotador_externo"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "trapezio_inferior",
+        "romboides"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "deltoide_posterior",
+        "rotador_externo"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-038", "gif-ex-057"],
-      "muscle_group_alternatives": ["seed-ex-013"]
+      "equivalent_alternatives": [
+        "gif-ex-038",
+        "gif-ex-057"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-013"
+      ]
     },
     {
       "id": "gif-ex-057",
       "name": "Puxada Pronada Pegada Aberta",
-      "name_variations": ["Wide-Grip Pronated Lat Pulldown", "Puxada Aberta Pronada a Frente", "Wide Front Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Wide-Grip Pronated Lat Pulldown",
+        "Puxada Aberta Pronada a Frente",
+        "Wide Front Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "trapezio_inferior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "trapezio_inferior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-010", "gif-ex-039", "gif-ex-056"],
-      "muscle_group_alternatives": ["seed-ex-013"]
+      "equivalent_alternatives": [
+        "seed-ex-010",
+        "gif-ex-039",
+        "gif-ex-056"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-013"
+      ]
     },
     {
       "id": "seed-ex-071",
       "name": "Barra Fixa Supinada",
-      "name_variations": ["Chin-Up", "Dominada Supinada", "Barra Fixa Pegada Inversa", "Underhand Pull-Up"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Chin-Up",
+        "Dominada Supinada",
+        "Barra Fixa Pegada Inversa",
+        "Underhand Pull-Up"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "core", "flexores_antebraco"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "deltoide_posterior",
+        "core",
+        "flexores_antebraco"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-051", "seed-ex-073"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-013"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-051",
+        "seed-ex-073"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-013"
+      ]
     },
     {
       "id": "seed-ex-072",
       "name": "Barra Fixa Pegada Neutra",
-      "name_variations": ["Neutral-Grip Pull-Up", "Dominada Pegada Neutra", "Parallel-Grip Pull-Up", "Hammer-Grip Pull-Up"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Neutral-Grip Pull-Up",
+        "Dominada Pegada Neutra",
+        "Parallel-Grip Pull-Up",
+        "Hammer-Grip Pull-Up"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Peso corporal",
       "primary_equipment": "Bodyweight",
       "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "braquiorradial", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "braquiorradial",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-009", "gif-ex-040", "seed-ex-074"],
-      "muscle_group_alternatives": ["seed-ex-010"]
+      "equivalent_alternatives": [
+        "seed-ex-009",
+        "gif-ex-040",
+        "seed-ex-074"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010"
+      ]
     },
     {
       "id": "seed-ex-073",
       "name": "Puxada Supinada",
-      "name_variations": ["Reverse-Grip Lat Pulldown", "Underhand Lat Pulldown", "Puxada Inversa", "Puxada Pegada Supinada"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Reverse-Grip Lat Pulldown",
+        "Underhand Lat Pulldown",
+        "Puxada Inversa",
+        "Puxada Pegada Supinada"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "trapezio_inferior", "deltoide_posterior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "trapezio_inferior",
+        "deltoide_posterior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-010", "gif-ex-039", "seed-ex-071"],
-      "muscle_group_alternatives": ["gif-ex-047"]
+      "equivalent_alternatives": [
+        "seed-ex-010",
+        "gif-ex-039",
+        "seed-ex-071"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-047"
+      ]
     },
     {
       "id": "seed-ex-074",
       "name": "Puxada Pegada Neutra",
-      "name_variations": ["Neutral-Grip Lat Pulldown", "Parallel-Grip Pulldown", "Puxada Pegada Neutra", "MAG Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Neutral-Grip Lat Pulldown",
+        "Parallel-Grip Pulldown",
+        "Puxada Pegada Neutra",
+        "MAG Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "braquiorradial", "trapezio_inferior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "braquiorradial",
+        "trapezio_inferior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-010", "gif-ex-040", "seed-ex-072"],
-      "muscle_group_alternatives": ["seed-ex-013"]
+      "equivalent_alternatives": [
+        "seed-ex-010",
+        "gif-ex-040",
+        "seed-ex-072"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-013"
+      ]
     },
     {
       "id": "seed-ex-075",
       "name": "Pulldown com Bracos Estendidos",
-      "name_variations": ["Straight-Arm Pulldown", "Cable Bent-Over Pullover", "Pullover na Polia", "Lat Pushdown", "Pulldown Reto"],
-      "group_muscle": "Costas",
+      "name_variations": [
+        "Straight-Arm Pulldown",
+        "Cable Bent-Over Pullover",
+        "Pullover na Polia",
+        "Lat Pushdown",
+        "Pulldown Reto"
+      ],
+      "group_muscles": [
+        "Costas"
+      ],
       "category": "Isolado",
       "equipment": "Cabo",
       "primary_equipment": "Cable",
       "secondary_equipment": "Polia Alta",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["triceps_cabeca_longa", "deltoide_posterior", "core"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "triceps_cabeca_longa",
+        "deltoide_posterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-029"],
-      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-013"]
+      "equivalent_alternatives": [
+        "gif-ex-029"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "seed-ex-013"
+      ]
     },
     {
       "id": "seed-ex-076",
       "name": "Puxada na Maquina",
-      "name_variations": ["Machine Lat Pulldown", "Lever Pulldown", "Puxada na Maquina Articulada", "Hammer Strength Pulldown", "Iso-Lateral Pulldown"],
-      "group_muscle": "Costas, Biceps",
+      "name_variations": [
+        "Machine Lat Pulldown",
+        "Lever Pulldown",
+        "Puxada na Maquina Articulada",
+        "Hammer Strength Pulldown",
+        "Iso-Lateral Pulldown"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Biceps"
+      ],
       "category": "Composto",
       "equipment": "Maquina",
-      "primary_equipment": "Cable",
-      "secondary_equipment": "Maquina Articulada",
+      "primary_equipment": "Plate-Loaded Machine",
+      "secondary_equipment": null,
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
-      "stabilizers": ["biceps_braquial", "braquial", "trapezio_inferior"],
+      "musculo_alvo": [
+        "grande_dorsal",
+        "redondo_maior"
+      ],
+      "stabilizers": [
+        "biceps_braquial",
+        "braquial",
+        "trapezio_inferior"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["seed-ex-010", "gif-ex-039", "gif-ex-040"],
-      "muscle_group_alternatives": ["gif-ex-047"]
+      "equivalent_alternatives": [
+        "seed-ex-010",
+        "gif-ex-039",
+        "gif-ex-040"
+      ],
+      "muscle_group_alternatives": [
+        "gif-ex-047"
+      ]
     },
     {
       "id": "seed-ex-077",
       "name": "Pullover com Barra",
-      "name_variations": ["Barbell Pullover", "Barbell Bent-Arm Pullover", "Pullover com Barra Reta"],
-      "group_muscle": "Costas, Peito",
+      "name_variations": [
+        "Barbell Pullover",
+        "Barbell Bent-Arm Pullover",
+        "Pullover com Barra Reta"
+      ],
+      "group_muscles": [
+        "Costas",
+        "Peito"
+      ],
       "category": "Isolado",
       "equipment": "Barra olimpica",
       "primary_equipment": "Barbell",
       "secondary_equipment": "Flat Bench",
       "movement_pattern": "Vertical Pull",
-      "musculo_alvo": ["peitoral_esternal", "grande_dorsal"],
-      "stabilizers": ["triceps_cabeca_longa", "deltoide_anterior", "serratus_anterior", "core"],
+      "musculo_alvo": [
+        "peitoral_esternal",
+        "grande_dorsal"
+      ],
+      "stabilizers": [
+        "triceps_cabeca_longa",
+        "deltoide_anterior",
+        "serratus_anterior",
+        "core"
+      ],
       "execution_type": "Bilateral",
-      "equivalent_alternatives": ["gif-ex-029"],
-      "muscle_group_alternatives": ["seed-ex-010", "gif-ex-021"]
+      "equivalent_alternatives": [
+        "gif-ex-029"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-010",
+        "gif-ex-021"
+      ]
     }
   ]
 }

@@ -47,7 +47,7 @@ function makeExercise(id: string) {
   return Exercise.create({
     id,
     name: `Exercício ${id}`,
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     category: 'Composto',
     isCustom: false,
     createdAt: new Date('2026-01-01'),

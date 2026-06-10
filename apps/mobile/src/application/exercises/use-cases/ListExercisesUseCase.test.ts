@@ -7,7 +7,7 @@ function makeExercise(id: string, name: string) {
   return Exercise.create({
     id,
     name,
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     isCustom: false,
     createdAt: new Date('2026-01-01'),
   });

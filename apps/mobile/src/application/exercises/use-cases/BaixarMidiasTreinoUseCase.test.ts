@@ -16,7 +16,7 @@ function makeExercise(id: string, opts: { mediaOnline?: string; mediaLocal?: str
   return Exercise.create({
     id,
     name: `Exercise ${id}`,
-    groupMuscle: 'Peito',
+    groupMuscles: ['Peito'],
     category: 'Composto',
     createdAt: new Date('2026-01-01'),
     mediaOnline: opts.mediaOnline ?? null,

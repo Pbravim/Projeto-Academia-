@@ -41,7 +41,7 @@ export function buildTreinoDetailViewModel(
         exercicioId: te.exercicioId,
         ordem: index + 1,
         name: exercise.name,
-        groupMuscle: exercise.groupMuscle,
+        groupMuscle: exercise.groupMuscles.join(', '),
         category: exercise.category,
         equipment: exercise.equipment,
         mediaOnline: exercise.mediaOnline ?? null,

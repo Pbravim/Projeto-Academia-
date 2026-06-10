@@ -41,7 +41,7 @@ function makeExercise(id: string, groupMuscle: string) {
   return Exercise.create({
     id,
     name: `Ex-${id}`,
-    groupMuscle,
+    groupMuscles: [groupMuscle],
     createdAt: new Date('2026-01-01'),
   });
 }
@@ -55,7 +55,7 @@ function makeExerciseWithPattern(
   return Exercise.create({
     id,
     name: `Ex-${id}`,
-    groupMuscle,
+    groupMuscles: [groupMuscle],
     createdAt: new Date('2026-01-01'),
     musculoAlvo,
     movementPattern,

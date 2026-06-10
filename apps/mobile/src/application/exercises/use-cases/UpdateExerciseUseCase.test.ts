@@ -31,12 +31,12 @@ describe('UpdateExerciseUseCase', () => {
     const create = makeCreateUseCase(repo);
     const update = makeUpdateUseCase(repo);
 
-    await create.execute({ name: 'Supino reto', groupMuscle: 'Peito', category: 'Composto' });
+    await create.execute({ name: 'Supino reto', groupMuscles: ['Peito'], category: 'Composto' });
 
     const updated = await update.execute({
       id: 'exercise_1',
       name: 'Supino inclinado',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       equipment: 'Halter',
     });
@@ -52,12 +52,12 @@ describe('UpdateExerciseUseCase', () => {
     const create = makeCreateUseCase(repo);
     const update = makeUpdateUseCase(repo);
 
-    await create.execute({ name: 'Supino reto', groupMuscle: 'Peito', category: 'Composto' });
+    await create.execute({ name: 'Supino reto', groupMuscles: ['Peito'], category: 'Composto' });
 
     const updated = await update.execute({
       id: 'exercise_1',
       name: 'Supino reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Isolado',
     });
 
@@ -70,14 +70,14 @@ describe('UpdateExerciseUseCase', () => {
     const create2 = makeCreateUseCase(repo, 'exercise_2');
     const update = makeUpdateUseCase(repo);
 
-    await create1.execute({ name: 'Supino reto', groupMuscle: 'Peito', category: 'Composto' });
-    await create2.execute({ name: 'Agachamento', groupMuscle: 'Pernas', category: 'Composto' });
+    await create1.execute({ name: 'Supino reto', groupMuscles: ['Peito'], category: 'Composto' });
+    await create2.execute({ name: 'Agachamento', groupMuscles: ['Pernas'], category: 'Composto' });
 
     await expect(
       update.execute({
         id: 'exercise_1',
         name: 'agachamento',
-        groupMuscle: 'Peito',
+        groupMuscles: ['Peito'],
         category: 'Composto',
       })
     ).rejects.toThrow(DuplicateExerciseError);
@@ -91,7 +91,7 @@ describe('UpdateExerciseUseCase', () => {
       update.execute({
         id: 'non_existent',
         name: 'Qualquer',
-        groupMuscle: 'Peito',
+        groupMuscles: ['Peito'],
         category: 'Composto',
       })
     ).rejects.toThrow(ExerciseNotFoundError);
@@ -102,12 +102,12 @@ describe('UpdateExerciseUseCase', () => {
     const create = makeCreateUseCase(repo);
     const update = makeUpdateUseCase(repo);
 
-    await create.execute({ name: 'Exercicio Customizado', groupMuscle: 'Peito', category: 'Composto' });
+    await create.execute({ name: 'Exercicio Customizado', groupMuscles: ['Peito'], category: 'Composto' });
 
     const updated = await update.execute({
       id: 'exercise_1',
       name: 'Exercicio Customizado',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       musculoAlvo: ['peitoral_medio'],
     });
@@ -120,12 +120,12 @@ describe('UpdateExerciseUseCase', () => {
     const create = makeCreateUseCase(repo);
     const update = makeUpdateUseCase(repo);
 
-    await create.execute({ name: 'Exercicio Customizado', groupMuscle: 'Peito', category: 'Composto' });
+    await create.execute({ name: 'Exercicio Customizado', groupMuscles: ['Peito'], category: 'Composto' });
 
     const updated = await update.execute({
       id: 'exercise_1',
       name: 'Exercicio Customizado',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       musculoAlvo: [],
     });

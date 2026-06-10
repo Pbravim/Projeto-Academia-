@@ -8,7 +8,7 @@ describe('Exercise', () => {
     const exercise = Exercise.create({
       id: 'exercise_1',
       name: '  Supino   reto  ',
-      groupMuscle: ' Peito ',
+      groupMuscles: ['Peito'],
       category: ' Composto ',
       equipment: ' Barra olimpica ',
       createdAt: new Date('2026-04-24T12:00:00.000Z'),
@@ -18,7 +18,7 @@ describe('Exercise', () => {
       id: 'exercise_1',
       name: 'Supino reto',
       normalizedName: 'supino reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       equipment: 'Barra olimpica',
       loadUnit: 'kg',
@@ -43,7 +43,7 @@ describe('Exercise', () => {
       Exercise.create({
         id: 'exercise_1',
         name: '   ',
-        groupMuscle: 'Peito',
+        groupMuscles: ['Peito'],
         category: 'Composto',
         createdAt: new Date('2026-04-24T12:00:00.000Z'),
       })
@@ -54,7 +54,7 @@ describe('Exercise', () => {
     const exercise = Exercise.create({
       id: 'ex-bio-1',
       name: 'Supino Reto com Barra',
-      groupMuscle: 'Peito, Triceps, Ombros',
+      groupMuscles: ['Peito', 'Triceps', 'Ombros'],
       category: 'Composto',
       equipment: 'Barra olimpica',
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -83,7 +83,7 @@ describe('Exercise', () => {
     const exercise = Exercise.create({
       id: 'ex-bio-2',
       name: 'Supino Reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
     });
 
@@ -102,14 +102,14 @@ describe('Exercise', () => {
     const original = Exercise.create({
       id: 'exercise_1',
       name: 'Supino reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       createdAt: new Date('2026-04-24T12:00:00.000Z'),
     });
 
     const updated = Exercise.update(
       original.toPrimitives(),
-      { name: '  Agachamento livre  ', groupMuscle: 'Pernas', category: 'Composto' },
+      { name: '  Agachamento livre  ', groupMuscles: ['Pernas'], category: 'Composto' },
       new Date('2026-04-25T10:00:00.000Z')
     );
 
@@ -117,7 +117,7 @@ describe('Exercise', () => {
       id: 'exercise_1',
       name: 'Agachamento livre',
       normalizedName: 'agachamento livre',
-      groupMuscle: 'Pernas',
+      groupMuscles: ['Pernas'],
       createdAt: '2026-04-24T12:00:00.000Z',
       updatedAt: '2026-04-25T10:00:00.000Z',
     });

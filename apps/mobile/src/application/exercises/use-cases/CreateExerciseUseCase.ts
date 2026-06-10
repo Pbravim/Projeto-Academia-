@@ -5,7 +5,7 @@ import { DuplicateExerciseError } from '../errors/DuplicateExerciseError';
 
 export interface CreateExerciseInput {
   name: string;
-  groupMuscle: string;
+  groupMuscles: string[];
   category: string;
   equipment?: string;
   mediaOnline?: string;
@@ -35,7 +35,7 @@ export class CreateExerciseUseCase {
     const exercise = Exercise.create({
       id: this.dependencies.idGenerator(),
       name: input.name,
-      groupMuscle: input.groupMuscle,
+      groupMuscles: input.groupMuscles,
       category: input.category,
       equipment: input.equipment,
       mediaOnline: input.mediaOnline,

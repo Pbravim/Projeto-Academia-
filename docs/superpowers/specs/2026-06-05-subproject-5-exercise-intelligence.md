@@ -61,7 +61,16 @@ secondary_equipment: string | null // ex: banco, rack, cabo
 
 ### Vocabulário controlado para equipment
 
-`Barbell` · `Dumbbell` · `Cable` · `Smith Machine` · `Hack Squat Machine` · `Leg Press` · `Pec Deck` · `Chest Supported Row` · `Bodyweight` · `Resistance Band` · `Kettlebell` · `Landmine` · `Suspension Trainer`
+`Barbell` · `Dumbbell` · `Cable` · `Smith Machine` · `Hack Squat Machine` · `Leg Press` · `Pec Deck` · `Chest Supported Row` · `Bodyweight` · `Resistance Band` · `Kettlebell` · `Landmine` · `Suspension Trainer` · `Selectorized Machine` · `Plate-Loaded Machine` · `Assisted Machine`
+
+> Estendido em 2026-06-10 (ver `docs/exercises/catalog-maintenance.md` §1):
+> - `Selectorized Machine` — máquinas de placas com pino (chest press, leg extension…)
+> - `Plate-Loaded Machine` — máquinas articuladas/iso-laterais de anilhas (Hammer Strength, lever row/pulldown)
+> - `Assisted Machine` — Graviton e similares (pull-up/dip assistido); `Bodyweight` fica como secondary
+>
+> Lacuna nova de vocabulário? NÃO mapear para valor "parecido" — registrar em `conventions` no
+> `_manifest.json` e decidir o valor novo no mesmo PR, atualizando este spec e o set
+> `PRIMARY_EQUIPMENT` em `scripts/validate_exercise_seeds.py`.
 
 ---
 

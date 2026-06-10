@@ -155,7 +155,7 @@ export function ExerciseCatalogScreen({
               >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.suggestionName}>{ex.name}</Text>
-                  <Text style={styles.suggestionMeta}>{ex.category ? `${ex.groupMuscle} · ${ex.category}` : ex.groupMuscle}</Text>
+                  <Text style={styles.suggestionMeta}>{ex.category ? `${ex.groupMuscles.join(', ')} · ${ex.category}` : ex.groupMuscles.join(', ')}</Text>
                 </View>
                 <Text style={styles.suggestionEditHint}>Editar →</Text>
               </Pressable>
@@ -285,7 +285,7 @@ export function ExerciseCatalogScreen({
                     !alternativas.some((a) => a.id === ex.id) &&
                     (substSearch.length === 0 ||
                       ex.name.toLowerCase().includes(substSearch.toLowerCase()) ||
-                      ex.groupMuscle.toLowerCase().includes(substSearch.toLowerCase()) ||
+                      ex.groupMuscles.join(', ').toLowerCase().includes(substSearch.toLowerCase()) ||
                       ex.nameVariations.some((v) => v.toLowerCase().includes(substSearch.toLowerCase())))
                   )
                   .slice(0, 8)
@@ -300,7 +300,7 @@ export function ExerciseCatalogScreen({
                       style={({ pressed }) => [styles.substPickerRow, pressed ? { opacity: 0.75 } : null]}
                     >
                       <Text style={styles.substPickerName} numberOfLines={1}>{ex.name}</Text>
-                      <Text style={styles.substPickerMeta}>{ex.groupMuscle}</Text>
+                      <Text style={styles.substPickerMeta}>{ex.groupMuscles.join(', ')}</Text>
                     </Pressable>
                   ))}
               </View>

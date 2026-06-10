@@ -56,7 +56,7 @@ export class SubstituirExercicioSessaoUseCase {
     const substituido = sessaoExercicio.withSubstituicao(
       ex.id,
       ex.name,
-      ex.groupMuscle,
+      ex.groupMuscles.join(', '),
       ex.category,
       ex.equipment,
       ex.musculoAlvo,

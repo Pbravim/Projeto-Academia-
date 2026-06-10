@@ -52,12 +52,13 @@ export function buildExerciseCatalogViewModel(
   const byGroup = new Map<string, ExerciseCardViewModel[]>();
 
   for (const exercise of exercises) {
-    const groups = exercise.groupMuscle.split(',').map((g) => g.trim()).filter(Boolean);
+    const groups = exercise.groupMuscles;
+    const groupLabel = exercise.groupMuscles.join(', ');
     const ultima = ultimosPesos.get(exercise.id);
     const card: ExerciseCardViewModel = {
       id: exercise.id,
       title: exercise.name,
-      subtitle: exercise.category ? `${exercise.groupMuscle} · ${exercise.category}` : exercise.groupMuscle,
+      subtitle: exercise.category ? `${groupLabel} · ${exercise.category}` : groupLabel,
       meta: exercise.equipment ? `Equipamento: ${exercise.equipment}` : 'Equipamento livre',
       ultimoPeso: ultima ? `Ultimo: ${ultima.cargaKg} kg × ${ultima.repeticoes} rep` : null,
       nameVariations: exercise.nameVariations,

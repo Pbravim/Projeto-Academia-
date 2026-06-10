@@ -34,25 +34,106 @@
       "scope_exclusions": {
         "_comment": "Movimentos de press de peito existentes mas DELIBERADAMENTE fora desta sessão — para auditorias futuras não os tratarem como lacuna.",
         "routed_to_other_sessions": {
-          "forca_landmine": ["Landmine Chest Press"],
-          "forca_elastico_funcional": ["Standing Band Chest Press", "Standing Incline/Decline Band Press", "Banded Push-Up"],
-          "forca_kettlebell": ["Kettlebell Floor Press", "Kettlebell Bench Press"],
-          "triceps": ["Close-Grip Bench Press", "Close-Grip / Diamond Push-Up"]
+          "forca_landmine": [
+            "Landmine Chest Press"
+          ],
+          "forca_elastico_funcional": [
+            "Standing Band Chest Press",
+            "Standing Incline/Decline Band Press",
+            "Banded Push-Up"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Floor Press",
+            "Kettlebell Bench Press"
+          ],
+          "triceps": [
+            "Close-Grip Bench Press",
+            "Close-Grip / Diamond Push-Up"
+          ]
         },
         "excluded_as_non_distinct": {
           "_comment": "Variações de técnica/ROM/posição/pegada que não geram estímulo distinto o suficiente para registro próprio — cobertas por registros existentes via algoritmo Layer 1 (mesmo movement_pattern + musculo_alvo).",
-          "powerlifting_rom_pause_cues": ["Spoto Press", "Pin Press", "Board Press", "Larsen Press"],
-          "reverse_grip_combos": ["Incline Reverse-Grip Bench Press", "Dumbbell Reverse Press", "Incline Dumbbell Reverse-Grip Press"],
-          "equipment_position_microvariants": ["Smith Machine Hex Press", "Lying Machine Chest Press", "Seated Cable Chest Press", "Dumbbell Incline Press on Exercise Ball", "Dumbbell Push-Ups (on handles)", "Lever Chest Press plate-loaded vs selectorized (mesmo exercício — gif-ex-018 cobre, 'Hammer Strength' é name_variation)"],
-          "load_rom_pushup_variants": ["Deficit Push-Up (ROM estendido do push-up 045)", "Weighted Push-Up (variação de carga)", "Ring Dip (variação de estabilização do dip 048)"],
-          "athletic_plyo_core_pushups": ["Spider-Man Push-Up", "Shoulder Tap Push-Up", "Hindu Push-Up", "Single-Leg Push-Up", "Clapping/Plyo Push-Up", "T Push-Up", "Archer Push-Up (progressão unilateral avançada)"]
+          "powerlifting_rom_pause_cues": [
+            "Spoto Press",
+            "Pin Press",
+            "Board Press",
+            "Larsen Press"
+          ],
+          "reverse_grip_combos": [
+            "Incline Reverse-Grip Bench Press",
+            "Dumbbell Reverse Press",
+            "Incline Dumbbell Reverse-Grip Press"
+          ],
+          "equipment_position_microvariants": [
+            "Smith Machine Hex Press",
+            "Lying Machine Chest Press",
+            "Seated Cable Chest Press",
+            "Dumbbell Incline Press on Exercise Ball",
+            "Dumbbell Push-Ups (on handles)",
+            "Lever Chest Press plate-loaded vs selectorized (mesmo exercício — gif-ex-018 cobre, 'Hammer Strength' é name_variation)"
+          ],
+          "load_rom_pushup_variants": [
+            "Deficit Push-Up (ROM estendido do push-up 045)",
+            "Weighted Push-Up (variação de carga)",
+            "Ring Dip (variação de estabilização do dip 048)"
+          ],
+          "athletic_plyo_core_pushups": [
+            "Spider-Man Push-Up",
+            "Shoulder Tap Push-Up",
+            "Hindu Push-Up",
+            "Single-Leg Push-Up",
+            "Clapping/Plyo Push-Up",
+            "T Push-Up",
+            "Archer Push-Up (progressão unilateral avançada)"
+          ]
         }
       },
       "conventions": {
-        "machine_press": "Chest press machine mapeada para primary_equipment 'Pec Deck' (gif-ex-018 precedente) — vocabulário controlado não tem 'Machine'/'Hammer Strength' genérico.",
+        "machine_press": "Retag 2026-06-10 (catalog-maintenance.md §1): vocabulário estendido com Selectorized Machine / Plate-Loaded Machine / Assisted Machine. gif-ex-018/019, seed-ex-049/050 -> Selectorized Machine; seed-ex-065 (iso-lateral) -> Plate-Loaded Machine; seed-ex-063 (mergulho assistido) -> Assisted Machine + secondary Bodyweight. 'Pec Deck' agora é só para flys/voador reais.",
         "dips": "Dip e dip assistido classificados como Horizontal Push, ênfase peitoral_inferior (mimetiza supino declinado), para o algoritmo de substituição agrupá-los com presses. Mergulho assistido (seed-ex-063) usa primary_equipment 'Bodyweight' + secondary 'Maquina Assistida' (precedente do Graviton em costas_pull_vertical)."
       },
-      "covers": ["seed-ex-001","seed-ex-002","seed-ex-003","seed-ex-004","seed-ex-044","seed-ex-045","seed-ex-046","seed-ex-047","seed-ex-048","seed-ex-049","seed-ex-050","seed-ex-051","seed-ex-052","seed-ex-053","seed-ex-054","seed-ex-055","seed-ex-056","seed-ex-057","seed-ex-058","seed-ex-059","seed-ex-060","seed-ex-061","seed-ex-062","seed-ex-063","seed-ex-064","seed-ex-065","gif-ex-001","gif-ex-002","gif-ex-003","gif-ex-004","gif-ex-005","gif-ex-006","gif-ex-007","gif-ex-008","gif-ex-018","gif-ex-019","gif-ex-020","gif-ex-032","gif-ex-033","gif-ex-034"]
+      "covers": [
+        "seed-ex-001",
+        "seed-ex-002",
+        "seed-ex-003",
+        "seed-ex-004",
+        "seed-ex-044",
+        "seed-ex-045",
+        "seed-ex-046",
+        "seed-ex-047",
+        "seed-ex-048",
+        "seed-ex-049",
+        "seed-ex-050",
+        "seed-ex-051",
+        "seed-ex-052",
+        "seed-ex-053",
+        "seed-ex-054",
+        "seed-ex-055",
+        "seed-ex-056",
+        "seed-ex-057",
+        "seed-ex-058",
+        "seed-ex-059",
+        "seed-ex-060",
+        "seed-ex-061",
+        "seed-ex-062",
+        "seed-ex-063",
+        "seed-ex-064",
+        "seed-ex-065",
+        "gif-ex-001",
+        "gif-ex-002",
+        "gif-ex-003",
+        "gif-ex-004",
+        "gif-ex-005",
+        "gif-ex-006",
+        "gif-ex-007",
+        "gif-ex-008",
+        "gif-ex-018",
+        "gif-ex-019",
+        "gif-ex-020",
+        "gif-ex-032",
+        "gif-ex-033",
+        "gif-ex-034"
+      ]
     },
     "peito_fly": {
       "status": "complete",
@@ -67,15 +148,33 @@
       "completion_notes": "v3: universo de fly/adução horizontal auditado contra ExRx.net, gymgeek, e guias de fly (Legion/ACE/Mikolo). +4 registros novos (seed-ex-066..069): crucifixo declinado com halteres, crossover unilateral no cabo (iso-lateral), voador unilateral na máquina (iso-lateral pec deck), crucifixo no chão com halteres (ROM limitado). v4: auditoria estendida para o mínimo de 6 bases (regra atualizada) — +Muscle&Strength e +bodybuilding.com. M&S acrescentou 1 distinto (crucifixo unilateral com haltere, seed-ex-070 — análogo free-weight aos unilaterais de cabo/máquina); bodybuilding.com (6ª base) retornou 0 novos, confirmando fechamento. gif_path null.",
       "scope_exclusions": {
         "routed_to_other_sessions": {
-          "forca_suspension_trainer": ["Suspended Fly", "TRX Chest Fly"],
-          "forca_elastico_funcional": ["Resistance Band Chest Crossover", "Band Fly"],
-          "ombros_lateral": ["Reverse Fly / Rear-Delt Fly (músculo diferente — deltoide posterior, não peito)"]
+          "forca_suspension_trainer": [
+            "Suspended Fly",
+            "TRX Chest Fly"
+          ],
+          "forca_elastico_funcional": [
+            "Resistance Band Chest Crossover",
+            "Band Fly"
+          ],
+          "ombros_lateral": [
+            "Reverse Fly / Rear-Delt Fly (músculo diferente — deltoide posterior, não peito)"
+          ]
         },
         "excluded_as_non_distinct": {
-          "stimulus_covered_elsewhere": ["Svend Press (adução com anilha — estímulo ≈ squeeze press seed-ex-056; equipamento 'anilha/plate' fora do vocabulário controlado)"],
-          "stability_equipment_variants": ["Stability Ball Chest Fly (variante de estabilidade do crucifixo reto seed-ex-005)"],
-          "hybrid_niche": ["Around-the-World (híbrido pullover/fly, parcialmente sagital)", "Cable Iron Cross (hold isométrico — variante do crossover em pé)"],
-          "isolateral_angle_variants_folded": ["Cable Isolateral Lying Fly", "Cable Isolateral Incline Fly (dobrados em seed-ex-067 — um fly unilateral cobre o estímulo; os ângulos já existem na forma bilateral)"]
+          "stimulus_covered_elsewhere": [
+            "Svend Press (adução com anilha — estímulo ≈ squeeze press seed-ex-056; equipamento 'anilha/plate' fora do vocabulário controlado)"
+          ],
+          "stability_equipment_variants": [
+            "Stability Ball Chest Fly (variante de estabilidade do crucifixo reto seed-ex-005)"
+          ],
+          "hybrid_niche": [
+            "Around-the-World (híbrido pullover/fly, parcialmente sagital)",
+            "Cable Iron Cross (hold isométrico — variante do crossover em pé)"
+          ],
+          "isolateral_angle_variants_folded": [
+            "Cable Isolateral Lying Fly",
+            "Cable Isolateral Incline Fly (dobrados em seed-ex-067 — um fly unilateral cobre o estímulo; os ângulos já existem na forma bilateral)"
+          ]
         }
       },
       "reaudit_2026_06_07": "Re-auditado para a regra de ≥10 bases. +4 bases novas (Strength Warehouse, BarBend, fitliferegime, Hevy) → 10 bases no total. 0 exercícios novos distintos: seated chest flye = variante de posição (pec deck sentado já coberto), reverse pec deck = deltoide posterior (já roteado para ombros_lateral), incline twist fly = variante de supinação nicho. Fechamento mantido em 20 registros.",
@@ -93,7 +192,28 @@
           "https://www.hevyapp.com/compound-isolation-chest-exercises/"
         ]
       },
-      "covers": ["seed-ex-005","seed-ex-006","seed-ex-066","seed-ex-067","seed-ex-068","seed-ex-069","seed-ex-070","gif-ex-009","gif-ex-010","gif-ex-011","gif-ex-012","gif-ex-013","gif-ex-014","gif-ex-015","gif-ex-016","gif-ex-017","gif-ex-021","gif-ex-027","gif-ex-028","gif-ex-035"]
+      "covers": [
+        "seed-ex-005",
+        "seed-ex-006",
+        "seed-ex-066",
+        "seed-ex-067",
+        "seed-ex-068",
+        "seed-ex-069",
+        "seed-ex-070",
+        "gif-ex-009",
+        "gif-ex-010",
+        "gif-ex-011",
+        "gif-ex-012",
+        "gif-ex-013",
+        "gif-ex-014",
+        "gif-ex-015",
+        "gif-ex-016",
+        "gif-ex-017",
+        "gif-ex-021",
+        "gif-ex-027",
+        "gif-ex-028",
+        "gif-ex-035"
+      ]
     },
     "costas_pull_vertical": {
       "status": "complete",
@@ -107,19 +227,43 @@
       "completion_notes": "v2: universo de puxada vertical auditado contra 6+ bases (BarBend, NASM, ISSA, Strength Warehouse, Gymshark, Hevy, fitliferegime, OPEX, ExRx.net, Muscle&Strength). O inventário GIF cobria muitas variações de pegada de barra fixa e puxada aberta, mas faltavam exercícios distintos. +7 registros novos (seed-ex-071..077): barra fixa supinada (chin-up), barra fixa pegada neutra, puxada supinada (reverse-grip), puxada pegada neutra, pulldown com braços estendidos (straight-arm/pullover na polia — isolação de dorsal), puxada na máquina (lever/iso-lateral), pullover com barra. Fechamento: Muscle&Strength (6ª base) retornou 0 novos distintos. gif_path null.",
       "scope_exclusions": {
         "routed_to_other_sessions": {
-          "costas_pull_horizontal": ["Todas as remadas (horizontal pull) — sessão separada"],
-          "forca_maquinas_especializadas": ["Pullover Machine / Lever Pullover (sem valor no vocabulário de equipamento controlado)"],
-          "forca_suspension_trainer": ["Suspension/TRX Pull-Up"]
+          "costas_pull_horizontal": [
+            "Todas as remadas (horizontal pull) — sessão separada"
+          ],
+          "forca_maquinas_especializadas": [
+            "Pullover Machine / Lever Pullover (sem valor no vocabulário de equipamento controlado)"
+          ],
+          "forca_suspension_trainer": [
+            "Suspension/TRX Pull-Up"
+          ]
         },
         "excluded_as_non_distinct": {
-          "grip_width_microvariants": ["Close/Narrow-Grip Pull-Up", "Close-Grip Chin-Up", "Wide Neutral Pulldown"],
-          "load_momentum_variants": ["Weighted Pull-Up/Chin-Up (carga)", "Kipping Pull-Up (momentum/CrossFit)", "L-Sit Pull-Up (variante de core)"],
-          "position_attachment_variants": ["Kneeling Lat Pulldown (posição)", "Rope Straight-Arm Pulldown (acessório do straight-arm seed-ex-075)", "Standing Lat Pulldown"],
-          "advanced_unilateral_progressions": ["One-Arm Pull-Up", "Archer Pull-Up", "Typewriter Pull-Up", "Commando Pull-Up", "Mixed-Grip Pull-Up"]
+          "grip_width_microvariants": [
+            "Close/Narrow-Grip Pull-Up",
+            "Close-Grip Chin-Up",
+            "Wide Neutral Pulldown"
+          ],
+          "load_momentum_variants": [
+            "Weighted Pull-Up/Chin-Up (carga)",
+            "Kipping Pull-Up (momentum/CrossFit)",
+            "L-Sit Pull-Up (variante de core)"
+          ],
+          "position_attachment_variants": [
+            "Kneeling Lat Pulldown (posição)",
+            "Rope Straight-Arm Pulldown (acessório do straight-arm seed-ex-075)",
+            "Standing Lat Pulldown"
+          ],
+          "advanced_unilateral_progressions": [
+            "One-Arm Pull-Up",
+            "Archer Pull-Up",
+            "Typewriter Pull-Up",
+            "Commando Pull-Up",
+            "Mixed-Grip Pull-Up"
+          ]
         }
       },
       "conventions": {
-        "machine_pulldown": "Puxada na máquina (seed-ex-076): primary_equipment 'Cable' (agrupa com pulldowns de cabo para a substituição, mesmo estímulo), equipment(PT) 'Maquina', secondary 'Maquina Articulada' — vocabulário controlado não tem valor para máquina de puxada (precedente do Graviton gif-ex-052).",
+        "machine_pulldown": "Retag 2026-06-10 (catalog-maintenance.md §1): vocabulário estendido com Selectorized Machine / Plate-Loaded Machine / Assisted Machine. seed-ex-076 (lever/iso-lateral) -> Plate-Loaded Machine (era Cable); gif-ex-052 (Graviton) -> Assisted Machine + secondary Bodyweight (era Bodyweight).",
         "straight_arm_pulldown": "Straight-arm pulldown (seed-ex-075) marcado como Vertical Pull + Isolado, musculo_alvo grande_dorsal — espelha o pullover (gif-ex-029); é extensão de ombro com braço reto, isolação de dorsal no plano vertical/sagital."
       },
       "reaudit_2026_06_07": "Re-auditado para a regra de ≥10 bases. +2 bases novas (Gymshark, MuscleWiki) → 10 bases no total. 0 exercícios novos distintos: MuscleWiki lista 'Machine Pulldown' (coberto por seed-ex-076); pull-up/chin-up/lat pulldown/single-arm/pullover todos cobertos. Fechamento mantido em 22 registros.",
@@ -137,7 +281,30 @@
           "https://musclewiki.com/exercises/lats"
         ]
       },
-      "covers": ["seed-ex-009","seed-ex-010","seed-ex-071","seed-ex-072","seed-ex-073","seed-ex-074","seed-ex-075","seed-ex-076","seed-ex-077","gif-ex-029","gif-ex-036","gif-ex-038","gif-ex-039","gif-ex-040","gif-ex-041","gif-ex-049","gif-ex-050","gif-ex-051","gif-ex-052","gif-ex-055","gif-ex-056","gif-ex-057"]
+      "covers": [
+        "seed-ex-009",
+        "seed-ex-010",
+        "seed-ex-071",
+        "seed-ex-072",
+        "seed-ex-073",
+        "seed-ex-074",
+        "seed-ex-075",
+        "seed-ex-076",
+        "seed-ex-077",
+        "gif-ex-029",
+        "gif-ex-036",
+        "gif-ex-038",
+        "gif-ex-039",
+        "gif-ex-040",
+        "gif-ex-041",
+        "gif-ex-049",
+        "gif-ex-050",
+        "gif-ex-051",
+        "gif-ex-052",
+        "gif-ex-055",
+        "gif-ex-056",
+        "gif-ex-057"
+      ]
     },
     "costas_pull_horizontal": {
       "status": "complete",
@@ -148,14 +315,31 @@
       "research_notes": "Primeira sessão criada já sob a regra de ≥10 bases. O catálogo original (ExpoSQLiteDatabaseClient.ts) já tinha 19 remadas (seed-ex-011/012/013 + gif-ex-037,042-047,058-066) — enriquecidas aqui com movement_pattern 'Horizontal Pull', musculo_alvo por array, primary_equipment e alternativas. Auditado contra 12+ bases (BarBend, NASM, ISSA, Strength Warehouse, Hevy, OPEX, PureGym, JEFIT, SetForSet, RitFit, weighttraining.guide, soletreadmills). +4 registros novos distintos (seed-ex-078..081): remada Pendlay (dead-stop), remada curvada supinada/Yates (reverse-grip), remada invertida (peso corporal — faltava o horizontal pull de peso corporal), seal row (banco prono estrito). Fechamento: nenhuma base trouxe remada distinta fora do que já existia/foi adicionado/roteado.",
       "scope_exclusions": {
         "routed_to_other_sessions": {
-          "ombros_lateral": ["Face Pull (gif-ex-048 — deltoide posterior, já no catálogo como Ombros)", "Remada Alta / Upright Row (gif-ex-078,172,173,174 — trapézio/ombro, não é horizontal pull de dorsal)"],
-          "forca_kettlebell": ["Kettlebell Row", "Renegade Row (kettlebell/halteres — full-body/core)"],
-          "forca_suspension_trainer": ["TRX Row (a remada invertida de peso corporal em barra está coberta por seed-ex-080)"]
+          "ombros_lateral": [
+            "Face Pull (gif-ex-048 — deltoide posterior, já no catálogo como Ombros)",
+            "Remada Alta / Upright Row (gif-ex-078,172,173,174 — trapézio/ombro, não é horizontal pull de dorsal)"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Row",
+            "Renegade Row (kettlebell/halteres — full-body/core)"
+          ],
+          "forca_suspension_trainer": [
+            "TRX Row (a remada invertida de peso corporal em barra está coberta por seed-ex-080)"
+          ]
         },
         "excluded_as_non_distinct": {
-          "technique_load_variants": ["Kroc Row (remada de halter alta-repetição/momentum)", "Gironda Row", "Helms Row (variante de chest-supported)"],
-          "grip_width_microvariants": ["Wide vs Close vs Neutral seated cable row (cobertos por seed-ex-013 + gif-ex-047/059)"],
-          "position_variants": ["Chest-Supported T-Bar Row (variante de apoio do T-bar gif-ex-046)", "Incline Bench Cable Row"]
+          "technique_load_variants": [
+            "Kroc Row (remada de halter alta-repetição/momentum)",
+            "Gironda Row",
+            "Helms Row (variante de chest-supported)"
+          ],
+          "grip_width_microvariants": [
+            "Wide vs Close vs Neutral seated cable row (cobertos por seed-ex-013 + gif-ex-047/059)"
+          ],
+          "position_variants": [
+            "Chest-Supported T-Bar Row (variante de apoio do T-bar gif-ex-046)",
+            "Incline Bench Cable Row"
+          ]
         }
       },
       "conventions": {
@@ -179,7 +363,31 @@
           "https://weighttraining.guide/exercises/t-bar-row/"
         ]
       },
-      "covers": ["seed-ex-011","seed-ex-012","seed-ex-013","seed-ex-078","seed-ex-079","seed-ex-080","seed-ex-081","gif-ex-037","gif-ex-042","gif-ex-043","gif-ex-044","gif-ex-045","gif-ex-046","gif-ex-047","gif-ex-058","gif-ex-059","gif-ex-060","gif-ex-061","gif-ex-062","gif-ex-063","gif-ex-064","gif-ex-065","gif-ex-066"]
+      "covers": [
+        "seed-ex-011",
+        "seed-ex-012",
+        "seed-ex-013",
+        "seed-ex-078",
+        "seed-ex-079",
+        "seed-ex-080",
+        "seed-ex-081",
+        "gif-ex-037",
+        "gif-ex-042",
+        "gif-ex-043",
+        "gif-ex-044",
+        "gif-ex-045",
+        "gif-ex-046",
+        "gif-ex-047",
+        "gif-ex-058",
+        "gif-ex-059",
+        "gif-ex-060",
+        "gif-ex-061",
+        "gif-ex-062",
+        "gif-ex-063",
+        "gif-ex-064",
+        "gif-ex-065",
+        "gif-ex-066"
+      ]
     }
   },
   "pending_sessions": [

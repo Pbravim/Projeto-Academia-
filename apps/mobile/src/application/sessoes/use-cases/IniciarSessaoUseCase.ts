@@ -76,7 +76,7 @@ export class IniciarSessaoUseCase {
           exercicioId: p.exercicioId,
           ordem: p.ordem,
           nomeSnapshot: ex.name,
-          grupoMuscularSnapshot: ex.groupMuscle,
+          grupoMuscularSnapshot: ex.groupMuscles.join(', '),
           categoriaSnapshot: ex.category,
           equipamentoSnapshot: ex.equipment,
           musculoAlvoSnapshot: ex.musculoAlvo,

@@ -48,7 +48,7 @@ describe('GetSessaoDetalheUseCase - P2 Regression Tests', () => {
     const ex1 = Exercise.create({
       id: 'ex_1',
       name: 'Supino Reto',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       category: 'Composto',
       isCustom: false,
       createdAt: new Date(),
@@ -56,7 +56,7 @@ describe('GetSessaoDetalheUseCase - P2 Regression Tests', () => {
     const ex2 = Exercise.create({
       id: 'ex_2',
       name: 'Rosca Direta',
-      groupMuscle: 'Biceps',
+      groupMuscles: ['Biceps'],
       category: 'Isolado',
       isCustom: false,
       createdAt: new Date(),

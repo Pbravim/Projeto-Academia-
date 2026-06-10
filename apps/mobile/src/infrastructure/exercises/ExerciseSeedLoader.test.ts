@@ -9,7 +9,7 @@ const SEED_FILE_V1 = {
       id: 'test-seed-001',
       name: 'Supino Reto com Barra',
       name_variations: ['Bench Press', 'Supino Reto'],
-      group_muscle: 'Peito, Triceps, Ombros',
+      group_muscles: ['Peito', 'Triceps', 'Ombros'],
       category: 'Composto',
       equipment: 'Barra olimpica',
       primary_equipment: 'Barbell',
@@ -74,7 +74,7 @@ describe('ExerciseSeedLoader', () => {
     const userEx = Exercise.create({
       id: 'test-seed-001',
       name: 'Meu Supino Custom',
-      groupMuscle: 'Peito',
+      groupMuscles: ['Peito'],
       createdAt: new Date(),
       isCustom: true,
     });

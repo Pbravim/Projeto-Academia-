@@ -279,7 +279,7 @@ export function ExercicioCardTreino({
               <View key={alt.id} style={styles.substitutoRow}>
                 <View style={styles.substitutoInfo}>
                   <Text style={styles.substitutoName} numberOfLines={1}>{alt.name}</Text>
-                  <Text style={styles.substitutoMeta} numberOfLines={1}>{alt.groupMuscle}</Text>
+                  <Text style={styles.substitutoMeta} numberOfLines={1}>{alt.groupMuscles.join(', ')}</Text>
                 </View>
                 <Pressable
                   onPress={() => onRemoveAlternativa(alt.id)}

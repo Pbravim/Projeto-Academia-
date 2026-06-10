@@ -29,7 +29,7 @@ const GROUP_ORDER = [
 function groupByMuscle(exercises: ExercisePrimitives[]): MuscleGroup[] {
   const map = new Map<string, ExercisePrimitives[]>();
   for (const ex of exercises) {
-    const g = ex.groupMuscle || 'Outros';
+    const g = ex.groupMuscles[0] ?? 'Outros';
     if (!map.has(g)) map.set(g, []);
     map.get(g)!.push(ex);
   }
@@ -160,7 +160,7 @@ export function SubstitutosPickerModal({
     return candidates.filter(
       (e) =>
         e.name.toLowerCase().includes(term) ||
-        e.groupMuscle.toLowerCase().includes(term)
+        e.groupMuscles.join(', ').toLowerCase().includes(term)
     );
   }, [candidates, search]);
 

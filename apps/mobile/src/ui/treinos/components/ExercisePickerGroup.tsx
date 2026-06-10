@@ -79,7 +79,7 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
                   ) : null}
                   <View style={{ flex: 1 }}>
                     <Text style={styles.availableName}>{exercise.name}</Text>
-                    <Text style={styles.availableMeta}>{exercise.category ? `${exercise.groupMuscle} · ${exercise.category}` : exercise.groupMuscle}</Text>
+                    <Text style={styles.availableMeta}>{exercise.category ? `${exercise.groupMuscles.join(', ')} · ${exercise.category}` : exercise.groupMuscles.join(', ')}</Text>
                   </View>
                   {isSelected ? (
                     <View style={styles.checkmark}><Text style={styles.checkmarkText}>✓</Text></View>
