@@ -1,0 +1,705 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-015",
+      "name": "Desenvolvimento com Barra",
+      "name_variations": [
+        "Desenvolvimento Militar",
+        "Military Press",
+        "Overhead Press",
+        "Standing Barbell Shoulder Press",
+        "OHP"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio",
+        "core"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-016",
+        "gif-ex-073",
+        "seed-ex-082",
+        "seed-ex-088"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017",
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "seed-ex-016",
+      "name": "Desenvolvimento com Haltere",
+      "name_variations": [
+        "Desenvolvimento Sentado com Halteres",
+        "Dumbbell Shoulder Press",
+        "Seated Dumbbell Press",
+        "Desenvolvimento de Ombros com Halteres"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-015",
+        "gif-ex-069",
+        "seed-ex-085",
+        "seed-ex-082"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017",
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "gif-ex-026",
+      "name": "Pike Push-Up",
+      "name_variations": [
+        "Flexao Pike",
+        "Flexao Invertida",
+        "Pike Press",
+        "Flexao em V"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Peito",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "trapezio",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-089"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-015",
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-068",
+      "name": "Desenvolvimento com Elastico",
+      "name_variations": [
+        "Band Shoulder Press",
+        "Desenvolvimento Frontal com Elastico",
+        "Resistance Band Overhead Press",
+        "Banded Overhead Press"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio",
+        "core"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-016",
+        "seed-ex-082"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-069",
+      "name": "Desenvolvimento com Rotacao",
+      "name_variations": [
+        "Arnold Press",
+        "Desenvolvimento Arnold",
+        "Rotating Dumbbell Press",
+        "Desenvolvimento Rotacional com Halteres"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-016",
+        "seed-ex-085"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017",
+        "seed-ex-018"
+      ],
+      "review_flags": [
+        {
+          "field": "musculo_alvo",
+          "concern": "Arnold press recruta o deltoide lateral mais que o desenvolvimento padrao (EMG: rotacao adiciona abducao); musculo_alvo lista anterior primeiro, mas o estimulo lateral e maior que nos outros presses",
+          "revisit_when": "se a substituicao agrupar Arnold com presses estritos e o usuario perceber enfase lateral diferente",
+          "flagged_at": "2026-06-10"
+        }
+      ]
+    },
+    {
+      "id": "gif-ex-070",
+      "name": "Desenvolvimento no Smith Nuca",
+      "name_variations": [
+        "Behind-the-Neck Smith Press",
+        "Desenvolvimento por Tras no Smith",
+        "Smith Behind Neck Press"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Smith",
+      "primary_equipment": "Smith Machine",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-071",
+        "gif-ex-072"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-071",
+      "name": "Desenvolvimento por Tras com Barra",
+      "name_variations": [
+        "Behind-the-Neck Press",
+        "Desenvolvimento Nuca",
+        "Behind Neck Barbell Press",
+        "Desenvolvimento por Tras da Cabeca"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-070",
+        "gif-ex-073"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-072",
+      "name": "Desenvolvimento Sentado no Smith",
+      "name_variations": [
+        "Seated Smith Machine Shoulder Press",
+        "Desenvolvimento Frente no Smith",
+        "Smith Machine Overhead Press"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Smith",
+      "primary_equipment": "Smith Machine",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-073",
+        "seed-ex-082",
+        "gif-ex-070"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-073",
+      "name": "Desenvolvimento Barra Frente Sentado",
+      "name_variations": [
+        "Seated Barbell Shoulder Press",
+        "Desenvolvimento Sentado com Barra",
+        "Seated Military Press",
+        "Desenvolvimento Frontal com Barra Sentado"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-015",
+        "gif-ex-072",
+        "seed-ex-016"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017",
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "seed-ex-082",
+      "name": "Desenvolvimento na Maquina",
+      "name_variations": [
+        "Machine Shoulder Press",
+        "Lever Shoulder Press",
+        "Desenvolvimento de Ombros na Maquina",
+        "Seated Machine Overhead Press"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-072",
+        "seed-ex-016",
+        "seed-ex-083"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-083",
+      "name": "Desenvolvimento Unilateral na Maquina",
+      "name_variations": [
+        "Iso-Lateral Shoulder Press",
+        "Lever Isolateral Military Press",
+        "Hammer Strength Shoulder Press",
+        "Desenvolvimento Isolateral na Maquina Articulada"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Maquina",
+      "primary_equipment": "Plate-Loaded Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio",
+        "core",
+        "obliquos"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-082",
+        "seed-ex-084"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-084",
+      "name": "Desenvolvimento Unilateral com Haltere",
+      "name_variations": [
+        "Single-Arm Dumbbell Shoulder Press",
+        "One-Arm Dumbbell Press",
+        "Desenvolvimento de Ombro com Um Braco",
+        "Z-Press Unilateral com Haltere"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "obliquos",
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-016",
+        "seed-ex-086",
+        "seed-ex-083"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-085",
+      "name": "Desenvolvimento com Halteres Pegada Neutra",
+      "name_variations": [
+        "Neutral Grip Dumbbell Shoulder Press",
+        "Desenvolvimento Apolo",
+        "Hammer Grip Overhead Press",
+        "Palms-In Dumbbell Press"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-016",
+        "gif-ex-069"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-086",
+      "name": "Desenvolvimento Unilateral no Cabo",
+      "name_variations": [
+        "Single-Arm Cable Shoulder Press",
+        "One-Arm Cable Overhead Press",
+        "Cable Isolateral Standing Shoulder Press",
+        "Desenvolvimento de Ombro no Cabo com Um Braco"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "obliquos",
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-084",
+        "seed-ex-087"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-087",
+      "name": "Desenvolvimento no Cabo",
+      "name_variations": [
+        "Cable Shoulder Press",
+        "Cable Bar Shoulder Press",
+        "Desenvolvimento Bilateral no Cabo",
+        "Standing Cable Overhead Press"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio",
+        "core"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-086",
+        "seed-ex-082"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-088",
+      "name": "Push Press com Barra",
+      "name_variations": [
+        "Barbell Push Press",
+        "Desenvolvimento com Impulso",
+        "Push Press",
+        "Desenvolvimento com Tranco"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio",
+        "core",
+        "quadriceps"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-015",
+        "gif-ex-073"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ],
+      "review_flags": [
+        {
+          "field": "category",
+          "concern": "Push press e um movimento de potencia (impulso de pernas + press); o catalogo so tem Composto/Isolado, entao ficou Composto. Quando existir a categoria Power (spec sub-5), reclassificar",
+          "revisit_when": "se/quando o enum de category ganhar Power/Cardio/etc.",
+          "flagged_at": "2026-06-10"
+        }
+      ]
+    },
+    {
+      "id": "seed-ex-089",
+      "name": "Flexao Pino",
+      "name_variations": [
+        "Handstand Push-Up",
+        "Flexao Parada de Mao",
+        "HSPU",
+        "Flexao Invertida na Parede"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps",
+        "Peito"
+      ],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": "Parede",
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "serratus_anterior",
+        "trapezio",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-026"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-015",
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-090",
+      "name": "Desenvolvimento Sentado no Chao",
+      "name_variations": [
+        "Z Press",
+        "Desenvolvimento Z",
+        "Seated Floor Barbell Press",
+        "Desenvolvimento Sentado com Pernas Estendidas"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Triceps"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": [
+        "deltoide_anterior",
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "obliquos",
+        "rotador_externo",
+        "serratus_anterior",
+        "trapezio"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-015",
+        "gif-ex-073"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ],
+      "review_flags": [
+        {
+          "field": "movement_pattern",
+          "concern": "Z press difere do desenvolvimento sentado estrito (gif-ex-073) sobretudo pela demanda de core/mobilidade (sem apoio de banco, pernas estendidas), nao pelo estimulo de deltoide. Registro distinto pela demanda de estabilidade, mas pode ser proximo demais de gif-ex-073 para a substituicao",
+          "revisit_when": "se a substituicao tratar Z press e desenvolvimento sentado como intercambiaveis e o usuario achar a demanda de core perdida",
+          "flagged_at": "2026-06-10"
+        }
+      ]
+    }
+  ]
+}

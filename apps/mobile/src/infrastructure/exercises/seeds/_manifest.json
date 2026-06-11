@@ -388,10 +388,114 @@
         "gif-ex-065",
         "gif-ex-066"
       ]
+    },
+    "ombros_press": {
+      "status": "complete",
+      "exercise_count": 18,
+      "researched_at": "2026-06-10",
+      "catalog_version": 1,
+      "completed_at": "2026-06-10",
+      "research_notes": "Sessão criada sob a regra de ≥10 bases. O catálogo já tinha 9 presses de ombro (seed-ex-015/016 + gif-ex-026 pike + gif-ex-068 elástico + gif-ex-069 Arnold + gif-ex-070/071 nuca smith/barra + gif-ex-072/073 sentado smith/barra) — enriquecidos aqui com movement_pattern 'Vertical Push', musculo_alvo por array (deltoide_anterior + deltoide_lateral), primary_equipment do vocabulário e alternativas. gif-ex-026 (pike push-up) estava sem sessão (não coberto por peito_press) e é vertical push de ombro — recolhido aqui. Pullover/elevações/upright row NÃO entram (raises e remada alta = ombros_lateral).",
+      "completion_notes": "Universo de press vertical de ombro auditado contra 12 bases. Curva de retornos decrescentes: rodada 1 (ExRx + M&S + ISSA + BarBend) → +7 distintos; rodada 2 (Fitness Volt, SetForSet, Major Fitness, fitliferegime, Fitbod, PowerliftingTechnique, Peloton, Swolverine) → +2 (Z press, push press já marginais); rodada 3 → +0 (só variantes de técnica/tempo/posição). +9 registros novos (seed-ex-082..090): desenvolvimento na máquina (selectorized), desenvolvimento iso-lateral na máquina articulada (plate-loaded), desenvolvimento unilateral com haltere, desenvolvimento com halteres pegada neutra (Apolo), desenvolvimento unilateral no cabo, desenvolvimento bilateral no cabo (cable bar), push press com barra, flexão pino (handstand push-up), Z press (desenvolvimento sentado no chão). ExRx foi decisivo para separar iso-lateral/plate-loaded de selectorized e unilateral de bilateral (cabo e máquina). gif_path null (mídia é assunto separado).",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de press de ombro — informativo, NÃO lido pelo app.",
+        "databases_consulted": [
+          "https://exrx.net/Lists/ExList/ShouldWt",
+          "https://exrx.net/WeightExercises/DeltoidAnterior/LVShoulderPress",
+          "https://exrx.net/WeightExercises/DeltoidAnterior/LVMilitaryPressH",
+          "https://exrx.net/WeightExercises/DeltoidAnterior/CBStandingShoulderPress",
+          "https://exrx.net/WeightExercises/DeltoidAnterior/BWHandstandPressBench",
+          "https://www.muscleandstrength.com/exercises/shoulders",
+          "https://www.issaonline.com/blog/post/9-shoulder-press-variations-to-shred-your-upper-body",
+          "https://barbend.com/best-shoulder-press-variations/",
+          "https://fitnessvolt.com/best-overhead-barbell-press/",
+          "https://www.majorfitness.com/blogs/training-tips/how-to-do-the-cable-shoulder-press",
+          "https://fitbod.me/exercises/dumbbell-shoulder-press",
+          "https://powerliftingtechnique.com/overhead-press-alternatives/",
+          "https://www.onepeloton.com/blog/overhead-press",
+          "https://swolverine.com/blogs/blog/overhead-press-variations"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de press de ombro deliberadamente fora desta sessão — para auditorias futuras não os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "forca_landmine": [
+            "Landmine Press (single-arm/half-kneeling)",
+            "Z-Press com Landmine"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Overhead Press",
+            "Double Kettlebell Press",
+            "Bottoms-Up Kettlebell Press"
+          ],
+          "forca_elastico_funcional": [
+            "Banded Overhead Press novo (gif-ex-068 existente fica nesta sessão — precedente do band row gif-ex-037 em costas_pull_horizontal)"
+          ],
+          "ombros_lateral": [
+            "Cuban Press (híbrido rotação externa + press — predomínio rotador/lateral, não press vertical puro)",
+            "Bus Driver / Plate Press (rotação frontal — não é press)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variações de técnica/ROM/tempo/posição/pegada cobertas por registros existentes via Layer 1 (mesmo movement_pattern + musculo_alvo).",
+          "stability_position_variants": [
+            "Standing Dumbbell Shoulder Press (variante de estabilidade do sentado seed-ex-016)",
+            "Standing Arnold Press (variante de estabilidade do Arnold gif-ex-069)",
+            "Seated Cable Shoulder Press",
+            "Half-Kneeling Cable Shoulder Press (variantes de base do cabo seed-ex-086/087)",
+            "Machine Shoulder Press parallel/neutral grip (microvariante de pegada do seed-ex-082; pegada neutra já representada por seed-ex-085)"
+          ],
+          "powerlifting_rom_tempo_load_cues": [
+            "Pin Press / Dead-Stop Press",
+            "Partial Press",
+            "Tempo Press",
+            "Press com Correntes/Bandas (resistência acomodativa)",
+            "Scrape-the-Rack Press"
+          ],
+          "rom_continuous_variants": [
+            "Bradford Press (rolagem frente-nuca contínua — ROM híbrido do front + nuca)"
+          ],
+          "novelty_balance_variants": [
+            "Javelin Press (press unilateral com haltere em hammer grip — coberto por seed-ex-084 + pegada neutra seed-ex-085)"
+          ],
+          "olympic_fullbody_compounds": [
+            "Clean and Press",
+            "Push Jerk / Split Jerk",
+            "Thruster (front squat + press — predomínio de pernas/full-body; push press seed-ex-088 cobre o press com impulso)"
+          ]
+        }
+      },
+      "conventions": {
+        "machine_press": "Vocabulário de máquina (catalog-maintenance.md §1): seed-ex-082 (Lever Shoulder Press, pino/stack) -> Selectorized Machine; seed-ex-083 (iso-lateral / Hammer Strength / plate-loaded) -> Plate-Loaded Machine + Unilateral (precedente do peito seed-ex-065).",
+        "musculo_alvo": "Todos os presses verticais marcados ['deltoide_anterior','deltoide_lateral'] (anterior dominante, lateral secundário). Tríceps é motor secundário mas — seguindo a convenção do peito (seed-ex-001 omite tríceps de musculo_alvo/stabilizers, fica só em group_muscles) — não entra em musculo_alvo para a substituição agrupar presses de ombro entre si pelo deltoide. group_muscles mantém 'Triceps'.",
+        "behind_neck": "Desenvolvimento por trás/nuca (gif-ex-070/071) mantido como Vertical Push, mesmo musculo_alvo dos presses frontais; a nuca desloca a ênfase para o lateral mas não muda o padrão.",
+        "band_press": "Desenvolvimento com elástico (gif-ex-068) é registro EXISTENTE com GIF; fica nesta sessão (precedente do band row gif-ex-037 na horizontal). forca_elastico_funcional é só para elásticos novos.",
+        "pike_handstand": "Pike push-up (gif-ex-026) e flexão pino/handstand (seed-ex-089) são os press verticais de peso corporal; group_muscles inclui 'Peito' (envolvimento real do bodyweight), mas musculo_alvo é deltoide para agrupar com os outros presses."
+      },
+      "review_flags_open": "3 flags abertos nesta sessão: gif-ex-069 (Arnold — ênfase lateral), seed-ex-088 (push press — category Power ausente do enum), seed-ex-090 (Z press — proximidade do desenvolvimento sentado). Ver `--list-flags`.",
+      "covers": [
+        "seed-ex-015",
+        "seed-ex-016",
+        "seed-ex-082",
+        "seed-ex-083",
+        "seed-ex-084",
+        "seed-ex-085",
+        "seed-ex-086",
+        "seed-ex-087",
+        "seed-ex-088",
+        "seed-ex-089",
+        "seed-ex-090",
+        "gif-ex-026",
+        "gif-ex-068",
+        "gif-ex-069",
+        "gif-ex-070",
+        "gif-ex-071",
+        "gif-ex-072",
+        "gif-ex-073"
+      ]
     }
   },
   "pending_sessions": [
-    "ombros_press",
     "ombros_lateral",
     "biceps",
     "triceps_push_down",

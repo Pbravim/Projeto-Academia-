@@ -57,11 +57,13 @@ import peitoPressJson from '../infrastructure/exercises/seeds/peito_press.json';
 import peitoFlyJson from '../infrastructure/exercises/seeds/peito_fly.json';
 import costasPullVerticalJson from '../infrastructure/exercises/seeds/costas_pull_vertical.json';
 import costasPullHorizontalJson from '../infrastructure/exercises/seeds/costas_pull_horizontal.json';
+import ombrosPressJson from '../infrastructure/exercises/seeds/ombros_press.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
 const costasPullVertical = costasPullVerticalJson as SeedFile;
 const costasPullHorizontal = costasPullHorizontalJson as SeedFile;
+const ombrosPress = ombrosPressJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -84,6 +86,7 @@ void (async () => {
       seedLoader.loadSeedFile(peitoFly),
       seedLoader.loadSeedFile(costasPullVertical),
       seedLoader.loadSeedFile(costasPullHorizontal),
+      seedLoader.loadSeedFile(ombrosPress),
     ]);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
