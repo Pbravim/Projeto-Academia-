@@ -1,0 +1,630 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-017",
+      "name": "Elevacao Lateral com Haltere",
+      "name_variations": [
+        "Dumbbell Lateral Raise",
+        "Elevacao Lateral",
+        "Side Raise",
+        "Crucifixo Lateral em Pe"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "rotador_externo",
+        "serratus_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-074",
+        "gif-ex-076",
+        "gif-ex-077",
+        "seed-ex-091"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-018",
+        "seed-ex-019"
+      ]
+    },
+    {
+      "id": "seed-ex-018",
+      "name": "Elevacao Frontal com Haltere",
+      "name_variations": [
+        "Dumbbell Front Raise",
+        "Elevacao Frontal",
+        "Front Raise"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_anterior"
+      ],
+      "stabilizers": [
+        "core",
+        "trapezio",
+        "serratus_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-075",
+        "seed-ex-092"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017",
+        "seed-ex-015"
+      ]
+    },
+    {
+      "id": "seed-ex-019",
+      "name": "Elevacao Posterior com Haltere",
+      "name_variations": [
+        "Bent-Over Dumbbell Reverse Fly",
+        "Crucifixo Invertido com Halteres",
+        "Rear Delt Fly",
+        "Elevacao Posterior",
+        "Reverse Fly"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": [
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "romboides",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-067",
+        "gif-ex-048",
+        "seed-ex-093",
+        "seed-ex-094"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-048",
+      "name": "Face Pull no Cabo",
+      "name_variations": [
+        "Cable Face Pull",
+        "Puxada para o Rosto",
+        "Face Pull",
+        "Puxada Facial no Cabo"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Costas"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": [
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "romboides",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-019",
+        "gif-ex-067",
+        "seed-ex-093"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-067",
+      "name": "Voador Invertido",
+      "name_variations": [
+        "Reverse Pec Deck",
+        "Crucifixo Invertido na Maquina",
+        "Machine Reverse Fly",
+        "Voador Inverso"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Costas"
+      ],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": [
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "romboides"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-019",
+        "seed-ex-093",
+        "gif-ex-048"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-074",
+      "name": "Elevacao Bilateral na Maquina",
+      "name_variations": [
+        "Machine Lateral Raise",
+        "Elevacao Lateral na Maquina",
+        "Lateral Raise Machine"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-017",
+        "gif-ex-077",
+        "seed-ex-091"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "gif-ex-075",
+      "name": "Elevacao Frontal no Crossover",
+      "name_variations": [
+        "Cable Front Raise",
+        "Elevacao Frontal no Cabo",
+        "Crossover Front Raise"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_anterior"
+      ],
+      "stabilizers": [
+        "core",
+        "trapezio",
+        "serratus_anterior"
+      ],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": [
+        "seed-ex-018",
+        "seed-ex-092"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-076",
+      "name": "Elevacao Lateral Inclinado Sentado",
+      "name_variations": [
+        "Seated Incline Lateral Raise",
+        "Elevacao Lateral no Banco Inclinado",
+        "Incline Dumbbell Lateral Raise"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco Inclinado",
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-017",
+        "gif-ex-077"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "gif-ex-077",
+      "name": "Elevacao Unilateral no Cross",
+      "name_variations": [
+        "Single-Arm Cable Lateral Raise",
+        "Elevacao Lateral no Cabo Unilateral",
+        "One-Arm Cable Lateral Raise",
+        "Crossbody Cable Lateral Raise"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "trapezio",
+        "rotador_externo"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-017",
+        "gif-ex-074",
+        "seed-ex-091"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "gif-ex-078",
+      "name": "Remada Alta com Barra Ombro",
+      "name_variations": [
+        "Barbell Upright Row",
+        "Remada Alta com Barra",
+        "Upright Row"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Trapezio"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral",
+        "trapezio"
+      ],
+      "stabilizers": [
+        "core",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-173",
+        "gif-ex-174",
+        "gif-ex-172",
+        "seed-ex-095"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-172",
+      "name": "Remada Alta com Halteres",
+      "name_variations": [
+        "Dumbbell Upright Row",
+        "Remada Alta Halteres",
+        "Upright Row com Halteres"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Trapezio"
+      ],
+      "category": "Composto",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral",
+        "trapezio"
+      ],
+      "stabilizers": [
+        "core",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-078",
+        "seed-ex-095"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-173",
+      "name": "Remada Alta com Barra",
+      "name_variations": [
+        "Wide-Grip Barbell Upright Row",
+        "Remada Alta Pegada Aberta",
+        "Wide Grip Upright Row"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Trapezio"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral",
+        "trapezio"
+      ],
+      "stabilizers": [
+        "core",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-078",
+        "gif-ex-174"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "gif-ex-174",
+      "name": "Remada Alta",
+      "name_variations": [
+        "Upright Row",
+        "Remada Alta com Barra Reta",
+        "Barbell High Row"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Trapezio"
+      ],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral",
+        "trapezio"
+      ],
+      "stabilizers": [
+        "core",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-078",
+        "gif-ex-173",
+        "gif-ex-172"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-091",
+      "name": "Elevacao Lateral Inclinada no Cabo",
+      "name_variations": [
+        "Leaning Cable Lateral Raise",
+        "Behind-the-Back Cable Lateral Raise",
+        "Lean-Away Lateral Raise",
+        "Elevacao Lateral no Cabo com Inclinacao"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral"
+      ],
+      "stabilizers": [
+        "core",
+        "trapezio",
+        "rotador_externo"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-017",
+        "gif-ex-077",
+        "gif-ex-074"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-018"
+      ]
+    },
+    {
+      "id": "seed-ex-092",
+      "name": "Elevacao Frontal com Barra",
+      "name_variations": [
+        "Barbell Front Raise",
+        "Plate Front Raise",
+        "Elevacao Frontal com Anilha",
+        "Elevacao Frontal com Disco"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_anterior"
+      ],
+      "stabilizers": [
+        "core",
+        "trapezio",
+        "serratus_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-018",
+        "gif-ex-075"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-093",
+      "name": "Crucifixo Invertido no Cabo",
+      "name_variations": [
+        "Standing Cable Reverse Fly",
+        "Cable Rear Delt Fly",
+        "Crossover Invertido",
+        "Crucifixo Inverso no Cabo"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": [
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "romboides",
+        "core"
+      ],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": [
+        "seed-ex-019",
+        "gif-ex-067",
+        "gif-ex-048",
+        "seed-ex-094"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-094",
+      "name": "Crucifixo Invertido Inclinado",
+      "name_variations": [
+        "Incline Rear Delt Fly",
+        "Chest-Supported Reverse Fly",
+        "Crucifixo Invertido no Banco Inclinado",
+        "Prone Incline Reverse Fly"
+      ],
+      "group_muscles": [
+        "Ombros"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco Inclinado",
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": [
+        "deltoide_posterior"
+      ],
+      "stabilizers": [
+        "trapezio",
+        "romboides"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-019",
+        "seed-ex-093",
+        "gif-ex-067"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    },
+    {
+      "id": "seed-ex-095",
+      "name": "Remada Alta no Cabo",
+      "name_variations": [
+        "Cable Upright Row",
+        "Rope Upright Row",
+        "Remada Alta na Polia",
+        "Upright Row no Cabo"
+      ],
+      "group_muscles": [
+        "Ombros",
+        "Trapezio"
+      ],
+      "category": "Composto",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": [
+        "deltoide_lateral",
+        "trapezio"
+      ],
+      "stabilizers": [
+        "core",
+        "rotador_externo"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-078",
+        "gif-ex-172"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-017"
+      ]
+    }
+  ]
+}

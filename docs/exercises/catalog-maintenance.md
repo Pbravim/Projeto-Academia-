@@ -173,3 +173,22 @@ e tem `--list-flags` para os review_flags (§3). → Todos os planos deste doc e
   nunca editando migrations passadas.
 - GIFs: serão recriados manualmente (incl. os 175 existentes, qualidade baixa). `gif_path: null` nos
   seeds novos NÃO é dívida de pesquisa — mídia é um projeto separado.
+
+---
+
+## 6. Extensão do vocabulário de `movement_pattern` (raises de deltoide) — 2026-06-10
+
+> **Sessão:** `ombros_lateral`. O enum de `movement_pattern` não tinha padrão para os raises
+> single-joint de deltoide (elevação lateral/frontal, crucifixo invertido, remada alta).
+
+- **`Abduction`** — raise single-joint de deltoide no plano frontal/sagital (elevação lateral,
+  elevação frontal, remada alta). Mantém os raises fora do match com `Vertical Push` (desenvolvimentos):
+  sem ele, uma elevação lateral (`deltoide_lateral`) rankearia como substituto "similar" de um
+  desenvolvimento (`deltoide_anterior`+`deltoide_lateral`, ~50% de overlap de músculo) — errado.
+- **`Horizontal Abduction`** — crucifixo invertido / reverse fly / face pull (abdução no plano
+  transverso; espelho de `Horizontal Adduction` que já existia para os flys de peito).
+
+Atualizado no mesmo commit: spec sub-5 (§ enum), `scripts/validate_exercise_seeds.py`
+(`MOVEMENT_PATTERNS`), e a skill `exercise-intelligence-research` (lista de padrões). Mesma
+disciplina da extensão de equipamento (§1): nunca usar um padrão "parecido" — estender o vocabulário
+nos 3 lugares no mesmo PR.

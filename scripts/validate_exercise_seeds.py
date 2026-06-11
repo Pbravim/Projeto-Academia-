@@ -31,7 +31,10 @@ DB_CLIENT = REPO / "apps/mobile/src/infrastructure/persistence/sqlite/ExpoSQLite
 # Fonte: docs/superpowers/specs/2026-06-05-subproject-5-exercise-intelligence.md
 MOVEMENT_PATTERNS = {
     "Horizontal Push", "Vertical Push", "Horizontal Pull", "Vertical Pull",
-    "Horizontal Adduction", "Squat", "Hinge", "Lunge", "Rotation",
+    "Horizontal Adduction",
+    # Extensão 2026-06-10 (sessão ombros_lateral): raises de deltoide single-joint
+    "Abduction", "Horizontal Abduction",
+    "Squat", "Hinge", "Lunge", "Rotation",
     "Anti-Rotation", "Carry", "Gait", "Jump", "Sprint",
 }
 PRIMARY_EQUIPMENT = {

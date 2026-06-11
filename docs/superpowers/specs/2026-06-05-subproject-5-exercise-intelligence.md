@@ -45,11 +45,16 @@ Arquivo: `apps/mobile/src/domain/exercises/entities/Exercise.ts`
 ```typescript
 movement_pattern: MovementPattern | null
 // 'Horizontal Push' | 'Vertical Push' | 'Horizontal Pull' | 'Vertical Pull' | 'Horizontal Adduction'
+// | 'Abduction' | 'Horizontal Abduction'
 // | 'Squat' | 'Hinge' | 'Lunge' | 'Rotation' | 'Anti-Rotation'
 // | 'Carry' | 'Gait' | 'Jump' | 'Sprint'
 // 'Horizontal Adduction' = single-joint fly/crossover/pec-deck movements (no elbow extension);
 // kept distinct from 'Horizontal Push' so the substitution algorithm doesn't rank flys as
 // near-identical to compound presses
+// 'Abduction' (added 2026-06-10, sessão ombros_lateral) = single-joint frontal/sagittal deltoid
+// raise (lateral raise, front raise, upright row); kept distinct from 'Vertical Push' so a lateral
+// raise não rankeia como substituto "similar" de um desenvolvimento (overlap parcial de deltoide).
+// 'Horizontal Abduction' = rear-delt / reverse fly / face pull (espelho de 'Horizontal Adduction').
 
 musculo_alvo: string[]          // era string | null — agora array de primários
 stabilizers: string[]           // músculos estabilizadores (informativo)

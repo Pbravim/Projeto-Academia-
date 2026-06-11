@@ -493,10 +493,112 @@
         "gif-ex-072",
         "gif-ex-073"
       ]
+    },
+    "ombros_lateral": {
+      "status": "complete",
+      "exercise_count": 18,
+      "researched_at": "2026-06-10",
+      "catalog_version": 1,
+      "completed_at": "2026-06-10",
+      "research_notes": "Sessão de isolação de deltoide (lateral / posterior / frontal + remada alta), sob a regra de ≥10 bases. O catálogo já tinha 13 registros (seed-ex-017/018/019 + gif-ex-048 face pull + gif-ex-067 voador invertido + gif-ex-074/075/076/077 elevações + gif-ex-078/172/173/174 remada alta) — enriquecidos aqui. NOVO vocabulário de movement_pattern: 'Abduction' (raise frontal/sagital single-joint: elevação lateral/frontal, remada alta) e 'Horizontal Abduction' (crucifixo invertido/reverse fly/face pull — espelho de Horizontal Adduction). Estendido em spec sub-5 + validador + skill no mesmo commit (ver catalog-maintenance.md §6). Sem isso, elevação lateral rankearia como substituto 'similar' de desenvolvimento (overlap parcial de deltoide_lateral).",
+      "completion_notes": "Universo de isolação de ombro auditado contra 15+ bases. Curva de retornos decrescentes: rodada 1 (M&S + ExRx) → grande set base; rodada 2 (clusters lateral: Fitbod/BuiltWithScience/FitLifeRegime/AthleanX/Gymshark/Men's Journal; cluster posterior: BarBend/PureGym/Gymshark/LiftVault/RP Strength/SetForSet; upright row: FitLifeRegime/PureGym/Legion/weighttraining.guide) → +5 distintos; rodada 3 → +0 (resto = variantes de posição/stretch/tempo/pegada). +5 registros novos (seed-ex-091..095): elevação lateral inclinada no cabo (leaning/behind-back — tensão constante na posição alongada), elevação frontal com barra/anilha, crucifixo invertido no cabo (standing cable reverse fly), crucifixo invertido inclinado (chest-supported rear delt fly), remada alta no cabo. ExRx foi decisivo para iso-lateral/lying rear raise; clusters confirmaram leaning/behind-back como estímulo distinto. gif_path null.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de isolação de ombro — informativo, NÃO lido pelo app. Notas brutas em docs/exercises/research-ombros_lateral.md.",
+        "databases_consulted": [
+          "https://exrx.net/Lists/ExList/ShouldWt",
+          "https://exrx.net/WeightExercises/DeltoidLateral/CBLateralRaise",
+          "https://exrx.net/WeightExercises/DeltoidLateral/DBInclineLateralRaise",
+          "https://exrx.net/WeightExercises/DeltoidPosterior/CBStandingReverseFly",
+          "https://exrx.net/WeightExercises/DeltoidPosterior/DBLyingRearLateralRaise",
+          "https://www.muscleandstrength.com/exercises/shoulders",
+          "https://barbend.com/best-rear-delt-exercises/",
+          "https://www.puregym.com/exercises/arms-and-shoulders/rear-delt-exercises/",
+          "https://row.gymshark.com/blog/article/best-rear-delt-exercises",
+          "https://liftvault.com/exercises/rear-delt-exercises/",
+          "https://rpstrength.com/blogs/articles/rear-delt-hypertrophy-training-tips",
+          "https://www.setforset.com/blogs/news/face-pull-alternatives",
+          "https://fitbod.me/exercises/behind-the-back-cable-lateral-raise",
+          "https://builtwithscience.com/fitness-tips/only-2-deltoid-exercises/",
+          "https://fitliferegime.com/cable-lateral-raises-how-to-variations-alternates/",
+          "https://learn.athleanx.com/articles/shoulders-for-men/cable-lateral-raises",
+          "https://legionathletics.com/upright-row/",
+          "https://www.puregym.com/exercises/arms-and-shoulders/upright-rows/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de isolação de ombro deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "forca_elastico_funcional": [
+            "Band Pull-Apart (rear delt + retração com elástico — elástico novo)",
+            "Banded Lateral Raise"
+          ],
+          "ombros_press": [
+            "Todos os desenvolvimentos / presses verticais (sessão separada já completa)"
+          ],
+          "trapezio_sem_sessao": [
+            "Encolhimento/Shrug puro (gif-ex-020/seed-ex-020 + gif-ex-165..171) — trapézio (elevação escapular vertical), NÃO deltoide. Nenhuma sessão atual cobre trapézio isolado; recomenda-se uma sessão 'trapezio' futura ou dobrar em costas. Remada alta (delt lateral + trap) FICA aqui; shrug puro não."
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes de posição/stretch/tempo/pegada cobertas por registros existentes via Layer 1 (mesmo pattern + musculo_alvo).",
+          "lateral_position_stretch_variants": [
+            "Seated Dumbbell Lateral Raise (posição do seed-ex-017)",
+            "Lean-In Dumbbell Lateral Raise (stretch do seed-ex-017)",
+            "Side-Lying Cable Lateral Raise (posição do leaning cable seed-ex-091)",
+            "Lateral Raise Partials (ROM parcial)",
+            "Lu Raise / Overhead Lateral Raise (ROM estendido — nicho)"
+          ],
+          "front_raise_variants": [
+            "Overhead Plate Front Raise (ROM estendido)",
+            "Incline Front Raise (posição)",
+            "Cable Front Raise unilateral (execução — gif-ex-075 cobre)"
+          ],
+          "rear_delt_position_variants": [
+            "Seated Bent-Over Reverse Fly (posição do seed-ex-019)",
+            "Bent-Over Low-Pulley Rear Delt Fly / Cable Rear Lateral unilateral (execução do seed-ex-093)",
+            "Lever/Machine Lying Rear Lateral Raise (variante do voador invertido gif-ex-067)",
+            "T-Y-I / Prone Y Raise (nicho escapular / trap inferior)"
+          ],
+          "upright_row_grip_implement_variants": [
+            "EZ-Bar Upright Row",
+            "Smith Machine Upright Row",
+            "Narrow vs Wide grip (gif-ex-078/173 cobrem pegadas; gif-ex-172 DB; seed-ex-095 cabo)"
+          ],
+          "rotator_cuff_not_deltoid": [
+            "Cable External Rotation",
+            "Scapular Wall Slide (mobilidade — não isolação de deltoide; rotear para mobilidade futura se necessário)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_raises": "Elevações lateral/frontal e remada alta = 'Abduction' (raise frontal/sagital single-joint). Crucifixo invertido / reverse fly / face pull = 'Horizontal Abduction'. Vocabulário estendido 2026-06-10 (catalog-maintenance.md §6) — espelha o precedente do 'Horizontal Adduction' dos flys de peito.",
+        "musculo_alvo_deltoide": "Cada raise marca só a cabeça-alvo do deltoide (deltoide_lateral / deltoide_anterior / deltoide_posterior) para a substituição agrupar por cabeça. Trapézio/romboides ficam em stabilizers, EXCETO na remada alta (multi-joint), onde trapézio entra em musculo_alvo junto com deltoide_lateral.",
+        "upright_row": "Remada alta (gif-ex-078/172/173/174 + seed-ex-095) classificada 'Abduction', Composto, musculo_alvo [deltoide_lateral, trapezio]. Os 4 registros existentes ficam (variantes de implemento/pegada já no catálogo); seed-ex-095 adiciona a versão no cabo (tensão constante).",
+        "reverse_pec_deck": "Voador invertido (gif-ex-067) -> primary_equipment 'Selectorized Machine' (pec deck invertido é máquina de pino; 'Pec Deck' no vocabulário fica só para fly de peito real, conforme catalog-maintenance.md §1)."
+      },
+      "covers": [
+        "seed-ex-017",
+        "seed-ex-018",
+        "seed-ex-019",
+        "seed-ex-091",
+        "seed-ex-092",
+        "seed-ex-093",
+        "seed-ex-094",
+        "seed-ex-095",
+        "gif-ex-048",
+        "gif-ex-067",
+        "gif-ex-074",
+        "gif-ex-075",
+        "gif-ex-076",
+        "gif-ex-077",
+        "gif-ex-078",
+        "gif-ex-172",
+        "gif-ex-173",
+        "gif-ex-174"
+      ]
     }
   },
   "pending_sessions": [
-    "ombros_lateral",
     "biceps",
     "triceps_push_down",
     "triceps_overhead",
