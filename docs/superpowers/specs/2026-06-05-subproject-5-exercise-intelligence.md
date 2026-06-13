@@ -47,7 +47,7 @@ movement_pattern: MovementPattern | null
 // 'Horizontal Push' | 'Vertical Push' | 'Horizontal Pull' | 'Vertical Pull' | 'Horizontal Adduction'
 // | 'Abduction' | 'Horizontal Abduction' | 'Elbow Flexion' | 'Elbow Extension' | 'Knee Extension'
 // | 'Knee Flexion' | 'Hip Extension'
-// | 'Trunk Flexion' | 'Hip Flexion' | 'Lateral Flexion' | 'Anti-Extension'
+// | 'Trunk Flexion' | 'Hip Flexion' | 'Lateral Flexion' | 'Anti-Extension' | 'Plantar Flexion'
 // | 'Squat' | 'Hinge' | 'Lunge' | 'Rotation' | 'Anti-Rotation'
 // | 'Carry' | 'Gait' | 'Jump' | 'Sprint'
 // 'Horizontal Adduction' = single-joint fly/crossover/pec-deck movements (no elbow extension);
@@ -86,6 +86,10 @@ movement_pattern: MovementPattern | null
 // crunch + leg raise + prancha cairiam todos em null e o algoritmo os agruparia só por musculo_alvo (abdomen)
 // como "quase iguais", apesar de estímulos distintos. Rotation (twist/woodchopper/bicicleta) e Anti-Rotation
 // (Pallof) já existiam e cobrem o core rotacional. Ver catalog-maintenance.md §11.
+// 'Plantar Flexion' (added 2026-06-13, sessão panturrilha) = flexão plantar single-joint do tornozelo
+// (elevação de panturrilha em pé/sentado/leg press/donkey). Único padrão da sessão; gastrocnêmio
+// (joelho estendido = em pé) vs sóleo (joelho fletido = sentado) são diferenciados por musculo_alvo
+// (códigos 'gastrocnemio' / 'soleo'), não por pattern. Ver catalog-maintenance.md §12.
 
 musculo_alvo: string[]          // era string | null — agora array de primários
 stabilizers: string[]           // músculos estabilizadores (informativo)

@@ -311,3 +311,29 @@ Roteados (sessões de expansão): Landmine Twist → `forca_landmine`; suspended
 mountain climber → `cardio_hiit_funcional`; bird dog + superman → `reabilitacao_lombar_core` (extensão/
 estabilização lombar, não flexão abdominal). Atualizado no mesmo commit: spec sub-5, validador
 (`MOVEMENT_PATTERNS`), skill. Notas brutas em `research-abdome.md`.
+
+---
+
+## 12. Extensão do vocabulário de `movement_pattern` (flexão plantar / panturrilha) — 2026-06-13
+
+> **Sessão:** `panturrilha` (última sessão de força do manifest). Um padrão novo + granularidade de músculo.
+
+- **`Plantar Flexion`** — flexão plantar single-joint do tornozelo: elevação de panturrilha em pé
+  (seed-ex-042, gif-ex-158), sentada (seed-ex-043, gif-ex-175), no leg press (seed-ex-129), donkey
+  (seed-ex-130). É o ÚNICO padrão da sessão — sem ele, todas as elevações cairiam em `null`.
+- **Gastrocnêmio × sóleo via `musculo_alvo` (códigos novos `gastrocnemio` / `soleo`):** como tudo
+  compartilha um único padrão, a separação dos dois estímulos reais é feita pelo músculo, não por um
+  segundo pattern. **Joelho ESTENDIDO (em pé)** = `gastrocnemio` (o gastroc cruza o joelho e só contribui
+  com o joelho reto). **Joelho FLETIDO ~90° (sentado)** = `soleo` (gastroc em insuficiência ativa; sóleo
+  domina). O músculo não-dominante vai para `stabilizers` (ExRx: em pé recruta os dois; sentado isola o
+  sóleo). Resultado: em pé↔em pé e sentado↔sentado = Layer 1 ("quase igual"); em pé↔sentado = Layer 2
+  ("similar", mesmo pattern). group_muscles continua `Panturrilha` (display).
+
+Retag de máquina (§1): panturrilha sentada (seed-ex-043) = lever/anilha → `Plate-Loaded Machine`
+(ExRx LVSeatedCalfRaise plate-loaded); panturrilha em pé (seed-ex-042) = stack/pino com ombreiras →
+`Selectorized Machine`. Leg press calf raise (seed-ex-129) → `Leg Press` (vocabulário controlado).
+Tibialis raise (dorsiflexão / tibial anterior) é músculo ANTERIOR diferente — roteado (fora de panturrilha).
+Universo pequeno: 2 estímulos reais (gastroc em pé / sóleo sentado), curva +2 → +0 em 10+ bases.
+Atualizado no mesmo commit: spec sub-5, validador (`MOVEMENT_PATTERNS`), skill. Notas em
+`research-panturrilha.md`. **Conclui as 13 sessões de força do manifest** (`pending_sessions` vazio;
+restam só as sessões de expansão — cardio/mobilidade/alongamento/reabilitação/força-por-equipamento).

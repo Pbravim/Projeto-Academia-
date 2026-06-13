@@ -47,6 +47,9 @@ MOVEMENT_PATTERNS = {
     # flexão de quadril (leg raise/crunch reverso), flexão lateral (side bend/prancha lateral) e
     # bracing isométrico anti-extensão (prancha, dead bug, rollout). Rotation/Anti-Rotation já existem.
     "Trunk Flexion", "Hip Flexion", "Lateral Flexion", "Anti-Extension",
+    # Extensão 2026-06-13 (sessão panturrilha): flexão plantar single-joint do tornozelo (elevação de
+    # panturrilha em pé/sentado/leg press/donkey). Gastroc vs sóleo diferenciados por musculo_alvo.
+    "Plantar Flexion",
     "Squat", "Hinge", "Lunge", "Rotation",
     "Anti-Rotation", "Carry", "Gait", "Jump", "Sprint",
 }

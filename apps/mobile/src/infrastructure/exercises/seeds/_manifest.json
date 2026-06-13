@@ -1117,11 +1117,71 @@
         "gif-ex-126",
         "gif-ex-127"
       ]
+    },
+    "panturrilha": {
+      "status": "complete",
+      "exercise_count": 6,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Última sessão de força do manifest. Flexão plantar do tornozelo (panturrilha posterior: gastrocnêmio + sóleo), sob a regra de ≥10 bases. O catálogo já tinha 4 registros (seed-ex-042/043 + gif-ex-158/175) — enriquecidos aqui. UM movement_pattern novo: 'Plantar Flexion' (único padrão da sessão — sem ele todas cairiam em null), estendido em spec sub-5 + validador + skill no mesmo commit (catalog-maintenance.md §12). Como tudo compartilha o mesmo padrão, gastrocnêmio (joelho estendido = em pé) vs sóleo (joelho fletido = sentado) é diferenciado por musculo_alvo (códigos novos 'gastrocnemio' / 'soleo'; o não-dominante vai para stabilizers). Retag de máquina (§1): seed-ex-043 (sentada, lever/anilha) -> Plate-Loaded Machine; seed-ex-042 (em pé, stack/pino) -> Selectorized Machine. Leg press calf raise (seed-ex-129) -> Leg Press. Tibial anterior (tibialis raise) roteado (músculo anterior diferente).",
+      "completion_notes": "Universo de panturrilha auditado contra 10+ bases. Curva de retornos decrescentes: rodada 1 (Muscle&Strength exaustivo + BarBend + StrengthLog + ExRx Kinesiology/Gastroc/Soleo) -> +2 distintos (panturrilha no leg press; panturrilha donkey); rodada 2 (PureGym, dr-muscle, Arsenal Strength, LoadMuscle, gmwdfitness, Wikipedia) -> +0. Fechamento confirmado — universo pequeno: 2 estímulos reais (gastroc em pé / sóleo sentado), o resto são variantes de implemento (barra/Smith/cabo/haltere)/posição (chão/step/toes-in/out)/carga/execução (1-perna)/tempo (eccentric heel drop). +2 registros novos (seed-ex-129..130). gif_path null. Notas brutas em docs/exercises/research-panturrilha.md.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de panturrilha — informativo, NÃO lido pelo app.",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/calves",
+          "https://barbend.com/best-calf-exercises/",
+          "https://www.strengthlog.com/calf-exercises/",
+          "https://exrx.net/Kinesiology/CalfExercises",
+          "https://exrx.net/WeightExercises/Gastrocnemius/LVStandingCalfRaise",
+          "https://exrx.net/WeightExercises/Soleus/LVSeatedCalfRaise",
+          "https://www.puregym.com/exercises/legs/calf-exercises/",
+          "https://dr-muscle.com/best-calf-exercises/",
+          "https://blog.myarsenalstrength.com/calf-raise-variations",
+          "https://loadmuscle.com/blog/best-calf-exercises",
+          "https://gmwdfitness.com/blogs/news/the-ultimate-guide-to-leg-press-calf-raise-unlocking-stronger-legs-and-calves",
+          "https://en.wikipedia.org/wiki/Calf_raises"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "lower_leg_anterior": ["Tibialis Raise / Banded Tibialis Raise (dorsiflexão — tibial anterior, músculo ANTERIOR diferente; futura sessão de tibial ou reabilitacao_quadril_joelho)"],
+          "forca_kettlebell": ["Farmer's Walk on Toes", "Captain Morgan Calf Raise"],
+          "forca_maquinas_especializadas": ["Hack Squat Calf Raise", "Sled Drag (na ponta dos pés)"],
+          "cardio_steady_state": ["Jump Rope / Pular Corda", "Corrida / Escada / Bike (cardio para panturrilha)"]
+        },
+        "excluded_as_non_distinct": {
+          "gastroc_standing_variants": [
+            "Standing Barbell / Dumbbell / Smith / Cable Calf Raise (implemento da panturrilha em pé seed-ex-042/gif-ex-158)",
+            "Single-Leg Standing Calf Raise (execução unilateral), Calf Raise no Chao vs no Step (ROM)",
+            "Eccentric Heel Drop (tempo), Toes-In / Toes-Out Standing (rotação do pé — mesma musculatura)"
+          ],
+          "soleus_seated_variants": [
+            "Seated Barbell / Plate-Loaded / Smith Seated Calf Raise (implemento da panturrilha sentada seed-ex-043/gif-ex-175)",
+            "Single-Leg Seated Calf Raise (execução), Toes-In Seated (rotação do pé)"
+          ],
+          "leg_press_variants": [
+            "45° vs Horizontal Leg Press Calf Raise (ângulo da máquina — seed-ex-129)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_calf": "'Plantar Flexion' é o único padrão da sessão. Gastroc (em pé, joelho estendido) vs sóleo (sentado, joelho fletido) diferenciados por musculo_alvo, não por pattern. Ver catalog-maintenance.md §12.",
+        "musculo_alvo": "Códigos novos 'gastrocnemio' (em pé: seed-ex-042/129/130, gif-ex-158) e 'soleo' (sentado: seed-ex-043, gif-ex-175); o não-dominante vai para stabilizers (ExRx: em pé recruta os dois, sentado isola o sóleo). group_muscles continua 'Panturrilha'.",
+        "machine_calf": "seed-ex-043 (sentada, lever/anilha) -> Plate-Loaded Machine; seed-ex-042 (em pé, stack/pino com ombreiras) -> Selectorized Machine; seed-ex-129 -> Leg Press. Donkey (seed-ex-130) -> Bodyweight (forma clássica; máquina donkey é name_variation)."
+      },
+      "covers": [
+        "seed-ex-042",
+        "seed-ex-043",
+        "seed-ex-129",
+        "seed-ex-130",
+        "gif-ex-158",
+        "gif-ex-175"
+      ]
     }
   },
-  "pending_sessions": [
-    "panturrilha"
-  ],
+  "pending_sessions": [],
   "pending_expansion_sessions": {
     "_comment": "Sessões de EXPANSÃO — criam registros novos no catálogo (não enriquecem o que já existe). gif_path fica null; mídia é assunto separado. GIFs/IDs existentes NÃO devem limitar o escopo dessas sessões.",
     "new_categories": {

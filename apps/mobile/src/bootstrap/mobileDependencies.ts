@@ -65,6 +65,7 @@ import tricepsOverheadJson from '../infrastructure/exercises/seeds/triceps_overh
 import quadricepsJson from '../infrastructure/exercises/seeds/quadriceps.json';
 import posteriorGluteosJson from '../infrastructure/exercises/seeds/posterior_gluteos.json';
 import abdomeJson from '../infrastructure/exercises/seeds/abdome.json';
+import panturrilhaJson from '../infrastructure/exercises/seeds/panturrilha.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -78,6 +79,7 @@ const tricepsOverhead = tricepsOverheadJson as SeedFile;
 const quadriceps = quadricepsJson as SeedFile;
 const posteriorGluteos = posteriorGluteosJson as SeedFile;
 const abdome = abdomeJson as SeedFile;
+const panturrilha = panturrilhaJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -108,6 +110,7 @@ void (async () => {
       seedLoader.loadSeedFile(quadriceps),
       seedLoader.loadSeedFile(posteriorGluteos),
       seedLoader.loadSeedFile(abdome),
+      seedLoader.loadSeedFile(panturrilha),
     ]);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
