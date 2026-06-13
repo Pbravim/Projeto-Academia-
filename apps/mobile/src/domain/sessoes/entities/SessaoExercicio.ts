@@ -18,6 +18,10 @@ export interface SessaoExercicioPrimitives {
   tempoDescansoSegundos: number | null;
   metodo: 'normal' | 'drop_set' | 'piramide' | 'rest_pause';
   grupoId: string | null;
+  trackingTypeSnapshot: string;
+  duracaoRecomendadaSegundos: number | null;
+  distanciaRecomendadaMetros: number | null;
+  intensidadeRecomendada: number | null;
   // substituição
   substituidoPorExercicioId: string | null;
   substituicaoMotivo: SubstituicaoMotivo | null;
@@ -65,6 +69,10 @@ export class SessaoExercicio {
       cargaPadrao: null,
       seriesRecomendadas: null,
       execucoesRecomendadas: null,
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
+      trackingTypeSnapshot: this.props.trackingTypeSnapshot,
       substituidoPorExercicioId: this.props.substituidoPorExercicioId ?? this.props.exercicioId,
       substituicaoMotivo: motivo,
       nomeOriginalSnapshot: this.props.nomeOriginalSnapshot ?? this.props.nomeSnapshot,

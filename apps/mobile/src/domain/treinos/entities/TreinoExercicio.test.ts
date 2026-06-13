@@ -6,6 +6,7 @@ function base() {
     id: 'te1', treinoId: 't1', exercicioId: 'ex1',
     ordem: 0, seriesRecomendadas: null, execucoesRecomendadas: null,
     cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal' as const, grupoId: null,
+    duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
   };
 }
 

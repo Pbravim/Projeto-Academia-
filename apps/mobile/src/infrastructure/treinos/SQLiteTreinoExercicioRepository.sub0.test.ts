@@ -17,6 +17,7 @@ function make(id: string, treinoId: string, exId: string): TreinoExercicio {
     id, treinoId, exercicioId: exId, ordem: 0,
     seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
     tempoDescansoSegundos: null, metodo: 'normal', grupoId: null,
+    duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
   });
 }
 

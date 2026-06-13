@@ -43,8 +43,8 @@ describe('BaixarMidiasTreinoUseCase', () => {
     await exerciseRepo.save(ex1);
     await exerciseRepo.save(ex2);
 
-    const te1 = makeTreinoExercicio({ id: 'te-1', treinoId: 'treino-1', exercicioId: 'ex-1', ordem: 1, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null });
-    const te2 = makeTreinoExercicio({ id: 'te-2', treinoId: 'treino-1', exercicioId: 'ex-2', ordem: 2, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null });
+    const te1 = makeTreinoExercicio({ id: 'te-1', treinoId: 'treino-1', exercicioId: 'ex-1', ordem: 1, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null });
+    const te2 = makeTreinoExercicio({ id: 'te-2', treinoId: 'treino-1', exercicioId: 'ex-2', ordem: 2, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null });
     await treinoExercicioRepo.save(te1 as any);
     await treinoExercicioRepo.save(te2 as any);
 
@@ -82,7 +82,7 @@ describe('BaixarMidiasTreinoUseCase', () => {
 
     for (const [i, id] of ['ex-1', 'ex-2', 'ex-3'].entries()) {
       await treinoExercicioRepo.save(
-        makeTreinoExercicio({ id: `te-${i + 1}`, treinoId: 'treino-1', exercicioId: id, ordem: i + 1, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null }) as any
+        makeTreinoExercicio({ id: `te-${i + 1}`, treinoId: 'treino-1', exercicioId: id, ordem: i + 1, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null }) as any
       );
     }
 

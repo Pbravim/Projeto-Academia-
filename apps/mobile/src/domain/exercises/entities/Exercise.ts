@@ -1,6 +1,8 @@
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import { ExerciseValidationError } from '../errors/ExerciseValidationError';
 
+export type TrackingType = 'reps_load' | 'cardio' | 'hold' | 'reps_only';
+
 export interface ExercisePrimitives {
   id: string;
   name: string;
@@ -23,6 +25,7 @@ export interface ExercisePrimitives {
   primaryEquipment: string | null;
   secondaryEquipment: string | null;
   catalogVersion: number;
+  trackingType: TrackingType;
 }
 
 export interface CreateExerciseProps {
@@ -44,6 +47,7 @@ export interface CreateExerciseProps {
   primaryEquipment?: string | null;
   secondaryEquipment?: string | null;
   catalogVersion?: number;
+  trackingType?: TrackingType;
 }
 
 export interface UpdateExerciseProps {
@@ -60,6 +64,7 @@ export interface UpdateExerciseProps {
   nameVariations?: string[];
   primaryEquipment?: string | null;
   secondaryEquipment?: string | null;
+  trackingType?: TrackingType;
 }
 
 export class Exercise {
@@ -81,6 +86,7 @@ export class Exercise {
     const primaryEquipment = normalizeOptionalText(input.primaryEquipment);
     const secondaryEquipment = normalizeOptionalText(input.secondaryEquipment);
     const catalogVersion = input.catalogVersion ?? 0;
+    const trackingType = input.trackingType ?? 'reps_load';
 
     return new Exercise({
       id: input.id,
@@ -103,6 +109,7 @@ export class Exercise {
       primaryEquipment,
       secondaryEquipment,
       catalogVersion,
+      trackingType,
     });
   }
 
@@ -137,6 +144,7 @@ export class Exercise {
       primaryEquipment: 'primaryEquipment' in input ? normalizeOptionalText(input.primaryEquipment) : current.primaryEquipment,
       secondaryEquipment: 'secondaryEquipment' in input ? normalizeOptionalText(input.secondaryEquipment) : current.secondaryEquipment,
       catalogVersion: current.catalogVersion,
+      trackingType: 'trackingType' in input ? (input.trackingType ?? 'reps_load') : current.trackingType,
     });
   }
 

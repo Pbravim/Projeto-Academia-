@@ -172,6 +172,21 @@ export function createTestDatabase(): SQLiteDatabaseClient {
 
     // v21: movement_pattern_snapshot in sessao_exercicios
     `ALTER TABLE sessao_exercicios ADD COLUMN movement_pattern_snapshot TEXT;`,
+
+    // v22: non-strength logging — tracking_type + nullable metrics (mirrors prod migration)
+    `ALTER TABLE exercises ADD COLUMN tracking_type TEXT;
+     UPDATE exercises SET tracking_type = 'reps_load' WHERE tracking_type IS NULL;
+     ALTER TABLE series_registradas ADD COLUMN duracao_segundos INTEGER;
+     ALTER TABLE series_registradas ADD COLUMN distancia_metros REAL;
+     ALTER TABLE series_registradas ADD COLUMN intensidade REAL;
+     ALTER TABLE sessao_exercicios ADD COLUMN tracking_type_snapshot TEXT;
+     ALTER TABLE sessao_exercicios ADD COLUMN duracao_recomendada_segundos INTEGER;
+     ALTER TABLE sessao_exercicios ADD COLUMN distancia_recomendada_metros REAL;
+     ALTER TABLE sessao_exercicios ADD COLUMN intensidade_recomendada REAL;
+     UPDATE sessao_exercicios SET tracking_type_snapshot = 'reps_load' WHERE tracking_type_snapshot IS NULL;
+     ALTER TABLE treino_exercicios ADD COLUMN duracao_recomendada_segundos INTEGER;
+     ALTER TABLE treino_exercicios ADD COLUMN distancia_recomendada_metros REAL;
+     ALTER TABLE treino_exercicios ADD COLUMN intensidade_recomendada REAL;`,
   ];
 
   for (const migration of migrations) {

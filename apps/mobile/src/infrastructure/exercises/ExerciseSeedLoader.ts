@@ -55,6 +55,7 @@ export class ExerciseSeedLoader {
         primaryEquipment: entry.primary_equipment,
         secondaryEquipment: entry.secondary_equipment,
         catalogVersion: seed.catalog_version,
+        trackingType: 'reps_load',
       });
 
       await this.repository.upsertCatalogExercise(

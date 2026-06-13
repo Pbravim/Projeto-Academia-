@@ -11,6 +11,9 @@ export interface TreinoExercicioPrimitives {
   tempoDescansoSegundos: number | null;
   metodo: MetodoExercicio;
   grupoId: string | null;
+  duracaoRecomendadaSegundos: number | null;
+  distanciaRecomendadaMetros: number | null;
+  intensidadeRecomendada: number | null;
 }
 
 export class TreinoExercicio {

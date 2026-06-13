@@ -24,12 +24,13 @@ interface ExerciseRow {
   primary_equipment: string | null;
   secondary_equipment: string | null;
   catalog_version: number;
+  tracking_type: string | null;
 }
 
 const EXERCISE_COLUMNS = `id, name, normalized_name, group_muscle, category, equipment,
        load_unit, is_custom, created_at, updated_at, media_online, media_local,
        musculo_alvo, movement_pattern, stabilizers, execution_type,
-       name_variations, primary_equipment, secondary_equipment, catalog_version`;
+       name_variations, primary_equipment, secondary_equipment, catalog_version, tracking_type`;
 
 export class SQLiteExerciseRepository implements ExerciseRepository {
   constructor(private readonly database: SQLiteDatabaseClient) {}
@@ -42,8 +43,8 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
          load_unit, is_custom, created_at, updated_at, media_online, media_local,
          musculo_alvo, movement_pattern, stabilizers, execution_type,
          name_variations, primary_equipment, secondary_equipment, catalog_version,
-         deleted_at, dirty
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+         tracking_type, deleted_at, dirty
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
       [
         p.id, p.name, p.normalizedName, serializeGroupMuscles(p.groupMuscles), p.category, p.equipment,
         p.loadUnit, p.isCustom ? 1 : 0, p.createdAt, p.updatedAt,
@@ -56,6 +57,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
         p.primaryEquipment,
         p.secondaryEquipment,
         p.catalogVersion,
+        p.trackingType,
       ]
     );
   }
@@ -219,8 +221,8 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
          load_unit, is_custom, created_at, updated_at, media_online, media_local,
          musculo_alvo, movement_pattern, stabilizers, execution_type,
          name_variations, primary_equipment, secondary_equipment, catalog_version,
-         deleted_at, dirty
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0)
+         tracking_type, deleted_at, dirty
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0)
        ON CONFLICT(id) DO UPDATE SET
          name               = excluded.name,
          normalized_name    = excluded.normalized_name,
@@ -235,6 +237,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
          primary_equipment  = excluded.primary_equipment,
          secondary_equipment = excluded.secondary_equipment,
          catalog_version    = excluded.catalog_version,
+         tracking_type      = excluded.tracking_type,
          updated_at         = excluded.updated_at
        WHERE exercises.is_custom = 0`,
       [
@@ -249,6 +252,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
         p.primaryEquipment,
         p.secondaryEquipment,
         p.catalogVersion,
+        p.trackingType,
       ]
     );
 
@@ -326,5 +330,6 @@ function mapRowToPrimitives(row: ExerciseRow): ExercisePrimitives {
     primaryEquipment:   row.primary_equipment ?? null,
     secondaryEquipment: row.secondary_equipment ?? null,
     catalogVersion:     row.catalog_version ?? 0,
+    trackingType:       (row.tracking_type ?? 'reps_load') as ExercisePrimitives['trackingType'],
   };
 }

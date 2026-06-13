@@ -66,6 +66,10 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
       tempoDescansoSegundos: null,
       metodo: 'normal',
       grupoId: null,
+      trackingTypeSnapshot: 'reps_load',
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
       substituidoPorExercicioId: null,
       substituicaoMotivo: null,
       nomeOriginalSnapshot: null,
@@ -83,6 +87,9 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
       tempoDescansoSegundos: null,
       metodo: 'normal',
       grupoId: null,
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
     });
     await treinoExercicioRepository.save(treinoExercicio);
 
@@ -132,6 +139,10 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
       tempoDescansoSegundos: null,
       metodo: 'normal',
       grupoId: null,
+      trackingTypeSnapshot: 'reps_load',
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
       substituidoPorExercicioId: null,
       substituicaoMotivo: null,
       nomeOriginalSnapshot: null,

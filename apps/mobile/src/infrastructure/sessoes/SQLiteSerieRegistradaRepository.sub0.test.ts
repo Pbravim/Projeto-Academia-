@@ -15,7 +15,7 @@ beforeEach(() => {
 function make(id: string, seId: string): SerieRegistrada {
   return SerieRegistrada.restore({
     id, sessaoExercicioId: seId, ordem: 0, cargaKg: 50, repeticoes: 10,
-    observacao: null, tipoSerie: 'valida',
+    observacao: null, tipoSerie: 'valida', duracaoSegundos: null, distanciaMetros: null, intensidade: null,
   });
 }
 

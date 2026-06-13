@@ -60,6 +60,9 @@ async function seedTreinoComExercicio(repos: ReturnType<typeof makeRepos>) {
     tempoDescansoSegundos: null,
     metodo: 'normal' as const,
     grupoId: null,
+    duracaoRecomendadaSegundos: null,
+    distanciaRecomendadaMetros: null,
+    intensidadeRecomendada: null,
   });
   await repos.treinoExercicioRepository.save(te);
 }
@@ -114,6 +117,9 @@ describe('IniciarSessaoUseCase', () => {
       tempoDescansoSegundos: 90,
       metodo: 'normal' as const,
       grupoId: null,
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
     });
     await repos.treinoExercicioRepository.save(te);
 

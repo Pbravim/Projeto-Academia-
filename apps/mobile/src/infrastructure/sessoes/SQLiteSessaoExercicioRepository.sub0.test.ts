@@ -19,6 +19,7 @@ function make(id: string, sessaoId: string, exId: string): SessaoExercicio {
     equipamentoSnapshot: null, musculoAlvoSnapshot: [], movementPatternSnapshot: null, realizado: false,
     seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
     tempoDescansoSegundos: null, metodo: 'normal', grupoId: null,
+    trackingTypeSnapshot: 'reps_load', duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
     substituidoPorExercicioId: null, substituicaoMotivo: null, nomeOriginalSnapshot: null,
   });
 }

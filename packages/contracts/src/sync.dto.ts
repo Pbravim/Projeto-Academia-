@@ -34,6 +34,9 @@ export interface TreinoExercicioSyncRow extends SyncRow {
   tempoDescansoSegundos: number | null;
   metodo: string;
   grupoId: string | null;
+  duracaoRecomendadaSegundos: number | null;
+  distanciaRecomendadaMetros: number | null;
+  intensidadeRecomendada: number | null;
 }
 
 export interface SessaoTreinoSyncRow extends SyncRow {
@@ -65,6 +68,10 @@ export interface SessaoExercicioSyncRow extends SyncRow {
   grupoId: string | null;
   substituidoPorExercicioId: string | null;
   substituicaoMotivo: string | null;
+  trackingTypeSnapshot: string | null;
+  duracaoRecomendadaSegundos: number | null;
+  distanciaRecomendadaMetros: number | null;
+  intensidadeRecomendada: number | null;
   createdAt: string;
 }
 
@@ -72,8 +79,11 @@ export interface SerieRegistradaSyncRow extends SyncRow {
   sessaoExercicioId: string;
   tipoSerie: string;
   ordem: number;
-  cargaKg: number;
-  repeticoes: number;
+  cargaKg: number | null;
+  repeticoes: number | null;
+  duracaoSegundos: number | null;
+  distanciaMetros: number | null;
+  intensidade: number | null;
   observacao: string | null;
   createdAt: string;
 }

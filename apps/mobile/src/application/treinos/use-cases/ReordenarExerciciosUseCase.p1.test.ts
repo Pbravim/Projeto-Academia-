@@ -45,16 +45,21 @@ describe('ReordenarExerciciosUseCase - P1 Regression Tests', () => {
       tempoDescansoSegundos: null,
       metodo: 'normal' as const,
       grupoId: null,
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
     });
     const te2 = TreinoExercicio.create({
       id: 'te_2', treinoId: 'treino_1', exercicioId: 'ex_2', ordem: 2,
       seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
       tempoDescansoSegundos: null, metodo: 'normal' as const, grupoId: null,
+      duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
     });
     const te3 = TreinoExercicio.create({
       id: 'te_3', treinoId: 'treino_1', exercicioId: 'ex_3', ordem: 3,
       seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
       tempoDescansoSegundos: null, metodo: 'normal' as const, grupoId: null,
+      duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
     });
     await treinoExercicioRepository.save(te1);
     await treinoExercicioRepository.save(te2);
@@ -90,16 +95,21 @@ describe('ReordenarExerciciosUseCase - P1 Regression Tests', () => {
       tempoDescansoSegundos: null,
       metodo: 'normal' as const,
       grupoId: null,
+      duracaoRecomendadaSegundos: null,
+      distanciaRecomendadaMetros: null,
+      intensidadeRecomendada: null,
     });
     const te2 = TreinoExercicio.create({
       id: 'te_2', treinoId: 'treino_1', exercicioId: 'ex_2', ordem: 2,
       seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
       tempoDescansoSegundos: null, metodo: 'normal' as const, grupoId: null,
+      duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
     });
     const te3 = TreinoExercicio.create({
       id: 'te_3', treinoId: 'treino_1', exercicioId: 'ex_3', ordem: 3,
       seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
       tempoDescansoSegundos: null, metodo: 'normal' as const, grupoId: null,
+      duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
     });
     await treinoExercicioRepository.save(te1);
     await treinoExercicioRepository.save(te2);

@@ -19,9 +19,9 @@ async function setupTreinoComExercicios(treinoRepo: InMemoryTreinoRepository, te
   const treino = Treino.create({ id: 'treino-1', name: 'Treino A', createdAt: new Date('2026-01-01') });
   await treinoRepo.save(treino);
 
-  const te1 = TreinoExercicio.create({ id: 'te-1', treinoId: 'treino-1', exercicioId: 'ex-1', ordem: 1, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 20, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null });
-  const te2 = TreinoExercicio.create({ id: 'te-2', treinoId: 'treino-1', exercicioId: 'ex-2', ordem: 2, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 20, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null });
-  const te3 = TreinoExercicio.create({ id: 'te-3', treinoId: 'treino-1', exercicioId: 'ex-3', ordem: 3, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 20, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null });
+  const te1 = TreinoExercicio.create({ id: 'te-1', treinoId: 'treino-1', exercicioId: 'ex-1', ordem: 1, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 20, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null });
+  const te2 = TreinoExercicio.create({ id: 'te-2', treinoId: 'treino-1', exercicioId: 'ex-2', ordem: 2, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 20, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null });
+  const te3 = TreinoExercicio.create({ id: 'te-3', treinoId: 'treino-1', exercicioId: 'ex-3', ordem: 3, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 20, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null });
   await teRepo.save(te1);
   await teRepo.save(te2);
   await teRepo.save(te3);

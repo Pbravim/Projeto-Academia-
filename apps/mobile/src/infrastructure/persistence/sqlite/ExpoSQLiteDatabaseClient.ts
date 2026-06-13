@@ -570,6 +570,21 @@ const migrations: string[] = [
    UPDATE sessao_exercicios
      SET musculo_alvo_snapshot = json_array(musculo_alvo_snapshot)
      WHERE musculo_alvo_snapshot IS NOT NULL AND musculo_alvo_snapshot NOT LIKE '[%';`,
+
+  // v21: non-strength logging — tracking_type for cardio/hold/reps_only + nullable metrics
+  `ALTER TABLE exercises ADD COLUMN tracking_type TEXT;
+   UPDATE exercises SET tracking_type = 'reps_load' WHERE tracking_type IS NULL;
+   ALTER TABLE series_registradas ADD COLUMN duracao_segundos INTEGER;
+   ALTER TABLE series_registradas ADD COLUMN distancia_metros REAL;
+   ALTER TABLE series_registradas ADD COLUMN intensidade REAL;
+   ALTER TABLE sessao_exercicios ADD COLUMN tracking_type_snapshot TEXT;
+   ALTER TABLE sessao_exercicios ADD COLUMN duracao_recomendada_segundos INTEGER;
+   ALTER TABLE sessao_exercicios ADD COLUMN distancia_recomendada_metros REAL;
+   ALTER TABLE sessao_exercicios ADD COLUMN intensidade_recomendada REAL;
+   UPDATE sessao_exercicios SET tracking_type_snapshot = 'reps_load' WHERE tracking_type_snapshot IS NULL;
+   ALTER TABLE treino_exercicios ADD COLUMN duracao_recomendada_segundos INTEGER;
+   ALTER TABLE treino_exercicios ADD COLUMN distancia_recomendada_metros REAL;
+   ALTER TABLE treino_exercicios ADD COLUMN intensidade_recomendada REAL;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {

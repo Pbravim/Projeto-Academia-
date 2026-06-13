@@ -35,6 +35,7 @@ describe('Exercise', () => {
       primaryEquipment: null,
       secondaryEquipment: null,
       catalogVersion: 0,
+      trackingType: 'reps_load',
     });
   });
 
@@ -96,6 +97,7 @@ describe('Exercise', () => {
     expect(p.primaryEquipment).toBeNull();
     expect(p.secondaryEquipment).toBeNull();
     expect(p.catalogVersion).toBe(0);
+    expect(p.trackingType).toBe('reps_load');
   });
 
   it('updates fields and recomputes normalizedName', () => {

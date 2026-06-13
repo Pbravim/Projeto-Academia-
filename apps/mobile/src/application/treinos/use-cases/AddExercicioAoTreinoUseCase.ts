@@ -57,6 +57,9 @@ export class AddExercicioAoTreinoUseCase {
         tempoDescansoSegundos: null,
         metodo: 'normal',
         grupoId: null,
+        duracaoRecomendadaSegundos: null,
+        distanciaRecomendadaMetros: null,
+        intensidadeRecomendada: null,
       });
       await this.dependencies.treinoExercicioRepository.save(treinoExercicio);
     };

@@ -7,10 +7,13 @@ interface SerieRegistradaRow {
   id: string;
   sessao_exercicio_id: string;
   ordem: number;
-  carga_kg: number;
-  repeticoes: number;
+  carga_kg: number | null;
+  repeticoes: number | null;
   observacao: string | null;
   tipo_serie: string | null;
+  duracao_segundos: number | null;
+  distancia_metros: number | null;
+  intensidade: number | null;
 }
 
 export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepository {
@@ -19,9 +22,9 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   async save(serie: SerieRegistrada): Promise<void> {
     const p = serie.toPrimitives();
     await this.database.run(
-      `INSERT OR REPLACE INTO series_registradas (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
-      [p.id, p.sessaoExercicioId, p.tipoSerie, p.ordem, p.cargaKg, p.repeticoes, p.observacao, nowIso()]
+      `INSERT OR REPLACE INTO series_registradas (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao, duracao_segundos, distancia_metros, intensidade, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+      [p.id, p.sessaoExercicioId, p.tipoSerie, p.ordem, p.cargaKg ?? null, p.repeticoes ?? null, p.observacao, p.duracaoSegundos ?? null, p.distanciaMetros ?? null, p.intensidade ?? null, nowIso()]
     );
   }
 
@@ -92,26 +95,29 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     );
   }
 
-  async update(id: string, patch: { cargaKg: number; repeticoes: number; observacao?: string | null }): Promise<void> {
+  async update(id: string, patch: { cargaKg?: number | null; repeticoes?: number | null; duracaoSegundos?: number | null; distanciaMetros?: number | null; intensidade?: number | null; observacao?: string | null }): Promise<void> {
     await this.database.run(
-      `UPDATE series_registradas SET carga_kg = ?, repeticoes = ?, observacao = ?, updated_at = ?, dirty = 1 WHERE id = ?`,
-      [patch.cargaKg, patch.repeticoes, patch.observacao ?? null, nowIso(), id]
+      `UPDATE series_registradas SET carga_kg = ?, repeticoes = ?, duracao_segundos = ?, distancia_metros = ?, intensidade = ?, observacao = ?, updated_at = ?, dirty = 1 WHERE id = ?`,
+      [patch.cargaKg ?? null, patch.repeticoes ?? null, patch.duracaoSegundos ?? null, patch.distanciaMetros ?? null, patch.intensidade ?? null, patch.observacao ?? null, nowIso(), id]
     );
   }
 
   async getDirty(): Promise<import('@academia/contracts').SerieRegistradaSyncRow[]> {
     const rows = await this.database.getAll<{
       id: string; sessao_exercicio_id: string; tipo_serie: string; ordem: number;
-      carga_kg: number; repeticoes: number; observacao: string | null;
+      carga_kg: number | null; repeticoes: number | null; observacao: string | null;
+      duracao_segundos: number | null; distancia_metros: number | null; intensidade: number | null;
       created_at: string; updated_at: string; deleted_at: string | null;
     }>(
       `SELECT id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
+              duracao_segundos, distancia_metros, intensidade,
               created_at, updated_at, deleted_at
        FROM series_registradas WHERE dirty = 1`
     );
     return rows.map((r) => ({
       id: r.id, sessaoExercicioId: r.sessao_exercicio_id, tipoSerie: r.tipo_serie,
       ordem: r.ordem, cargaKg: r.carga_kg, repeticoes: r.repeticoes,
+      duracaoSegundos: r.duracao_segundos, distanciaMetros: r.distancia_metros, intensidade: r.intensidade,
       observacao: r.observacao, createdAt: r.created_at,
       updatedAt: r.updated_at, deletedAt: r.deleted_at,
     }));
@@ -122,10 +128,12 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
       await this.database.run(
         `INSERT OR REPLACE INTO series_registradas
            (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
+            duracao_segundos, distancia_metros, intensidade,
             created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
         [r.id, r.sessaoExercicioId, r.tipoSerie, r.ordem, r.cargaKg, r.repeticoes,
-         r.observacao, r.createdAt, r.updatedAt, r.deletedAt]
+         r.observacao, r.duracaoSegundos ?? null, r.distanciaMetros ?? null, r.intensidade ?? null,
+         r.createdAt, r.updatedAt, r.deletedAt]
       );
     }
   }
@@ -139,6 +147,9 @@ function mapRow(row: SerieRegistradaRow): SerieRegistradaPrimitives {
     cargaKg: row.carga_kg,
     repeticoes: row.repeticoes,
     observacao: row.observacao,
+    duracaoSegundos: row.duracao_segundos,
+    distanciaMetros: row.distancia_metros,
+    intensidade: row.intensidade,
     tipoSerie: row.tipo_serie === 'aquecimento' ? 'aquecimento' : 'valida',
   };
 }

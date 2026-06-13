@@ -15,6 +15,9 @@ function makeTE(id: string, treinoId: string, ordem: number) {
     tempoDescansoSegundos: null,
     metodo: 'normal',
     grupoId: null,
+    duracaoRecomendadaSegundos: null,
+    distanciaRecomendadaMetros: null,
+    intensidadeRecomendada: null,
   });
 }
 
