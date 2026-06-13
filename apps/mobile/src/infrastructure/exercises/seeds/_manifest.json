@@ -596,15 +596,530 @@
         "gif-ex-173",
         "gif-ex-174"
       ]
+    },
+    "biceps": {
+      "status": "complete",
+      "exercise_count": 24,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Sessão de isolação de bíceps (flexão de cotovelo), sob a regra de ≥10 bases. O catálogo já tinha 14 registros (seed-ex-021/022/023/024 + gif-ex-079..088) — enriquecidos aqui com movement_pattern, musculo_alvo por array, primary_equipment do vocabulário e alternativas. NOVO vocabulário de movement_pattern: 'Elbow Flexion' (rosca single-joint), estendido em spec sub-5 + validador + skill no mesmo commit (ver catalog-maintenance.md §7). Sem ele, uma rosca rankearia como substituto 'similar' de barra fixa/puxada supinada/remada (compostos que recrutam bíceps como sinergista). Vocabulário de músculo segue biceps.md + seeds de costas: biceps_braquial (bíceps brachii), braquial, braquiorradial, flexores_antebraco. Retag de máquina (catalog-maintenance.md §1): gif-ex-082 (aparelho biarticular) e gif-ex-085 (Scott aparelho) -> Selectorized Machine; seed-ex-105 (iso-lateral) -> Plate-Loaded Machine. Barra W (EZ) mapeada para primary_equipment 'Barbell' (EZ é variante de barra; equipment legado mantém 'Barra W'). Chin-up/barra fixa supinada fica em costas (seed-ex-009).",
+      "completion_notes": "Universo de flexão de cotovelo auditado contra 12+ bases. Curva de retornos decrescentes: rodada 1 (Muscle&Strength lista completa + BarBend + ExRx) -> +8 distintos (EZ standing, incline DB, hammer, reverse, Zottman, drag, spider, Bayesian); rodada 2 (PureGym, dr-muscle, fitnessvolt cable, Gymshark, AthleanX) -> +2 (rosca martelo na corda no cabo = neutro com tensão constante; rosca Scott iso-lateral plate-loaded via granularidade do ExRx que separa lever/iso-lateral/selectorized); rodada 3 (BOXROX, XcelerateGyms, trainingstation, generationiron/Jeff Nippard, kettlebellkings, themanual, threads) -> +0 distintos (resto = variantes de posição/técnica/pegada). +10 registros novos (seed-ex-096..105): rosca direta com barra W (EZ em pé), rosca inclinada com halteres (alongamento da porção longa), rosca martelo com halteres (neutro), rosca martelo na corda no cabo, rosca inversa com barra (pronada/braquiorradial), rosca Zottman (supina sobe/prona desce), rosca arrasto (drag), rosca spider (incline prono), rosca Bayesian no cabo (face-away, alongamento + tensão constante), rosca Scott iso-lateral na máquina (plate-loaded). ExRx foi decisivo para separar iso-lateral/plate-loaded de selectorized. gif_path null (mídia é assunto separado).",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de bíceps — informativo, NÃO lido pelo app.",
+        "databases_consulted": [
+          "https://exrx.net/Lists/ExList/ArmWt",
+          "https://exrx.net/WeightExercises/Brachialis/LVPreacherCurlHigh",
+          "https://exrx.net/WeightExercises/Brachialis/CBPreacherCurl",
+          "https://exrx.net/WeightExercises/Brachialis/BBPreacherCurl",
+          "https://www.muscleandstrength.com/exercises/biceps",
+          "https://barbend.com/best-biceps-exercises/",
+          "https://www.puregym.com/exercises/arms-and-shoulders/bicep-curl/",
+          "https://dr-muscle.com/best-bicep-exercises/",
+          "https://fitnessvolt.com/cable-machine-exercises-biceps/",
+          "https://row.gymshark.com/blog/article/the-best-bicep-exercises-for-mass",
+          "https://learn.athleanx.com/articles/best-bicep-cable-exercises",
+          "https://www.boxrox.com/10-best-exercises-for-wider-biceps/",
+          "https://xcelerategyms.com/long-head-workouts/",
+          "https://trainingstation.co.uk/blogs/news/spider-curls",
+          "https://generationiron.com/jeff-nippard-ranks-bicep-exercises/",
+          "https://www.kettlebellkings.com/blogs/default-blog/best-preacher-curl-alternatives"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de bíceps deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "costas_pull_vertical": [
+            "Chin-Up / Barra Fixa Supinada (bíceps via vertical pull composto — já é seed-ex-009/seed-ex-071)",
+            "Puxada Supinada / Reverse-Grip Pulldown (seed-ex-073)"
+          ],
+          "forca_elastico_funcional": [
+            "Resistance Band Curl",
+            "Banded Hammer Curl"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Curl",
+            "Bottoms-Up Kettlebell Curl"
+          ],
+          "forca_suspension_trainer": [
+            "TRX Biceps Curl"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes de posição/técnica/tempo/pegada cobertas por registros existentes via Layer 1 (mesmo movement_pattern + musculo_alvo).",
+          "position_variants": [
+            "Seated Barbell/Dumbbell Curl simultâneo (posição do seed-ex-021/seed-ex-022; sentado unilateral já é gif-ex-088)",
+            "Squatting Cable Curl (posição da rosca no cabo seed-ex-024)",
+            "Lying Cable Curl / Supine Cable Curl (posição do cabo)",
+            "Cable Preacher Curl (posição: cabo seed-ex-024 + banco Scott já coberto)",
+            "Cable Spider Curl (implemento do spider seed-ex-103)",
+            "Cable Reverse Curl (implemento da rosca inversa seed-ex-100)"
+          ],
+          "grip_micro_variants": [
+            "Wide-Grip Barbell Curl / Close-Grip Barbell Curl em pé (pegada do seed-ex-021; close-grip sentado já é gif-ex-084)",
+            "Preacher Hammer Curl / Dumbbell Hammer Preacher (pegada neutra do preacher; martelo já é seed-ex-098)"
+          ],
+          "technique_tempo_load_cues": [
+            "21s (esquema de repetições)",
+            "Cheat Curl (momentum)",
+            "Strict Curl (versão estrita do seed-ex-021)",
+            "Waiter Curl / Goblet Curl (segurar 1 haltere — estímulo ≈ rosca; novidade)",
+            "Cross-Body Hammer Curl / Pinwheel (dobrado no martelo seed-ex-098 — name_variation)",
+            "Inverse/Reverse Zottman (variante de tempo do Zottman seed-ex-101)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_curl": "Todas as roscas = 'Elbow Flexion' (flexão de cotovelo single-joint). Vocabulário estendido 2026-06-13 (catalog-maintenance.md §7) — espelha o precedente de 'Abduction' (raises) e 'Horizontal Adduction' (flys). Compostos que recrutam bíceps (chin-up, puxada/remada supinada) ficam em Vertical/Horizontal Pull.",
+        "musculo_alvo_biceps": "Vocabulário de biceps.md + seeds de costas: 'biceps_braquial' (bíceps brachii) para roscas supinadas; pegada neutra/martelo e Zottman marcam ['braquiorradial','braquial','biceps_braquial']; rosca inversa (pronada) marca ['braquiorradial','braquial'] (bíceps cai para stabilizers). Antebraço/flexores ficam em stabilizers, não em group_muscles (grupo de display continua 'Biceps', como os registros existentes).",
+        "machine_curl": "gif-ex-082 (aparelho biarticular) e gif-ex-085 (Scott aparelho) -> Selectorized Machine; seed-ex-105 (iso-lateral / Hammer Strength) -> Plate-Loaded Machine + Unilateral (precedente do peito seed-ex-065 e ombros seed-ex-083).",
+        "ez_bar": "Barra W (EZ) -> primary_equipment 'Barbell' (EZ é uma barra; vocabulário controlado não tem 'EZ Bar'). O campo legado 'equipment' mantém 'Barra W' para display."
+      },
+      "covers": [
+        "seed-ex-021",
+        "seed-ex-022",
+        "seed-ex-023",
+        "seed-ex-024",
+        "seed-ex-096",
+        "seed-ex-097",
+        "seed-ex-098",
+        "seed-ex-099",
+        "seed-ex-100",
+        "seed-ex-101",
+        "seed-ex-102",
+        "seed-ex-103",
+        "seed-ex-104",
+        "seed-ex-105",
+        "gif-ex-079",
+        "gif-ex-080",
+        "gif-ex-081",
+        "gif-ex-082",
+        "gif-ex-083",
+        "gif-ex-084",
+        "gif-ex-085",
+        "gif-ex-086",
+        "gif-ex-087",
+        "gif-ex-088"
+      ]
+    },
+    "triceps_push_down": {
+      "status": "complete",
+      "exercise_count": 22,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Sessão de tríceps — família push-down (pushdown/pulley, coice/kickback, mergulho/dips, supino/flexão fechada, máquina), sob a regra de ≥10 bases. Auditoria compartilhada com triceps_overhead (universo de tríceps é um só; ver docs/exercises/research-triceps.md). O catálogo já tinha 18 registros desta família (seed-ex-026/027/029 + gif-ex-093..097, 099..108) — enriquecidos aqui. NOVO movement_pattern 'Elbow Extension' (extensão de cotovelo single-joint), estendido em spec sub-5 + validador + skill no mesmo commit (catalog-maintenance.md §8). ISOLAÇÕES (pushdown, kickback, máquina) = 'Elbow Extension'; COMPOSTOS (supino fechado, dips, flexão fechada, JM press) = 'Horizontal Push' (multi-articular) — sem isso, um pushdown rankearia como 'quase igual' a um supino fechado. Retag de máquina (§1): gif-ex-094/095/101/106 -> Selectorized Machine; gif-ex-099 (Graviton) -> Assisted Machine + secondary Bodyweight. musculo_alvo 'triceps_lateral_medial' (porção lateral/medial domina o pushdown/kickback/press).",
+      "completion_notes": "Universo auditado contra 12+ bases. Curva: rodada 1 (Muscle&Strength lista completa + BarBend + ExRx) -> +4 distintos nesta família; rodada 2/3 (StrengthLog, soletreadmills, AthleanX, Fitbod, BOXROX, REP, dr-muscle, FitnessVolt/Nippard, kathrynalexander) -> +0. +4 registros novos (seed-ex-106..109): pushdown na corda (corda/neutro — divergência e pico de contração distintos do bar), pushdown pegada invertida (supinado — ênfase medial), mergulho nas paralelas (peso corporal livre — faltava o dip de peso corporal não-assistido/não-banco), JM press (híbrido supino fechado + testa, press distinto). Fechamento confirmado. gif_path null.",
+      "research_sources": {
+        "_comment": "Bases consultadas (compartilhadas com triceps_overhead) — informativo, NÃO lido pelo app. Notas brutas em docs/exercises/research-triceps.md.",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/triceps",
+          "https://barbend.com/best-triceps-exercises/",
+          "https://exrx.net/WeightExercises/Triceps/CBPushdown",
+          "https://exrx.net/WeightExercises/Triceps/CBPushdownVBar",
+          "https://exrx.net/WeightExercises/Triceps/LVTriExt",
+          "https://www.strengthlog.com/long-head-triceps-exercises/",
+          "https://www.soletreadmills.com/blogs/news/overhead-triceps-extension-vs-skull-crusher-differences-benefits-muscles-worked",
+          "https://learn.athleanx.com/articles/best-triceps-pushdown-variation",
+          "https://www.boxrox.com/best-and-worst-triceps-exercises-ranked-using-science-p82754415/",
+          "https://repfitness.com/blogs/training/the-11-best-tricep-exercises",
+          "https://dr-muscle.com/best-triceps-exercises/",
+          "https://fitbod.me/exercises/cable-tricep-pushdown",
+          "https://fitnessvolt.com/jeff-nippard-ranks-the-20-best-and-worst-triceps-exercises/"
+        ]
+      },
+      "scope_exclusions": {
+        "routed_to_other_sessions": {
+          "triceps_overhead": [
+            "Todas as extensões overhead/francês e testa/skullcrusher (sessão irmã)"
+          ],
+          "forca_landmine": ["Landmine Press"],
+          "forca_elastico_funcional": ["Band Triceps Pushdown", "Band Overhead Extension"],
+          "forca_kettlebell": ["Kettlebell Floor Press"],
+          "forca_suspension_trainer": ["TRX Triceps Extension"]
+        },
+        "excluded_as_non_distinct": {
+          "attachment_grip_posture_variants": [
+            "V-Bar Pushdown / Pushdown com apoio (attachment/postura do pushdown bar seed-ex-026)",
+            "Single Bench Dip (execução do mergulho entre bancos seed-ex-029)"
+          ],
+          "rom_load_variants": [
+            "Weighted Dip (carga do mergulho)",
+            "Close-Grip Floor Press / Push Press / Dumbbell Floor Press (ROM/variante do supino fechado gif-ex-097)",
+            "Sphinx Push-Up (variante de flexão fechada gif-ex-102)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_triceps": "Isolações single-joint = 'Elbow Extension'; compostos multi-articulares (supino fechado, dips, flexão fechada, JM press) = 'Horizontal Push'. Ver catalog-maintenance.md §8.",
+        "machine_dip": "gif-ex-094/095 (extensão na máquina) e gif-ex-101/106 (dip na máquina) -> Selectorized Machine; gif-ex-099 (Paralelas no Graviton) -> Assisted Machine + secondary Bodyweight (precedente do Graviton em costas/peito).",
+        "dip_pattern": "Mergulho/dip classificado 'Horizontal Push' (precedente do dip de peito em peito_press), ênfase triceps_lateral_medial; group_muscles inclui Peito/Ombros (envolvimento real do composto)."
+      },
+      "covers": [
+        "seed-ex-026",
+        "seed-ex-027",
+        "seed-ex-029",
+        "seed-ex-106",
+        "seed-ex-107",
+        "seed-ex-108",
+        "seed-ex-109",
+        "gif-ex-093",
+        "gif-ex-094",
+        "gif-ex-095",
+        "gif-ex-096",
+        "gif-ex-097",
+        "gif-ex-099",
+        "gif-ex-100",
+        "gif-ex-101",
+        "gif-ex-102",
+        "gif-ex-103",
+        "gif-ex-104",
+        "gif-ex-105",
+        "gif-ex-106",
+        "gif-ex-107",
+        "gif-ex-108"
+      ]
+    },
+    "triceps_overhead": {
+      "status": "complete",
+      "exercise_count": 11,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Sessão de tríceps — família overhead/francês + testa/skullcrusher, sob a regra de ≥10 bases. Auditoria compartilhada com triceps_push_down (research-triceps.md). O catálogo já tinha 9 registros (seed-ex-025/028 + gif-ex-089/090/091/092/098/109/110) — enriquecidos aqui. Todos 'Elbow Extension', musculo_alvo 'triceps_cabeca_longa' (braço acima da cabeça / arco do skullcrusher alonga a porção longa). Exceção: Tate press (seed-ex-110) marca 'triceps_lateral_medial' (cotovelos abertos, menos alongamento da porção longa).",
+      "completion_notes": "+2 registros novos (seed-ex-110, seed-ex-111): Tate press (extensão com halteres, cotovelos abertos, atinge as três cabeças com mínimo estresse de cotovelo — estímulo distinto do francês/testa) e extensão de tríceps de peso corporal (única isolação overhead de peso corporal — distinta dos dips compostos). Fechamento: nenhuma base trouxe extensão overhead/testa distinta além do que já existia/foi adicionado/roteado (V-bar/incline/decline skull, EZ vs barra, standing/seated/1-arm DB overhead, rolling DB, cross-body cable = variantes de ângulo/posição/execução). gif_path null.",
+      "research_sources": {
+        "_comment": "Bases compartilhadas com triceps_push_down (research-triceps.md).",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/triceps",
+          "https://barbend.com/best-triceps-exercises/",
+          "https://exrx.net/WeightExercises/Triceps/BBLyingTriExtSC",
+          "https://exrx.net/WeightExercises/Triceps/DBOneArmTriExtBench",
+          "https://www.strengthlog.com/long-head-triceps-exercises/",
+          "https://www.soletreadmills.com/blogs/news/overhead-triceps-extension-vs-skull-crusher-differences-benefits-muscles-worked",
+          "https://learn.athleanx.com/articles/how-to-do-skullcrushers-correctly",
+          "https://www.boxrox.com/best-and-worst-triceps-exercises-ranked-using-science-p82754415/",
+          "https://repfitness.com/blogs/training/the-11-best-tricep-exercises",
+          "https://dr-muscle.com/best-triceps-exercises/",
+          "https://fitnessvolt.com/jeff-nippard-ranks-the-20-best-and-worst-triceps-exercises/"
+        ]
+      },
+      "scope_exclusions": {
+        "routed_to_other_sessions": {
+          "triceps_push_down": [
+            "Pushdown, kickback, dips, supino/flexão fechada, máquina (sessão irmã)"
+          ],
+          "forca_elastico_funcional": ["Band Overhead Triceps Extension"],
+          "forca_kettlebell": ["Kettlebell Overhead Triceps Extension"]
+        },
+        "excluded_as_non_distinct": {
+          "angle_position_execution_variants": [
+            "45°/Incline/Decline Skullcrusher (ângulo do testa seed-ex-025/gif-ex-109)",
+            "EZ vs Barbell Skullcrusher (implemento)",
+            "Standing vs Seated vs One-Arm DB Overhead (posição/execução do francês seed-ex-028)",
+            "Rolling Dumbbell Extension (tempo do lying extension)",
+            "Cross-Body Cable Overhead Extension (execução do overhead cabo gif-ex-098)",
+            "Machine Overhead Extension (variante da máquina coberta em triceps_push_down gif-ex-094/095)"
+          ]
+        }
+      },
+      "conventions": {
+        "musculo_alvo_long_head": "Overhead/francês e testa/skullcrusher = 'triceps_cabeca_longa' (porção longa alongada com o braço acima da cabeça). Tate press = 'triceps_lateral_medial'.",
+        "ez_bar": "Barra W (EZ) -> primary_equipment 'Barbell' (mesma convenção do bíceps §6 conventions; equipment legado mantém 'Barra W')."
+      },
+      "covers": [
+        "seed-ex-025",
+        "seed-ex-028",
+        "seed-ex-110",
+        "seed-ex-111",
+        "gif-ex-089",
+        "gif-ex-090",
+        "gif-ex-091",
+        "gif-ex-092",
+        "gif-ex-098",
+        "gif-ex-109",
+        "gif-ex-110"
+      ]
+    },
+    "quadriceps": {
+      "status": "complete",
+      "exercise_count": 25,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Sessão de quadríceps-dominante (agachamentos, leg press, afundos/lunges, isolação de joelho), sob a regra de ≥10 bases. O catálogo já tinha 19 registros desta família (seed-ex-034/035/036 + gif-ex-128/129/130/131/132/146/149/150/153/154/155/156/159/160/161/162) — enriquecidos aqui. NOVO movement_pattern 'Knee Extension' (extensão de joelho single-joint: cadeira extensora, sissy), estendido em spec sub-5 + validador + skill no mesmo commit (catalog-maintenance.md §9). Compostos = 'Squat'/'Lunge'; isolação = 'Knee Extension'. Vocabulário de equipamento sem uso até agora aplicado: 'Leg Press' (seed-ex-035, gif-ex-159) e 'Hack Squat Machine' (seed-ex-113). Retag: gif-ex-154 (agachamento na máquina) -> Selectorized Machine. musculo_alvo 'quadriceps' (todos); 'adutores' somado em sumo/afastado/lateral (gif-ex-132/155/156/159). Hip-hinge/glúteo/posterior/adutor-isolado/panturrilha roteados para sessões irmãs.",
+      "completion_notes": "Universo auditado contra 12+ bases. Curva: rodada 1 (Muscle&Strength lista completa + BarBend + ExRx) -> +6 distintos; rodada 2 (StrengthLog, PureGym, Nippard/GenIron) -> +0; rodada 3 (hack alternatives, madscientist, sportskeeda) -> +0. +6 registros novos (seed-ex-112..117): cadeira extensora (única isolação real de quadríceps), hack squat (máquina dedicada — vocabulário 'Hack Squat Machine'), agachamento búlgaro (RFE split squat — S-tier, estímulo unilateral distinto), agachamento goblet (≈front squat com halter, entrada acessível), step-up no banco, sissy squat (isolação joelho-dominante, peso corporal). Fechamento: belt squat/pendulum/spanish/jump/clean/adutora roteados; cyclist/box/plie/FFE/split estático/wall sit dobrados. gif_path null. Notas brutas em docs/exercises/research-quadriceps.md.",
+      "research_sources": {
+        "_comment": "Bases consultadas — informativo, NÃO lido pelo app. Notas brutas em research-quadriceps.md.",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/quads",
+          "https://barbend.com/best-quad-exercises/",
+          "https://exrx.net/WeightExercises/Quadriceps/BBHackSquat",
+          "https://exrx.net/WeightExercises/Quadriceps/SL45LegPress",
+          "https://exrx.net/WeightExercises/Quadriceps/BWSingleLegSquat",
+          "https://exrx.net/WeightExercises/Quadriceps/SMSquat",
+          "https://www.strengthlog.com/quad-exercises/",
+          "https://www.puregym.com/exercises/legs/quad-exercises/",
+          "https://barbend.com/news/best-quad-exercises-ranking-best-to-worst-jeff-nippard/",
+          "https://generationiron.com/jeff-nippard-quad-exercises/",
+          "https://liftvault.com/exercises/hack-squat-alternative/",
+          "https://www.barbellmedicine.com/blog/hack-squat-alternatives/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de perna deliberadamente fora desta sessão (quadríceps-dominante).",
+        "routed_to_other_sessions": {
+          "posterior_gluteos": [
+            "Clean / Hang Clean (gif-ex-137 — tripla-extensão olímpica, cadeia posterior/power)",
+            "Cadeira Adutora (gif-ex-136) + Adutora no Cabo (gif-ex-152 — isolação de adutor de quadril)",
+            "Todos os hip-hinge/glúteo/posterior: terra, stiff, bom dia, elevação pélvica, glute bridge, leg curl, nordic, extensão de quadril (gif-ex-133/134/135/138..145/147/148/151/157/163/164, seed-ex-014/037/038)"
+          ],
+          "panturrilha": ["Flexao Plantar / Calf Raise (gif-ex-158)"],
+          "forca_maquinas_especializadas": ["Belt Squat", "Pendulum Squat"],
+          "forca_elastico_funcional": ["Spanish Squat", "Banded Sissy Squat"],
+          "forca_landmine": ["Landmine Squat", "Landmine Reverse Lunge"],
+          "forca_kettlebell": ["Kettlebell Goblet Squat", "Kettlebell Reverse Lunge"],
+          "cardio_hiit_funcional": ["Jump Squat / Squat Jump (plyo/power)"]
+        },
+        "excluded_as_non_distinct": {
+          "stance_rom_position_variants": [
+            "Box Squat (ROM do agachamento)",
+            "Cyclist / Heel-Elevated Squat (calço — posição do agachamento)",
+            "Plie / Frog Squat (stance largo — coberto por afastado/sumo gif-ex-155/156)",
+            "Prisoner / Bodyweight Squat (peso corporal = agachamento livre)",
+            "Wall Sit (isométrico)"
+          ],
+          "split_squat_execution_variants": [
+            "Static Split Squat / Front-Foot-Elevated Split Squat (≈ afundo seed-ex-036 / búlgaro seed-ex-114)",
+            "Unilateral Leg Extension (execução da cadeira extensora seed-ex-112)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_quad": "Compostos quadril+joelho = 'Squat' (agachamentos, leg press, goblet, sumo, pistol, hack) ou 'Lunge' (afundo/avanço/passada/recuo/cruzado/lateral, búlgaro, step-up). Isolação joelho single-joint = 'Knee Extension' (cadeira extensora, sissy). Ver catalog-maintenance.md §9.",
+        "equipment_vocab": "'Leg Press' (seed-ex-035, gif-ex-159) e 'Hack Squat Machine' (seed-ex-113) — primeiros usos do vocabulário controlado. gif-ex-154 (agachamento na máquina genérica, V-squat/pendulum) -> Selectorized Machine.",
+        "musculo_alvo": "Todos 'quadriceps' (primário); sumo/afastado/lateral (gif-ex-132/155/156/159) somam 'adutores'. Glúteos/isquiotibiais ficam em stabilizers e em group_muscles (grupo de display 'Quadriceps, Gluteos')."
+      },
+      "covers": [
+        "seed-ex-034",
+        "seed-ex-035",
+        "seed-ex-036",
+        "seed-ex-112",
+        "seed-ex-113",
+        "seed-ex-114",
+        "seed-ex-115",
+        "seed-ex-116",
+        "seed-ex-117",
+        "gif-ex-128",
+        "gif-ex-129",
+        "gif-ex-130",
+        "gif-ex-131",
+        "gif-ex-132",
+        "gif-ex-146",
+        "gif-ex-149",
+        "gif-ex-150",
+        "gif-ex-153",
+        "gif-ex-154",
+        "gif-ex-155",
+        "gif-ex-156",
+        "gif-ex-159",
+        "gif-ex-160",
+        "gif-ex-161",
+        "gif-ex-162"
+      ]
+    },
+    "posterior_gluteos": {
+      "status": "complete",
+      "exercise_count": 29,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Sessão de cadeia posterior (isquiotibiais) + glúteos + isolação de quadril (adutor/abdutor) + levantamentos olímpicos roteados do quad. O catálogo já tinha 25 registros (seed-ex-014/038/039/040 + gif-ex-053/133..145/147/148/151/152/157/163/164) — enriquecidos aqui. DOIS movement_pattern novos: 'Knee Flexion' (flexão de joelho isquiotibial: mesa/cadeira/em pé/cabo flexora, nordic) e 'Hip Extension' (extensão de quadril glúteo-dominante: hip thrust, glute bridge, kickback/coice, frog pump, glúteo na máquina) — distintos de 'Hinge' (terra/stiff/bom dia/aviao/pull-through/back extension/clean = dobradiça de quadril em pé). Adução/abdução de quadril (gif-ex-136/152 + seed-ex-119) ficam com movement_pattern null (lacuna de vocabulário documentada em catalog-maintenance.md §10; agrupam por musculo_alvo). 1º uso de 'Kettlebell' (gif-ex-164). Retag de máquina (§1): flexoras + adutora + abdutora + glúteo na máquina -> Selectorized Machine. Clean (gif-ex-137) tem review_flag (category Power/olímpico ausente do enum).",
+      "completion_notes": "Universo auditado contra 12+ bases (M&S hamstrings + M&S glutes + ExRx canon + GymQuip + as bases compartilhadas com quadriceps). Curva: rodada 1 -> +4 distintos (cadeira flexora/seated leg curl; pull-through no cabo; cadeira abdutora; glúteo na máquina); rodada 2/3 -> +0. +4 registros novos (seed-ex-118..121). Fechamento: RDL≈stiff; sumo/déficit/snatch-grip/trap-bar/reverse-band terra = variantes; kettlebell swing/RDL -> forca_kettlebell; reverse hyper + reverse hack squat -> forca_maquinas_especializadas; band walks -> forca_elastico_funcional; GHR/SHELC/razor curl = variantes do nordic/leg curl; clam/hip flexion machine = fora de glúteo/posterior puro. gif_path null. Notas em docs/exercises/research-posterior_gluteos.md.",
+      "research_sources": {
+        "_comment": "Bases consultadas — informativo, NÃO lido pelo app. Notas brutas em research-posterior_gluteos.md.",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/hamstrings",
+          "https://www.muscleandstrength.com/exercises/glutes",
+          "https://exrx.net/WeightExercises/Hamstrings/LVLyingLegCurlPL",
+          "https://exrx.net/WeightExercises/Hamstrings/BWHamstringRaise",
+          "https://exrx.net/WeightExercises/GluteusMaximus/BWLyingHipExtension",
+          "https://exrx.net/Lists/ExList/ThighWt",
+          "https://exrx.net/Lists/ExList/HipsWt",
+          "https://gymquipfitness.com/blogs/news/hamstring-and-glute-isolation-exercises-building-strength-and-preventing-injury",
+          "https://barbend.com/best-quad-exercises/",
+          "https://www.strengthlog.com/quad-exercises/",
+          "https://liftvault.com/exercises/hack-squat-alternative/",
+          "https://www.barbellmedicine.com/blog/hack-squat-alternatives/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "quadriceps": ["Agachamentos, leg press, afundos/lunges, hack, búlgaro, step-up, sissy, cadeira extensora (sessão irmã, completa)"],
+          "panturrilha": ["Flexao Plantar / Calf Raise (gif-ex-158, seed-ex-042/043)"],
+          "forca_kettlebell": ["Kettlebell Swing", "Kettlebell RDL/Sumo Deadlift", "Kettlebell Suitcase Deadlift"],
+          "forca_landmine": ["Landmine RDL"],
+          "forca_maquinas_especializadas": ["Reverse Hyperextension", "Reverse Hack Squat", "Trap-Bar / Hex-Bar Deadlift"],
+          "forca_elastico_funcional": ["Lateral Band Walk", "Diagonal Band Walk", "Banded Glute Bridge"],
+          "mobilidade_inferior": ["Side-Lying Clam", "Hip Flexion Machine (flexor de quadril)"]
+        },
+        "excluded_as_non_distinct": {
+          "deadlift_hinge_variants": [
+            "Romanian Deadlift (≈ Stiff seed-ex-039 + gif-ex-151/163/164)",
+            "Sumo / Deficit / Snatch-Grip / Reverse-Band Deadlift (variantes do terra seed-ex-014)",
+            "Seated / Banded / Off-Pins / Single-Leg Good Morning (variantes do bom dia gif-ex-135/148)"
+          ],
+          "curl_bridge_execution_stability_variants": [
+            "Single Leg Curl (execução da flexora)",
+            "Glute-Ham Raise (GHR) / Razor Curl / SHELC ball curl (variantes do nordic gif-ex-143 / leg curl)",
+            "Marching / Banded Glute Bridge (variantes da ponte gif-ex-147)",
+            "Weighted / GHD Back Extension (carga/aparelho da hiperextensão gif-ex-053)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_posterior": "'Knee Flexion' (leg curls/nordic), 'Hip Extension' (hip thrust/bridge/kickback glúteo-dominante), 'Hinge' (terra/stiff/bom dia/aviao/pull-through/back extension/clean). Adução/abdução de quadril = movement_pattern null (lacuna documentada §10; agrupa por musculo_alvo). Ver catalog-maintenance.md §10.",
+        "musculo_alvo": "isquiotibiais (leg curls + hinges ham-dominantes), gluteos (hip extension + abdutora), adutores (adutora). Terra/stiff/bom dia somam gluteos. Back extension gif-ex-053 = ['lombar','gluteos'].",
+        "kettlebell_machine": "1º uso de 'Kettlebell' (gif-ex-164). Flexoras (seed-ex-038/118, gif-ex-144) + adutora (gif-ex-136) + abdutora (seed-ex-119) + glúteo na máquina (seed-ex-121) -> Selectorized Machine.",
+        "clean": "Clean (gif-ex-137) classificado Composto + Hinge por aproximação (puxada = dobradiça de quadril); review_flag aberto — o enum não tem padrão/categoria de potência olímpica."
+      },
+      "covers": [
+        "seed-ex-014",
+        "seed-ex-038",
+        "seed-ex-039",
+        "seed-ex-040",
+        "seed-ex-118",
+        "seed-ex-119",
+        "seed-ex-120",
+        "seed-ex-121",
+        "gif-ex-053",
+        "gif-ex-133",
+        "gif-ex-134",
+        "gif-ex-135",
+        "gif-ex-136",
+        "gif-ex-137",
+        "gif-ex-138",
+        "gif-ex-139",
+        "gif-ex-140",
+        "gif-ex-141",
+        "gif-ex-142",
+        "gif-ex-143",
+        "gif-ex-144",
+        "gif-ex-145",
+        "gif-ex-147",
+        "gif-ex-148",
+        "gif-ex-151",
+        "gif-ex-152",
+        "gif-ex-157",
+        "gif-ex-163",
+        "gif-ex-164"
+      ]
+    },
+    "abdome": {
+      "status": "complete",
+      "exercise_count": 28,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "Sessão de core/abdome (reto abdominal, oblíquos, core de estabilização), sob a regra de ≥10 bases. O catálogo já tinha 21 registros (seed-ex-030/031/032/033 + gif-ex-111..127) — enriquecidos aqui. QUATRO movement_pattern novos: 'Trunk Flexion' (flexão de coluna: crunch/sit-up/crunch na polia/máquina), 'Hip Flexion' (flexão de quadril / abdominal inferior: leg raise deitado/suspenso, crunch reverso, V-up, knee tuck, flutter), 'Lateral Flexion' (flexão lateral: side bend, prancha lateral isométrica) e 'Anti-Extension' (bracing isométrico: prancha, dead bug, rollout). 'Rotation' (oblíquo/twist, woodchopper, bicicleta) e 'Anti-Rotation' (Pallof) já existiam. Estendido em spec sub-5 + validador + skill no mesmo commit (catalog-maintenance.md §11). Sem os 4 novos, crunch + leg raise + prancha cairiam todos em null e rankeariam como 'quase iguais' só por musculo_alvo (abdomen). Vocabulário de músculo: 'abdomen' (reto), 'obliquo', 'core' (estabilização). Roda abdominal e bola suíça: lacuna de equipamento — primary 'Bodyweight' + secondary 'Roda Abdominal'/'Bola Suica' (precedente do banco romano; NÃO estende o vocabulário). Retag: gif-ex-117 (crunch na máquina) -> Selectorized Machine.",
+      "completion_notes": "Universo de core auditado contra 10+ bases. Curva de retornos decrescentes: rodada 1 (Muscle&Strength + BarBend + StrengthLog + SetForSet cable + ExRx) -> +7 distintos (elevação de pernas suspensa/hanging leg raise; rollout na roda abdominal/ab wheel; Pallof press — 1ª anti-rotação do catálogo; Russian twist; lenhador no cabo/woodchopper; prancha lateral/side plank; abdominal bicicleta/bicycle crunch); rodada 2 (PureGym, fitliferegime, Gymshark, AthleanX, agregador ACE/Centr/Promixx) -> +0. Fechamento confirmado. +7 registros novos (seed-ex-122..128). gif_path null (mídia é assunto separado). Notas brutas em docs/exercises/research-abdome.md.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de core/abdome — informativo, NÃO lido pelo app.",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/abs",
+          "https://barbend.com/best-ab-exercises/",
+          "https://www.strengthlog.com/ab-exercises/",
+          "https://www.setforset.com/blogs/news/cable-ab-exercises",
+          "https://exrx.net/Lists/ExList/WaistWt",
+          "https://exrx.net/WeightExercises/RectusAbdominis/CBKneelingCrunch",
+          "https://exrx.net/WeightExercises/Obliques/CBStandingTwistingCrunch",
+          "https://www.puregym.com/exercises/abs/",
+          "https://fitliferegime.com/best-abs-workout-that-you-can-do-at-gym/",
+          "https://www.gymshark.com/blog/article/best-ab-exercises",
+          "https://learn.athleanx.com/articles/abs-for-men/cable-cruches",
+          "https://www.promixx.com/blogs/academy/cable-crunches-and-leg-raises-for-real-core-strength"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de core deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "forca_landmine": ["Landmine Twist / Landmine 180"],
+          "forca_suspension_trainer": ["Suspended Jack-Knife", "TRX Pike / TRX Crunch"],
+          "forca_kettlebell": ["Turkish Get-Up", "Farmer's Carry", "Suitcase Carry"],
+          "cardio_hiit_funcional": ["Ball Slam / Medicine Ball Slam", "Mountain Climber"],
+          "reabilitacao_lombar_core": ["Bird Dog", "Superman (extensão lombar, não flexão abdominal)"]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes de carga/ROM/ângulo/equipamento/estabilidade cobertas por registros existentes via Layer 1 (mesmo pattern + musculo_alvo).",
+          "trunk_flexion_variants": [
+            "Butterfly / Decline / Twisting Sit-Up, Toe Touch, Swiss-Ball Crunch, Overhead/Seated Cable Crunch (posição/ângulo do crunch/sit-up seed-ex-030/gif-ex-121/118)"
+          ],
+          "hip_flexion_variants": [
+            "Hanging Knee Raise (ROM/joelho do leg raise suspenso seed-ex-122)",
+            "Captain's Chair Leg Raise (apoio/estabilidade do leg raise suspenso seed-ex-122)",
+            "Incline Reverse Crunch / Seated Knee Tuck / Knee Tuck (variantes do crunch reverso seed-ex-032 / flexão de quadril gif-ex-124)",
+            "Hanging Windshield Wiper (progressão avançada do leg raise suspenso + rotação)"
+          ],
+          "lateral_flexion_variants": [
+            "Cable / Dumbbell Side Bend (carga da flexão lateral gif-ex-115/116/125)",
+            "Side Plank Lateral Raise (composto ombro+oblíquo)"
+          ],
+          "rotation_variants": [
+            "Cable Down-Up / Twist, Dumbbell Wood Chop, Standing Machine Twist / Rotary Torso (ângulo/implemento do lenhador seed-ex-126 e do oblíquo na polia gif-ex-126)"
+          ],
+          "anti_extension_variants": [
+            "Hollow Hold, Weighted/Feet-Elevated Plank, Plank-to-Hip-Raise / Knee-to-Elbow, Swiss-Ball Pike/Tuck/Circles, Shoulder Taps (carga/estabilidade da prancha seed-ex-031 / dead bug gif-ex-123 / rollout seed-ex-123)"
+          ],
+          "anti_rotation_variants": [
+            "Pallof com Rotação / Half-Kneeling / Wide-Stance / Glute-Bridge (base/execução do Pallof seed-ex-124)"
+          ],
+          "niche": [
+            "Stomach Vacuum (isometria de TVA/respiração — sem progressão de carga, estético)"
+          ]
+        }
+      },
+      "conventions": {
+        "movement_pattern_core": "4 padrões novos: Trunk Flexion (flexão de coluna), Hip Flexion (flexão de quadril/inferior), Lateral Flexion (flexão lateral + prancha lateral isométrica), Anti-Extension (prancha/dead bug/rollout). Rotation (twist/woodchopper/bicicleta) e Anti-Rotation (Pallof) já existiam. Ver catalog-maintenance.md §11.",
+        "musculo_alvo": "'abdomen' (reto — Trunk/Hip Flexion), 'obliquo' (Lateral Flexion + Rotation), 'core' (estabilização — Anti-Extension/Anti-Rotation, somado a abdomen/obliquo). Flexores de quadril e lombar ficam em stabilizers. group_muscles mantém 'Abdomen' (+'Core' nos de estabilização), como os registros existentes.",
+        "ab_wheel_ball": "Roda abdominal (seed-ex-123) e bola suíça (gif-ex-114/125): lacuna de vocabulário de equipamento -> primary_equipment 'Bodyweight' + secondary 'Roda Abdominal'/'Bola Suica' (precedente do banco romano gif-ex-053). NÃO estende PRIMARY_EQUIPMENT.",
+        "machine_crunch": "gif-ex-117 (abdominal na máquina, pino/stack) -> Selectorized Machine (retag §1).",
+        "side_plank": "Prancha lateral (seed-ex-127) classificada 'Lateral Flexion' (variante isométrica), não um 'Anti-Lateral Flexion' dedicado — evita um padrão de uso único; agrupa com os side bends por musculo_alvo obliquo.",
+        "pallof": "Pallof press (seed-ex-124) é o 1º exercício de Anti-Rotation do catálogo; equivalent_alternatives vazio (sem outro anti-rotação ainda), muscle_group_alternatives aponta para o core rotacional (woodchopper/Russian twist)."
+      },
+      "covers": [
+        "seed-ex-030",
+        "seed-ex-031",
+        "seed-ex-032",
+        "seed-ex-033",
+        "seed-ex-122",
+        "seed-ex-123",
+        "seed-ex-124",
+        "seed-ex-125",
+        "seed-ex-126",
+        "seed-ex-127",
+        "seed-ex-128",
+        "gif-ex-111",
+        "gif-ex-112",
+        "gif-ex-113",
+        "gif-ex-114",
+        "gif-ex-115",
+        "gif-ex-116",
+        "gif-ex-117",
+        "gif-ex-118",
+        "gif-ex-119",
+        "gif-ex-120",
+        "gif-ex-121",
+        "gif-ex-122",
+        "gif-ex-123",
+        "gif-ex-124",
+        "gif-ex-125",
+        "gif-ex-126",
+        "gif-ex-127"
+      ]
     }
   },
   "pending_sessions": [
-    "biceps",
-    "triceps_push_down",
-    "triceps_overhead",
-    "quadriceps",
-    "posterior_gluteos",
-    "abdome",
     "panturrilha"
   ],
   "pending_expansion_sessions": {

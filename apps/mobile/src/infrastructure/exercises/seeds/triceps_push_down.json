@@ -1,0 +1,459 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-026",
+      "name": "Triceps Pulley",
+      "name_variations": [
+        "Triceps Pushdown",
+        "Tricep Pressdown",
+        "Triceps na Polia",
+        "Cable Pushdown",
+        "Pushdown com Barra"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Barra reta",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "deltoide_posterior", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-106", "seed-ex-107", "gif-ex-093", "gif-ex-094"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-028", "seed-ex-027"]
+    },
+    {
+      "id": "seed-ex-027",
+      "name": "Triceps Coice com Haltere",
+      "name_variations": [
+        "Dumbbell Triceps Kickback",
+        "Triceps Coice",
+        "Kickback",
+        "Coice de Triceps"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_posterior", "core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["gif-ex-096", "gif-ex-108"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097", "seed-ex-028"]
+    },
+    {
+      "id": "seed-ex-029",
+      "name": "Mergulho entre Bancos",
+      "name_variations": [
+        "Bench Dip",
+        "Mergulho no Banco",
+        "Triceps no Banco",
+        "Bench Triceps Dip"
+      ],
+      "group_muscles": ["Triceps", "Peito", "Ombros"],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-107", "gif-ex-099", "gif-ex-101", "gif-ex-106"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026", "seed-ex-001"]
+    },
+    {
+      "id": "gif-ex-093",
+      "name": "Triceps Extensao Unilateral no Cabo",
+      "name_variations": [
+        "One-Arm Cable Triceps Extension",
+        "Triceps Unilateral no Cabo",
+        "Single-Arm Cable Pushdown",
+        "Pushdown Unilateral"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Manopla",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "deltoide_posterior", "flexores_antebraco"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-026", "seed-ex-106", "gif-ex-094"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-028", "gif-ex-096"]
+    },
+    {
+      "id": "gif-ex-094",
+      "name": "Triceps na Maquina",
+      "name_variations": [
+        "Machine Triceps Extension",
+        "Triceps na Maquina",
+        "Lever Triceps Extension",
+        "Triceps no Aparelho"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["gif-ex-095", "seed-ex-026", "gif-ex-093"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-028"]
+    },
+    {
+      "id": "gif-ex-095",
+      "name": "Triceps Maquina Variacao",
+      "name_variations": [
+        "Machine Triceps Extension Variation",
+        "Triceps na Maquina Variacao",
+        "Seated Machine Triceps Press"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["gif-ex-094", "seed-ex-026", "gif-ex-093"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-028"]
+    },
+    {
+      "id": "gif-ex-096",
+      "name": "Triceps Coice no Cabo",
+      "name_variations": [
+        "Cable Triceps Kickback",
+        "Coice no Cabo",
+        "Cable Kickback"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Manopla",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_posterior", "core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-027", "gif-ex-108"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097", "seed-ex-028"]
+    },
+    {
+      "id": "gif-ex-097",
+      "name": "Supino Fechado",
+      "name_variations": [
+        "Close-Grip Bench Press",
+        "Supino com Pegada Fechada",
+        "CGBP",
+        "Supino Triceps"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_anterior", "serratus_anterior", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-105", "gif-ex-104", "seed-ex-109"],
+      "muscle_group_alternatives": ["seed-ex-026", "seed-ex-001", "seed-ex-029"]
+    },
+    {
+      "id": "gif-ex-099",
+      "name": "Paralelas no Graviton Triceps",
+      "name_variations": [
+        "Assisted Triceps Dip",
+        "Mergulho Assistido no Graviton",
+        "Graviton Dip",
+        "Paralelas Assistidas"
+      ],
+      "group_muscles": ["Triceps", "Peito", "Ombros"],
+      "category": "Composto",
+      "equipment": "Graviton",
+      "primary_equipment": "Assisted Machine",
+      "secondary_equipment": "Bodyweight",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-108", "gif-ex-101", "gif-ex-106", "seed-ex-029"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026", "seed-ex-001"]
+    },
+    {
+      "id": "gif-ex-100",
+      "name": "Apoio de Frente Pegada Fechada",
+      "name_variations": [
+        "Close-Grip Wall Push-Up",
+        "Flexao Fechada na Parede",
+        "Diamond Wall Push-Up"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": "Parede",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-102", "gif-ex-103"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026", "seed-ex-007"]
+    },
+    {
+      "id": "gif-ex-101",
+      "name": "Mergulho na Maquina Arnold",
+      "name_variations": [
+        "Machine Triceps Dip",
+        "Mergulho na Maquina",
+        "Seated Dip Machine",
+        "Arnold Dip Machine"
+      ],
+      "group_muscles": ["Triceps", "Peito", "Ombros"],
+      "category": "Composto",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-106", "gif-ex-099", "seed-ex-108", "seed-ex-029"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026"]
+    },
+    {
+      "id": "gif-ex-102",
+      "name": "Flexao Pegada Fechada",
+      "name_variations": [
+        "Close-Grip Push-Up",
+        "Diamond Push-Up",
+        "Flexao Diamante",
+        "Flexao de Triceps"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-103", "gif-ex-100"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-007", "seed-ex-026"]
+    },
+    {
+      "id": "gif-ex-103",
+      "name": "Flexao Pegada Fechada Livre",
+      "name_variations": [
+        "Close-Grip Push-Up (Floor)",
+        "Flexao Fechada no Solo",
+        "Diamond Push-Up"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-102", "gif-ex-100"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-007", "seed-ex-026"]
+    },
+    {
+      "id": "gif-ex-104",
+      "name": "Supino Declinado no Smith Triceps",
+      "name_variations": [
+        "Close-Grip Decline Smith Press",
+        "Supino Declinado Fechado no Smith",
+        "Smith Decline Triceps Press"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Smith",
+      "primary_equipment": "Smith Machine",
+      "secondary_equipment": "Banco declinado",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_anterior", "serratus_anterior", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-105", "gif-ex-097", "seed-ex-109"],
+      "muscle_group_alternatives": ["seed-ex-026", "seed-ex-003", "seed-ex-029"]
+    },
+    {
+      "id": "gif-ex-105",
+      "name": "Supino Declinado Pegada Fechada",
+      "name_variations": [
+        "Close-Grip Decline Bench Press",
+        "Supino Declinado Fechado",
+        "Decline CGBP"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco declinado",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_anterior", "serratus_anterior", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-097", "gif-ex-104", "seed-ex-109"],
+      "muscle_group_alternatives": ["seed-ex-026", "seed-ex-003", "seed-ex-029"]
+    },
+    {
+      "id": "gif-ex-106",
+      "name": "Triceps na Paralela Maquina",
+      "name_variations": [
+        "Machine Dip",
+        "Mergulho na Paralela da Maquina",
+        "Triceps Dip Machine",
+        "Seated Machine Dip"
+      ],
+      "group_muscles": ["Triceps", "Peito", "Ombros"],
+      "category": "Composto",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-101", "gif-ex-099", "seed-ex-108", "seed-ex-029"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026"]
+    },
+    {
+      "id": "gif-ex-107",
+      "name": "Mergulho no Banco",
+      "name_variations": [
+        "Bench Dip",
+        "Mergulho no Banco",
+        "Bench Triceps Dip"
+      ],
+      "group_muscles": ["Triceps", "Peito", "Ombros"],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-029", "gif-ex-099", "seed-ex-108"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026", "seed-ex-001"]
+    },
+    {
+      "id": "gif-ex-108",
+      "name": "Triceps Coice Unilateral com Haltere",
+      "name_variations": [
+        "One-Arm Dumbbell Triceps Kickback",
+        "Coice Unilateral",
+        "Single-Arm Kickback"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_posterior", "core", "flexores_antebraco"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-027", "gif-ex-096"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "seed-ex-106",
+      "name": "Triceps Pushdown na Corda",
+      "name_variations": [
+        "Rope Triceps Pushdown",
+        "Triceps na Corda",
+        "Rope Pressdown",
+        "Triceps Pulley com Corda"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Corda",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "deltoide_posterior", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-026", "seed-ex-107", "gif-ex-093"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-028", "seed-ex-027"]
+    },
+    {
+      "id": "seed-ex-107",
+      "name": "Triceps Pushdown Pegada Invertida",
+      "name_variations": [
+        "Reverse-Grip Triceps Pushdown",
+        "Pushdown Supinado",
+        "Reverse Pressdown",
+        "Triceps Pulley Pegada Invertida"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Barra reta",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "deltoide_posterior", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-026", "seed-ex-106", "gif-ex-093"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-027"]
+    },
+    {
+      "id": "seed-ex-108",
+      "name": "Mergulho nas Paralelas",
+      "name_variations": [
+        "Triceps Dip",
+        "Parallel Bar Dip",
+        "Mergulho na Barra Paralela",
+        "Bodyweight Dip"
+      ],
+      "group_muscles": ["Triceps", "Peito", "Ombros"],
+      "category": "Composto",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": "Barras paralelas",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-099", "gif-ex-101", "gif-ex-106", "seed-ex-029"],
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026", "seed-ex-001"]
+    },
+    {
+      "id": "seed-ex-109",
+      "name": "JM Press",
+      "name_variations": [
+        "JM Press",
+        "Supino JM",
+        "Hybrid Close-Grip Skullcrusher Press"
+      ],
+      "group_muscles": ["Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_anterior", "serratus_anterior", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-097", "gif-ex-105", "seed-ex-025"],
+      "muscle_group_alternatives": ["seed-ex-026", "seed-ex-001", "seed-ex-029"]
+    }
+  ]
+}

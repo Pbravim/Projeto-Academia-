@@ -1,0 +1,888 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-021",
+      "name": "Rosca Direta com Barra",
+      "name_variations": [
+        "Standing Barbell Curl",
+        "Rosca Direta",
+        "Barbell Biceps Curl",
+        "Rosca com Barra Reta"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-096",
+        "seed-ex-024",
+        "gif-ex-084"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-022",
+      "name": "Rosca Alternada com Haltere",
+      "name_variations": [
+        "Alternating Dumbbell Curl",
+        "Rosca Alternada",
+        "Standing Dumbbell Curl",
+        "Rosca Bilateral com Halteres"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": [
+        "gif-ex-088",
+        "seed-ex-021",
+        "seed-ex-097"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-023",
+      "name": "Rosca Concentrada com Haltere",
+      "name_variations": [
+        "Concentration Curl",
+        "Rosca Concentrada",
+        "Seated Concentration Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "gif-ex-079",
+        "gif-ex-087",
+        "gif-ex-088"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-024",
+      "name": "Rosca no Cabo",
+      "name_variations": [
+        "Cable Curl",
+        "Rosca Direta no Cabo",
+        "Standing Cable Biceps Curl",
+        "Rosca na Polia Baixa"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Barra reta",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-021",
+        "gif-ex-080",
+        "seed-ex-104"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-079",
+      "name": "Rosca Concentrada Unilateral no Cross",
+      "name_variations": [
+        "Cable Concentration Curl",
+        "Rosca Concentrada no Cabo",
+        "Single-Arm Cable Concentration Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-023",
+        "gif-ex-080",
+        "seed-ex-104"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-080",
+      "name": "Rosca Unilateral Polia Alta",
+      "name_variations": [
+        "Overhead Cable Curl",
+        "High Pulley Cable Curl",
+        "Rosca na Polia Alta",
+        "Crucifix Cable Curl",
+        "Bicep Peak Cable Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "deltoide_posterior",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "gif-ex-079",
+        "seed-ex-024",
+        "seed-ex-104"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-081",
+      "name": "Rosca Direta no Banco Scott",
+      "name_variations": [
+        "Barbell Preacher Curl",
+        "Rosca Scott com Barra",
+        "Preacher Curl",
+        "Rosca no Banco Scott"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco Scott",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-083",
+        "gif-ex-086",
+        "gif-ex-085",
+        "seed-ex-105"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-082",
+      "name": "Rosca Alternada Biarticular",
+      "name_variations": [
+        "Machine Biceps Curl",
+        "Rosca na Maquina",
+        "Selectorized Biceps Curl",
+        "Rosca no Aparelho Biarticular"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": [
+        "gif-ex-085",
+        "seed-ex-105",
+        "gif-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-083",
+      "name": "Rosca Direta Apoiada Barra W",
+      "name_variations": [
+        "EZ-Bar Preacher Curl",
+        "Rosca Scott com Barra W",
+        "EZ Bar Curl on Bench",
+        "Rosca Apoiada no Banco"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra W",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco Scott",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-081",
+        "gif-ex-086",
+        "seed-ex-096"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-084",
+      "name": "Rosca Direta Pegada Fechada Sentado",
+      "name_variations": [
+        "Seated Close-Grip Barbell Curl",
+        "Rosca Pegada Fechada",
+        "Close-Grip Barbell Curl",
+        "Rosca Sentado com Barra"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-021",
+        "seed-ex-096",
+        "gif-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-085",
+      "name": "Rosca Neutra Banco Scott Aparelho",
+      "name_variations": [
+        "Machine Preacher Curl",
+        "Rosca Scott na Maquina",
+        "Neutral-Grip Machine Curl",
+        "Rosca Neutra no Aparelho"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": "Banco Scott",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "braquial",
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-082",
+        "seed-ex-105",
+        "gif-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-086",
+      "name": "Rosca Scott Barra W",
+      "name_variations": [
+        "EZ-Bar Preacher Curl",
+        "Rosca Scott com Barra W",
+        "Preacher EZ Bar Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra W",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco Scott",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "gif-ex-083",
+        "gif-ex-081",
+        "seed-ex-096"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-087",
+      "name": "Rosca Scott Unilateral com Haltere",
+      "name_variations": [
+        "One-Arm Dumbbell Preacher Curl",
+        "Rosca Scott Unilateral",
+        "Single-Arm Preacher Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco Scott",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-023",
+        "gif-ex-088",
+        "gif-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "gif-ex-088",
+      "name": "Rosca Unilateral com Haltere Sentado",
+      "name_variations": [
+        "Seated Dumbbell Curl",
+        "Rosca Sentado com Haltere",
+        "One-Arm Seated Dumbbell Curl",
+        "Rosca Unilateral Sentado"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-022",
+        "gif-ex-087",
+        "seed-ex-097"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-096",
+      "name": "Rosca Direta com Barra W",
+      "name_variations": [
+        "EZ-Bar Curl",
+        "Rosca com Barra W",
+        "Standing EZ Bar Curl",
+        "Rosca Direta Barra EZ"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra W",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-021",
+        "gif-ex-084",
+        "seed-ex-024"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-097",
+      "name": "Rosca Inclinada com Halteres",
+      "name_variations": [
+        "Incline Dumbbell Curl",
+        "Rosca no Banco Inclinado",
+        "Incline Biceps Curl",
+        "Rosca Inclinada"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco inclinado",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-022",
+        "gif-ex-088",
+        "seed-ex-104"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-098",
+      "name": "Rosca Martelo com Halteres",
+      "name_variations": [
+        "Hammer Curl",
+        "Rosca Martelo",
+        "Neutral-Grip Dumbbell Curl",
+        "Cross-Body Hammer Curl",
+        "Pinwheel Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "braquiorradial",
+        "braquial",
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": [
+        "seed-ex-099",
+        "seed-ex-101"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-022",
+        "seed-ex-100",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-099",
+      "name": "Rosca Martelo na Corda no Cabo",
+      "name_variations": [
+        "Cable Rope Hammer Curl",
+        "Rosca Martelo no Cabo",
+        "Rope Hammer Curl",
+        "Rosca Neutra na Corda"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Corda",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "braquiorradial",
+        "braquial",
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-098",
+        "seed-ex-101"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-024",
+        "seed-ex-100",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-100",
+      "name": "Rosca Inversa com Barra",
+      "name_variations": [
+        "Reverse Curl",
+        "Rosca Inversa",
+        "Pronated Barbell Curl",
+        "Rosca Pronada",
+        "Reverse-Grip Barbell Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra W",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "braquiorradial",
+        "braquial"
+      ],
+      "stabilizers": [
+        "flexores_antebraco",
+        "biceps_braquial",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-101"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-098",
+        "seed-ex-099",
+        "seed-ex-021"
+      ]
+    },
+    {
+      "id": "seed-ex-101",
+      "name": "Rosca Zottman",
+      "name_variations": [
+        "Zottman Curl",
+        "Rosca Zottman com Halteres",
+        "Zottman Dumbbell Curl"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial",
+        "braquiorradial",
+        "braquial"
+      ],
+      "stabilizers": [
+        "flexores_antebraco",
+        "core",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": [
+        "seed-ex-098",
+        "seed-ex-100",
+        "seed-ex-099"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-022",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-102",
+      "name": "Rosca Arrasto",
+      "name_variations": [
+        "Drag Curl",
+        "Rosca de Arrasto",
+        "Barbell Drag Curl",
+        "Rosca Arrastada"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "deltoide_posterior"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-103",
+        "seed-ex-021"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-103",
+      "name": "Rosca Spider",
+      "name_variations": [
+        "Spider Curl",
+        "Rosca Aranha",
+        "Prone Incline Dumbbell Curl",
+        "Rosca no Banco Inclinado de Bruços"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco inclinado",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": [
+        "seed-ex-102",
+        "gif-ex-081",
+        "seed-ex-097"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-104",
+      "name": "Rosca Bayesian no Cabo",
+      "name_variations": [
+        "Bayesian Curl",
+        "Face-Away Cable Curl",
+        "Rosca Bayesian",
+        "Behind-Body Cable Curl",
+        "Rosca no Cabo de Costas"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco",
+        "deltoide_anterior"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "seed-ex-097",
+        "gif-ex-080",
+        "seed-ex-024"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    },
+    {
+      "id": "seed-ex-105",
+      "name": "Rosca Scott Iso-lateral na Maquina",
+      "name_variations": [
+        "Iso-Lateral Machine Preacher Curl",
+        "Plate-Loaded Preacher Curl",
+        "Hammer Strength Biceps Curl",
+        "Rosca Scott Articulada Unilateral"
+      ],
+      "group_muscles": [
+        "Biceps"
+      ],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Plate-Loaded Machine",
+      "secondary_equipment": "Banco Scott",
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": [
+        "biceps_braquial"
+      ],
+      "stabilizers": [
+        "braquial",
+        "braquiorradial",
+        "flexores_antebraco"
+      ],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": [
+        "gif-ex-085",
+        "gif-ex-082",
+        "gif-ex-081"
+      ],
+      "muscle_group_alternatives": [
+        "seed-ex-009",
+        "seed-ex-073"
+      ]
+    }
+  ]
+}

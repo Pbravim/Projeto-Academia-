@@ -192,3 +192,122 @@ Atualizado no mesmo commit: spec sub-5 (§ enum), `scripts/validate_exercise_see
 (`MOVEMENT_PATTERNS`), e a skill `exercise-intelligence-research` (lista de padrões). Mesma
 disciplina da extensão de equipamento (§1): nunca usar um padrão "parecido" — estender o vocabulário
 nos 3 lugares no mesmo PR.
+
+---
+
+## 7. Extensão do vocabulário de `movement_pattern` (flexão de cotovelo / roscas) — 2026-06-13
+
+> **Sessão:** `biceps`. O enum de `movement_pattern` não tinha padrão para as roscas single-joint
+> (flexão de cotovelo). Sem ele, uma rosca rankearia como substituto "similar" de barra fixa /
+> puxada supinada / remada supinada — compostos que recrutam o bíceps como sinergista.
+
+- **`Elbow Flexion`** — rosca/curl single-joint (rosca direta com barra/EZ, martelo, inversa,
+  Scott/preacher, concentrada, Zottman, drag, spider, Bayesian, no cabo, na máquina). Mantém as
+  roscas com padrão próprio; chin-up (seed-ex-009), puxada supinada (seed-ex-073) e remadas
+  ficam em `Vertical Pull` / `Horizontal Pull` (bíceps lá é estabilizador, não `musculo_alvo`),
+  então a substituição não cruza os dois mundos.
+
+Atualizado no mesmo commit: spec sub-5 (§ enum), `scripts/validate_exercise_seeds.py`
+(`MOVEMENT_PATTERNS`), e a skill `exercise-intelligence-research` (lista de padrões + nota de uso).
+Mesma disciplina das extensões §1 e §6. A futura sessão `triceps_*` deve adicionar `Elbow Extension`
+de forma simétrica.
+
+---
+
+## 8. Extensão do vocabulário de `movement_pattern` (extensão de cotovelo / tríceps) — 2026-06-13
+
+> **Sessões:** `triceps_push_down` + `triceps_overhead`. Simétrico ao §7 (`Elbow Flexion`).
+
+- **`Elbow Extension`** — extensão de cotovelo single-joint: pushdown/pulley (bar/corda/invertido),
+  coice/kickback, testa/skullcrusher, francês/overhead extension, na máquina, Tate press. Mantém as
+  isolações de tríceps com padrão próprio.
+- **Compostos de tríceps ficam em `Horizontal Push`** (multi-articular): supino fechado, mergulho/dips
+  (peso corporal, paralelas, assistido, máquina, banco), flexão pegada fechada/diamante, JM press.
+  Assim um pushdown (`Elbow Extension`, `triceps_lateral_medial`) só rankeia como "similar" (Layer 2)
+  de um supino fechado (`Horizontal Push`, mesmo `musculo_alvo`), não como "quase igual".
+- **Cabeça-alvo:** `triceps_cabeca_longa` para overhead/testa (braço acima da cabeça alonga a porção
+  longa); `triceps_lateral_medial` para pushdown/kickback/dips/close-press/Tate.
+
+Atualizado no mesmo commit: spec sub-5 (§ enum), `scripts/validate_exercise_seeds.py`
+(`MOVEMENT_PATTERNS`), e a skill `exercise-intelligence-research` (lista de padrões + nota de uso).
+Retag de máquina (§1): gif-ex-094/095/101/106 → Selectorized Machine; gif-ex-099 (Graviton) →
+Assisted Machine + secondary Bodyweight. Notas brutas da pesquisa em `research-triceps.md`.
+
+---
+
+## 9. Extensão do vocabulário de `movement_pattern` (extensão de joelho / quadríceps) — 2026-06-13
+
+> **Sessão:** `quadriceps`. Simétrico a §7/§8.
+
+- **`Knee Extension`** — extensão de joelho single-joint: cadeira extensora (leg extension) e sissy squat
+  (joelho-dominante, quadril fixo). Mantém a isolação de quadríceps com padrão próprio.
+- **Compostos de quadríceps ficam em `Squat`/`Lunge`** (multi-articular quadril+joelho): agachamentos
+  (livre/frontal/smith/máquina/hack/goblet/sumo/pistol), leg press, afundos/lunges/passadas/búlgaro/step-up.
+  Assim a cadeira extensora (`Knee Extension`, `quadriceps`) só rankeia como "similar" (Layer 2 — overlap de
+  `quadriceps`) de um agachamento (`Squat`), não como "quase igual".
+
+Vocabulário usado: `Leg Press` (seed-ex-035, gif-ex-159) e `Hack Squat Machine` (seed-ex-113) — valores
+do vocabulário controlado que estavam sem uso até aqui. Retag: gif-ex-154 (agachamento na máquina) →
+Selectorized Machine. Atualizado no mesmo commit: spec sub-5, validador (`MOVEMENT_PATTERNS`), skill.
+A futura sessão `posterior_gluteos` deve adicionar `Knee Flexion` (mesa flexora/leg curl/nordic) de forma
+simétrica. Notas brutas em `research-quadriceps.md`.
+
+---
+
+## 10. Extensão do vocabulário de `movement_pattern` (cadeia posterior / glúteos) — 2026-06-13
+
+> **Sessão:** `posterior_gluteos`. Dois padrões novos + uma lacuna documentada.
+
+- **`Knee Flexion`** — flexão de joelho single-joint, isquiotibial: mesa flexora (lying), cadeira flexora
+  (seated), flexora em pé, flexora no cabo, nordic. Distinto de `Hinge` (stiff/terra/bom dia = quadril-
+  dominante, mesmo músculo isquiotibial) — sem isso, um leg curl rankearia como "similar" a um stiff.
+- **`Hip Extension`** — extensão de quadril glúteo-dominante em ponte/coice: hip thrust, glute bridge,
+  elevação pélvica, kickback/coice (cabo/banda/4-apoios), frog pump, glúteo na máquina. Distinto de `Hinge`
+  para o hip thrust não rankear como "quase igual" a um stiff/terra.
+- **Lacuna de vocabulário (documentada, não estendida):** adução/abdução de quadril (cadeira adutora
+  gif-ex-136, adutora no cabo gif-ex-152, cadeira abdutora seed-ex-119) não têm valor no enum — usam
+  `movement_pattern: null` e agrupam por `musculo_alvo` (`adutores` / `gluteos`). NÃO reusei `Abduction`
+  (reservado para raises de deltoide — reusar faria a abdutora rankear como "similar" de elevação lateral).
+  Se uma sessão futura precisar, criar `Hip Adduction`/`Hip Abduction` dedicados (spec + validador + skill).
+
+Vocabulário de equipamento ativado pela 1ª vez: `Kettlebell` (gif-ex-164, stiff unilateral com kettlebell).
+Retag de máquina (§1): seed-ex-038/gif-ex-144 (flexora) + gif-ex-136 (adutora) + seed-ex-118/119/121 →
+Selectorized Machine. `Clean` (gif-ex-137) ganhou um `review_flag` (category Power/olímpico ausente do enum).
+Atualizado no mesmo commit: spec sub-5, validador (`MOVEMENT_PATTERNS`), skill. Notas em
+`research-posterior_gluteos.md`.
+
+---
+
+## 11. Extensão do vocabulário de `movement_pattern` (core / abdome) — 2026-06-13
+
+> **Sessão:** `abdome`. Quatro padrões novos de tronco; `Rotation`/`Anti-Rotation` já existiam.
+
+- **`Trunk Flexion`** — flexão de coluna (costelas → pelve): crunch, sit-up, crunch no banco/declinado,
+  crunch na máquina (gif-ex-117), crunch na polia (gif-ex-118/119), crunch pernas elevadas, sit-up com peso.
+  Reto abdominal (ênfase superior). musculo_alvo `abdomen`.
+- **`Hip Flexion`** — flexão de quadril (pelve → costelas) / "abdominal inferior": elevação de pernas
+  (deitado seed-ex-032 / suspenso seed-ex-122), crunch reverso, V-up/jackknife (gif-ex-120), flexão de
+  quadril no banco/bola, flutter/alternando pernas. Reto inferior + flexores de quadril. musculo_alvo `abdomen`.
+- **`Lateral Flexion`** — flexão lateral de tronco (plano frontal): flexão lateral, abdominal lateral, flexão
+  lateral com bola, e a **prancha lateral** (seed-ex-127) como variante isométrica (anti-flexão-lateral
+  dobrada aqui para não fragmentar o enum num padrão de uso único). Oblíquos + QL. musculo_alvo `obliquo`.
+- **`Anti-Extension`** — bracing isométrico resistindo à extensão da coluna: prancha (seed-ex-031), dead bug
+  (gif-ex-123), rollout na roda abdominal (seed-ex-123). Reto + core profundo. musculo_alvo `abdomen`/`core`.
+- **`Rotation` (já existia)** — rotação dinâmica de tronco: abdominal oblíquo (seed-ex-033), oblíquo na polia
+  (gif-ex-126), Russian twist (seed-ex-125), lenhador no cabo/woodchopper (seed-ex-126), bicicleta (seed-ex-128).
+- **`Anti-Rotation` (já existia)** — resistir à rotação: Pallof press (seed-ex-124), 1º anti-rotação do catálogo.
+
+Sem os 4 padrões novos, crunch + leg raise + prancha cairiam todos em `null` e o algoritmo os agruparia só
+por `musculo_alvo` (`abdomen`) como "quase iguais", apesar de estímulos biomecânicos distintos.
+
+**Lacuna de equipamento (documentada, NÃO estendida):** a **roda abdominal** (ab wheel) não tem valor no
+vocabulário controlado. Mapeada para `primary_equipment: "Bodyweight"` + `secondary_equipment: "Roda Abdominal"`
+(precedente do banco romano gif-ex-053 / apparatus: movimento de peso corporal sobre uma ferramenta). Mesma
+regra para a bola suíça (`Bodyweight` + `Bola Suica`). Evita estender `PRIMARY_EQUIPMENT` para ferramentas
+de uso único. Retag de máquina (§1): gif-ex-117 (crunch na máquina) → Selectorized Machine.
+
+Roteados (sessões de expansão): Landmine Twist → `forca_landmine`; suspended jack-knife/TRX →
+`forca_suspension_trainer`; Turkish get-up + farmer's/suitcase carry → `forca_kettlebell`; ball slam +
+mountain climber → `cardio_hiit_funcional`; bird dog + superman → `reabilitacao_lombar_core` (extensão/
+estabilização lombar, não flexão abdominal). Atualizado no mesmo commit: spec sub-5, validador
+(`MOVEMENT_PATTERNS`), skill. Notas brutas em `research-abdome.md`.

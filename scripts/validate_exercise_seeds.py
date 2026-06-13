@@ -34,6 +34,19 @@ MOVEMENT_PATTERNS = {
     "Horizontal Adduction",
     # Extensão 2026-06-10 (sessão ombros_lateral): raises de deltoide single-joint
     "Abduction", "Horizontal Abduction",
+    # Extensão 2026-06-13 (sessão biceps): flexão de cotovelo single-joint (roscas)
+    "Elbow Flexion",
+    # Extensão 2026-06-13 (sessões triceps): extensão de cotovelo single-joint
+    "Elbow Extension",
+    # Extensão 2026-06-13 (sessão quadriceps): extensão de joelho single-joint (cadeira extensora, sissy)
+    "Knee Extension",
+    # Extensão 2026-06-13 (sessão posterior_gluteos): flexão de joelho (mesa/cadeira flexora, nordic) +
+    # extensão de quadril glúteo-dominante (hip thrust, glute bridge, coice/kickback)
+    "Knee Flexion", "Hip Extension",
+    # Extensão 2026-06-13 (sessão abdome): padrões de core/tronco. Flexão de coluna (crunch/sit-up),
+    # flexão de quadril (leg raise/crunch reverso), flexão lateral (side bend/prancha lateral) e
+    # bracing isométrico anti-extensão (prancha, dead bug, rollout). Rotation/Anti-Rotation já existem.
+    "Trunk Flexion", "Hip Flexion", "Lateral Flexion", "Anti-Extension",
     "Squat", "Hinge", "Lunge", "Rotation",
     "Anti-Rotation", "Carry", "Gait", "Jump", "Sprint",
 }

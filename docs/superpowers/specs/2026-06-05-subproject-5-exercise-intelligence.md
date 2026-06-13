@@ -45,7 +45,9 @@ Arquivo: `apps/mobile/src/domain/exercises/entities/Exercise.ts`
 ```typescript
 movement_pattern: MovementPattern | null
 // 'Horizontal Push' | 'Vertical Push' | 'Horizontal Pull' | 'Vertical Pull' | 'Horizontal Adduction'
-// | 'Abduction' | 'Horizontal Abduction'
+// | 'Abduction' | 'Horizontal Abduction' | 'Elbow Flexion' | 'Elbow Extension' | 'Knee Extension'
+// | 'Knee Flexion' | 'Hip Extension'
+// | 'Trunk Flexion' | 'Hip Flexion' | 'Lateral Flexion' | 'Anti-Extension'
 // | 'Squat' | 'Hinge' | 'Lunge' | 'Rotation' | 'Anti-Rotation'
 // | 'Carry' | 'Gait' | 'Jump' | 'Sprint'
 // 'Horizontal Adduction' = single-joint fly/crossover/pec-deck movements (no elbow extension);
@@ -55,6 +57,35 @@ movement_pattern: MovementPattern | null
 // raise (lateral raise, front raise, upright row); kept distinct from 'Vertical Push' so a lateral
 // raise não rankeia como substituto "similar" de um desenvolvimento (overlap parcial de deltoide).
 // 'Horizontal Abduction' = rear-delt / reverse fly / face pull (espelho de 'Horizontal Adduction').
+// 'Elbow Flexion' (added 2026-06-13, sessão biceps) = rosca/curl single-joint (flexão de cotovelo:
+// rosca direta, martelo, inversa, Scott, concentrada, Zottman, drag, spider, Bayesian). Mantém as
+// roscas com padrão próprio; chin-up/puxada supinada/remada supinada (compostos que recrutam bíceps)
+// ficam em Vertical/Horizontal Pull, então a substituição não rankeia uma rosca como "quase igual"
+// a uma barra fixa.
+// 'Elbow Extension' (added 2026-06-13, sessões triceps) = extensão de cotovelo single-joint (pushdown/
+// pulley, coice/kickback, testa/skullcrusher, francês/overhead extension, na máquina). Os COMPOSTOS de
+// tríceps (supino fechado, mergulho/dips, flexão fechada) ficam em 'Horizontal Push' (pressing multi-
+// articular), então um pushdown não rankeia como "quase igual" a um supino fechado — só "similar".
+// 'Knee Extension' (added 2026-06-13, sessão quadriceps) = extensão de joelho single-joint (cadeira
+// extensora, sissy squat). Os COMPOSTOS de quadríceps (agachamentos, leg press, afundos/lunges, hack,
+// búlgaro, step-up) ficam em 'Squat'/'Lunge' (multi-articular quadril+joelho), então a cadeira extensora
+// não rankeia como "quase igual" a um agachamento — só "similar" pelo overlap de quadriceps.
+// 'Knee Flexion' (added 2026-06-13, sessão posterior_gluteos) = flexão de joelho single-joint, isquiotibial
+// (mesa/cadeira/flexora em pé/no cabo, nordic). Distinto de 'Hinge' (stiff/terra/bom dia = quadril-dominante
+// isquiotibial), para a substituição não cruzar leg curl com stiff (mesmo músculo, mecânica diferente).
+// 'Hip Extension' (added 2026-06-13, sessão posterior_gluteos) = extensão de quadril glúteo-dominante em
+// posição de ponte/coice (hip thrust, glute bridge, kickback/coice, donkey, frog pump, glúteo na máquina).
+// Distinto de 'Hinge' (dobradiça de quadril em pé) para o hip thrust não rankear como "quase igual" a um
+// stiff/terra. Adução/abdução de quadril (cadeira adutora/abdutora, adutor no cabo) ficam com pattern null
+// (lacuna de vocabulário documentada) — agrupam por musculo_alvo (adutores / gluteos).
+// 'Trunk Flexion' / 'Hip Flexion' / 'Lateral Flexion' / 'Anti-Extension' (added 2026-06-13, sessão abdome) =
+// padrões de core/tronco. 'Trunk Flexion' = flexão de coluna costelas→pelve (crunch, sit-up, crunch na polia/
+// máquina). 'Hip Flexion' = flexão de quadril pelve→costelas / abdominal inferior (leg raise deitado/suspenso,
+// crunch reverso, V-up). 'Lateral Flexion' = flexão lateral de tronco (side bend, prancha lateral isométrica).
+// 'Anti-Extension' = bracing isométrico resistindo à extensão (prancha, dead bug, rollout na roda). Sem esses 4,
+// crunch + leg raise + prancha cairiam todos em null e o algoritmo os agruparia só por musculo_alvo (abdomen)
+// como "quase iguais", apesar de estímulos distintos. Rotation (twist/woodchopper/bicicleta) e Anti-Rotation
+// (Pallof) já existiam e cobrem o core rotacional. Ver catalog-maintenance.md §11.
 
 musculo_alvo: string[]          // era string | null — agora array de primários
 stabilizers: string[]           // músculos estabilizadores (informativo)

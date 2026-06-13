@@ -1,0 +1,230 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-025",
+      "name": "Triceps Testa com Barra",
+      "name_variations": [
+        "Lying Barbell Triceps Extension",
+        "Skull Crusher",
+        "Triceps Testa",
+        "Skullcrusher com Barra"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Barra olimpica",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-109", "gif-ex-110", "gif-ex-089", "gif-ex-092"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097", "seed-ex-028"]
+    },
+    {
+      "id": "seed-ex-028",
+      "name": "Triceps Frances com Haltere",
+      "name_variations": [
+        "Seated Dumbbell Triceps Extension",
+        "Overhead Dumbbell Extension",
+        "Triceps Frances",
+        "French Press"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["gif-ex-089", "gif-ex-090", "gif-ex-098", "seed-ex-111"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097", "seed-ex-025"]
+    },
+    {
+      "id": "gif-ex-089",
+      "name": "Triceps Frances Barra W",
+      "name_variations": [
+        "Overhead EZ-Bar Triceps Extension",
+        "French Press com Barra W",
+        "Triceps Frances EZ",
+        "Standing Overhead EZ Extension"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Barra W",
+      "primary_equipment": "Barbell",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-028", "gif-ex-098", "gif-ex-090", "seed-ex-025"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "gif-ex-090",
+      "name": "Triceps Frances Inclinado com Haltere",
+      "name_variations": [
+        "Incline Dumbbell Triceps Extension",
+        "Triceps Frances Inclinado",
+        "Incline Overhead Extension"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco inclinado",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-028", "gif-ex-089", "gif-ex-109"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "gif-ex-091",
+      "name": "Triceps Frances Unilateral no Cabo",
+      "name_variations": [
+        "One-Arm Cable Overhead Triceps Extension",
+        "Triceps Frances Unilateral no Cabo",
+        "Single-Arm Cable French Press"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Manopla",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["gif-ex-098", "gif-ex-092", "seed-ex-028"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "gif-ex-092",
+      "name": "Triceps Testa Unilateral",
+      "name_variations": [
+        "One-Arm Cable Lying Triceps Extension",
+        "Triceps Testa Unilateral no Cabo",
+        "Single-Arm Skull Crusher"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Manopla",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-025", "gif-ex-091", "gif-ex-109"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "gif-ex-098",
+      "name": "Triceps Cabo Sobre a Cabeca",
+      "name_variations": [
+        "Overhead Cable Triceps Extension",
+        "Triceps no Cabo Sobre a Cabeca",
+        "Cable Overhead Extension",
+        "Rope Overhead Extension"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Cabo",
+      "primary_equipment": "Cable",
+      "secondary_equipment": "Corda",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-028", "gif-ex-089", "gif-ex-091", "seed-ex-111"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "gif-ex-109",
+      "name": "Triceps Testa com Haltere",
+      "name_variations": [
+        "Lying Dumbbell Triceps Extension",
+        "Dumbbell Skull Crusher",
+        "Triceps Testa com Halteres"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-025", "gif-ex-110", "gif-ex-092", "gif-ex-090"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "gif-ex-110",
+      "name": "Triceps Testa Alternado",
+      "name_variations": [
+        "Alternating Dumbbell Skull Crusher",
+        "Triceps Testa Alternado com Halteres",
+        "Alternating Lying Triceps Extension"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["gif-ex-109", "seed-ex-025", "gif-ex-092"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097"]
+    },
+    {
+      "id": "seed-ex-110",
+      "name": "Tate Press",
+      "name_variations": [
+        "Tate Press",
+        "Elbows-Out Dumbbell Extension",
+        "Triceps Tate com Halteres"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Haltere",
+      "primary_equipment": "Dumbbell",
+      "secondary_equipment": "Banco",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["deltoide_anterior", "peitoral_medio", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-109", "seed-ex-025"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-097", "seed-ex-028"]
+    },
+    {
+      "id": "seed-ex-111",
+      "name": "Extensao de Triceps Peso Corporal",
+      "name_variations": [
+        "Bodyweight Triceps Extension",
+        "Triceps Extension na Barra",
+        "Bodyweight Skull Crusher",
+        "Extensao de Triceps no Smith"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Peso corporal",
+      "primary_equipment": "Bodyweight",
+      "secondary_equipment": "Barra",
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "serratus_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-028", "gif-ex-098", "seed-ex-025"],
+      "muscle_group_alternatives": ["seed-ex-026", "gif-ex-102"]
+    }
+  ]
+}

@@ -59,6 +59,12 @@ import costasPullVerticalJson from '../infrastructure/exercises/seeds/costas_pul
 import costasPullHorizontalJson from '../infrastructure/exercises/seeds/costas_pull_horizontal.json';
 import ombrosPressJson from '../infrastructure/exercises/seeds/ombros_press.json';
 import ombrosLateralJson from '../infrastructure/exercises/seeds/ombros_lateral.json';
+import bicepsJson from '../infrastructure/exercises/seeds/biceps.json';
+import tricepsPushDownJson from '../infrastructure/exercises/seeds/triceps_push_down.json';
+import tricepsOverheadJson from '../infrastructure/exercises/seeds/triceps_overhead.json';
+import quadricepsJson from '../infrastructure/exercises/seeds/quadriceps.json';
+import posteriorGluteosJson from '../infrastructure/exercises/seeds/posterior_gluteos.json';
+import abdomeJson from '../infrastructure/exercises/seeds/abdome.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -66,6 +72,12 @@ const costasPullVertical = costasPullVerticalJson as SeedFile;
 const costasPullHorizontal = costasPullHorizontalJson as SeedFile;
 const ombrosPress = ombrosPressJson as SeedFile;
 const ombrosLateral = ombrosLateralJson as SeedFile;
+const biceps = bicepsJson as SeedFile;
+const tricepsPushDown = tricepsPushDownJson as SeedFile;
+const tricepsOverhead = tricepsOverheadJson as SeedFile;
+const quadriceps = quadricepsJson as SeedFile;
+const posteriorGluteos = posteriorGluteosJson as SeedFile;
+const abdome = abdomeJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -90,6 +102,12 @@ void (async () => {
       seedLoader.loadSeedFile(costasPullHorizontal),
       seedLoader.loadSeedFile(ombrosPress),
       seedLoader.loadSeedFile(ombrosLateral),
+      seedLoader.loadSeedFile(biceps),
+      seedLoader.loadSeedFile(tricepsPushDown),
+      seedLoader.loadSeedFile(tricepsOverhead),
+      seedLoader.loadSeedFile(quadriceps),
+      seedLoader.loadSeedFile(posteriorGluteos),
+      seedLoader.loadSeedFile(abdome),
     ]);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
