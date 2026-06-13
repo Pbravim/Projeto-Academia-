@@ -1179,6 +1179,66 @@
         "gif-ex-158",
         "gif-ex-175"
       ]
+    },
+    "forca_kettlebell": {
+      "status": "complete",
+      "type": "expansion_new_strength",
+      "exercise_count": 7,
+      "researched_at": "2026-06-13",
+      "catalog_version": 1,
+      "completed_at": "2026-06-13",
+      "research_notes": "1ª sessão de expansão (new_strength) — liberada pelo portão de prontidão §13 (semântica de força). Cria SÓ os estímulos KB-distintos com primary_equipment 'Kettlebell'; movimentos que são apenas a versão-KB de um registro existente (goblet squat, RDL, remada, rosca, press, afundo, clean, high pull, gorilla row) NÃO viram registro — são variantes de implemento (o sistema de equipamento/substituição cobre o KB como alternativa). 7 novos (seed-ex-131..137): swing e snatch (balísticos de quadril — não existia balístico no catálogo), Turkish get-up + windmill + bottoms-up press (complexos de estabilidade/offset), farmer's carry + suitcase carry (1º uso de 'Carry' no enum — não existia carry). gif_path null. Notas em research-forca_kettlebell.md.",
+      "completion_notes": "Auditado contra 10+ bases (M&S exaustivo, BarBend, StrengthLog 27, rdellatraining 21, Men's Fitness, VIVO 50, kettlebellsworkouts 52, Fitbod 42, Lifemaxx). Curva: rodada 1 -> +7 distintos; rodada 2 -> +0 (resto = variantes/combos/duplos ou implemento-variante). Fechamento confirmado.",
+      "research_sources": {
+        "_comment": "Informativo, NÃO lido pelo app.",
+        "databases_consulted": [
+          "https://www.muscleandstrength.com/exercises/kettlebell",
+          "https://barbend.com/best-kettlebell-exercises/",
+          "https://www.strengthlog.com/best-kettlebell-exercises/",
+          "https://www.rdellatraining.com/the-ultimate-list-of-the-top-21-kettlebell-exercises",
+          "https://mensfitness.co.uk/workouts/best-kettlebell-exercises/",
+          "https://shop.vivofitness.com/blogs/blog/50-best-kettlebell-exercises",
+          "https://kettlebellsworkouts.com/kettlebell-exercises/",
+          "https://fitbod.me/exercises/kettlebells",
+          "https://www.lifemaxx.com/en/blogs/blog/7-best-kettlebell-exercises/"
+        ]
+      },
+      "scope_exclusions": {
+        "routed_to_other_sessions": {
+          "mobilidade_superior_coluna": ["Kettlebell Halo", "Kettlebell Arm Bar"],
+          "mobilidade_inferior": ["Standing Hip Flexor Raise"],
+          "reabilitacao_quadril_joelho": ["Kettlebell Tibialis Raise"],
+          "_note": "Sessões new_categories bloqueadas (§13) — estes aguardam o desbloqueio."
+        },
+        "excluded_as_non_distinct": {
+          "implement_variant_of_existing": [
+            "Goblet / Front Squat (≈ seed-ex-115)",
+            "Deadlift / RDL / Single-Leg DL / Sumo DL (≈ seed-ex-014/039, gif-ex-133)",
+            "KB Row / Gorilla Row / Renegade Row (≈ remadas existentes)",
+            "KB Curl (≈ rosca DB)",
+            "Floor/Bench/Strict/One-Arm/Z Press / Push Press / Thruster (≈ seed-ex-016/084/088)",
+            "Clean / Clean&Press / Clean&Jerk (≈ Clean gif-ex-137 + press)",
+            "High Pull / SDL High Pull (≈ swing + remada alta gif-ex-078)",
+            "Step-Up / Reverse / Walking Lunge / Split Squat (≈ seed-ex-036/114/116)",
+            "Push-Up, Lateral Raise (≈ seed-ex-017), Dead Bug / Plank Pull-Through (≈ gif-ex-123/seed-ex-123)",
+            "Waiter's Walk (variante de carry overhead — dobrado em Carry)"
+          ]
+        }
+      },
+      "conventions": {
+        "distinct_stimulus_rule": "Sessão de expansão por equipamento cria só estímulos KB-distintos (balístico/offset/carry). Versão-KB de um exercício existente = variante de implemento, não registro novo.",
+        "carry_pattern": "1º uso de 'Carry' (já no enum). Farmer's = grip/trapézio bilateral; suitcase = anti-flexão-lateral (core/obliquo).",
+        "ballistic_olympic": "Swing/snatch = Composto + Hinge (precedente do Clean gif-ex-137); snatch tem review_flag (sem category/pattern de potência olímpica no enum). Get-up = movement_pattern null (complexo full-body)."
+      },
+      "covers": [
+        "seed-ex-131",
+        "seed-ex-132",
+        "seed-ex-133",
+        "seed-ex-134",
+        "seed-ex-135",
+        "seed-ex-136",
+        "seed-ex-137"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1225,8 +1285,8 @@
         "verdict": "OK criar seeds — semântica de força (séries×reps×carga) idêntica aos exercícios existentes; o app já modela e exibe.",
         "notes": "Exercícios de força com group_muscles musculares normais e primary_equipment já no vocabulário controlado. Agrupam corretamente no catálogo/picker e registram em SerieRegistrada (kg×reps). movement_pattern reutiliza padrões existentes (Hinge/Squat/Vertical Push/Horizontal Pull/Carry...); levantamentos olímpicos (clean/snatch) seguem o precedente do clean (Hinge + review_flag, sem category de potência no enum)."
       },
+      "completed": ["forca_kettlebell"],
       "sessions": [
-        "forca_kettlebell",
         "forca_landmine",
         "forca_suspension_trainer",
         "forca_maquinas_especializadas",
