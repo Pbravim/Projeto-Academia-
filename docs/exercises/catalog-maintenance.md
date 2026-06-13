@@ -337,3 +337,46 @@ Universo pequeno: 2 estímulos reais (gastroc em pé / sóleo sentado), curva +2
 Atualizado no mesmo commit: spec sub-5, validador (`MOVEMENT_PATTERNS`), skill. Notas em
 `research-panturrilha.md`. **Conclui as 13 sessões de força do manifest** (`pending_sessions` vazio;
 restam só as sessões de expansão — cardio/mobilidade/alongamento/reabilitação/força-por-equipamento).
+
+---
+
+## 13. Portão de prontidão das sessões de expansão (UI/backend) — 2026-06-13
+
+> Verificação pedida antes de criar os seeds de expansão: "garantir que o resto do código (UI e
+> backend) aceita estes updates; se não estiver pronto, só atualizar a documentação."
+
+Resultado: as 14 sessões de expansão se dividem em **2 grupos** por prontidão do app.
+
+### `new_strength` (5 sessões) — PRONTO, criar seeds normalmente
+`forca_kettlebell`, `forca_landmine`, `forca_suspension_trainer`, `forca_maquinas_especializadas`,
+`forca_elastico_funcional`. São exercícios de **força** com semântica idêntica aos já existentes
+(séries × reps × carga), group_muscles musculares e `primary_equipment` já no vocabulário controlado.
+O catálogo (`buildExerciseCatalogViewModel`) e o picker (`ExercisePickerGroup`) os agrupam corretamente;
+`SerieRegistrada` (kg × reps) os registra. Sem mudança de código necessária. movement_pattern reusa
+padrões existentes (Hinge/Squat/Vertical Push/Horizontal Pull/Carry…); olímpicos seguem o precedente
+do clean (Hinge + review_flag).
+
+### `new_categories` (9 sessões) — BLOQUEADO, só documentar
+`cardio_steady_state`, `cardio_hiit_funcional`, `mobilidade_inferior`, `mobilidade_superior_coluna`,
+`alongamento_estatico`, `aquecimento_dinamico`, `reabilitacao_ombro_cotovelo`,
+`reabilitacao_quadril_joelho`, `reabilitacao_lombar_core`. O app **não modela** estes tipos:
+
+- **`SerieRegistrada`** (`domain/sessoes/entities/SerieRegistrada.ts`) só tem `cargaKg` + `repeticoes`
+  e **exige `repeticoes >= 1`** (inteiro). Um cardio por tempo/distância ou um alongamento por segundos
+  de sustentação **não é registrável** (nem passa na validação).
+- **`SessaoExercicio` / `TreinoExercicio`** só têm `seriesRecomendadas` / `execucoesRecomendadas` /
+  `cargaPadrao` / `tempoDescansoSegundos` — **sem** duração, distância ou tempo de sustentação por exercício.
+- **Catálogo e picker** agrupam **só por `group_muscles`**; `category` é apenas subtítulo de display.
+  Nenhuma UI ramifica por `category`. Um exercício Cardio/Corpo-inteiro viraria uma seção solta e, ao ser
+  escolhido para um treino, só permitiria logar séries×reps×kg — UX quebrada.
+
+**Necessário para desbloquear** (sub-projetos 1–4 / futuro): dimensões de registro não-força em
+`SerieRegistrada`/`SessaoExercicio` (`duracaoSegundos`, `distanciaMetros`, `tempoSustentacaoSegundos`),
+relaxar `repeticoes>=1` para tipos sem reps, migration + serialização no SQLite, card de série que
+renderiza campos por tipo (reps/kg vs tempo vs distância vs sustentação) guiado por `category`, e
+tratamento de catálogo/picker para exercícios sem grupo muscular. Só então rodar estas sessões pela skill.
+
+O plano/escopo de cada sessão bloqueada está registrado no manifest (`pending_expansion_sessions`
+→ `new_categories.readiness_review` + `sessions`). Os movimentos já roteados das sessões de força
+(jump rope, mountain climber, ball slam, bird dog, superman, tibialis raise, carries, alongamentos)
+aguardam ali. **Nenhum seed de `new_categories` foi criado.**

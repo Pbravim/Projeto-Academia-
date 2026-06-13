@@ -1186,6 +1186,25 @@
     "_comment": "Sessões de EXPANSÃO — criam registros novos no catálogo (não enriquecem o que já existe). gif_path fica null; mídia é assunto separado. GIFs/IDs existentes NÃO devem limitar o escopo dessas sessões.",
     "new_categories": {
       "_comment": "Categorias hoje ausentes do catálogo (que só tem 'Composto'/'Isolado'): Cardio, Warm-Up, Mobility, Flexibility, Rehabilitation.",
+      "status": "blocked_on_app_readiness",
+      "readiness_review": {
+        "reviewed_at": "2026-06-13",
+        "verdict": "NÃO criar seeds ainda — só documentação. O app não modela estes tipos de exercício.",
+        "evidence": [
+          "SerieRegistrada (apps/mobile/src/domain/sessoes/entities/SerieRegistrada.ts) só tem cargaKg + repeticoes e EXIGE repeticoes >= 1 (inteiro) — um cardio por tempo/distância ou um alongamento por segundos de sustentação não é representável nem registrável.",
+          "SessaoExercicio / TreinoExercicio só têm seriesRecomendadas / execucoesRecomendadas / cargaPadrao / tempoDescansoSegundos — sem campo de duração, distância ou tempo de sustentação por exercício.",
+          "O catálogo (buildExerciseCatalogViewModel) e o picker (ExercisePickerGroup) agrupam EXCLUSIVAMENTE por group_muscles; category é só um subtítulo de display. Um exercício 'Cardio'/'Corpo inteiro' criaria seções soltas no fim da lista, sem semântica.",
+          "Nenhuma UI ramifica por category (Composto/Isolado/Cardio...). Adicionar Cardio/Mobility/Flexibility ao catálogo deixaria o usuário escolhê-los para um treino e só conseguir logar séries×reps×kg — UX quebrada."
+        ],
+        "required_before_unblock": [
+          "Modelo: adicionar dimensões de registro não-força a SerieRegistrada/SessaoExercicio — ex. duracaoSegundos, distanciaMetros, e/ou tempoSustentacaoSegundos; relaxar a validação repeticoes>=1 para tipos sem reps.",
+          "Migration: colunas correspondentes + serialização no SQLite*Repository.",
+          "UI de registro: o card de série precisa renderizar campos por tipo de exercício (reps/kg vs tempo vs distância vs sustentação), guiado por category/movement_pattern.",
+          "Catálogo/picker: tratar exercícios sem group_muscle muscular (Cardio/Corpo inteiro) — seção própria ou filtro por category.",
+          "Só então rodar estas sessões pela skill (≥10 bases, curva de fechamento) e criar os seeds (category Cardio/Warm-Up/Mobility/Flexibility/Rehabilitation, gif_path null)."
+        ],
+        "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
+      },
       "sessions": [
         "cardio_steady_state",
         "cardio_hiit_funcional",
@@ -1200,6 +1219,12 @@
     },
     "new_strength": {
       "_comment": "Força/hipertrofia com equipamentos do vocabulário controlado que o catálogo atual não cobre: Kettlebell, Landmine, Suspension Trainer, Hack Squat Machine, Leg Press, Pec Deck, Chest Supported Row, Resistance Band aparecem quase ou totalmente ausentes como primary_equipment.",
+      "status": "ready",
+      "readiness_review": {
+        "reviewed_at": "2026-06-13",
+        "verdict": "OK criar seeds — semântica de força (séries×reps×carga) idêntica aos exercícios existentes; o app já modela e exibe.",
+        "notes": "Exercícios de força com group_muscles musculares normais e primary_equipment já no vocabulário controlado. Agrupam corretamente no catálogo/picker e registram em SerieRegistrada (kg×reps). movement_pattern reutiliza padrões existentes (Hinge/Squat/Vertical Push/Horizontal Pull/Carry...); levantamentos olímpicos (clean/snatch) seguem o precedente do clean (Hinge + review_flag, sem category de potência no enum)."
+      },
       "sessions": [
         "forca_kettlebell",
         "forca_landmine",
