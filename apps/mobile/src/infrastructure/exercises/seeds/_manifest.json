@@ -1239,6 +1239,87 @@
         "seed-ex-136",
         "seed-ex-137"
       ]
+    },
+    "cardio_steady_state": {
+      "status": "complete",
+      "type": "new_category_cardio",
+      "exercise_count": 16,
+      "researched_at": "2026-06-14",
+      "catalog_version": 1,
+      "completed_at": "2026-06-14",
+      "tracking_type": "cardio",
+      "category": "Cardio",
+      "research_notes": "1ª sessão de nova categoria (Cardio) — desbloqueada pelo modelo tracking_type (reps_load|cardio|hold|reps_only) com duracaoSegundos/distanciaMetros/intensidade anuláveis (sub-projeto 5b T1/T2). Cardio contínuo/estado estável. category 'Cardio', tracking_type 'cardio', group_muscles ['Cardio'] (o presenter do catálogo agora tem seção de categoria Cardio ordenada após os grupos musculares). primary_equipment null — máquinas de cardio (Esteira/Bike/Elíptico/Remo/etc.) NÃO estão no vocabulário controlado PRIMARY_EQUIPMENT; o nome da máquina fica no campo livre 'equipment'. movement_pattern 'Gait' para passada/marcha (esteira/elíptico/escada/arc/versaclimber/jacobs ladder/corda) e null para bike/remo/ski erg/air bike/ergômetro de braço (sem padrão de marcha aplicável). 'Sprint' NÃO usado — escopo é steady-state; tiros/intervalos vão para cardio_hiit_funcional (T8). 16 registros novos (seed-ex-138..153). Puxa os movimentos roteados parqueados para cardio_steady_state: pular corda (seed-ex-152) e corrida/escada/bike para panturrilha (seed-ex-138/145/140 cobrem). Notas em research-cardio_steady_state.md.",
+      "completion_notes": "Universo de cardio contínuo auditado contra 11 bases independentes (Gymdesk, IronCompany, BestUsedGymEquipment, GymQuip, ExRx.net, Crunch, Global Fitness, NASM, BarBend, Gymshark, MerachFit) + literatura biomecânica (PMC6704526/PMC9458960 gait, Elite Jumps/BODi pular corda). Curva de retornos decrescentes: rodada 1 (Gymdesk+IronCompany) -> +12 candidatos de máquina; rodada 2 (BestUsedGymEquipment+GymQuip+ExRx) -> +arc trainer e separação caminhada/corrida + bike vertical/reclinada; rodada 3 (NASM) -> +outdoor run/walk (outdoor walk dobrado em 139) + natação (roteada/excluída); fontes 6,7,9,10,11 -> +0 distintos cada. Fechamento confirmado (≥2 — de fato 6 — fontes consecutivas com 0 novos). 16 registros distintos por estímulo.",
+      "research_sources": {
+        "_comment": "Bases consultadas — informativo, NÃO lido pelo app. Notas em research-cardio_steady_state.md.",
+        "databases_consulted": [
+          "https://gymdesk.com/blog/cardio-equipment-machines-gyms-need",
+          "https://www.ironcompany.com/blog/cardio-equipment-guide-home-commercial-rehab",
+          "https://www.bestusedgymequipment.com/types-cardio-machines/",
+          "https://gymquipfitness.com/blogs/news/top-10-cardio-machines-every-gym-needs",
+          "https://exrx.net/Lists/CardioExercises",
+          "https://www.crunch.com/thehub/crunch-fitness-picks-the-best-cardio-machine-for-every-member/",
+          "https://www.globalfitness.com/blogs/news/get-that-heart-rate-up-7-types-of-used-cardio-machines-your-gym-needs",
+          "https://blog.nasm.org/what-is-steady-state-cardio",
+          "https://barbend.com/cardio-alternatives-to-running/",
+          "https://www.gymshark.com/blog/article/what-is-liss-cardio",
+          "https://merachfit.com/blogs/health-and-fitness/10-best-low-impact-cardio-machines-for-home-fitness"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Modalidades de cardio contínuo deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "cardio_hiit_funcional": [
+            "Sprint Intervals / Tiros (intervalado, não steady-state — T8 usa movement_pattern Sprint)",
+            "Air Bike / Rower em intervalos (a forma contínua fica aqui; o protocolo intervalado é HIIT)"
+          ],
+          "fora_de_escopo_academia": [
+            "Natação (sem padrão no enum, equipamento 'piscina' fora do vocabulário; sessão cardio outdoor/aquático futura)",
+            "Hiking / Rucking / Trail (corrida ao ar livre coberta por seed-ex-153; trilha = name_variation)",
+            "Dança / Zumba / Aulas de grupo (aula coreografada — sessão de aulas futura)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Microvariantes de tamanho/posição/superfície/nível que não geram estímulo distinto — intensidade/inclinação/nível são o campo 'intensidade', não exercícios.",
+          "machine_size_position_microvariants": [
+            "Mini Stepper / Under-Desk Bike / Walking Pad (tamanho/posição reduzidos do stepper/bike/esteira)",
+            "Recumbent Elliptical / Cross-Trainer Elliptical (variante do elíptico seed-ex-143)",
+            "Curved / Manual Treadmill (superfície da esteira seed-ex-138/139)",
+            "Group Cycling / Studio Bike (= spinning seed-ex-142)"
+          ],
+          "intensity_surface_variants": [
+            "Incline Walking (inclinação = intensidade; dobrada na caminhada seed-ex-139)",
+            "Treadmill vs Overground Run (superfície — diferença pequena PMC6704526; outdoor é seed-ex-153 por ser registrado por distância)",
+            "Velocidade / Nível / Inclinação / Watts (são o campo 'intensidade', não exercícios distintos)"
+          ]
+        }
+      },
+      "conventions": {
+        "tracking_type_cardio": "Todos os registros tracking_type 'cardio' (duracaoSegundos obrigatório; intensidade/distanciaMetros opcionais). group_muscles ['Cardio'] é intencional — o presenter do catálogo tem seção de categoria Cardio.",
+        "primary_equipment_null": "Máquinas de cardio não estão no vocabulário PRIMARY_EQUIPMENT controlado; primary_equipment/secondary_equipment ficam null e o nome da máquina vai no campo livre 'equipment' (Esteira, Bicicleta Ergometrica, Eliptico, Remo Ergometro, etc.).",
+        "movement_pattern_gait_null": "'Gait' = passada/marcha (esteira/elíptico/escada/arc trainer/versaclimber/jacobs ladder/pular corda contínuo). null = ciclismo/remo/ski erg/air bike/ergômetro de braço (sem padrão de marcha). 'Sprint' reservado para tiros em cardio_hiit_funcional.",
+        "run_indoor_vs_outdoor": "Corrida na Esteira (seed-ex-138) e Corrida ao Ar Livre (seed-ex-153) separadas porque registram diferente (esteira por intensidade=velocidade/inclinação; outdoor por distância/tempo); biomecanicamente quase idênticas -> equivalentes mútuas. Caminhada outdoor dobrada em name_variations da caminhada na esteira (139).",
+        "bike_variants": "Bike vertical (140) / reclinada (141) / spinning (142) = 3 registros — postura e ênfase diferem (reclinada apoia lombar/menos glúteo; spinning forward-lean recruta mais posterior). ExRx separa reclinada de vertical."
+      },
+      "covers": [
+        "seed-ex-138",
+        "seed-ex-139",
+        "seed-ex-140",
+        "seed-ex-141",
+        "seed-ex-142",
+        "seed-ex-143",
+        "seed-ex-144",
+        "seed-ex-145",
+        "seed-ex-146",
+        "seed-ex-147",
+        "seed-ex-148",
+        "seed-ex-149",
+        "seed-ex-150",
+        "seed-ex-151",
+        "seed-ex-152",
+        "seed-ex-153"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1265,8 +1346,9 @@
         ],
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
+      "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state está DESBLOQUEADO e COMPLETO (ver sessions.cardio_steady_state). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
+      "completed": ["cardio_steady_state"],
       "sessions": [
-        "cardio_steady_state",
         "cardio_hiit_funcional",
         "mobilidade_inferior",
         "mobilidade_superior_coluna",
