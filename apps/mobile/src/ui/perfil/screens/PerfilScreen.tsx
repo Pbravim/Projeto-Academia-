@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -49,6 +49,8 @@ interface PerfilScreenProps {
   onReset: () => Promise<void>;
   onBackup: () => Promise<void>;
   onImport: () => void;
+  /** Optional Backup & Sync section rendered inside the settings panel. */
+  backupSection?: ReactNode;
 }
 
 const THEME_OPTIONS: { value: ThemePreference; icon: string; label: string }[] = [
@@ -118,6 +120,7 @@ export function PerfilScreen({
   onReset,
   onBackup,
   onImport,
+  backupSection,
 }: PerfilScreenProps) {
   const c = useTheme();
   const { preference, setPreference } = useThemePreference();
@@ -364,6 +367,13 @@ export function PerfilScreen({
               </>
             );
           })()}
+
+          {backupSection ? (
+            <>
+              <View style={styles.configDivider} />
+              {backupSection}
+            </>
+          ) : null}
         </View>
       ) : null}
 

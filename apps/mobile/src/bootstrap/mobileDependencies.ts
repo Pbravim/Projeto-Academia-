@@ -95,6 +95,14 @@ import { SQLiteSerieRegistradaRepository } from '../infrastructure/sessoes/SQLit
 import { ConsoleAppLogger } from '../infrastructure/logging/AppLogger';
 import { generateId } from '../shared/utils/generateId';
 import { databaseClient } from './databaseClient';
+import { API_BASE_URL } from '../config/apiConfig';
+import { AuthApiClient } from '../infrastructure/auth/AuthApiClient';
+import { SettingsTokenStore } from '../infrastructure/auth/SettingsTokenStore';
+import { AuthSession } from '../application/auth/AuthSession';
+import { SyncApiClient } from '../infrastructure/sync/SyncApiClient';
+import { SyncEngine } from '../infrastructure/sync/SyncEngine';
+import { SettingsStorageAdapter } from '../infrastructure/sync/SettingsStorageAdapter';
+import { BackupSyncService } from '../application/sync/BackupSyncService';
 
 const logger = new ConsoleAppLogger();
 
@@ -135,6 +143,28 @@ const historicoRepository = new SQLiteHistoricoRepository(databaseClient);
 const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
 const dashboardRepository = new SqliteDashboardRepository(databaseClient);
 
+// --- Backup & sync (opt-in, offline-first) ---
+const authSession = new AuthSession(
+  new AuthApiClient(API_BASE_URL),
+  new SettingsTokenStore(databaseClient),
+);
+const syncEngine = new SyncEngine(
+  new SyncApiClient(API_BASE_URL, () => authSession.getAccessToken()),
+  new SettingsStorageAdapter(databaseClient),
+  exerciseRepository,
+  treinoRepository,
+  treinoExercicioRepository,
+  sessaoTreinoRepository,
+  sessaoExercicioRepository,
+  serieRegistradaRepository,
+  registroPesoRepository,
+);
+const backupSync = new BackupSyncService(authSession, syncEngine);
+// Rehydrate any saved session at startup (fire-and-forget; UI also awaits via restore()).
+void authSession.restore().catch((e) =>
+  logger.error('AuthSession.restore failed', e instanceof Error ? e : new Error(String(e))),
+);
+
 const listExercises = new ListExercisesUseCase(exerciseRepository);
 const cancelarSessaoUC = new CancelarSessaoUseCase({
   sessaoTreinoRepository,
@@ -157,6 +187,13 @@ const planoSemanalRepository = new SQLitePlanoSemanalRepository(databaseClient);
 export const mobileDependencies = {
   logger,
   baixarTodasMidias,
+
+  backup: {
+    session: authSession,
+    syncNow: () => backupSync.syncNow(),
+    getLastResult: () => backupSync.getLastResult(),
+    restore: () => authSession.restore(),
+  },
 
   exerciseCatalog: {
     createExercise: new CreateExerciseUseCase({

@@ -25,6 +25,7 @@ const PERFIL_DEPS = {
   importarBanco: mobileDependencies.dashboard.importarBanco,
   resetHistorico: mobileDependencies.dashboard.resetHistorico,
   logger: mobileDependencies.logger,
+  backup: mobileDependencies.backup,
 };
 
 function getInitials(name: string): string {

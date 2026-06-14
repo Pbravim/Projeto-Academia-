@@ -5,6 +5,8 @@ import { usePesoController } from '../peso/hooks/usePesoController';
 import { usePerfilController } from './hooks/usePerfilController';
 import { useStatsController } from './hooks/useStatsController';
 import { PerfilScreen } from './screens/PerfilScreen';
+import { BackupSyncSection } from './components/BackupSyncSection';
+import type { BackupSyncDependencies } from './hooks/useBackupSync';
 import type { GetDashboardStatsUseCase } from '../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import type { ExportarHistoricoUseCase } from '../../application/dashboard/use-cases/ExportarHistoricoUseCase';
 import type { ExportarBancoUseCase } from '../../application/dashboard/use-cases/ExportarBancoUseCase';
@@ -20,6 +22,7 @@ export interface PerfilDependencies {
   importarBanco: ImportarBancoUseCase;
   resetHistorico: ResetHistoricoUseCase;
   logger: AppLogger;
+  backup: BackupSyncDependencies;
 }
 
 interface PerfilFeatureProps {
@@ -115,6 +118,7 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       onReset={onReset}
       onBackup={onBackup}
       onImport={onImportConfirm}
+      backupSection={<BackupSyncSection backup={dependencies.backup} />}
     />
   );
 }
