@@ -85,6 +85,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
          JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
          JOIN exercises e ON se.exercicio_id = e.id AND e.deleted_at IS NULL
          WHERE st.arquivado = 0 AND sr.deleted_at IS NULL
+           AND sr.carga_kg IS NOT NULL AND sr.repeticoes IS NOT NULL
          GROUP BY se.exercicio_id
          ORDER BY melhor_orm DESC
          LIMIT 10`
@@ -214,6 +215,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
        JOIN series_registradas sr
          ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
        WHERE st.treino_id = ? AND st.status = 'finalizada' AND st.arquivado = 0 AND st.deleted_at IS NULL
+         AND sr.carga_kg IS NOT NULL AND sr.repeticoes IS NOT NULL
        ORDER BY se.nome_snapshot ASC, st.data_hora_inicio DESC, sr.ordem ASC`,
       [treinoId]
     );

@@ -32,16 +32,25 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumo
 
   const exerciciosVM: ExercicioResumoItem[] = exercicios.map(({ sessaoExercicio, series }) => {
     const validas = series.filter((s) => s.tipoSerie === 'valida');
-    const volume = validas.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
+    // Apenas séries de força (carga×reps) contam para tonelagem/recordes;
+    // séries de cardio/hold/reps_only não poluem o volume.
+    const validasForca = validas.filter(
+      (s): s is typeof s & { cargaKg: number; repeticoes: number } =>
+        s.cargaKg !== null && s.repeticoes !== null
+    );
+    const volume = validasForca.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
 
     totalSeriesValidas += validas.length;
     volumeTotalKg += volume;
 
-    const melhor = validas.reduce<{ cargaKg: number; repeticoes: number } | null>((best, s) => {
-      const rm = s.cargaKg * (1 + s.repeticoes / 30);
-      const bestRm = best ? best.cargaKg * (1 + best.repeticoes / 30) : -1;
-      return rm > bestRm ? s : best;
-    }, null);
+    const melhor = validasForca.reduce<{ cargaKg: number; repeticoes: number } | null>(
+      (best, s) => {
+        const rm = s.cargaKg * (1 + s.repeticoes / 30);
+        const bestRm = best ? best.cargaKg * (1 + best.repeticoes / 30) : -1;
+        return rm > bestRm ? s : best;
+      },
+      null
+    );
 
     return {
       nome: sessaoExercicio.nomeSnapshot,

@@ -36,11 +36,26 @@ function makeSessaoExercicio(id: string, realizado = true) {
     substituidoPorExercicioId: null,
     substituicaoMotivo: null,
     nomeOriginalSnapshot: null,
+    trackingTypeSnapshot: 'reps_load',
+    duracaoRecomendadaSegundos: null,
+    distanciaRecomendadaMetros: null,
+    intensidadeRecomendada: null,
   };
 }
 
 function makeSerie(id: string, tipo: 'aquecimento' | 'valida', cargaKg: number, repeticoes: number) {
-  return { id, sessaoExercicioId: 'se_1', tipoSerie: tipo, ordem: 1, cargaKg, repeticoes, observacao: null };
+  return {
+    id,
+    sessaoExercicioId: 'se_1',
+    tipoSerie: tipo,
+    ordem: 1,
+    cargaKg,
+    repeticoes,
+    observacao: null,
+    duracaoSegundos: null,
+    distanciaMetros: null,
+    intensidade: null,
+  };
 }
 
 function makeExercicioComSeries(id: string, series: ReturnType<typeof makeSerie>[], realizado = true) {
