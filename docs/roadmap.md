@@ -63,6 +63,47 @@
 
 Itens considerados valiosos mas sem prazo definido. Podem ser retomados se houver demanda.
 
+---
+
+### Visualizador 3D de Anatomia Muscular (Muscle Highlight App)
+
+**O que:** app interativo 3D onde o usuário vê quais músculos são ativados em cada exercício — músculo primário em vermelho, secundário em laranja, estabilizador em amarelo. Clique no músculo exibe informações detalhadas. Animações de execução reproduzidas no modelo 3D.
+
+**Origem:** existe um modelo anatômico 3D desenvolvido no Blender com texturas individuais por músculo. O pipeline previsto é exportar como `.glb` (Draco-compressed) e carregar no app via React Three Fiber.
+
+**Stack prevista:** React + Vite + React Three Fiber + `@react-three/drei` + Zustand + Tailwind.
+
+**Princípio de funcionamento:**
+- Cada músculo é um mesh separado com nome padronizado (ex: `Pectoralis_Major_Sternocostal`)
+- `exercises.json` mapeia exercício → `{ primary[], secondary[], stabilizer[] }` de nomes de meshes
+- Ao selecionar exercício, o app sobrescreve a cor do material de cada mesh em runtime (preservando o material original em `userData.originalMaterial`)
+- Animações: clips nomeados no `.glb` são acionados via `useAnimations` do drei
+
+**Schema de cores:**
+```
+primary    → #FF2222 (vermelho)
+secondary  → #FF8800 (laranja)
+stabilizer → #FFDD00 (amarelo)
+inactive   → #AAAAAA (cinza)
+```
+
+**Roadmap interno do sub-projeto:**
+
+| Fase | Funcionalidades |
+|------|----------------|
+| 1 — MVP | Modelo 3D no browser, rotação/zoom, lista de exercícios, highlight de músculos primários |
+| 2 — Interatividade | Secundários e estabilizadores com cores distintas, painel de info por músculo, player de animação, legenda |
+| 3 — Conteúdo | 20+ exercícios, filtro por grupo muscular, comparação lado a lado, modo quiz |
+| 4 — Mobile/AR | PWA, React Native com WebView, WebXR (opcional) |
+
+**Otimizações de performance previstas:** Draco compression (~60–70% menor), Decimate modifier no Blender, texturas ≤ 1024×1024px, LOD em runtime.
+
+**Documentação técnica completa:** [`docs/muscle-highlight-app.md`](muscle-highlight-app.md) — inclui pipeline Blender→glb, estrutura de componentes, código dos componentes principais (`HumanModel.jsx`, `Scene.jsx`, `ExercisePanel.jsx`), schema do `exercises.json`, otimizações de performance e checklist para retomar o desenvolvimento.
+
+**Dependências externas:** arquivo `human_model.glb` exportado do Blender (projeto existente). Sem dependência de backend.
+
+---
+
 **RIR / RPE por série** — campo opcional de esforço percebido (RIR 0–4 ou RPE 1–10) por série; impacto no schema: nova coluna em `series_registradas`
 
 **Planejamento semanal** — definir quais treinos serão feitos em quais dias; requer novo modelo `PlanoSemanal` + `DiaTreino`
