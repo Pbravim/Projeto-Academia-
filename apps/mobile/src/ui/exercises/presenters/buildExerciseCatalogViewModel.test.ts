@@ -31,6 +31,7 @@ describe('buildExerciseCatalogViewModel', () => {
         primaryEquipment: null,
         secondaryEquipment: null,
         catalogVersion: 0,
+        trackingType: 'reps_load',
         mediaOnline: null,
         mediaLocal: null,
       },
@@ -68,6 +69,7 @@ describe('buildExerciseCatalogViewModel', () => {
         primaryEquipment: null,
         secondaryEquipment: null,
         catalogVersion: 0,
+        trackingType: 'reps_load',
         mediaOnline: null,
         mediaLocal: null,
       },
@@ -81,5 +83,36 @@ describe('buildExerciseCatalogViewModel', () => {
     const tricepsSection = viewModel.sections.find((s) => s.groupMuscle === 'Triceps')!;
     expect(peitoSection.cards[0].id).toBe('exercise_1');
     expect(tricepsSection.cards[0].id).toBe('exercise_1');
+  });
+
+  it('ordena secoes de categoria (Cardio) depois dos grupos musculares', () => {
+    const base = {
+      normalizedName: '',
+      category: '',
+      equipment: '',
+      loadUnit: 'kg' as const,
+      isCustom: false,
+      createdAt: '2026-04-24T12:00:00.000Z',
+      updatedAt: '2026-04-24T12:00:00.000Z',
+      musculoAlvo: [] as string[],
+      movementPattern: null,
+      stabilizers: [] as string[],
+      executionType: null,
+      nameVariations: [] as string[],
+      primaryEquipment: null,
+      secondaryEquipment: null,
+      catalogVersion: 0,
+      mediaOnline: null,
+      mediaLocal: null,
+    };
+    const viewModel = buildExerciseCatalogViewModel([
+      { ...base, id: 'c1', name: 'Esteira', groupMuscles: ['Cardio'], trackingType: 'cardio' },
+      { ...base, id: 'm1', name: 'Supino', groupMuscles: ['Peito'], trackingType: 'reps_load' },
+    ]);
+
+    const sectionNames = viewModel.sections.map((s) => s.groupMuscle);
+    expect(sectionNames.indexOf('Peito')).toBeLessThan(sectionNames.indexOf('Cardio'));
+    // Cardio é a última seção (depois de todos os grupos musculares)
+    expect(sectionNames[sectionNames.length - 1]).toBe('Cardio');
   });
 });

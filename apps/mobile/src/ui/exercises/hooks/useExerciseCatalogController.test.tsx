@@ -33,6 +33,7 @@ const exA: ExercisePrimitives = {
   primaryEquipment: null,
   secondaryEquipment: null,
   catalogVersion: 0,
+  trackingType: 'reps_load',
 };
 
 const createMockDependencies = (

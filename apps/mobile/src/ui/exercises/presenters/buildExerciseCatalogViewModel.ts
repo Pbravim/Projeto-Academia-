@@ -22,16 +22,27 @@ export interface ExerciseCatalogViewModel {
   emptyStateMessage: string | null;
 }
 
-// Canonical order for main muscle groups; anything else goes to the end alphabetically
+// Canonical order for main muscle groups; unknown muscle groups go just after,
+// and non-strength category sections (Cardio etc.) are ordered after all of them.
 const GROUP_ORDER: string[] = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
   'Quadriceps', 'Posterior', 'Gluteos', 'Panturrilha',
   'Abdomen', 'Trapezio', 'Antebraco',
 ];
 
+// Category sections (used by non-strength exercises) always render after the
+// muscle-group sections, in this canonical order.
+const CATEGORY_ORDER: string[] = [
+  'Cardio', 'Mobilidade', 'Alongamento', 'Aquecimento', 'Reabilitacao',
+];
+
 function groupOrder(group: string): number {
-  const idx = GROUP_ORDER.indexOf(group);
-  return idx === -1 ? GROUP_ORDER.length : idx;
+  const muscleIdx = GROUP_ORDER.indexOf(group);
+  if (muscleIdx !== -1) return muscleIdx;
+  const categoryIdx = CATEGORY_ORDER.indexOf(group);
+  if (categoryIdx !== -1) return GROUP_ORDER.length + 1 + categoryIdx;
+  // Unknown muscle group: after the known muscles, before category sections.
+  return GROUP_ORDER.length;
 }
 
 export type CatalogSortMode = 'nome' | 'ultimo_uso';
