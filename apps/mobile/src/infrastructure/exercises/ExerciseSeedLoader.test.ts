@@ -20,6 +20,7 @@ const SEED_FILE_V1 = {
       execution_type: 'Bilateral' as const,
       equivalent_alternatives: [],
       muscle_group_alternatives: [],
+      tracking_type: 'reps_load' as const,
     },
   ],
 };
@@ -85,5 +86,67 @@ describe('ExerciseSeedLoader', () => {
     const after = await repo.findById('test-seed-001');
     expect(after!.toPrimitives().name).toBe('Meu Supino Custom');
     expect(after!.toPrimitives().isCustom).toBe(true);
+  });
+
+  it('loads tracking_type from seed entry when present', async () => {
+    const cardioSeed = {
+      catalog_version: 1,
+      exercises: [
+        {
+          id: 'test-seed-cardio-001',
+          name: 'Esteira Steady State',
+          name_variations: ['Treadmill'],
+          group_muscles: ['Cardio'],
+          category: 'Cardio',
+          equipment: 'Esteira',
+          primary_equipment: null,
+          secondary_equipment: null,
+          movement_pattern: 'Gait',
+          musculo_alvo: [],
+          stabilizers: [],
+          execution_type: null,
+          equivalent_alternatives: [],
+          muscle_group_alternatives: [],
+          tracking_type: 'cardio' as const,
+        },
+      ],
+    };
+
+    await loader.loadSeedFile(cardioSeed);
+
+    const exercise = await repo.findById('test-seed-cardio-001');
+    expect(exercise).not.toBeNull();
+    expect(exercise!.toPrimitives().trackingType).toBe('cardio');
+  });
+
+  it('defaults to reps_load when tracking_type is not specified', async () => {
+    const noTrackingTypeSeed = {
+      catalog_version: 1,
+      exercises: [
+        {
+          id: 'test-seed-002',
+          name: 'Supino Inclinado',
+          name_variations: ['Incline Bench Press'],
+          group_muscles: ['Peito'],
+          category: 'Composto',
+          equipment: 'Banco inclinado',
+          primary_equipment: 'Barbell',
+          secondary_equipment: null,
+          movement_pattern: 'Horizontal Push',
+          musculo_alvo: ['peitoral_superior'],
+          stabilizers: [],
+          execution_type: 'Bilateral' as const,
+          equivalent_alternatives: [],
+          muscle_group_alternatives: [],
+          // tracking_type intentionally omitted
+        },
+      ],
+    };
+
+    await loader.loadSeedFile(noTrackingTypeSeed);
+
+    const exercise = await repo.findById('test-seed-002');
+    expect(exercise).not.toBeNull();
+    expect(exercise!.toPrimitives().trackingType).toBe('reps_load');
   });
 });

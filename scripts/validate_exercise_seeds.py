@@ -61,6 +61,7 @@ PRIMARY_EQUIPMENT = {
     "Selectorized Machine", "Plate-Loaded Machine", "Assisted Machine",
 }
 EXECUTION_TYPES = {"Unilateral", "Bilateral", "Can Be Both"}
+TRACKING_TYPES = {"reps_load", "cardio", "hold", "reps_only"}
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -148,6 +149,10 @@ def main() -> int:
         et = rec.get("execution_type")
         if et is not None and et not in EXECUTION_TYPES:
             err(f"{loc}: execution_type '{et}' inválido")
+
+        tt = rec.get("tracking_type")
+        if tt is not None and tt not in TRACKING_TYPES:
+            err(f"{loc}: tracking_type '{tt}' inválido")
 
         ma = rec.get("musculo_alvo")
         if not isinstance(ma, list) or not ma:

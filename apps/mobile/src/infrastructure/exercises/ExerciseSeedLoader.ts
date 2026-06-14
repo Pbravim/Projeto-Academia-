@@ -19,6 +19,7 @@ export interface SeedExerciseEntry {
   muscle_group_alternatives: string[];
   media_local?: string | null;
   media_online?: string | null;
+  tracking_type?: 'reps_load' | 'cardio' | 'hold' | 'reps_only';
 }
 
 export interface SeedFile {
@@ -55,7 +56,7 @@ export class ExerciseSeedLoader {
         primaryEquipment: entry.primary_equipment,
         secondaryEquipment: entry.secondary_equipment,
         catalogVersion: seed.catalog_version,
-        trackingType: 'reps_load',
+        trackingType: entry.tracking_type ?? 'reps_load',
       });
 
       await this.repository.upsertCatalogExercise(
