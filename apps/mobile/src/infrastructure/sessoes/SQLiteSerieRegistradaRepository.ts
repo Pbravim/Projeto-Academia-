@@ -107,18 +107,20 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
       id: string; sessao_exercicio_id: string; tipo_serie: string; ordem: number;
       carga_kg: number | null; repeticoes: number | null; observacao: string | null;
       duracao_segundos: number | null; distancia_metros: number | null; intensidade: number | null;
-      created_at: string; updated_at: string; deleted_at: string | null;
+      updated_at: string; deleted_at: string | null;
     }>(
+      // series_registradas has no created_at column (the domain doesn't model one);
+      // the wire's createdAt is derived from updated_at.
       `SELECT id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
               duracao_segundos, distancia_metros, intensidade,
-              created_at, updated_at, deleted_at
+              updated_at, deleted_at
        FROM series_registradas WHERE dirty = 1`
     );
     return rows.map((r) => ({
       id: r.id, sessaoExercicioId: r.sessao_exercicio_id, tipoSerie: r.tipo_serie,
       ordem: r.ordem, cargaKg: r.carga_kg, repeticoes: r.repeticoes,
       duracaoSegundos: r.duracao_segundos, distanciaMetros: r.distancia_metros, intensidade: r.intensidade,
-      observacao: r.observacao, createdAt: r.created_at,
+      observacao: r.observacao, createdAt: r.updated_at,
       updatedAt: r.updated_at, deletedAt: r.deleted_at,
     }));
   }
@@ -126,14 +128,15 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   async applyServerRows(rows: import('@academia/contracts').SerieRegistradaSyncRow[]): Promise<void> {
     for (const r of rows) {
       await this.database.run(
+        // No created_at column on series_registradas; createdAt rides on the wire only.
         `INSERT OR REPLACE INTO series_registradas
            (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
             duracao_segundos, distancia_metros, intensidade,
-            created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+            updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
         [r.id, r.sessaoExercicioId, r.tipoSerie, r.ordem, r.cargaKg, r.repeticoes,
          r.observacao, r.duracaoSegundos ?? null, r.distanciaMetros ?? null, r.intensidade ?? null,
-         r.createdAt, r.updatedAt, r.deletedAt]
+         r.updatedAt, r.deletedAt]
       );
     }
   }

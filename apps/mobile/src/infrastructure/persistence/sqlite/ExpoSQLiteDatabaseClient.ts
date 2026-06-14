@@ -585,6 +585,33 @@ const migrations: string[] = [
    ALTER TABLE treino_exercicios ADD COLUMN duracao_recomendada_segundos INTEGER;
    ALTER TABLE treino_exercicios ADD COLUMN distancia_recomendada_metros REAL;
    ALTER TABLE treino_exercicios ADD COLUMN intensidade_recomendada REAL;`,
+
+  // v22: make carga_kg/repeticoes NULLABLE so cardio/hold/reps_only series can be
+  // persisted (v21 added the metric columns but left carga_kg/repeticoes NOT NULL,
+  // which rejected non-strength series at INSERT). SQLite can't drop NOT NULL via
+  // ALTER, so rebuild the table. No other table references series_registradas, so
+  // this is safe with foreign_keys ON.
+  `CREATE TABLE series_registradas_new (
+     id TEXT PRIMARY KEY NOT NULL,
+     sessao_exercicio_id TEXT NOT NULL REFERENCES sessao_exercicios(id),
+     tipo_serie TEXT NOT NULL DEFAULT 'valida',
+     ordem INTEGER NOT NULL,
+     carga_kg REAL,
+     repeticoes INTEGER,
+     observacao TEXT,
+     duracao_segundos INTEGER,
+     distancia_metros REAL,
+     intensidade REAL,
+     updated_at TEXT,
+     deleted_at TEXT,
+     dirty INTEGER NOT NULL DEFAULT 1,
+     server_rev INTEGER
+   );
+   INSERT INTO series_registradas_new (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao, duracao_segundos, distancia_metros, intensidade, updated_at, deleted_at, dirty, server_rev)
+     SELECT id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao, duracao_segundos, distancia_metros, intensidade, updated_at, deleted_at, dirty, server_rev FROM series_registradas;
+   DROP TABLE series_registradas;
+   ALTER TABLE series_registradas_new RENAME TO series_registradas;
+   CREATE INDEX IF NOT EXISTS idx_series_sessao_exercicio ON series_registradas (sessao_exercicio_id);`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {

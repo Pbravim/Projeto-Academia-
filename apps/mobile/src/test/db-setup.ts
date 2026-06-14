@@ -64,8 +64,8 @@ export function createTestDatabase(): SQLiteDatabaseClient {
       sessao_exercicio_id TEXT NOT NULL REFERENCES sessao_exercicios(id),
       tipo_serie TEXT NOT NULL,
       ordem INTEGER NOT NULL,
-      carga_kg REAL NOT NULL,
-      repeticoes INTEGER NOT NULL,
+      carga_kg REAL,
+      repeticoes INTEGER,
       observacao TEXT
     );
     CREATE TABLE IF NOT EXISTS registros_peso (
