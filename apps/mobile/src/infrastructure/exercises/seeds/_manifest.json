@@ -1320,6 +1320,94 @@
         "seed-ex-152",
         "seed-ex-153"
       ]
+    },
+    "cardio_hiit_funcional": {
+      "status": "complete",
+      "type": "new_category_cardio",
+      "exercise_count": 18,
+      "researched_at": "2026-06-14",
+      "catalog_version": 1,
+      "completed_at": "2026-06-14",
+      "tracking_type": "MIXED (reps_only|cardio)",
+      "category": "Cardio",
+      "research_notes": "2ª sessão de nova categoria (Cardio) — condicionamento HIIT / funcional, irmã de cardio_steady_state (T7). DIFERENÇA-CHAVE vs T7: tracking_type MISTO. Os movimentos se dividem entre 'reps_only' (saltos pliométricos e calistenia contados por repetição: burpee, polichinelo, high knees, jump squat, box jump, broad jump, tuck jump, skater, jump lunge, ball slam, plank-to-push-up, bear crawl) e 'cardio' (esforço cronometrado com duracaoSegundos obrigatório: mountain climber, battle ropes, sprint intervals, air bike intervalado, rower intervalado, shuttle run). 0 registros 'hold' — a prancha isométrica já está coberta pela sessão abdome; não duplicar. category 'Cardio', group_muscles ['Cardio']. primary_equipment 'Bodyweight' para pliometria de peso corporal (está no vocabulário controlado); null + free-text 'equipment' para implementos fora do vocabulário (caixa pliométrica, medicine/slam ball, battle rope, air bike, remo, pista/cones). movement_pattern: 'Jump' para saltos pliométricos; 'Sprint' para tiros (sprint intervals, shuttle run); 'Gait' para high knees/bear crawl; 'Rotation' para ball slam; 'Anti-Extension' para plank-to-push-up; null para burpee (combina padrões) / mountain climber / battle ropes / air bike / rower. 18 registros novos (seed-ex-154..171). Puxa os movimentos roteados das sessões anteriores: jump squat (de quadriceps), ball slam + mountain climber (de abdome), sprint intervals + air bike/rower intervalado (de cardio_steady_state). Notas em research-cardio_hiit_funcional.md.",
+      "completion_notes": "Universo de HIIT/condicionamento funcional auditado contra 11 bases independentes (ACE, NASM, CrossFit movement library, Muscle&Strength, BarBend plyometrics, Verywell Fit/ACSM, ISSA, Men's Health, Hevy/Anabolic Aliens, Garage Gym Reviews/Torokhtiy, ExRx.net plyometrics). Curva de retornos decrescentes: rodada 1 (ACE+NASM) -> +9 (burpee, polichinelo, high knees, mountain climber, jump squat, box jump, skater, sprint intervals, battle ropes); rodada 2 (CrossFit+M&S) -> +8 (ball slam, air bike intervalo, rower intervalo, shuttle run, broad jump, bear crawl, tuck jump, jump lunge); rodada 3 (Verywell/CrossFit) -> +1 (plank-to-push-up); fontes 5,7,8,9,10,11 -> +0 distintos cada (só microvariantes: depth jump, double-under, lateral bound, plank jacks, butt kicks; ou roteados: kettlebell swing, sled push, wall ball, devil press, thruster, plyo push-up). Fechamento confirmado (≥2 — de fato 6 — fontes consecutivas com 0 novos). 18 registros distintos por estímulo. Distribuição tracking_type: reps_only=12, cardio=6, hold=0.",
+      "research_sources": {
+        "_comment": "Bases consultadas — informativo, NÃO lido pelo app. Notas em research-cardio_hiit_funcional.md.",
+        "databases_consulted": [
+          "https://www.acefitness.org/resources/everyone/exercise-library/",
+          "https://blog.nasm.org/high-intensity-interval-training",
+          "https://www.crossfit.com/essentials/movements",
+          "https://www.muscleandstrength.com/exercises",
+          "https://barbend.com/plyometric-exercises/",
+          "https://www.verywellfit.com/hiit-high-intensity-interval-training-1231243",
+          "https://www.issaonline.com/blog/post/hiit-workouts",
+          "https://www.menshealth.com/fitness/",
+          "https://www.hevyapp.com/",
+          "https://www.garagegymreviews.com/",
+          "https://exrx.net/Lists/Directory"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de HIIT/funcional deliberadamente fora desta sessão.",
+        "routed_to_other_sessions": {
+          "forca_kettlebell": [
+            "Kettlebell Swing (já coberto em forca_kettlebell)",
+            "Devil Press / Man-Maker (híbrido burpee+kettlebell)"
+          ],
+          "peito_press": [
+            "Clap / Plyo Push-Up (pliometria de peito — já excluído em peito_press como athletic_plyo)"
+          ],
+          "quadriceps_ombros": [
+            "Wall Ball / Thruster (predomínio de pernas — thruster já excluído em ombros_press; wall ball é agachamento+arremesso)"
+          ],
+          "funcional_carry_futura": [
+            "Sled Push / Prowler (trenó fora do vocabulário de equipamento; padrão Carry existe mas o implemento não — sessão funcional/carry futura)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Microvariantes de altura/tempo/carga/lado que não geram estímulo distinto.",
+          "jump_height_load_variants": [
+            "Depth Jump / Drop Jump (altura de queda do box jump seed-ex-159)",
+            "Single-Leg Bound (unilateral do broad jump seed-ex-160)",
+            "Lateral Bound (= skater seed-ex-162)"
+          ],
+          "rope_doubled_variants": [
+            "Double-Under / Corda Dupla (microvariante de pular corda — já é seed-ex-152 em cardio_steady_state)",
+            "Ski Erg Intervalado (forma intervalada do ski erg seed-ex-146 — dobrado em name_variation)"
+          ],
+          "running_in_place_variants": [
+            "Butt Kicks / Chute no Bumbum (microvariante de high knees seed-ex-156 / corrida no lugar)",
+            "Plank Jacks (prancha abdome + polichinelo — sem estímulo novo)"
+          ]
+        }
+      },
+      "conventions": {
+        "tracking_type_mixed": "MISTO. reps_only para saltos/calistenia contados por repetição; cardio para esforço cronometrado (duracaoSegundos obrigatório; intensidade/distanciaMetros opcionais). hold NÃO usado — a prancha isométrica já está em abdome (não duplicar). Mountain climber = cardio (convenção dominante = por tempo Tabata/AMRAP, não reps).",
+        "primary_equipment": "Pliometria de peso corporal -> 'Bodyweight' (vocabulário controlado). Implementos fora do vocabulário (caixa pliométrica, medicine/slam ball, battle rope, air bike, remo ergômetro, pista/cones) -> primary_equipment/secondary_equipment null + nome no campo livre 'equipment'.",
+        "movement_pattern": "'Jump' = saltos pliométricos (polichinelo, jump squat, box/broad/tuck jump, skater, jump lunge). 'Sprint' = tiros (sprint intervals seed-ex-168, shuttle run seed-ex-171). 'Gait' = high knees/bear crawl. 'Rotation' = ball slam (melhor aproximação para slam/throw, ausente do enum). 'Anti-Extension' = plank-to-push-up. null = burpee (combina padrões), mountain climber, battle ropes, air bike/rower (sem padrão de marcha/salto).",
+        "interval_vs_continuous": "Air Bike Intervalado (seed-ex-169) e Remo Ergômetro Intervalado (seed-ex-170) são o PROTOCOLO INTERVALADO (HIIT); a forma CONTÍNUA fica em cardio_steady_state (seed-ex-147 air bike, seed-ex-144 remo). Equipment idêntico; distintos por intenção de uso/logging. Listam-se mutuamente como equivalentes e cada um lista a forma contínua de T7."
+      },
+      "covers": [
+        "seed-ex-154",
+        "seed-ex-155",
+        "seed-ex-156",
+        "seed-ex-157",
+        "seed-ex-158",
+        "seed-ex-159",
+        "seed-ex-160",
+        "seed-ex-161",
+        "seed-ex-162",
+        "seed-ex-163",
+        "seed-ex-164",
+        "seed-ex-165",
+        "seed-ex-166",
+        "seed-ex-167",
+        "seed-ex-168",
+        "seed-ex-169",
+        "seed-ex-170",
+        "seed-ex-171"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1346,10 +1434,9 @@
         ],
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
-      "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state está DESBLOQUEADO e COMPLETO (ver sessions.cardio_steady_state). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state"],
+      "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
+      "completed": ["cardio_steady_state", "cardio_hiit_funcional"],
       "sessions": [
-        "cardio_hiit_funcional",
         "mobilidade_inferior",
         "mobilidade_superior_coluna",
         "alongamento_estatico",
