@@ -58,6 +58,34 @@ function kgIndexFor(kg: number): number {
   return Math.max(0, Math.min(Math.round(kg / 2.5), KG_VALUES.length - 1));
 }
 
+function formatDuracao(segundos: number): string {
+  const min = Math.floor(segundos / 60);
+  const sec = segundos % 60;
+  if (min > 0) return `${min}:${String(sec).padStart(2, '0')} min`;
+  return `${sec}s`;
+}
+
+/** Display label for a series row, adapted to the exercise's tracking_type. */
+function formatSerieMetric(serie: SerieRegistradaPrimitives, trackingType: string): string {
+  switch (trackingType) {
+    case 'cardio': {
+      const parts: string[] = [];
+      if (serie.duracaoSegundos != null) parts.push(formatDuracao(serie.duracaoSegundos));
+      if (serie.distanciaMetros != null) parts.push(`${serie.distanciaMetros}m`);
+      if (serie.intensidade != null) parts.push(`int. ${serie.intensidade}`);
+      return parts.join(' · ') || '-';
+    }
+    case 'hold':
+      return serie.duracaoSegundos != null ? formatDuracao(serie.duracaoSegundos) : '-';
+    case 'reps_only':
+      return serie.repeticoes != null ? `${serie.repeticoes} reps` : '-';
+    default:
+      return serie.cargaKg != null && serie.repeticoes != null
+        ? `${serie.cargaKg}kg × ${serie.repeticoes}`
+        : '-';
+  }
+}
+
 export function ExercicioDetalheScreen({
   sessaoExercicio,
   series,
@@ -81,6 +109,8 @@ export function ExercicioDetalheScreen({
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
+  const trackingType = sessaoExercicio.trackingTypeSnapshot;
+
   // --- form state ---
   const [mediaVisible, setMediaVisible] = useState(false);
 
@@ -98,6 +128,26 @@ export function ExercicioDetalheScreen({
   );
   const [repsText, setRepsText] = useState(
     String(sessaoExercicio.execucoesRecomendadas ?? 8),
+  );
+
+  // --- non-strength form state ---
+  const [duracaoMinText, setDuracaoMinText] = useState(
+    sessaoExercicio.duracaoRecomendadaSegundos != null ? String(Math.floor(sessaoExercicio.duracaoRecomendadaSegundos / 60)) : '',
+  );
+  const [duracaoSecText, setDuracaoSecText] = useState(
+    sessaoExercicio.duracaoRecomendadaSegundos != null ? String(sessaoExercicio.duracaoRecomendadaSegundos % 60) : '',
+  );
+  const [intensidadeText, setIntensidadeText] = useState(
+    sessaoExercicio.intensidadeRecomendada != null ? String(sessaoExercicio.intensidadeRecomendada) : '',
+  );
+  const [distanciaText, setDistanciaText] = useState(
+    sessaoExercicio.distanciaRecomendadaMetros != null ? String(sessaoExercicio.distanciaRecomendadaMetros) : '',
+  );
+  const [holdSecText, setHoldSecText] = useState(
+    sessaoExercicio.duracaoRecomendadaSegundos != null ? String(sessaoExercicio.duracaoRecomendadaSegundos) : '',
+  );
+  const [repsOnlyText, setRepsOnlyText] = useState(
+    sessaoExercicio.execucoesRecomendadas != null ? String(sessaoExercicio.execucoesRecomendadas) : '',
   );
 
   const [descanso, setDescanso] = useState<number | null>(sessaoExercicio.tempoDescansoSegundos ?? null);
@@ -132,6 +182,12 @@ export function ExercicioDetalheScreen({
     setRepsMode('carousel');
     setRepsIndex(Math.max(0, Math.min((sessaoExercicio.execucoesRecomendadas ?? 8) - 1, 29)));
     setRepsText(String(sessaoExercicio.execucoesRecomendadas ?? 8));
+    setDuracaoMinText(sessaoExercicio.duracaoRecomendadaSegundos != null ? String(Math.floor(sessaoExercicio.duracaoRecomendadaSegundos / 60)) : '');
+    setDuracaoSecText(sessaoExercicio.duracaoRecomendadaSegundos != null ? String(sessaoExercicio.duracaoRecomendadaSegundos % 60) : '');
+    setIntensidadeText(sessaoExercicio.intensidadeRecomendada != null ? String(sessaoExercicio.intensidadeRecomendada) : '');
+    setDistanciaText(sessaoExercicio.distanciaRecomendadaMetros != null ? String(sessaoExercicio.distanciaRecomendadaMetros) : '');
+    setHoldSecText(sessaoExercicio.duracaoRecomendadaSegundos != null ? String(sessaoExercicio.duracaoRecomendadaSegundos) : '');
+    setRepsOnlyText(sessaoExercicio.execucoesRecomendadas != null ? String(sessaoExercicio.execucoesRecomendadas) : '');
     setDescanso(sessaoExercicio.tempoDescansoSegundos ?? null);
     setMetodo(sessaoExercicio.metodo);
     setCustomDescansoOpen(false);
@@ -231,24 +287,101 @@ export function ExercicioDetalheScreen({
     setIsSubmittingSerie(true);
     setFormError(null);
 
-    const cargaNum = cargaMode === 'carousel'
-      ? KG_VALUES[cargaIndex]
-      : parseFloat(cargaText.replace(/,/g, '.'));
-
-    if (!Number.isFinite(cargaNum) || cargaNum < 0) {
-      setFormError('Carga invalida. Use um numero como 80 ou 102,5.');
-      setIsSubmittingSerie(false);
-      return;
-    }
-
     try {
+      if (trackingType === 'cardio') {
+        const min = parseInt(duracaoMinText, 10) || 0;
+        const sec = parseInt(duracaoSecText, 10) || 0;
+        const totalSegundos = min * 60 + sec;
+        if (!Number.isInteger(totalSegundos) || totalSegundos < 1) {
+          setFormError('Duracao invalida. Informe minutos e/ou segundos maior que 0.');
+          return;
+        }
+
+        let intensidade: number | undefined;
+        if (intensidadeText.trim() !== '') {
+          const intNum = parseFloat(intensidadeText.replace(/,/g, '.'));
+          if (!Number.isFinite(intNum) || intNum < 0) {
+            setFormError('Intensidade invalida. Use um numero igual ou maior que 0.');
+            return;
+          }
+          intensidade = intNum;
+        }
+
+        let distanciaMetros: number | undefined;
+        if (distanciaText.trim() !== '') {
+          const distNum = parseFloat(distanciaText.replace(/,/g, '.'));
+          if (!Number.isFinite(distNum) || distNum < 0) {
+            setFormError('Distancia invalida. Use um numero igual ou maior que 0.');
+            return;
+          }
+          distanciaMetros = distNum;
+        }
+
+        await onRegistrarSerie({
+          sessaoExercicioId: sessaoExercicio.id,
+          duracaoSegundos: totalSegundos,
+          intensidade,
+          distanciaMetros,
+          observacao: obs,
+        });
+
+        if (descanso != null) startTimer(descanso);
+        setObs('');
+        return;
+      }
+
+      if (trackingType === 'hold') {
+        const segundos = parseInt(holdSecText, 10);
+        if (!Number.isInteger(segundos) || segundos < 1) {
+          setFormError('Duracao invalida. Use um numero inteiro de segundos maior que 0.');
+          return;
+        }
+
+        await onRegistrarSerie({
+          sessaoExercicioId: sessaoExercicio.id,
+          duracaoSegundos: segundos,
+          observacao: obs,
+        });
+
+        if (descanso != null) startTimer(descanso);
+        setObs('');
+        return;
+      }
+
+      if (trackingType === 'reps_only') {
+        const repsNum = parseInt(repsOnlyText, 10);
+        if (!Number.isInteger(repsNum) || repsNum < 1) {
+          setFormError('Reps invalidas. Use um numero inteiro maior que 0.');
+          return;
+        }
+
+        await onRegistrarSerie({
+          sessaoExercicioId: sessaoExercicio.id,
+          repeticoes: repsNum,
+          observacao: obs,
+        });
+
+        if (descanso != null) startTimer(descanso);
+        setObs('');
+        return;
+      }
+
+      // reps_load (default)
+      const cargaNum = cargaMode === 'carousel'
+        ? KG_VALUES[cargaIndex]
+        : parseFloat(cargaText.replace(/,/g, '.'));
+
+      if (!Number.isFinite(cargaNum) || cargaNum < 0) {
+        setFormError('Carga invalida. Use um numero como 80 ou 102,5.');
+        return;
+      }
+
       const repsNum = repsMode === 'carousel'
         ? repsIndex + 1
         : parseInt(repsText, 10);
 
       if (!Number.isInteger(repsNum) || repsNum < 1) {
         setFormError('Reps invalidas. Use um numero inteiro maior que 0.');
-        setIsSubmittingSerie(false);
         return;
       }
 
@@ -331,54 +464,100 @@ export function ExercicioDetalheScreen({
       {/* Stats — shown when exercise is done and has series */}
       {sessaoExercicio.realizado && series.length > 0 ? (() => {
         const validSeries = series;
-        const totalVolume = validSeries.reduce((sum, s) => sum + s.cargaKg * s.repeticoes, 0);
-        const maxCarga = Math.max(...validSeries.map(s => s.cargaKg));
-        const totalReps = validSeries.reduce((sum, s) => sum + s.repeticoes, 0);
-        const avgReps = Math.round(totalReps / validSeries.length);
-        const volumes = validSeries.map(s => s.cargaKg * s.repeticoes);
-        const maxVolume = Math.max(...volumes, 1);
-        const BARS_H = 80;
 
         const hasMeta = sessaoExercicio.seriesRecomendadas != null
           || sessaoExercicio.execucoesRecomendadas != null
-          || sessaoExercicio.cargaPadrao != null;
+          || sessaoExercicio.cargaPadrao != null
+          || sessaoExercicio.duracaoRecomendadaSegundos != null
+          || sessaoExercicio.distanciaRecomendadaMetros != null
+          || sessaoExercicio.intensidadeRecomendada != null;
+
+        const objetivoBlock = hasMeta ? (
+          <>
+            <Text style={styles.statsSectionLabel}>Objetivo</Text>
+            <View style={styles.statsPillsMuted}>
+              {sessaoExercicio.seriesRecomendadas != null ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValueMuted}>{sessaoExercicio.seriesRecomendadas}</Text>
+                  <Text style={styles.statLabel}>Series</Text>
+                </View>
+              ) : null}
+              {sessaoExercicio.execucoesRecomendadas != null ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValueMuted}>{sessaoExercicio.execucoesRecomendadas}</Text>
+                  <Text style={styles.statLabel}>Reps/serie</Text>
+                </View>
+              ) : null}
+              {sessaoExercicio.cargaPadrao != null ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValueMuted}>{sessaoExercicio.cargaPadrao}kg</Text>
+                  <Text style={styles.statLabel}>Carga</Text>
+                </View>
+              ) : null}
+              {sessaoExercicio.duracaoRecomendadaSegundos != null ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValueMuted}>{formatDuracao(sessaoExercicio.duracaoRecomendadaSegundos)}</Text>
+                  <Text style={styles.statLabel}>Duracao</Text>
+                </View>
+              ) : null}
+              {sessaoExercicio.intensidadeRecomendada != null ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValueMuted}>{sessaoExercicio.intensidadeRecomendada}</Text>
+                  <Text style={styles.statLabel}>Intensidade</Text>
+                </View>
+              ) : null}
+              {sessaoExercicio.distanciaRecomendadaMetros != null ? (
+                <View style={styles.statPill}>
+                  <Text style={styles.statValueMuted}>{sessaoExercicio.distanciaRecomendadaMetros}m</Text>
+                  <Text style={styles.statLabel}>Distancia</Text>
+                </View>
+              ) : null}
+            </View>
+            <View style={styles.statsSeparator} />
+          </>
+        ) : null;
+
+        if (trackingType !== 'reps_load') {
+          // Non-strength: no volume/oRM stats, just series count + per-series metric.
+          return (
+            <View style={styles.statsCard}>
+              {objetivoBlock}
+
+              <Text style={styles.statsSectionLabel}>Realizado</Text>
+              <View style={styles.statsPills}>
+                <View style={styles.statPill}>
+                  <Text style={styles.statValue}>{validSeries.length}</Text>
+                  <Text style={styles.statLabel}>Series</Text>
+                </View>
+              </View>
+
+              <View style={styles.statsSeparator} />
+              <Text style={styles.statsSectionLabel}>Series</Text>
+              <View style={styles.barLabelRow}>
+                {validSeries.map((serie, i) => (
+                  <View key={serie.id} style={styles.barLabelCol}>
+                    <Text style={styles.chartBarBotLabel}>{formatSerieMetric(serie, trackingType)}</Text>
+                    <Text style={styles.chartBarXLabel}>S{i + 1}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          );
+        }
+
+        const totalVolume = validSeries.reduce((sum, s) => sum + (s.cargaKg ?? 0) * (s.repeticoes ?? 0), 0);
+        const maxCarga = Math.max(...validSeries.map(s => s.cargaKg ?? 0));
+        const totalReps = validSeries.reduce((sum, s) => sum + (s.repeticoes ?? 0), 0);
+        const avgReps = Math.round(totalReps / validSeries.length);
+        const volumes = validSeries.map(s => (s.cargaKg ?? 0) * (s.repeticoes ?? 0));
+        const maxVolume = Math.max(...volumes, 1);
+        const BARS_H = 80;
 
         return (
           <View style={styles.statsCard}>
 
             {/* Meta / objetivo */}
-            {hasMeta ? (
-              <>
-                <Text style={styles.statsSectionLabel}>Objetivo</Text>
-                <View style={styles.statsPillsMuted}>
-                  {sessaoExercicio.seriesRecomendadas != null ? (
-                    <View style={styles.statPill}>
-                      <Text style={styles.statValueMuted}>{sessaoExercicio.seriesRecomendadas}</Text>
-                      <Text style={styles.statLabel}>Series</Text>
-                    </View>
-                  ) : null}
-                  {sessaoExercicio.seriesRecomendadas != null && (sessaoExercicio.execucoesRecomendadas != null || sessaoExercicio.cargaPadrao != null) ? (
-                    <View style={styles.statDivider} />
-                  ) : null}
-                  {sessaoExercicio.execucoesRecomendadas != null ? (
-                    <View style={styles.statPill}>
-                      <Text style={styles.statValueMuted}>{sessaoExercicio.execucoesRecomendadas}</Text>
-                      <Text style={styles.statLabel}>Reps/serie</Text>
-                    </View>
-                  ) : null}
-                  {sessaoExercicio.execucoesRecomendadas != null && sessaoExercicio.cargaPadrao != null ? (
-                    <View style={styles.statDivider} />
-                  ) : null}
-                  {sessaoExercicio.cargaPadrao != null ? (
-                    <View style={styles.statPill}>
-                      <Text style={styles.statValueMuted}>{sessaoExercicio.cargaPadrao}kg</Text>
-                      <Text style={styles.statLabel}>Carga</Text>
-                    </View>
-                  ) : null}
-                </View>
-                <View style={styles.statsSeparator} />
-              </>
-            ) : null}
+            {objetivoBlock}
 
             {/* Realizado */}
             <Text style={styles.statsSectionLabel}>Realizado</Text>
@@ -409,8 +588,8 @@ export function ExercicioDetalheScreen({
             {/* Volume bar chart */}
             <Text style={styles.statsSectionLabel}>Volume por serie</Text>
             <View style={styles.barsContainer}>
-              {validSeries.map((serie, i) => {
-                const vol = serie.cargaKg * serie.repeticoes;
+              {validSeries.map((serie) => {
+                const vol = (serie.cargaKg ?? 0) * (serie.repeticoes ?? 0);
                 const barH = Math.max(12, (vol / maxVolume) * BARS_H);
                 return (
                   <View key={serie.id} style={styles.barCol}>
@@ -505,7 +684,105 @@ export function ExercicioDetalheScreen({
             </Pressable>
           ) : null}
 
+          {/* Cardio inputs — duration (min/sec) + intensity + optional distance */}
+          {trackingType === 'cardio' ? (
+            <View style={styles.textModeRow}>
+              <View style={styles.textModeCol}>
+                <Text style={styles.pickerLabel}>Duracao</Text>
+                <View style={styles.adjustRow}>
+                  <TextInput
+                    style={styles.cargaInput}
+                    value={duracaoMinText}
+                    onChangeText={setDuracaoMinText}
+                    keyboardType="number-pad"
+                    placeholder="min"
+                    placeholderTextColor={c.inputPlaceholder}
+                    textAlign="center"
+                    editable={!isSubmittingSerie}
+                  />
+                  <TextInput
+                    style={styles.cargaInput}
+                    value={duracaoSecText}
+                    onChangeText={setDuracaoSecText}
+                    keyboardType="number-pad"
+                    placeholder="seg"
+                    placeholderTextColor={c.inputPlaceholder}
+                    textAlign="center"
+                    editable={!isSubmittingSerie}
+                  />
+                </View>
+              </View>
+              <View style={styles.textModeCol}>
+                <Text style={styles.pickerLabel}>Intensidade</Text>
+                <TextInput
+                  style={styles.cargaInput}
+                  value={intensidadeText}
+                  onChangeText={setIntensidadeText}
+                  keyboardType="decimal-pad"
+                  placeholder="opcional"
+                  placeholderTextColor={c.inputPlaceholder}
+                  textAlign="center"
+                  editable={!isSubmittingSerie}
+                />
+              </View>
+              <View style={styles.textModeCol}>
+                <Text style={styles.pickerLabel}>Distancia (m)</Text>
+                <TextInput
+                  style={styles.cargaInput}
+                  value={distanciaText}
+                  onChangeText={setDistanciaText}
+                  keyboardType="decimal-pad"
+                  placeholder="opcional"
+                  placeholderTextColor={c.inputPlaceholder}
+                  textAlign="center"
+                  editable={!isSubmittingSerie}
+                />
+              </View>
+            </View>
+          ) : null}
+
+          {/* Hold inputs — duration in seconds */}
+          {trackingType === 'hold' ? (
+            <View style={styles.textModeRow}>
+              <View style={styles.textModeCol}>
+                <Text style={styles.pickerLabel}>Duracao (segundos)</Text>
+                <TextInput
+                  style={styles.cargaInput}
+                  value={holdSecText}
+                  onChangeText={setHoldSecText}
+                  keyboardType="number-pad"
+                  placeholder="0"
+                  placeholderTextColor={c.inputPlaceholder}
+                  textAlign="center"
+                  editable={!isSubmittingSerie}
+                  autoFocus
+                />
+              </View>
+            </View>
+          ) : null}
+
+          {/* Reps-only inputs */}
+          {trackingType === 'reps_only' ? (
+            <View style={styles.textModeRow}>
+              <View style={styles.textModeCol}>
+                <Text style={styles.pickerLabel}>Reps</Text>
+                <TextInput
+                  style={styles.cargaInput}
+                  value={repsOnlyText}
+                  onChangeText={setRepsOnlyText}
+                  keyboardType="number-pad"
+                  placeholder="0"
+                  placeholderTextColor={c.inputPlaceholder}
+                  textAlign="center"
+                  editable={!isSubmittingSerie}
+                  autoFocus
+                />
+              </View>
+            </View>
+          ) : null}
+
           {/* Pickers row — each column is independently carousel or text */}
+          {trackingType === 'reps_load' ? (
           <View style={styles.textModeRow}>
             {/* Carga column */}
             {cargaMode === 'carousel' ? (
@@ -595,6 +872,7 @@ export function ExercicioDetalheScreen({
               </View>
             )}
           </View>
+          ) : null}
 
           {/* Rest options */}
           <View style={styles.descansoSection}>
@@ -710,23 +988,62 @@ export function ExercicioDetalheScreen({
                         const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
                         const missing = Math.max(0, recomendadas - validCount);
 
-                        const cargaNum = cargaMode === 'carousel'
-                          ? KG_VALUES[cargaIndex]
-                          : parseFloat(cargaText.replace(/,/g, '.'));
-                        const repsNum = repsMode === 'carousel'
-                          ? repsIndex + 1
-                          : parseInt(repsText, 10);
-
-                        const cargaFinal = Number.isFinite(cargaNum) && cargaNum >= 0 ? cargaNum : (sessaoExercicio.cargaPadrao ?? 0);
-                        const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
-
                         if (missing > 0) {
-                          const inputs = Array.from({ length: missing }, () => ({
-                            sessaoExercicioId: sessaoExercicio.id,
-                            cargaKg: cargaFinal,
-                            repeticoes: repsFinal,
-                            observacao: '',
-                          }));
+                          let baseInput: RegistrarSerieInput;
+
+                          if (trackingType === 'cardio') {
+                            const min = parseInt(duracaoMinText, 10) || 0;
+                            const sec = parseInt(duracaoSecText, 10) || 0;
+                            const totalSegundos = min * 60 + sec;
+                            const duracaoFinal = Number.isInteger(totalSegundos) && totalSegundos >= 1
+                              ? totalSegundos
+                              : (sessaoExercicio.duracaoRecomendadaSegundos ?? 60);
+                            const intensidadeNum = parseFloat(intensidadeText.replace(/,/g, '.'));
+                            const distanciaNum = parseFloat(distanciaText.replace(/,/g, '.'));
+                            baseInput = {
+                              sessaoExercicioId: sessaoExercicio.id,
+                              duracaoSegundos: duracaoFinal,
+                              intensidade: Number.isFinite(intensidadeNum) && intensidadeNum >= 0 ? intensidadeNum : (sessaoExercicio.intensidadeRecomendada ?? undefined),
+                              distanciaMetros: Number.isFinite(distanciaNum) && distanciaNum >= 0 ? distanciaNum : (sessaoExercicio.distanciaRecomendadaMetros ?? undefined),
+                              observacao: '',
+                            };
+                          } else if (trackingType === 'hold') {
+                            const segundos = parseInt(holdSecText, 10);
+                            const duracaoFinal = Number.isInteger(segundos) && segundos >= 1
+                              ? segundos
+                              : (sessaoExercicio.duracaoRecomendadaSegundos ?? 30);
+                            baseInput = {
+                              sessaoExercicioId: sessaoExercicio.id,
+                              duracaoSegundos: duracaoFinal,
+                              observacao: '',
+                            };
+                          } else if (trackingType === 'reps_only') {
+                            const repsNum = parseInt(repsOnlyText, 10);
+                            const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
+                            baseInput = {
+                              sessaoExercicioId: sessaoExercicio.id,
+                              repeticoes: repsFinal,
+                              observacao: '',
+                            };
+                          } else {
+                            const cargaNum = cargaMode === 'carousel'
+                              ? KG_VALUES[cargaIndex]
+                              : parseFloat(cargaText.replace(/,/g, '.'));
+                            const repsNum = repsMode === 'carousel'
+                              ? repsIndex + 1
+                              : parseInt(repsText, 10);
+
+                            const cargaFinal = Number.isFinite(cargaNum) && cargaNum >= 0 ? cargaNum : (sessaoExercicio.cargaPadrao ?? 0);
+                            const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
+                            baseInput = {
+                              sessaoExercicioId: sessaoExercicio.id,
+                              cargaKg: cargaFinal,
+                              repeticoes: repsFinal,
+                              observacao: '',
+                            };
+                          }
+
+                          const inputs = Array.from({ length: missing }, () => ({ ...baseInput }));
                           await onRegistrarSeriesEmLote(inputs);
                         }
                         await onToggleRealizado(sessaoExercicio.id);
@@ -825,14 +1142,14 @@ export function ExercicioDetalheScreen({
                   <Pressable
                     style={{ flex: 1 }}
                     onLongPress={() => {
-                      if (!sessaoExercicio.realizado) {
+                      if (!sessaoExercicio.realizado && trackingType === 'reps_load' && serie.cargaKg != null && serie.repeticoes != null) {
                         setEditingSerieId(serie.id);
                         setEditKg(serie.cargaKg);
                         setEditReps(serie.repeticoes);
                       }
                     }}
                   >
-                    <Text style={styles.serieLabel}>{serie.cargaKg}kg × {serie.repeticoes}</Text>
+                    <Text style={styles.serieLabel}>{formatSerieMetric(serie, trackingType)}</Text>
                     {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
                   </Pressable>
                   {!sessaoExercicio.realizado ? (

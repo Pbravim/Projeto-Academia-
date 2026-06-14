@@ -10,8 +10,11 @@ import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundE
 
 export interface RegistrarSerieInput {
   sessaoExercicioId: string;
-  cargaKg: number;
-  repeticoes: number;
+  cargaKg?: number;
+  repeticoes?: number;
+  duracaoSegundos?: number;
+  distanciaMetros?: number;
+  intensidade?: number;
   tipoSerie?: 'valida' | 'aquecimento';
   observacao?: string;
 }
@@ -52,6 +55,7 @@ export class RegistrarSerieUseCase {
       const count = await this.dependencies.serieRegistradaRepository.countBySessaoExercicioId(
         input.sessaoExercicioId
       );
+      const sePrimitives = sessaoExercicio.toPrimitives();
       serie = SerieRegistrada.create({
         id: this.dependencies.idGenerator(),
         sessaoExercicioId: input.sessaoExercicioId,
@@ -59,12 +63,16 @@ export class RegistrarSerieUseCase {
         ordem: count + 1,
         cargaKg: input.cargaKg,
         repeticoes: input.repeticoes,
+        duracaoSegundos: input.duracaoSegundos,
+        distanciaMetros: input.distanciaMetros,
+        intensidade: input.intensidade,
         observacao: input.observacao,
+        trackingType: sePrimitives.trackingTypeSnapshot as 'reps_load' | 'cardio' | 'hold' | 'reps_only',
       });
       await this.dependencies.serieRegistradaRepository.save(serie);
 
       // Move atualizarCargaSeNecessario inside transaction for atomicity
-      await this.atualizarCargaSeNecessario(input, sessaoExercicio.toPrimitives(), sessao.toPrimitives().treinoId);
+      await this.atualizarCargaSeNecessario(input, sePrimitives, sessao.toPrimitives().treinoId);
     };
 
     if (this.dependencies.database) {
@@ -81,6 +89,7 @@ export class RegistrarSerieUseCase {
     se: SessaoExercicioPrimitives,
     treinoId: string
   ): Promise<void> {
+    if (input.repeticoes == null || input.cargaKg == null) return;
     if (se.execucoesRecomendadas == null) return;
     if (input.repeticoes < se.execucoesRecomendadas) return;
     if (se.cargaPadrao != null && input.cargaKg <= se.cargaPadrao) return;

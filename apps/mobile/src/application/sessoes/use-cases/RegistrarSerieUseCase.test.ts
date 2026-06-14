@@ -32,11 +32,11 @@ function makeDeps() {
   };
 }
 
-async function seedAtiva(deps: ReturnType<typeof makeDeps>) {
+async function seedAtiva(deps: ReturnType<typeof makeDeps>, trackingTypeSnapshot = 'reps_load') {
   const sessao = SessaoTreino.create({ id: 'sessao_1', treinoId: 't1', treinoNomeSnapshot: 'A', dataHoraInicio: new Date() });
   await deps.sessaoTreinoRepository.save(sessao);
 
-  const se = SessaoExercicio.create({ id: 'se_1', sessaoTreinoId: 'sessao_1', exercicioId: 'ex_1', ordem: 1, nomeSnapshot: 'Supino', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto', equipamentoSnapshot: null, musculoAlvoSnapshot: [], movementPatternSnapshot: null, realizado: true, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, trackingTypeSnapshot: 'reps_load', duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null, substituidoPorExercicioId: null, substituicaoMotivo: null, nomeOriginalSnapshot: null });
+  const se = SessaoExercicio.create({ id: 'se_1', sessaoTreinoId: 'sessao_1', exercicioId: 'ex_1', ordem: 1, nomeSnapshot: 'Supino', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto', equipamentoSnapshot: null, musculoAlvoSnapshot: [], movementPatternSnapshot: null, realizado: true, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, trackingTypeSnapshot, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null, substituidoPorExercicioId: null, substituicaoMotivo: null, nomeOriginalSnapshot: null });
   await deps.sessaoExercicioRepository.save(se);
 }
 
@@ -89,5 +89,53 @@ describe('RegistrarSerieUseCase', () => {
     await expect(
       deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 50, repeticoes: 0 })
     ).rejects.toThrow(SessaoValidationError);
+  });
+
+  it('registers a cardio serie with duracao + intensidade (no carga/reps)', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps, 'cardio');
+
+    const serie = await deps.useCase.execute({
+      sessaoExercicioId: 'se_1',
+      duracaoSegundos: 600,
+      intensidade: 8,
+      distanciaMetros: 1500,
+    });
+
+    expect(serie.duracaoSegundos).toBe(600);
+    expect(serie.intensidade).toBe(8);
+    expect(serie.distanciaMetros).toBe(1500);
+    expect(serie.cargaKg).toBeNull();
+    expect(serie.repeticoes).toBeNull();
+  });
+
+  it('throws SessaoValidationError for cardio serie without duracao', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps, 'cardio');
+
+    await expect(
+      deps.useCase.execute({ sessaoExercicioId: 'se_1', intensidade: 8 })
+    ).rejects.toThrow(SessaoValidationError);
+  });
+
+  it('registers a hold serie with only duracao', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps, 'hold');
+
+    const serie = await deps.useCase.execute({ sessaoExercicioId: 'se_1', duracaoSegundos: 45 });
+
+    expect(serie.duracaoSegundos).toBe(45);
+    expect(serie.cargaKg).toBeNull();
+    expect(serie.repeticoes).toBeNull();
+  });
+
+  it('registers a reps_only serie with only repeticoes (no carga)', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps, 'reps_only');
+
+    const serie = await deps.useCase.execute({ sessaoExercicioId: 'se_1', repeticoes: 20 });
+
+    expect(serie.repeticoes).toBe(20);
+    expect(serie.cargaKg).toBeNull();
   });
 });
