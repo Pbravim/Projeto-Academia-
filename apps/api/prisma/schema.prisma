@@ -91,6 +91,9 @@ model TreinoExercicio {
   tempoDescansoSegundos Int?      @map("tempo_descanso_segundos")
   metodo                String    @default("normal")
   grupoId               String?   @map("grupo_id")
+  duracaoRecomendadaSegundos Int?    @map("duracao_recomendada_segundos")
+  distanciaRecomendadaMetros Float?  @map("distancia_recomendada_metros")
+  intensidadeRecomendada     Float?  @map("intensidade_recomendada")
   updatedAt             String?   @map("updated_at")
   deletedAt             String?   @map("deleted_at")
   dirty                 Boolean   @default(true)
@@ -144,6 +147,10 @@ model SessaoExercicio {
   grupoId                  String?   @map("grupo_id")
   substituidoPorExercicioId String?  @map("substituido_por_exercicio_id")
   substituicaoMotivo       String?   @map("substituicao_motivo")
+  trackingTypeSnapshot       String?  @map("tracking_type_snapshot")
+  duracaoRecomendadaSegundos Int?     @map("duracao_recomendada_segundos")
+  distanciaRecomendadaMetros Float?   @map("distancia_recomendada_metros")
+  intensidadeRecomendada     Float?   @map("intensidade_recomendada")
   createdAt                String    @map("created_at")
   updatedAt                String    @map("updated_at")
   deletedAt                String?   @map("deleted_at")
@@ -162,8 +169,11 @@ model SerieRegistrada {
   sessaoExercicio  SessaoExercicio @relation(fields: [sessaoExercicioId], references: [id], onDelete: Cascade)
   tipoSerie        String    @map("tipo_serie")
   ordem            Int
-  cargaKg          Float     @map("carga_kg")
-  repeticoes       Int
+  cargaKg          Float?    @map("carga_kg")
+  repeticoes       Int?
+  duracaoSegundos  Int?      @map("duracao_segundos")
+  distanciaMetros  Float?    @map("distancia_metros")
+  intensidade      Float?
   observacao       String?
   createdAt        String    @map("created_at")
   updatedAt        String    @map("updated_at")
