@@ -74,6 +74,7 @@ import aquecimentoDinamicoJson from '../infrastructure/exercises/seeds/aquecimen
 import mobilidadeInferiorJson from '../infrastructure/exercises/seeds/mobilidade_inferior.json';
 import mobilidadeSuperiorColunaJson from '../infrastructure/exercises/seeds/mobilidade_superior_coluna.json';
 import reabilitacaoOmbroCotoveloJson from '../infrastructure/exercises/seeds/reabilitacao_ombro_cotovelo.json';
+import reabilitacaoQuadrilJoelhoJson from '../infrastructure/exercises/seeds/reabilitacao_quadril_joelho.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -96,6 +97,7 @@ const aquecimentoDinamico = aquecimentoDinamicoJson as SeedFile;
 const mobilidadeInferior = mobilidadeInferiorJson as SeedFile;
 const mobilidadeSuperiorColuna = mobilidadeSuperiorColunaJson as SeedFile;
 const reabilitacaoOmbroCotovelo = reabilitacaoOmbroCotoveloJson as SeedFile;
+const reabilitacaoQuadrilJoelho = reabilitacaoQuadrilJoelhoJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -125,6 +127,7 @@ const seedFiles: SeedFile[] = [
   cardioSteadyState, cardioHiitFuncional, alongamentoEstatico,
   aquecimentoDinamico, mobilidadeInferior, mobilidadeSuperiorColuna,
   reabilitacaoOmbroCotovelo,
+  reabilitacaoQuadrilJoelho,
 ];
 
 // Seeding the catalog upserts ~250 exercises + their alternatives — ~1500 writes serialized

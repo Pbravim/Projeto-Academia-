@@ -733,10 +733,19 @@
           "triceps_overhead": [
             "Todas as extensões overhead/francês e testa/skullcrusher (sessão irmã)"
           ],
-          "forca_landmine": ["Landmine Press"],
-          "forca_elastico_funcional": ["Band Triceps Pushdown", "Band Overhead Extension"],
-          "forca_kettlebell": ["Kettlebell Floor Press"],
-          "forca_suspension_trainer": ["TRX Triceps Extension"]
+          "forca_landmine": [
+            "Landmine Press"
+          ],
+          "forca_elastico_funcional": [
+            "Band Triceps Pushdown",
+            "Band Overhead Extension"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Floor Press"
+          ],
+          "forca_suspension_trainer": [
+            "TRX Triceps Extension"
+          ]
         },
         "excluded_as_non_distinct": {
           "attachment_grip_posture_variants": [
@@ -809,8 +818,12 @@
           "triceps_push_down": [
             "Pushdown, kickback, dips, supino/flexão fechada, máquina (sessão irmã)"
           ],
-          "forca_elastico_funcional": ["Band Overhead Triceps Extension"],
-          "forca_kettlebell": ["Kettlebell Overhead Triceps Extension"]
+          "forca_elastico_funcional": [
+            "Band Overhead Triceps Extension"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Overhead Triceps Extension"
+          ]
         },
         "excluded_as_non_distinct": {
           "angle_position_execution_variants": [
@@ -874,12 +887,28 @@
             "Cadeira Adutora (gif-ex-136) + Adutora no Cabo (gif-ex-152 — isolação de adutor de quadril)",
             "Todos os hip-hinge/glúteo/posterior: terra, stiff, bom dia, elevação pélvica, glute bridge, leg curl, nordic, extensão de quadril (gif-ex-133/134/135/138..145/147/148/151/157/163/164, seed-ex-014/037/038)"
           ],
-          "panturrilha": ["Flexao Plantar / Calf Raise (gif-ex-158)"],
-          "forca_maquinas_especializadas": ["Belt Squat", "Pendulum Squat"],
-          "forca_elastico_funcional": ["Spanish Squat", "Banded Sissy Squat"],
-          "forca_landmine": ["Landmine Squat", "Landmine Reverse Lunge"],
-          "forca_kettlebell": ["Kettlebell Goblet Squat", "Kettlebell Reverse Lunge"],
-          "cardio_hiit_funcional": ["Jump Squat / Squat Jump (plyo/power)"]
+          "panturrilha": [
+            "Flexao Plantar / Calf Raise (gif-ex-158)"
+          ],
+          "forca_maquinas_especializadas": [
+            "Belt Squat",
+            "Pendulum Squat"
+          ],
+          "forca_elastico_funcional": [
+            "Spanish Squat",
+            "Banded Sissy Squat"
+          ],
+          "forca_landmine": [
+            "Landmine Squat",
+            "Landmine Reverse Lunge"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Goblet Squat",
+            "Kettlebell Reverse Lunge"
+          ],
+          "cardio_hiit_funcional": [
+            "Jump Squat / Squat Jump (plyo/power)"
+          ]
         },
         "excluded_as_non_distinct": {
           "stance_rom_position_variants": [
@@ -956,13 +985,34 @@
       "scope_exclusions": {
         "_comment": "Movimentos deliberadamente fora desta sessão.",
         "routed_to_other_sessions": {
-          "quadriceps": ["Agachamentos, leg press, afundos/lunges, hack, búlgaro, step-up, sissy, cadeira extensora (sessão irmã, completa)"],
-          "panturrilha": ["Flexao Plantar / Calf Raise (gif-ex-158, seed-ex-042/043)"],
-          "forca_kettlebell": ["Kettlebell Swing", "Kettlebell RDL/Sumo Deadlift", "Kettlebell Suitcase Deadlift"],
-          "forca_landmine": ["Landmine RDL"],
-          "forca_maquinas_especializadas": ["Reverse Hyperextension", "Reverse Hack Squat", "Trap-Bar / Hex-Bar Deadlift"],
-          "forca_elastico_funcional": ["Lateral Band Walk", "Diagonal Band Walk", "Banded Glute Bridge"],
-          "mobilidade_inferior": ["Side-Lying Clam", "Hip Flexion Machine (flexor de quadril)"]
+          "quadriceps": [
+            "Agachamentos, leg press, afundos/lunges, hack, búlgaro, step-up, sissy, cadeira extensora (sessão irmã, completa)"
+          ],
+          "panturrilha": [
+            "Flexao Plantar / Calf Raise (gif-ex-158, seed-ex-042/043)"
+          ],
+          "forca_kettlebell": [
+            "Kettlebell Swing",
+            "Kettlebell RDL/Sumo Deadlift",
+            "Kettlebell Suitcase Deadlift"
+          ],
+          "forca_landmine": [
+            "Landmine RDL"
+          ],
+          "forca_maquinas_especializadas": [
+            "Reverse Hyperextension",
+            "Reverse Hack Squat",
+            "Trap-Bar / Hex-Bar Deadlift"
+          ],
+          "forca_elastico_funcional": [
+            "Lateral Band Walk",
+            "Diagonal Band Walk",
+            "Banded Glute Bridge"
+          ],
+          "mobilidade_inferior": [
+            "Side-Lying Clam",
+            "Hip Flexion Machine (flexor de quadril)"
+          ]
         },
         "excluded_as_non_distinct": {
           "deadlift_hinge_variants": [
@@ -1044,11 +1094,26 @@
       "scope_exclusions": {
         "_comment": "Movimentos de core deliberadamente fora desta sessão.",
         "routed_to_other_sessions": {
-          "forca_landmine": ["Landmine Twist / Landmine 180"],
-          "forca_suspension_trainer": ["Suspended Jack-Knife", "TRX Pike / TRX Crunch"],
-          "forca_kettlebell": ["Turkish Get-Up", "Farmer's Carry", "Suitcase Carry"],
-          "cardio_hiit_funcional": ["Ball Slam / Medicine Ball Slam", "Mountain Climber"],
-          "reabilitacao_lombar_core": ["Bird Dog", "Superman (extensão lombar, não flexão abdominal)"]
+          "forca_landmine": [
+            "Landmine Twist / Landmine 180"
+          ],
+          "forca_suspension_trainer": [
+            "Suspended Jack-Knife",
+            "TRX Pike / TRX Crunch"
+          ],
+          "forca_kettlebell": [
+            "Turkish Get-Up",
+            "Farmer's Carry",
+            "Suitcase Carry"
+          ],
+          "cardio_hiit_funcional": [
+            "Ball Slam / Medicine Ball Slam",
+            "Mountain Climber"
+          ],
+          "reabilitacao_lombar_core": [
+            "Bird Dog",
+            "Superman (extensão lombar, não flexão abdominal)"
+          ]
         },
         "excluded_as_non_distinct": {
           "_comment": "Variantes de carga/ROM/ângulo/equipamento/estabilidade cobertas por registros existentes via Layer 1 (mesmo pattern + musculo_alvo).",
@@ -1146,10 +1211,21 @@
       "scope_exclusions": {
         "_comment": "Movimentos deliberadamente fora desta sessão.",
         "routed_to_other_sessions": {
-          "lower_leg_anterior": ["Tibialis Raise / Banded Tibialis Raise (dorsiflexão — tibial anterior, músculo ANTERIOR diferente; futura sessão de tibial ou reabilitacao_quadril_joelho)"],
-          "forca_kettlebell": ["Farmer's Walk on Toes", "Captain Morgan Calf Raise"],
-          "forca_maquinas_especializadas": ["Hack Squat Calf Raise", "Sled Drag (na ponta dos pés)"],
-          "cardio_steady_state": ["Jump Rope / Pular Corda", "Corrida / Escada / Bike (cardio para panturrilha)"]
+          "lower_leg_anterior": [
+            "Tibialis Raise / Banded Tibialis Raise (dorsiflexão — tibial anterior, músculo ANTERIOR diferente; futura sessão de tibial ou reabilitacao_quadril_joelho)"
+          ],
+          "forca_kettlebell": [
+            "Farmer's Walk on Toes",
+            "Captain Morgan Calf Raise"
+          ],
+          "forca_maquinas_especializadas": [
+            "Hack Squat Calf Raise",
+            "Sled Drag (na ponta dos pés)"
+          ],
+          "cardio_steady_state": [
+            "Jump Rope / Pular Corda",
+            "Corrida / Escada / Bike (cardio para panturrilha)"
+          ]
         },
         "excluded_as_non_distinct": {
           "gastroc_standing_variants": [
@@ -1205,9 +1281,16 @@
       },
       "scope_exclusions": {
         "routed_to_other_sessions": {
-          "mobilidade_superior_coluna": ["Kettlebell Halo", "Kettlebell Arm Bar"],
-          "mobilidade_inferior": ["Standing Hip Flexor Raise"],
-          "reabilitacao_quadril_joelho": ["Kettlebell Tibialis Raise"],
+          "mobilidade_superior_coluna": [
+            "Kettlebell Halo",
+            "Kettlebell Arm Bar"
+          ],
+          "mobilidade_inferior": [
+            "Standing Hip Flexor Raise"
+          ],
+          "reabilitacao_quadril_joelho": [
+            "Kettlebell Tibialis Raise"
+          ],
           "_note": "Sessões new_categories bloqueadas (§13) — estes aguardam o desbloqueio."
         },
         "excluded_as_non_distinct": {
@@ -1874,6 +1957,103 @@
         "seed-ex-285",
         "seed-ex-286"
       ]
+    },
+    "reabilitacao_quadril_joelho": {
+      "status": "complete",
+      "type": "new_category_rehabilitation",
+      "exercise_count": 26,
+      "researched_at": "2026-06-15",
+      "completed_at": "2026-06-15",
+      "catalog_version": 1,
+      "tracking_type": "reps_only|hold (MISTO)",
+      "category": "Rehabilitation",
+      "research_notes": "Nova categoria Rehabilitation (group_muscles ['Reabilitacao'] -> secao dedicada no presenter buildExerciseCatalogViewModel, NAO anatomico). SCOPE = reabilitacao/prehab de QUADRIL + JOELHO: fortalecimento de abdutores/gluteo medio (caminhada lateral e do monstro com mini band, abducao deitado de lado, concha/clamshell de forca com faixa, hidrante com faixa, abducao em pe com faixa/cabo, prancha lateral com abducao), ativacao de gluteo/extensao de quadril (ponte de gluteo de ativacao, unilateral e com mini band, coice quadrupede/donkey kick), adutores (Copenhagen reps e plank, adducao deitado de lado, adducao em pe com faixa), quadriceps/joelho (SLR, TKE com faixa, quad set isometrico, short-arc quad), agachamento isometrico/excentrico (wall sit, Spanish squat, step-down), equilibrio/estabilidade (equilibrio unipodal, pe curto/short foot) e tibial anterior/dorsiflexao (tibialis raise e banded tibialis raise - PRE-ROTEADOS para ca dos ledgers de panturrilha + kettlebell; tibial anterior e o musculo ANTERIOR da perna, distinto do catalogo de panturrilha). tracking_type MISTO: 20 'reps_only' (drills de repeticao controlada, sem kg clinico - reps_load PROIBIDO) + 6 'hold' (prancha lateral com abducao 293, prancha de Copenhague 299, quad set 304, wall sit 306, Spanish squat 307, equilibrio unipodal 309). Codigo musculo_alvo NOVO PT-minusculo: 'estabilizadores_tornozelo' (estabilizadores intrinsecos do pe/tornozelo para equilibrio e short-foot - nenhum codigo existente captura estabilidade proprioceptiva; tibial_anterior/gastroc/soleo sao prime movers). REUTILIZADOS: gluteos, abdutores, adutores, quadriceps, isquiotibiais, flexores_quadril, tibial_anterior, soleo, core, lombar. Mantive a convencao do catalogo de NAO fragmentar em gluteo_medio/gluteo_maximo/VMO - gluteo medio = gluteos+abdutores, quad = quadriceps (consistencia de agrupamento de substituicao). Validador nao valida vocabulario de musculo_alvo (so exige array nao-vazio). Notas brutas em docs/exercises/research-reabilitacao_quadril_joelho.md.",
+      "completion_notes": "Universo de reabilitacao de quadril+joelho auditado contra 12 bases independentes (clinico-pesado: physio-pedia x2 [patelofemoral/gluteo medio + joelho/ACL], theprehabguys/[P]rehab, e3rehab, bobandbrad, ExRx.net, choosept/APTA, NASM/CES, sportsinjuryclinic, verywellhealth, healthline, literatura do protocolo Copenhagen [Haroy et al.]). Curva de retornos decrescentes: rodada 1 (physio-pedia x2, prehab guys, e3rehab, bobandbrad) -> +22 distintos (abducao banded walk/monster/side-lying/clamshell/fire-hydrant/standing/side-plank; ponte ativacao/unilateral/banded + donkey kick; Copenhagen reps/plank, adducao side-lying/standing; SLR; TKE; quad set; short-arc quad; wall sit; Spanish squat; step-down); rodada 2 (ExRx, APTA/choosept, NASM, sportsinjuryclinic) -> +3 distintos (equilibrio unipodal, short foot, tibialis raise [pre-roteado]); rodada 3 (verywellhealth, healthline, Copenhagen lit) -> +1 distinto (banded tibialis raise [pre-roteado]); rodada 4 (re-sweep) -> +0 distintos. Fechamento confirmado (3+ fontes consecutivas com 0 novos distintos). 26 registros (seed-ex-287..312). Heel slides / ROM de joelho / prone knee hang dobrados como ROM/mobilidade (roteados out); lateral vs forward step-down dobrados em um registro (direcao = variante de ADM em name_variations). gif_path null (midia e assunto separado).",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de reabilitacao de quadril+joelho - informativo, NAO lido pelo app. Notas brutas em docs/exercises/research-reabilitacao_quadril_joelho.md.",
+        "databases_consulted": [
+          "https://www.physio-pedia.com/Patellofemoral_Pain_Syndrome",
+          "https://www.physio-pedia.com/Knee_Rehabilitation",
+          "https://theprehabguys.com/hip-rehab/",
+          "https://library.theprehab.com/",
+          "https://e3rehab.com/patellofemoral-pain/",
+          "https://www.bobandbrad.com/exercises/hip",
+          "https://exrx.net/Lists/Directory",
+          "https://www.choosept.com/guide/physical-therapy-guide-patellofemoral-pain-syndrome",
+          "https://blog.nasm.org/corrective-exercise/knee-corrective-exercises",
+          "https://www.sportsinjuryclinic.net/rehabilitation-exercises/lower-leg-knee-exercises",
+          "https://www.verywellhealth.com/knee-strengthening-exercises-2696526",
+          "https://www.healthline.com/health/fitness-exercise/gluteus-medius-exercises",
+          "https://bjsm.bmj.com/content/53/3/150"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessao - roteados, cross-referenciados ou nao-distintos.",
+        "routed_to_other_sessions": {
+          "mobilidade_inferior": [
+            "CARs de Quadril, 90/90 troca/lift-off, Hidrante de MOBILIDADE, Concha/Clam de MOBILIDADE (seed-ex-219..221 etc.), balanco de adutores/sapo, cossaco, pombo ativo, CARs/balanco de tornozelo - sao MOBILIDADE, nao fortalecimento. As variantes BANDED de forca (clamshell 290, fire hydrant 291) sao estimulo distinto e ficam aqui, cross-referenciadas."
+          ],
+          "posterior_gluteos": [
+            "Hip thrust / glute bridge LOADED, coice/kickback com carga, mesa/cadeira flexora, nordic, RDL/stiff/good morning - forca posterior ja no catalogo. A ponte de gluteo de ATIVACAO (bodyweight, 294/295/296) e o donkey kick bodyweight (297) sao contexto de reabilitacao/ativacao distinto e ficam aqui."
+          ],
+          "quadriceps": [
+            "Agachamento, leg press, afundo/lunge, cadeira extensora, hack, Bulgaro, step-UP - forca de quadriceps ja no catalogo. Step-DOWN (controle excentrico, 308), TKE (303), quad set (304) e short-arc quad (305) sao reabilitacao distinta e ficam aqui."
+          ],
+          "alongamento_estatico": [
+            "Figura-4/pombo passivo, couch stretch, borboleta, panturrilha, isquiotibiais - alongamentos passivos, fora do escopo de fortalecimento."
+          ],
+          "panturrilha": [
+            "Elevacao de panturrilha (gastrocnemio/soleo, flexao plantar) - ja no catalogo. O tibial anterior (dorsiflexao, 311/312) e o ANTAGONISTA anterior, distinto, e foi PRE-ROTEADO para ca."
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes/microvariantes dobradas em name_variations ou cobertas por registro existente.",
+          "folded_into_existing_record": [
+            "Lateral step-down vs forward step-down -> dobrado em um Step-Down (308): direcao e variante de ADM em name_variations.",
+            "Heel slides / ROM de joelho / prone knee hang -> ROM/mobilidade, nao fortalecimento.",
+            "Single-leg wall sit / wall sit com carga -> variante de carga/ADM do Wall Sit (306).",
+            "Mini-band loop = 'Resistance Band' no vocabulario de primary_equipment (nao novo valor).",
+            "Star-excursion / Y-balance reach -> variante dinamica do equilibrio unipodal (309)."
+          ]
+        }
+      },
+      "conventions": {
+        "group_muscles": "group_muscles ['Reabilitacao'] intencional - secao da categoria Rehabilitation do presenter (CATEGORY_ORDER), NAO anatomico (como reabilitacao_ombro_cotovelo e mobilidade).",
+        "tracking_type_misto": "MISTO por registro: 20 'reps_only' (banded walks, clamshell, fire hydrant, side-lying/standing abducao, pontes de gluteo, donkey kick, Copenhagen reps, adducao side-lying/standing, SLR, TKE, short-arc quad, step-down, short foot, tibialis raise/banded - sem kg clinico; reps_load PROIBIDO) + 6 'hold' (prancha lateral c/abducao 293, prancha de Copenhague 299, quad set 304, wall sit 306, Spanish squat 307, equilibrio unipodal 309).",
+        "primary_equipment": "Resistance Band (mini-band/loop), Cable, Dumbbell, Bodyweight estao no vocabulario. Fora do vocabulario -> primary_equipment null + nome no campo livre 'equipment': 'Parede' (wall sit 306) e 'Step/Caixa' (step-down 308) - precedente das sustentacoes na parede de reabilitacao_ombro_cotovelo/mobilidade. Spanish squat (307) usa faixa grossa ancorada -> Resistance Band (a faixa define a isometria resistida) + secondary 'Poste/Parede'. NUNCA mapear implemento desconhecido para valor parecido.",
+        "movement_pattern_null_gaps": "null (lacunas de vocabulario documentadas): ADDUCAO de quadril isolada (Copenhagen reps 298/plank 299, adducao side-lying 300, banded 301) - NAO existe enum 'Adduction'/'Hip Adduction' (so 'Horizontal Adduction' transversal de ombro, errado aqui); por grounding + precedente posterior_gluteos -> null, agrupado por musculo_alvo 'adutores'. DORSIFLEXAO (tibialis raise 311/banded 312) - nao existe enum 'Dorsiflexion' (so 'Plantar Flexion'); tibial anterior -> null, agrupado por 'tibial_anterior'. EQUILIBRIO/PROPRIOCEPCAO (equilibrio unipodal 309, short foot 310) - nenhum enum descreve estabilidade estatica -> null (precedente: drills clinicos null em reabilitacao_ombro_cotovelo). Padroes USADOS: Abduction (abducao de quadril frontal - analogo lower-body do uso de Abduction em ombros_lateral; NAO ha 'Hip Abduction'), Hip Extension (pontes/donkey kick), Hip Flexion (SLR), Knee Extension (TKE/quad set/short-arc), Squat (wall sit/Spanish squat/step-down). Validador permite null; NAO forcado para enum errado.",
+        "novos_codigos_musculo": "Codigo PT-minusculo NOVO: 'estabilizadores_tornozelo' (estabilizadores intrinsecos do pe/tornozelo - alvo proprioceptivo do equilibrio unipodal 309 e short foot 310; tibial_anterior/gastroc/soleo sao prime movers, nao o alvo de estabilidade). REUTILIZADOS de codigos ja existentes no catalogo (verificados em posterior_gluteos/quadriceps/panturrilha/mobilidade_inferior): gluteos, abdutores, adutores, quadriceps, isquiotibiais, flexores_quadril, tibial_anterior, soleo, core, lombar. NAO introduzi gluteo_medio/gluteo_maximo/vasto_medial(VMO) - o catalogo nao os tem; gluteo medio = gluteos+abdutores, quadriceps unico, para nao fragmentar o agrupamento de substituicao.",
+        "equipment_vocab_gap": "Lacunas de equipamento: 'Parede' e 'Step/Caixa' nao tem valor no vocabulario controlado de primary_equipment -> null + free-text (nao foi adicionado valor novo; segue o precedente de wall holds). Mini-band mapeado para 'Resistance Band' existente."
+      },
+      "review_flags_open": "0 flags abertos nesta sessao.",
+      "covers": [
+        "seed-ex-287",
+        "seed-ex-288",
+        "seed-ex-289",
+        "seed-ex-290",
+        "seed-ex-291",
+        "seed-ex-292",
+        "seed-ex-293",
+        "seed-ex-294",
+        "seed-ex-295",
+        "seed-ex-296",
+        "seed-ex-297",
+        "seed-ex-298",
+        "seed-ex-299",
+        "seed-ex-300",
+        "seed-ex-301",
+        "seed-ex-302",
+        "seed-ex-303",
+        "seed-ex-304",
+        "seed-ex-305",
+        "seed-ex-306",
+        "seed-ex-307",
+        "seed-ex-308",
+        "seed-ex-309",
+        "seed-ex-310",
+        "seed-ex-311",
+        "seed-ex-312"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1901,9 +2081,17 @@
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
       "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico", "mobilidade_inferior", "mobilidade_superior_coluna", "reabilitacao_ombro_cotovelo"],
+      "completed": [
+        "cardio_steady_state",
+        "cardio_hiit_funcional",
+        "alongamento_estatico",
+        "aquecimento_dinamico",
+        "mobilidade_inferior",
+        "mobilidade_superior_coluna",
+        "reabilitacao_ombro_cotovelo",
+        "reabilitacao_quadril_joelho"
+      ],
       "sessions": [
-        "reabilitacao_quadril_joelho",
         "reabilitacao_lombar_core"
       ]
     },
@@ -1915,7 +2103,9 @@
         "verdict": "OK criar seeds — semântica de força (séries×reps×carga) idêntica aos exercícios existentes; o app já modela e exibe.",
         "notes": "Exercícios de força com group_muscles musculares normais e primary_equipment já no vocabulário controlado. Agrupam corretamente no catálogo/picker e registram em SerieRegistrada (kg×reps). movement_pattern reutiliza padrões existentes (Hinge/Squat/Vertical Push/Horizontal Pull/Carry...); levantamentos olímpicos (clean/snatch) seguem o precedente do clean (Hinge + review_flag, sem category de potência no enum)."
       },
-      "completed": ["forca_kettlebell"],
+      "completed": [
+        "forca_kettlebell"
+      ],
       "sessions": [
         "forca_landmine",
         "forca_suspension_trainer",
