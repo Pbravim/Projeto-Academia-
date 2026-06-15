@@ -1602,6 +1602,96 @@
         "seed-ex-217",
         "seed-ex-218"
       ]
+    },
+    "mobilidade_inferior": {
+      "status": "complete",
+      "type": "new_category_mobility",
+      "exercise_count": 19,
+      "researched_at": "2026-06-14",
+      "completed_at": "2026-06-14",
+      "catalog_version": 1,
+      "tracking_type": "reps_only|hold (MISTO)",
+      "category": "Mobility",
+      "research_notes": "Nova categoria Mobility, desbloqueada pelo modelo tracking_type (sub-projeto 5b). SCOPE = drills de mobilidade articular ATIVA dos membros inferiores: quadril (flexao/extensao/rotacao/abducao/aducao), joelho, tornozelo e drills lombo-pelvicos hip-driven. tracking_type MISTO: 17 'reps_only' (CARs, troca/lift-off 90/90, hidrante, concha, balancos de sapo/adutor/tornozelo, pombo ativo, escorpiao, aviao, cossaco, leg swing com faixa, distracao com faixa, avancada ativa) + 2 'hold' (agachamento profundo/prying squat seed-ex-228 e couch stretch ativo seed-ex-232 — genuinos holds de fim de amplitude). group_muscles ['Mobilidade'] intencional (CATEGORY_ORDER Cardio/Mobilidade/Alongamento/Aquecimento/Reabilitacao — secao dedicada do presenter, como cardio ['Cardio'], alongamento ['Alongamento'], aquecimento ['Aquecimento']). musculo_alvo com os movers articulares realmente mobilizados, codigos PT minusculos reutilizados (nenhum codigo novo). Notas brutas em docs/exercises/research-mobilidade_inferior.md.",
+      "completion_notes": "Universo de mobilidade de membros inferiores auditado contra 11 bases independentes + sistema FRC (Functional Range Conditioning / CARs). Curva de retornos decrescentes: rodada 1 (FRC/CARs) -> +6 (Hip CARs, Ankle CARs, 90/90 switch, 90/90 lift-off, hip airplane, prying squat); rodada 2 (NASM/CES) -> +4 (fire hydrant, clamshell, active hip flexion, knee-to-wall); rodada 3 (ExRx) -> +3 (frog rocks, adductor rocks, cossack mobility); rodada 4 (Physiopedia) -> +2 (banded hip distraction, kneeling ankle rock); rodada 5 (coaches atleticos) -> +3 (active pigeon, scorpion, couch stretch ativo); rodada 6 (banded mobility) -> +1 (banded leg swing frontal). Fontes 7-11 (GMB, Squat University, yoga, listicles Healthline/Verywell, cluster) -> +0 distintos cada. Fechamento confirmado (5 fontes consecutivas com 0 novos). 19 registros distintos (seed-ex-219..237). gif_path null (midia e assunto separado). Banda (leg swing 236, distracao 237) -> primary_equipment 'Resistance Band'; parede (couch stretch 232, knee-to-wall 233) -> primary null + equipment livre 'Parede'; resto -> 'Bodyweight'.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de mobilidade de membros inferiores — informativo, NAO lido pelo app. Notas brutas em docs/exercises/research-mobilidade_inferior.md.",
+        "databases_consulted": [
+          "https://functionalanatomyseminars.com/",
+          "https://blog.nasm.org/hip-mobility-exercises",
+          "https://blog.nasm.org/ankle-mobility",
+          "https://exrx.net/Lists/Directory",
+          "https://www.physio-pedia.com/Hip",
+          "https://www.physio-pedia.com/Ankle_Dorsiflexion",
+          "https://gmb.io/hip-mobility/",
+          "https://squatuniversity.com/2016/03/03/how-to-fix-your-squat-part-1-the-ankle/",
+          "https://www.healthline.com/health/fitness/hip-mobility-exercises",
+          "https://www.verywellfit.com/hip-mobility-exercises",
+          "https://www.kinstretch.com/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessao — roteados ou nao-distintos. Para auditorias futuras nao os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "mobilidade_superior_coluna": [
+            "Open Book deitado / Thoracic rotation deitado",
+            "Cat-Cow / Segmental Cat-Camel",
+            "Thoracic CARs, Shoulder CARs, Neck CARs",
+            "Quadruped Thoracic Rotation (T-spine windmill)"
+          ],
+          "aquecimento_dinamico": [
+            "World's Greatest Stretch (ja e seed-ex-201 — o ledger do alongamento parqueou aqui, mas ja existe; RE-ROTEADO)",
+            "Afundo com Rotacao / Lunge com rotacao (ja e seed-ex-199 — RE-ROTEADO)",
+            "Spiderman Lunge (seed-ex-202), Cossack DINAMICO / Dynamic Side Lunge (seed-ex-218)",
+            "Leg Swing frontal/lateral livre (seed-ex-196/197), Hip Circle / Abre-Portao (seed-ex-203)",
+            "Ankle Bounce / Pogo (seed-ex-216), Cradle Walk / Abraco de Joelho (seed-ex-213)"
+          ],
+          "alongamento_estatico": [
+            "Runner's lunge hold (183), Standing quad (184), Figura-quatro / Pigeon PASSIVO (185)",
+            "Butterfly (189), Frog STRETCH passivo (190), Cossack stretch estatico (191)",
+            "Calf stretch gastroc/soleo (193/194), Hamstring stretch (187/188) — holds passivos de musculo"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes/microvariantes dobradas em name_variations ou cobertas por registro existente.",
+          "folded_into_existing_record": [
+            "Hip Flexion Machine (flexor de quadril) e Standing Hip Flexor Raise -> dobrados em avancada de quadril ativa seed-ex-224",
+            "Standing Hip Flexor Raise (forca_kettlebell) -> seed-ex-224 name_variation",
+            "Downward Dog -> dobrado: panturrilha/isquio ja em alongamento 187/193; dorsiflexao ATIVA de tornozelo coberta por 233/234; flow toracico -> mobilidade_superior_coluna",
+            "Malasana -> dobrado no prying squat seed-ex-228",
+            "Quadruped/Standing hip circles -> aquecimento seed-ex-203 (abre-portao); CARs de quadril seed-ex-219 e a versao de mobilidade dedicada"
+          ]
+        }
+      },
+      "conventions": {
+        "tracking_type_misto": "MISTO por registro: 17 'reps_only' (drills de repeticao controlada — CARs e balancos contados por repeticoes lentas, repeticoes>=1, sem kg) + 2 'hold' (prying squat seed-ex-228 e couch stretch ativo seed-ex-232 — genuinos holds sustentados de fim de amplitude; duracaoSegundos>=1). Decisao documentada por registro no research doc.",
+        "group_muscles": "group_muscles ['Mobilidade'] intencional — secao de categoria Mobilidade do presenter (CATEGORY_ORDER), como cardio ['Cardio'], alongamento ['Alongamento'], aquecimento ['Aquecimento']. NAO anatomico.",
+        "primary_equipment": "Peso corporal -> 'Bodyweight' (vocabulario controlado; equipment livre 'Peso Corporal'). Faixa (leg swing 236, distracao 237) -> 'Resistance Band' (equipment livre 'Faixa Elastica'). Parede (couch stretch 232, knee-to-wall 233) fora do vocabulario -> primary_equipment null + nome no campo livre 'equipment' ('Parede'), precedente do alongamento_estatico. NUNCA mapear implemento desconhecido para valor parecido.",
+        "movement_pattern": "Enum quando o drill corresponde: Rotation (CARs quadril/tornozelo, concha, 90/90 switch/lift-off, aviao, pombo ativo, escorpiao), Abduction (hidrante, frog rocks, adductor rocks), Hip Flexion (avancada ativa, leg swing com faixa), Squat (prying squat), Lunge (cossaco). null quando nenhum descreve (couch stretch, knee-to-wall, kneeling ankle rock, distracao com faixa). Validador permite null.",
+        "scorpion_hip_driven": "Escorpiao (seed-ex-231) e rotacao de quadril+coluna em decubito ventral, mas e HIP-DRIVEN (perna cruza puxada pela rotacao do quadril) -> fica em mobilidade_inferior; lombar em stabilizers, nao em musculo_alvo. A mobilidade toracica/coluna pura -> mobilidade_superior_coluna.",
+        "active_vs_passive": "Pombo ATIVO (230, com lift-off de gluteo) e Sapo BALANCADO (226, rockback ritmico) sao estimulos ATIVOS distintos dos holds PASSIVOS homonimos roteados p/ alongamento_estatico (pigeon 185, frog stretch 190). Cossaco de MOBILIDADE lento (229) distinto do cossaco DINAMICO de aquecimento (218)."
+      },
+      "covers": [
+        "seed-ex-219",
+        "seed-ex-220",
+        "seed-ex-221",
+        "seed-ex-222",
+        "seed-ex-223",
+        "seed-ex-224",
+        "seed-ex-225",
+        "seed-ex-226",
+        "seed-ex-227",
+        "seed-ex-228",
+        "seed-ex-229",
+        "seed-ex-230",
+        "seed-ex-231",
+        "seed-ex-232",
+        "seed-ex-233",
+        "seed-ex-234",
+        "seed-ex-235",
+        "seed-ex-236",
+        "seed-ex-237"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1629,9 +1719,8 @@
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
       "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico"],
+      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico", "mobilidade_inferior"],
       "sessions": [
-        "mobilidade_inferior",
         "mobilidade_superior_coluna",
         "reabilitacao_ombro_cotovelo",
         "reabilitacao_quadril_joelho",
