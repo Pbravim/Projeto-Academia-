@@ -1778,6 +1778,102 @@
         "seed-ex-256",
         "seed-ex-257"
       ]
+    },
+    "reabilitacao_ombro_cotovelo": {
+      "status": "complete",
+      "type": "new_category_rehabilitation",
+      "exercise_count": 29,
+      "researched_at": "2026-06-15",
+      "completed_at": "2026-06-15",
+      "catalog_version": 1,
+      "tracking_type": "reps_only|hold (MISTO)",
+      "category": "Rehabilitation",
+      "research_notes": "Nova categoria Rehabilitation (group_muscles ['Reabilitacao'] -> secao dedicada no CATEGORY_ORDER do presenter, NAO anatomico). SCOPE = reabilitacao/prehab de ombro + cotovelo: isolacao do manguito rotador (rotacao externa/interna com elastico/cabo/halter a 0 e 90 graus, prona 90, isometrica; full-can/empty-can), estabilizacao escapular (YTWI pronos, retracao/setting, wall slide do serratil, scapular push-up/protracao, wall angel, sustentacao escapular), mobilidade-rehab de ombro (pendulo de Codman, sleeper stretch), e rehab de cotovelo (excentrica de extensao de punho para epicondilite lateral, excentrica de flexao para epicondilite medial, Tyler twist na FlexBar, pronacao/supinacao, rosca/extensao de punho de reabilitacao). tracking_type MISTO: 25 'reps_only' (drills de repeticao controlada, sem kg clinico — reps_load proibido) + 4 'hold' (rotacao externa isometrica na parede seed-ex-266, prancha em I prona seed-ex-273, sustentacao escapular na parede seed-ex-275, sleeper stretch seed-ex-280 — holds sustentados / alongamento de fim de amplitude). Codigos musculo_alvo NOVOS PT-minusculos: 'rotador_interno' (subescapular/rotadores internos), 'supraespinhal' (supraspinatus), 'extensores_antebraco' (extensores de punho/dedos). REUTILIZADOS: rotador_externo, manguito_rotador, serratus_anterior, trapezio, romboides, deltoide(_anterior/_posterior), flexores_antebraco, braquiorradial, biceps_braquial, peitoral, core. Validador nao valida vocabulario de musculo_alvo (so exige array nao-vazio). Notas brutas em docs/exercises/research-reabilitacao_ombro_cotovelo.md.",
+      "completion_notes": "Universo de reabilitacao de ombro+cotovelo auditado contra 11 bases independentes (clinico-pesado: physio-pedia, theprehabguys/[P]rehab, e3rehab, bobandbrad, ExRx.net, choosept/APTA, NASM/CES, sportsinjuryclinic, verywellhealth, muscleandstrength/BarBend, healthline, squatuniversity). Curva de retornos decrescentes: rodada 1 (physio-pedia + prehab guys + e3rehab/bobandbrad) -> +28 distintos (enumeracao completa: rotacao ER/IR x {elastico,cabo,halter} x {0,90} + prona ER 90 + ER isometrica; full/empty can; YTWI pronos + I hold; retracao + wall hold; wall slide; scapular push-up; wall angel; pendulo; sleeper stretch; excentricas de punho ext/flex; Tyler twist; pronacao/supinacao; wrist curl/extension); rodada 2 (ExRx, APTA/choosept, NASM/CES, sportsinjuryclinic) -> +0 distintos (confirmacao de granularidade 0 vs 90, sem novas celulas); rodada 3 (verywellhealth, M&S/BarBend, healthline, squatuniversity) -> +0 distintos. Fechamento confirmado: 8 fontes consecutivas (alem da base) com 0 novos distintos. 29 registros (seed-ex-258..286). AROM de flexao-extensao de cotovelo / broomstick AROM dobrados como nao-distintos (pendulo + pronacao/supinacao + drills de punho cobrem o estimulo). gif_path null (midia e assunto separado).",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de reabilitacao de ombro+cotovelo — informativo, NAO lido pelo app. Notas brutas em docs/exercises/research-reabilitacao_ombro_cotovelo.md.",
+        "databases_consulted": [
+          "https://www.physio-pedia.com/Rotator_Cuff_Tears",
+          "https://www.physio-pedia.com/Scapular_Dyskinesis",
+          "https://theprehabguys.com/shoulder-rehab/",
+          "https://library.theprehab.com/",
+          "https://e3rehab.com/tennis-elbow/",
+          "https://www.bobandbrad.com/exercises/shoulder",
+          "https://exrx.net/Lists/Directory",
+          "https://www.choosept.com/guide/physical-therapy-guide-rotator-cuff-tear",
+          "https://blog.nasm.org/corrective-exercise/shoulder-corrective-exercises",
+          "https://www.sportsinjuryclinic.net/sport-injuries/elbow-pain/tennis-elbow",
+          "https://www.verywellhealth.com/rotator-cuff-exercises-2696208",
+          "https://www.muscleandstrength.com/articles/rotator-cuff-exercises",
+          "https://www.healthline.com/health/fitness/shoulder-rehab-exercises",
+          "https://squatuniversity.com/2016/08/19/the-truth-about-the-sleeper-stretch/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessao — roteados, cross-referenciados ou nao-distintos.",
+        "routed_to_other_sessions": {
+          "ombros_lateral": [
+            "Face Pull (gif-ex-048 — deltoide posterior, ja no catalogo como Ombros)",
+            "Crucifixo invertido / Reverse Fly / Rear-Delt Fly (deltoide posterior — ja no catalogo)",
+            "Band Pull-Apart (rear delt + retracao escapular — ledger de ombros_lateral / forca_elastico_funcional)"
+          ],
+          "alongamento_estatico": [
+            "Alongamento do Ombro Cruzado / Cross-Body Shoulder Stretch (seed-ex-174 — deltoide posterior; o sleeper stretch seed-ex-280 cobre a rotacao INTERNA especificamente, e cross-referenciado, nao duplicado)",
+            "Alongamento de flexores/extensores de punho (seed-ex-180/181 — holds passivos)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes/microvariantes dobradas em name_variations ou cobertas por registro existente.",
+          "folded_into_existing_record": [
+            "AROM de flexao-extensao de cotovelo / broomstick AROM -> dobrado: estimulo coberto por pendulo (279) + pronacao/supinacao (286) + drills de punho (284/285)",
+            "Wall walk / finger ladder -> variante de ADM do wall slide (276) / wall angel (278)",
+            "Around-the-world cuff warmup -> variante de scaption (full-can 267)",
+            "Full-can com cabo/peso pesado -> microvariante de carga do full-can com halter (267)",
+            "Ball-squeeze / putty grip -> reabilitacao de mao, fora do escopo de ombro/cotovelo"
+          ]
+        }
+      },
+      "conventions": {
+        "group_muscles": "group_muscles ['Reabilitacao'] intencional — secao de categoria Rehabilitation do presenter (CATEGORY_ORDER = [...,'Reabilitacao']). NAO anatomico (como mobilidade usa ['Mobilidade']).",
+        "tracking_type_misto": "MISTO por registro: 25 'reps_only' (rotacao ER/IR banded/cabo/halter, full/empty can, YTW raises, retracao escapular, wall slide, scapular push-up, wall angel, pendulo, side-lying DB ER, prona ER 90, excentricas de punho, Tyler twist, pronacao/supinacao, wrist curl/extension — sem kg clinico; reps_load PROIBIDO) + 4 'hold' (ER isometrica na parede 266, prancha em I prona 273, sustentacao escapular na parede 275, sleeper stretch 280).",
+        "primary_equipment": "Resistance Band, Cable, Dumbbell e Bodyweight estao no vocabulario. Fora do vocabulario -> primary_equipment null + nome no campo livre 'equipment': FlexBar/Barra de Resistencia (Tyler twist 283), Parede (ER isometrica 266, sustentacao escapular 275, wall slide 276, wall angel 278) — precedente do alongamento_estatico/mobilidade (wall/strap/bastao). NUNCA mapear implemento desconhecido para valor parecido.",
+        "movement_pattern": "Rotation para ER/IR de ombro (banded/cabo/halter 0 e 90, side-lying DB ER, prona ER 90, ER isometrica). Abduction para scaption/full-can/empty-can (elevacao single-joint no plano escapular). Horizontal Abduction para T raise prono (abducao transversal). Elbow Flexion nao usado (AROM de cotovelo dobrado). null quando nenhum enum descreve (Y/W/I raises, retracao escapular, wall slide, scapular push-up/protracao, wall angel, sustentacoes escapulares, pendulo, sleeper stretch, excentricas de punho, Tyler twist, pronacao/supinacao, wrist curl/extension). Validador permite null; NAO forcado para enum errado.",
+        "novos_codigos_musculo": "Codigos PT-minusculos NOVOS (nenhum duplica existente): 'rotador_interno' (subescapular/rotadores internos — nunca mapear para rotador_externo), 'supraespinhal' (supraspinatus — alvo do full/empty can), 'extensores_antebraco' (extensores de punho/dedos — epicondilite lateral). REUTILIZADOS de codigos ja existentes no catalogo: rotador_externo, manguito_rotador, serratus_anterior, trapezio, romboides, deltoide(_anterior/_posterior), flexores_antebraco, braquiorradial, biceps_braquial, peitoral, core.",
+        "sleeper_stretch": "Sleeper stretch (280) roteado PARA esta sessao do ledger do alongamento_estatico: cobre rotacao INTERNA especificamente; o cross-body posterior-delt (seed-ex-174) ja cobre o deltoide posterior e e cross-referenciado em equivalent_alternatives, NAO recriado.",
+        "empty_can_flag": "Empty-can (268) carrega review_flag: provoca impacto subacromial e e contraindicado em muitos protocolos pos-lesao; mantido como estimulo distinto (teste de Jobe) mas full-can (267) e a opcao mais segura para o mesmo alvo."
+      },
+      "review_flags_open": "1 flag aberto nesta sessao: seed-ex-268 (empty-can — contraindicacao subacromial). Ver `--list-flags`.",
+      "covers": [
+        "seed-ex-258",
+        "seed-ex-259",
+        "seed-ex-260",
+        "seed-ex-261",
+        "seed-ex-262",
+        "seed-ex-263",
+        "seed-ex-264",
+        "seed-ex-265",
+        "seed-ex-266",
+        "seed-ex-267",
+        "seed-ex-268",
+        "seed-ex-269",
+        "seed-ex-270",
+        "seed-ex-271",
+        "seed-ex-272",
+        "seed-ex-273",
+        "seed-ex-274",
+        "seed-ex-275",
+        "seed-ex-276",
+        "seed-ex-277",
+        "seed-ex-278",
+        "seed-ex-279",
+        "seed-ex-280",
+        "seed-ex-281",
+        "seed-ex-282",
+        "seed-ex-283",
+        "seed-ex-284",
+        "seed-ex-285",
+        "seed-ex-286"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1805,9 +1901,8 @@
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
       "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico", "mobilidade_inferior", "mobilidade_superior_coluna"],
+      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico", "mobilidade_inferior", "mobilidade_superior_coluna", "reabilitacao_ombro_cotovelo"],
       "sessions": [
-        "reabilitacao_ombro_cotovelo",
         "reabilitacao_quadril_joelho",
         "reabilitacao_lombar_core"
       ]

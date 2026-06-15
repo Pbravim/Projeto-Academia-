@@ -73,6 +73,7 @@ import alongamentoEstaticoJson from '../infrastructure/exercises/seeds/alongamen
 import aquecimentoDinamicoJson from '../infrastructure/exercises/seeds/aquecimento_dinamico.json';
 import mobilidadeInferiorJson from '../infrastructure/exercises/seeds/mobilidade_inferior.json';
 import mobilidadeSuperiorColunaJson from '../infrastructure/exercises/seeds/mobilidade_superior_coluna.json';
+import reabilitacaoOmbroCotoveloJson from '../infrastructure/exercises/seeds/reabilitacao_ombro_cotovelo.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -94,6 +95,7 @@ const alongamentoEstatico = alongamentoEstaticoJson as SeedFile;
 const aquecimentoDinamico = aquecimentoDinamicoJson as SeedFile;
 const mobilidadeInferior = mobilidadeInferiorJson as SeedFile;
 const mobilidadeSuperiorColuna = mobilidadeSuperiorColunaJson as SeedFile;
+const reabilitacaoOmbroCotovelo = reabilitacaoOmbroCotoveloJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -116,31 +118,34 @@ const logger = new ConsoleAppLogger();
 
 const exerciseRepository = new SQLiteExerciseRepository(databaseClient);
 
+const seedFiles: SeedFile[] = [
+  peitoPress, peitoFly, costasPullVertical, costasPullHorizontal,
+  ombrosPress, ombrosLateral, biceps, tricepsPushDown, tricepsOverhead,
+  quadriceps, posteriorGluteos, abdome, panturrilha, forcaKettlebell,
+  cardioSteadyState, cardioHiitFuncional, alongamentoEstatico,
+  aquecimentoDinamico, mobilidadeInferior, mobilidadeSuperiorColuna,
+  reabilitacaoOmbroCotovelo,
+];
+
+// Seeding the catalog upserts ~250 exercises + their alternatives — ~1500 writes serialized
+// through the single SQLite connection. Doing it on EVERY launch starves the exercise screens'
+// reads, making them slow to load. Skip the whole pass when nothing changed, keyed by a cheap
+// signature of (schema version + total exercise count + sum of catalog_version). The schema
+// version is included so a migration that rebuilds the exercises table forces a re-seed.
+const SEED_SIGNATURE_KEY = '@seed/catalog-signature';
+
 void (async () => {
   try {
+    const totalExercises = seedFiles.reduce((n, f) => n + f.exercises.length, 0);
+    const versionSum = seedFiles.reduce((n, f) => n + f.catalog_version, 0);
+    const schemaRow = await databaseClient.getFirst<{ user_version: number }>('PRAGMA user_version');
+    const signature = `${schemaRow?.user_version ?? 0}:${totalExercises}:${versionSum}`;
+
+    if (await databaseClient.getSetting(SEED_SIGNATURE_KEY) === signature) return;
+
     const seedLoader = new ExerciseSeedLoader(exerciseRepository);
-    await Promise.all([
-      seedLoader.loadSeedFile(peitoPress),
-      seedLoader.loadSeedFile(peitoFly),
-      seedLoader.loadSeedFile(costasPullVertical),
-      seedLoader.loadSeedFile(costasPullHorizontal),
-      seedLoader.loadSeedFile(ombrosPress),
-      seedLoader.loadSeedFile(ombrosLateral),
-      seedLoader.loadSeedFile(biceps),
-      seedLoader.loadSeedFile(tricepsPushDown),
-      seedLoader.loadSeedFile(tricepsOverhead),
-      seedLoader.loadSeedFile(quadriceps),
-      seedLoader.loadSeedFile(posteriorGluteos),
-      seedLoader.loadSeedFile(abdome),
-      seedLoader.loadSeedFile(panturrilha),
-      seedLoader.loadSeedFile(forcaKettlebell),
-      seedLoader.loadSeedFile(cardioSteadyState),
-      seedLoader.loadSeedFile(cardioHiitFuncional),
-      seedLoader.loadSeedFile(alongamentoEstatico),
-      seedLoader.loadSeedFile(aquecimentoDinamico),
-      seedLoader.loadSeedFile(mobilidadeInferior),
-      seedLoader.loadSeedFile(mobilidadeSuperiorColuna),
-    ]);
+    await Promise.all(seedFiles.map((file) => seedLoader.loadSeedFile(file)));
+    await databaseClient.setSetting(SEED_SIGNATURE_KEY, signature);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
   }
