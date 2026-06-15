@@ -1692,6 +1692,92 @@
         "seed-ex-236",
         "seed-ex-237"
       ]
+    },
+    "mobilidade_superior_coluna": {
+      "status": "complete",
+      "type": "new_category_mobility",
+      "exercise_count": 20,
+      "researched_at": "2026-06-14",
+      "completed_at": "2026-06-14",
+      "catalog_version": 1,
+      "tracking_type": "reps_only|hold (MISTO)",
+      "category": "Mobility",
+      "research_notes": "Nova categoria Mobility, desbloqueada pelo modelo tracking_type (sub-projeto 5b). SCOPE = drills de mobilidade articular ATIVA do tronco superior e coluna: coluna toracica (rotacao/extensao/flexao segmentar), ombros/escapula, pescoco/cervical, punhos e fluxos espinhais. EXCLUI mobilidade de quadril/joelho/tornozelo (mobilidade_inferior), hold passivo de musculo (alongamento_estatico) e prep geral (aquecimento_dinamico). tracking_type MISTO: 18 'reps_only' (CARs de ombro/escapula/pescoco/punho, cat-cow, segmental cat-camel, sphinx-to-cobra, open book deitado, T-spine windmill, thread-the-needle, seated thoracic rotation, shoulder rolls, scapular push-up, wall slides, prone YTW, pass-through com bastao/faixa, KB Halo) + 2 'hold' (extensao toracica no rolo de espuma seed-ex-241 e KB Arm Bar seed-ex-257 — genuinos holds de fim de amplitude). group_muscles ['Mobilidade'] intencional (CATEGORY_ORDER — secao dedicada do presenter). musculo_alvo com os movers/segmentos realmente mobilizados; codigos NOVOS PT-minusculos introduzidos: 'toracica' (coluna toracica), 'pescoco' (cervical), 'manguito_rotador' (rotator cuff); serratus_anterior e romboides REUTILIZADOS de codigos ja existentes (nao duplicar com 'serratil'); validador nao valida vocabulario de musculo. Notas brutas em docs/exercises/research-mobilidade_superior_coluna.md.",
+      "completion_notes": "Universo de mobilidade do tronco superior/coluna auditado contra 12 bases independentes + sistema FRC (Functional Range Conditioning / CARs / Kinstretch). Curva de retornos decrescentes: rodada 1 (FRC/CARs) -> +5 (Shoulder CARs, Scapular CARs, Neck CARs, Wrist CARs, T-spine rotation controlada); rodada 2 (NASM/CES) -> +5 (cat-cow, foam roller thoracic extension, wall slides, open book deitado, T-spine windmill); rodada 3 (ExRx) -> +3 (shoulder pass-through bastao, scapular push-up, prone YTW); rodada 4 (Physiopedia) -> +2 (segmental cat-camel, sphinx-to-cobra); rodada 5 (coaches de ombro/atleticos) -> +3 (band pass-through, thread-the-needle, shoulder rolls); rodada 6 (KB mobility) -> +2 (KB Halo, KB Arm Bar); rodada 7 (S&C dowel) -> +1 (seated thoracic rotation). Fontes 8-12 (MoveU, Squat University/GMB, yoga, listicles Healthline/Verywell, cluster) -> +0 distintos cada. Fechamento confirmado (5 fontes consecutivas com 0 novos). 20 registros distintos (seed-ex-238..257). gif_path null (midia e assunto separado). Kettlebell (Halo 256, Arm Bar 257) -> primary_equipment 'Kettlebell' (no vocabulario); Faixa (band pass-through 253) -> 'Resistance Band'; Rolo de Espuma (241), Bastao (252), Parede (250) fora do vocabulario -> primary null + equipment livre; resto -> 'Bodyweight'.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de mobilidade do tronco superior/coluna — informativo, NAO lido pelo app. Notas brutas em docs/exercises/research-mobilidade_superior_coluna.md.",
+        "databases_consulted": [
+          "https://functionalanatomyseminars.com/",
+          "https://www.kinstretch.com/",
+          "https://blog.nasm.org/thoracic-mobility-exercises",
+          "https://blog.nasm.org/shoulder-mobility",
+          "https://exrx.net/Lists/Directory",
+          "https://www.physio-pedia.com/Thoracic_Spine",
+          "https://www.physio-pedia.com/Scapular_Dyskinesis",
+          "https://tommorrison.uk/",
+          "https://gmb.io/thoracic-spine-mobility/",
+          "https://squatuniversity.com/2017/05/12/the-overhead-mobility-test/",
+          "https://www.healthline.com/health/fitness/thoracic-mobility-exercises",
+          "https://www.verywellfit.com/shoulder-mobility-exercises"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessao — roteados, cross-referenciados ou nao-distintos. Para auditorias futuras nao os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "aquecimento_dinamico": [
+            "Rotacao Toracica EM PE / Open Book em pe (ja e seed-ex-208 — a versao DEITADA seed-ex-242 fica aqui; cross-ref, nao duplicado)",
+            "Circulos de Braco (seed-ex-204), Balanco de Bracos / Abraco (seed-ex-205)",
+            "Passagem de Ombro com Faixa de aquecimento (seed-ex-206 — mesmo gesto em ritmo de prep; pass-through de mobilidade com bastao 252 e faixa 253 sao distintos)",
+            "Rotacao de Tronco em Pe (seed-ex-207)"
+          ],
+          "alongamento_estatico": [
+            "Alongamento lateral/posterior de pescoco (172/173), ombro cruzado (174), dorsais acima da cabeca (175)",
+            "Postura da crianca (176), triceps overhead (177), peito na porta (178), biceps na parede (179)",
+            "Flexores/extensores de punho (180/181), torcao espinhal sentada (182) — holds PASSIVOS de musculo, nao mobilizacao ATIVA"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes/microvariantes dobradas em name_variations ou cobertas por registro existente.",
+          "folded_into_existing_record": [
+            "Thoracic CARs -> dobrado: circunducao toracica ativa coberta por T-spine windmill seed-ex-243 e seated rotation seed-ex-245 (evita padding por nome)",
+            "Down-Dog-to-Cobra flow -> dobrado: extensao toracica coberta por sphinx-to-cobra seed-ex-240; panturrilha/isquio ja em alongamento 187/193; dorsiflexao ATIVA em mobilidade_inferior 233/234",
+            "Neck rolls -> dobrado em Neck CARs seed-ex-254",
+            "Arm circles lento de mobilidade -> dobrado em Shoulder Rolls seed-ex-247 / Shoulder CARs seed-ex-246; a versao balistica de prep ja e aquecimento 204",
+            "Up-dog / cobra isolada -> dobrado no sphinx-to-cobra flow seed-ex-240 (name_variations)"
+          ]
+        }
+      },
+      "conventions": {
+        "tracking_type_misto": "MISTO por registro: 18 'reps_only' (CARs e drills articulares contados por repeticoes lentas, repeticoes>=1, sem kg) + 2 'hold' (extensao toracica no rolo seed-ex-241 e KB arm bar seed-ex-257 — genuinos holds sustentados de fim de amplitude; duracaoSegundos>=1).",
+        "group_muscles": "group_muscles ['Mobilidade'] intencional — secao de categoria Mobilidade do presenter (CATEGORY_ORDER), como mobilidade_inferior. NAO anatomico.",
+        "primary_equipment": "Bodyweight na maioria. Kettlebell (KB Halo 256, KB Arm Bar 257) ESTA no vocabulario -> 'Kettlebell'. Faixa (band pass-through 253) -> 'Resistance Band'. Fora do vocabulario -> primary_equipment null + nome no campo livre 'equipment': Rolo de Espuma (241), Bastao (252), Parede (250) — precedente do alongamento_estatico/mobilidade_inferior. NUNCA mapear implemento desconhecido para valor parecido.",
+        "movement_pattern": "Enum so quando o drill corresponde: Rotation (open book deitado 242, T-spine windmill 243, thread-the-needle 244, seated rotation 245, Shoulder CARs 246, Wrist CARs 255 — circunducao/rotacao articular). null quando nenhum descreve (cat-cow/segmental/sphinx-cobra/foam roller = flexao-extensao espinhal sem enum; shoulder rolls, scapular CARs/push-up, wall slides, prone YTW, pass-through, Neck CARs, KB Halo, KB Arm Bar). Validador permite null. NAO forcado para enum errado.",
+        "novos_codigos_musculo": "Codigos PT-minusculos NOVOS (nenhum duplica existente): 'toracica' (coluna toracica/T-spine), 'pescoco' (cervical), 'manguito_rotador' (rotator cuff). Validador nao valida vocabulario de musculo_alvo (so exige array nao-vazio). Reutilizados (codigos ja existentes no catalogo): serratus_anterior, romboides, deltoide(_anterior/_posterior), trapezio, peitoral, grande_dorsal, eretores_espinha, lombar, core, obliquo, flexores_antebraco.",
+        "open_book_pe_vs_deitado": "Open Book EM PE = seed-ex-208 (aquecimento, prep dinamica). A versao DEITADA (242) isola o T-spine do quadril em decubito lateral (mobilidade dedicada, ADM maxima) -> registro distinto aqui; 208 cross-referenciado, NAO recriado.",
+        "kb_halo_arm_bar": "KB Halo (256, circulo carregado ao redor da cabeca, reps_only/bilateral) e KB Arm Bar (257, hold isometrico em supino com KB no alto, T-spine + manguito, hold/unilateral) absorvidos do ledger de forca_kettlebell; primary_equipment Kettlebell."
+      },
+      "covers": [
+        "seed-ex-238",
+        "seed-ex-239",
+        "seed-ex-240",
+        "seed-ex-241",
+        "seed-ex-242",
+        "seed-ex-243",
+        "seed-ex-244",
+        "seed-ex-245",
+        "seed-ex-246",
+        "seed-ex-247",
+        "seed-ex-248",
+        "seed-ex-249",
+        "seed-ex-250",
+        "seed-ex-251",
+        "seed-ex-252",
+        "seed-ex-253",
+        "seed-ex-254",
+        "seed-ex-255",
+        "seed-ex-256",
+        "seed-ex-257"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1719,9 +1805,8 @@
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
       "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico", "mobilidade_inferior"],
+      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico", "mobilidade_inferior", "mobilidade_superior_coluna"],
       "sessions": [
-        "mobilidade_superior_coluna",
         "reabilitacao_ombro_cotovelo",
         "reabilitacao_quadril_joelho",
         "reabilitacao_lombar_core"

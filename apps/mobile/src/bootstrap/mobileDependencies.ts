@@ -72,6 +72,7 @@ import cardioHiitFuncionalJson from '../infrastructure/exercises/seeds/cardio_hi
 import alongamentoEstaticoJson from '../infrastructure/exercises/seeds/alongamento_estatico.json';
 import aquecimentoDinamicoJson from '../infrastructure/exercises/seeds/aquecimento_dinamico.json';
 import mobilidadeInferiorJson from '../infrastructure/exercises/seeds/mobilidade_inferior.json';
+import mobilidadeSuperiorColunaJson from '../infrastructure/exercises/seeds/mobilidade_superior_coluna.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -92,6 +93,7 @@ const cardioHiitFuncional = cardioHiitFuncionalJson as SeedFile;
 const alongamentoEstatico = alongamentoEstaticoJson as SeedFile;
 const aquecimentoDinamico = aquecimentoDinamicoJson as SeedFile;
 const mobilidadeInferior = mobilidadeInferiorJson as SeedFile;
+const mobilidadeSuperiorColuna = mobilidadeSuperiorColunaJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -137,6 +139,7 @@ void (async () => {
       seedLoader.loadSeedFile(alongamentoEstatico),
       seedLoader.loadSeedFile(aquecimentoDinamico),
       seedLoader.loadSeedFile(mobilidadeInferior),
+      seedLoader.loadSeedFile(mobilidadeSuperiorColuna),
     ]);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
