@@ -70,6 +70,7 @@ import forcaKettlebellJson from '../infrastructure/exercises/seeds/forca_kettleb
 import cardioSteadyStateJson from '../infrastructure/exercises/seeds/cardio_steady_state.json';
 import cardioHiitFuncionalJson from '../infrastructure/exercises/seeds/cardio_hiit_funcional.json';
 import alongamentoEstaticoJson from '../infrastructure/exercises/seeds/alongamento_estatico.json';
+import aquecimentoDinamicoJson from '../infrastructure/exercises/seeds/aquecimento_dinamico.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -88,6 +89,7 @@ const forcaKettlebell = forcaKettlebellJson as SeedFile;
 const cardioSteadyState = cardioSteadyStateJson as SeedFile;
 const cardioHiitFuncional = cardioHiitFuncionalJson as SeedFile;
 const alongamentoEstatico = alongamentoEstaticoJson as SeedFile;
+const aquecimentoDinamico = aquecimentoDinamicoJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -131,6 +133,7 @@ void (async () => {
       seedLoader.loadSeedFile(cardioSteadyState),
       seedLoader.loadSeedFile(cardioHiitFuncional),
       seedLoader.loadSeedFile(alongamentoEstatico),
+      seedLoader.loadSeedFile(aquecimentoDinamico),
     ]);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));

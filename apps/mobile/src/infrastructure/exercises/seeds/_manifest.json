@@ -1497,6 +1497,111 @@
         "seed-ex-194",
         "seed-ex-195"
       ]
+    },
+    "aquecimento_dinamico": {
+      "status": "complete",
+      "type": "new_category_warmup",
+      "exercise_count": 23,
+      "researched_at": "2026-06-14",
+      "completed_at": "2026-06-14",
+      "catalog_version": 1,
+      "tracking_type": "reps_only",
+      "category": "Warm-Up",
+      "research_notes": "Nova categoria Warm-Up, desbloqueada pelo modelo tracking_type (sub-projeto 5b). TODOS os registros tracking_type 'reps_only' (drill contado por repeticoes/passadas; modelo exige repeticoes>=1, sem kg). NENHUM caso de cardio/hold neste arquivo — holds sustentados sao alongamento_estatico (roteado); continuos puros por tempo sao cardio (roteado). group_muscles ['Aquecimento'] intencional (CATEGORY_ORDER Cardio/Mobilidade/Alongamento/Aquecimento/Reabilitacao — secao dedicada do presenter, como cardio usou ['Cardio'] e alongamento ['Alongamento']). musculo_alvo com o(s) musculo(s) realmente aquecido(s)/mobilizado(s), codigos PT minusculos reutilizados dos seeds (nenhum codigo novo). Notas brutas em docs/exercises/research-aquecimento_dinamico.md.",
+      "completion_notes": "Universo de aquecimento dinamico auditado contra 11 bases independentes + protocolo RAMP (Raise-Activate-Mobilize-Potentiate). Curva de retornos decrescentes: rodada 1 (ACE) -> +11 (leg swing frontal/lateral, walking lunge, inchworm, hip circle, arm circle, torso rotation, knee hug, walking quad pull, high knees drill, butt kicks); rodada 2 (NASM) -> +3 (world's greatest stretch, lunge with twist, thoracic rotation em pe); rodada 3 (ExRx/RAMP) -> +3 (spiderman lunge, A-skip, ankle bounce/pogo); rodada 4 (atletico/track) -> +1 (toy soldier/straight-leg kick); rodada 5 (physio) -> +3 (cat-cow dinamico, arm swings/hugs, band shoulder pass-through); rodada 6 (lateral prep) -> +1 (lateral shuffle); rodada 7 (listicles Healthline/Verywell/Men's Health) -> +1 (dynamic side lunge). Fontes 7/8/9/11 (runner's, CrossFit, yoga-flow, Verywell cluster) -> +0 distintos cada (so repeticao ou movimentos roteados p/ mobilidade). 23 registros distintos (seed-ex-196..218). gif_path null (mídia e assunto separado). Banda (pass-through, seed-ex-206) -> primary_equipment 'Resistance Band'; resto -> 'Bodyweight'.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de aquecimento dinamico — informativo, NÃO lido pelo app. Notas brutas em docs/exercises/research-aquecimento_dinamico.md.",
+        "databases_consulted": [
+          "https://www.acefitness.org/resources/everyone/exercise-library/",
+          "https://www.acefitness.org/resources/pros/expert-articles/",
+          "https://blog.nasm.org/dynamic-warm-up-exercises",
+          "https://blog.nasm.org/how-to-warm-up-before-a-workout",
+          "https://exrx.net/Lists/Directory",
+          "https://www.scienceforsport.com/the-ramp-warm-up-system/",
+          "https://www.healthline.com/health/exercise-fitness/dynamic-warm-up",
+          "https://www.verywellfit.com/dynamic-warm-up-exercises",
+          "https://www.menshealth.com/fitness/dynamic-warmup",
+          "https://www.runnersworld.com/training/dynamic-warmup",
+          "https://www.scienceforsport.com/dynamic-stretching/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessão — roteados para outras sessões ou nao-distintos. Para auditorias futuras não os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "cardio_hiit_funcional": [
+            "Polichinelo / Jumping Jacks (cardio-ex-023)",
+            "Mountain Climber (cardio-ex-057)",
+            "Elevacao de Joelhos como corrida de condicionamento (cardio-ex-040 — distinto do high knees DRILL seed-ex-211)",
+            "Burpee, Agachamento com Salto, Tuck Jump, Skater, Plank-to-Push-Up, Bear Crawl, Salto Horizontal/Caixa"
+          ],
+          "cardio_steady_state": [
+            "Pular Corda continuo (seed-ex-152)",
+            "Corrida/caminhada leve de Raise (corrida/caminhada na esteira seed-ex-138/139)"
+          ],
+          "mobilidade_inferior": [
+            "Scorpion (rotacao espinhal deitado)",
+            "Fire Hydrant (abducao de quadril ajoelhado)",
+            "90/90 Hip Switch",
+            "Hip CARs (rotacoes articulares controladas)",
+            "Deep/Prying Squat hold de mobilidade"
+          ],
+          "mobilidade_superior_coluna": [
+            "Open Book deitado (rotacao toracica em decubito — a versao EM PE seed-ex-208 fica aqui)",
+            "Shoulder CARs",
+            "Down-Dog-to-Cobra flow"
+          ],
+          "alongamento_estatico": [
+            "Qualquer stretch sustentado (runner's lunge hold, standing quad hold) -> seed-ex-172..195"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes de lado/direcao/amplitude dobradas em name_variations.",
+          "folded_microvariants": [
+            "Open vs Close the Gate (dobrado no circulo de quadril seed-ex-203)",
+            "Frankenstein March (= soldadinho seed-ex-209)",
+            "Carioca (= deslocamento lateral seed-ex-217)",
+            "Marching High Knees (= high knees seed-ex-211)",
+            "Knee-to-Chest caminhando (= abraco de joelho seed-ex-213)",
+            "Inchworm com push-up (push-up e add-on de forca; dobrado no inchworm seed-ex-200)",
+            "Arm circles frente vs tras (dobrado no seed-ex-204)",
+            "Reverse Lunge dinamico (variante de direcao do afundo caminhando seed-ex-198)",
+            "Cossack dinamico (= afundo lateral dinamico seed-ex-218)"
+          ]
+        }
+      },
+      "conventions": {
+        "tracking_type_reps_only": "Todos os registros tracking_type 'reps_only' (repeticoes/passadas contadas, repeticoes>=1, sem kg). Drills locomotores (A-skip, shuffle, pogo) contados por passadas/saltos -> reps_only, NAO cardio. Nenhum hold sustentado (esses sao alongamento_estatico).",
+        "group_muscles": "group_muscles ['Aquecimento'] intencional — secao de categoria Aquecimento do presenter (CATEGORY_ORDER), como cardio ['Cardio'] e alongamento ['Alongamento'].",
+        "primary_equipment": "Peso corporal -> primary_equipment 'Bodyweight' (vocabulario controlado; equipment livre 'Peso Corporal'). Band pass-through (seed-ex-206) -> 'Resistance Band' (equipment livre 'Faixa Elastica'). Nenhum implemento fora do vocabulario.",
+        "movement_pattern": "Enum quando o drill corresponde: Hip Flexion (leg swing frontal, hip circle, soldadinho, high knees, knee hug), Lunge (walking/twist/WGS/spiderman/side lunge), Knee Flexion (butt kick, heel pull), Rotation (torso/thoracic), Gait (A-skip, shuffle). null quando nenhum descreve (leg swing lateral, inchworm, arm circles, arm swings, band pass-through, cat-cow, pogo). Validador permite null.",
+        "wgs_vs_spiderman_vs_lunges": "Walking lunge (198), lunge+twist (199), WGS (201), spiderman (202) e side lunge (218) sao 5 estimulos distintos (sagital puro vs +rotacao vs combo nomeado vs abertura de quadril vs plano frontal). NASM/ExRx tratam WGS e spiderman como drills nomeados distintos.",
+        "high_knees_drill_vs_cardio": "High knees DRILL de aquecimento (seed-ex-211, flexao de quadril, fase Activate do RAMP) mantido separado do high-knee de CONDICIONAMENTO continuo (cardio-ex-040 elevacao de joelhos). A-skip (212) adiciona o componente de salto/ritmo (Gait, fase Potentiate)."
+      },
+      "covers": [
+        "seed-ex-196",
+        "seed-ex-197",
+        "seed-ex-198",
+        "seed-ex-199",
+        "seed-ex-200",
+        "seed-ex-201",
+        "seed-ex-202",
+        "seed-ex-203",
+        "seed-ex-204",
+        "seed-ex-205",
+        "seed-ex-206",
+        "seed-ex-207",
+        "seed-ex-208",
+        "seed-ex-209",
+        "seed-ex-210",
+        "seed-ex-211",
+        "seed-ex-212",
+        "seed-ex-213",
+        "seed-ex-214",
+        "seed-ex-215",
+        "seed-ex-216",
+        "seed-ex-217",
+        "seed-ex-218"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1524,11 +1629,10 @@
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
       "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico"],
+      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico", "aquecimento_dinamico"],
       "sessions": [
         "mobilidade_inferior",
         "mobilidade_superior_coluna",
-        "aquecimento_dinamico",
         "reabilitacao_ombro_cotovelo",
         "reabilitacao_quadril_joelho",
         "reabilitacao_lombar_core"
