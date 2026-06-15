@@ -1408,6 +1408,95 @@
         "seed-ex-170",
         "seed-ex-171"
       ]
+    },
+    "alongamento_estatico": {
+      "status": "complete",
+      "type": "new_category_flexibility",
+      "exercise_count": 24,
+      "researched_at": "2026-06-14",
+      "catalog_version": 1,
+      "completed_at": "2026-06-14",
+      "tracking_type": "hold",
+      "category": "Flexibility",
+      "research_notes": "1a sessao de nova categoria Flexibility (alongamento estatico), desbloqueada pelo modelo tracking_type (reps_load|cardio|hold|reps_only) do sub-projeto 5b. Todo registro tracking_type 'hold' (sustentacao isometrica; duracaoSegundos = tempo de sustentacao, exigido >=1; sem kg/reps). category 'Flexibility', group_muscles ['Alongamento'] (intencional — o presenter do catalogo tem CATEGORY_ORDER Cardio/Mobilidade/Alongamento/Aquecimento/Reabilitacao, entao estes renderizam numa secao 'Alongamento' dedicada apos os grupos musculares, como o cardio usou ['Cardio']). musculo_alvo populado com o(s) musculo(s) realmente alongado(s) (codigos PT minusculos dos seeds) para manter targeting/substituicao. movement_pattern null em todos (nenhum valor do enum descreve um hold passivo; validador permite null). primary_equipment 'Bodyweight' para alongamento sem implemento; null + nome no campo livre 'equipment' para implementos fora do vocabulario (parede, batente, barra, faixa/strap). 24 registros novos (seed-ex-172..195). Puxa os alongamentos roteados/parqueados das sessoes de forca. Notas em research-alongamento_estatico.md.",
+      "completion_notes": "Universo de alongamento estatico auditado contra 10 bases independentes (ASFA, Olaben, ExRx.net, SetForSet/EquilibriumPT/MovementFix biomecanica de panturrilha, NASM via PTPioneer/Brainscape, 10 Fitness, Newcastle Sports Injury, HingeHealth/TeachPE wrist, Yoga Journal/EquilibriumPT strap, WebMD/Peloton) + literatura biomecanica gastrocnemio-vs-soleo. Curva de retornos decrescentes: rodada 1 (ASFA+Olaben) -> +14 (set base de regioes + child's pose); rodada 2 (ExRx) -> +3 (overhead lat, flexor de punho, extensor de punho); rodada 3 (biomecanica panturrilha + NASM) -> +2 (gastrocnemio joelho-reto vs soleo joelho-dobrado como 2 registros distintos + tibial anterior/canela); rodada 4 (Newcastle+HingeHealth+YogaJournal) -> +3 (canela formalizada, biceps na parede, isquio deitado com faixa); fontes 6 (10 Fitness) e 10 (WebMD/Peloton) -> +0 distintos cada (so repeticao ou variantes dobradas/roteadas). Fechamento confirmado (>=2 fontes consecutivas com 0 novos + NASM so confirmou cobertura muscular). 24 registros distintos por estimulo.",
+      "research_sources": {
+        "_comment": "Bases consultadas — informativo, NAO lido pelo app. Notas em research-alongamento_estatico.md.",
+        "databases_consulted": [
+          "https://www.americansportandfitness.com/blogs/fitness-blog/top-20-stretching-exercises-for-ultimate-flexibility",
+          "https://olaben.com/blogs/olaben-blog/static-stretching",
+          "https://exrx.net/Lists/Directory",
+          "https://www.setforset.com/blogs/news/soleus-exercises-stretches",
+          "https://www.ptpioneer.com/personal-training/certifications/study/flexibility-training/",
+          "https://10fitness.com/essential-full-body-stretching-routine/",
+          "https://www.newcastlesportsinjury.co.uk/ten-static-stretching-exercises/",
+          "https://www.hingehealth.com/resources/articles/wrist-flexor-stretch/",
+          "https://www.yogajournal.com/practice/stretches-for-tight-hamstrings-and-hip-flexors/",
+          "https://www.webmd.com/fitness-exercise/ss/slideshow-stretches-to-get-loose"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessao — para auditorias futuras nao os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "mobilidade_superior_coluna": [
+            "Cat-Cow / Gato-Camelo (mobilidade dinamica de coluna, nao hold passivo)",
+            "Cobra / Sphinx (extensao de coluna ativa)",
+            "Shoulder Rolls (rotacao dinamica de ombro)"
+          ],
+          "mobilidade_inferior": [
+            "Downward Dog (transicao dinamica — alongamento de panturrilha/isquio ja coberto por 187/193)",
+            "Lunge com rotacao / World's Greatest Stretch (mobilidade dinamica)"
+          ],
+          "reabilitacao_ombro_cotovelo": [
+            "Sleeper Stretch (alongamento de rotador interno clinico — o ombro cruzado 174 cobre o delt posterior)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "_comment": "Variantes de postura/posicao/implemento que nao geram estimulo distinto — dobradas em name_variations ou cobertas por registro existente.",
+          "posture_position_variants": [
+            "Standing Hamstring Stretch (mesmo estimulo do isquio sentado seed-ex-187 — dobrado em name_variations)",
+            "Lat Doorway Stretch (variante do overhead lat seed-ex-175)",
+            "Extended Puppy Pose / Lying Pectoral Stretch (variantes do peito na porta seed-ex-178 / child's pose seed-ex-176)",
+            "Supine Spinal Twist (variante decubito da torcao sentada seed-ex-182)"
+          ],
+          "niche_oblique_variants": [
+            "Kneeling Side Bend / Oblique Stretch (alongamento de obliquo nicho — coberto pela torcao/flexao lateral)"
+          ]
+        }
+      },
+      "conventions": {
+        "tracking_type_hold": "Todos os registros tracking_type 'hold' (duracaoSegundos obrigatorio >=1 = tempo de sustentacao; sem kg/reps). group_muscles ['Alongamento'] e intencional — o presenter do catalogo tem secao de categoria Alongamento (CATEGORY_ORDER Cardio/Mobilidade/Alongamento/Aquecimento/Reabilitacao).",
+        "primary_equipment_null": "Alongamento sem implemento -> primary_equipment 'Bodyweight' (esta no vocabulario controlado; campo livre equipment 'Peso Corporal'). Implementos fora do vocabulario (parede, batente, barra, faixa/strap) -> primary_equipment/secondary_equipment null + nome no campo livre 'equipment' (Parede, Parede/Batente, Parede/Barra, Faixa/Strap). NUNCA mapear implemento desconhecido para valor 'parecido' do vocabulario.",
+        "movement_pattern_null": "movement_pattern null em todos os registros — nenhum valor do enum descreve um hold passivo de alongamento. O validador permite null.",
+        "musculo_alvo": "Populado com o musculo realmente alongado (codigos PT minusculos dos seeds) para manter targeting/substituicao. Codigos reutilizados onde existiam; flexores_quadril/abdutores/tibial_anterior sao codigos novos sancionados (validador nao valida vocabulario de musculo, so exige array nao-vazio).",
+        "gastroc_vs_soleo": "Gastrocnemio (seed-ex-193, joelho estendido) e Soleo (seed-ex-194, joelho flexionado) sao 2 registros distintos — biomecanica: soleo nao cruza o joelho; gastroc fica slack com joelho dobrado. musculo_alvo distinto."
+      },
+      "covers": [
+        "seed-ex-172",
+        "seed-ex-173",
+        "seed-ex-174",
+        "seed-ex-175",
+        "seed-ex-176",
+        "seed-ex-177",
+        "seed-ex-178",
+        "seed-ex-179",
+        "seed-ex-180",
+        "seed-ex-181",
+        "seed-ex-182",
+        "seed-ex-183",
+        "seed-ex-184",
+        "seed-ex-185",
+        "seed-ex-186",
+        "seed-ex-187",
+        "seed-ex-188",
+        "seed-ex-189",
+        "seed-ex-190",
+        "seed-ex-191",
+        "seed-ex-192",
+        "seed-ex-193",
+        "seed-ex-194",
+        "seed-ex-195"
+      ]
     }
   },
   "pending_sessions": [],
@@ -1435,11 +1524,10 @@
         "doc_only_note": "Plano e escopo de cada sessão ficam aqui e em catalog-maintenance.md §13; os movimentos já roteados das sessões de força (jump rope, mountain climber, bird dog, tibialis raise, alongamentos, etc.) aguardam estas sessões."
       },
       "unblocked_note": "2026-06-14: o modelo tracking_type (cardio/hold/reps_only) + colunas anuláveis (duracaoSegundos/distanciaMetros/intensidade) + UI por categoria shipou (sub-projeto 5b). cardio_steady_state e cardio_hiit_funcional estão DESBLOQUEADOS e COMPLETOS (ver sessions.*). Demais sessões seguem pendentes até suas dependências de modelo/UX.",
-      "completed": ["cardio_steady_state", "cardio_hiit_funcional"],
+      "completed": ["cardio_steady_state", "cardio_hiit_funcional", "alongamento_estatico"],
       "sessions": [
         "mobilidade_inferior",
         "mobilidade_superior_coluna",
-        "alongamento_estatico",
         "aquecimento_dinamico",
         "reabilitacao_ombro_cotovelo",
         "reabilitacao_quadril_joelho",
