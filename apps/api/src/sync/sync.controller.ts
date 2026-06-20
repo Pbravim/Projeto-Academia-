@@ -10,7 +10,8 @@ export class SyncController {
   constructor(private readonly syncService: SyncService) {}
 
   @Post()
-  sync(@CurrentUser() user: { userId: string }, @Body() body: SyncRequest) {
-    return this.syncService.sync(user.userId, body);
+  sync(@CurrentUser() user: { id: string }, @Body() body: SyncRequest) {
+    // JwtStrategy.validate retorna o usuário Prisma (campo `id`), não `userId`.
+    return this.syncService.sync(user.id, body);
   }
 }
