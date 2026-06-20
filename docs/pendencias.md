@@ -9,23 +9,22 @@
 
 ---
 
-## 🔴 P0 — Quebrado agora
-
-- [x] **Suite de testes morta: `useExerciseCatalogController.test.tsx`** (0 testes rodam) ✅ `2026-06-20`
-  Causa: o teste mockava `expo-file-system/legacy`, mas o controller importa `expo-file-system`
-  (API nova `File`/`Paths`) — o mock não interceptava e o `react-native` (Flow) quebrava o parser.
-  **Fix aplicado:** trocar o `vi.mock` para `'expo-file-system'` expondo `File` (com `.move()`/`.uri`)
-  e `Paths.document`. Suite voltou a rodar (8 testes); total agora **357 testes em 87 arquivos, todos verdes**.
-
----
-
 ## 🟠 P1 — Risco real (antes de ligar sync / avançar backend)
 
-- [ ] **Backend quase sem testes** — `apps/api` tem 2 arquivos de teste vs 82 no mobile.
-  Cobrir `sync.service` (506 linhas, faz merge de dados), `auth.service` e controllers (e2e)
-  antes dos sub-projetos 2–4. _Ref: problems-audit item 2._
-- [ ] **Dois lockfiles na raiz** (`yarn.lock` + `package-lock.json`) → instalação não determinística.
-  Manter npm (scripts do root usam npm), deletar o outro. _Ref: item 3._
+- [x] **Backend quase sem testes** ✅ `2026-06-20`
+  **Unit:** de **2 → 9 specs (19 → 36 testes)** — cobertura para `exercises`/`treinos`/`users` services
+  e `auth`/`exercises`/`treinos`/`sync` controllers (Prisma/serviços mockados).
+  **Bug achado e corrigido:** `sync.controller` usava `user.userId` (undefined — JwtStrategy retorna o
+  user Prisma com `.id`), rodando o sync com userId indefinido; agora `user.id` + regressão.
+  **E2e:** adicionados `supertest` + `test/jest-e2e.json` + `test/app.e2e-spec.ts` — fluxo real
+  register→login→sync contra o Postgres do docker (4 testes; valida guards JWT, 401 sem token, e o
+  round-trip dos 8 campos biomecânicos sobre HTTP). Rodar com `npm --prefix apps/api run test:e2e`
+  (precisa `docker compose up -d postgres` + `prisma migrate deploy`). Unit 36 + e2e 4 verdes, typecheck OK.
+- [x] **Dois lockfiles na raiz** ✅ `2026-06-20`
+  `yarn.lock` já não existia (nem no disco nem no HEAD) — só `package-lock.json` (npm workspaces).
+  Travado o gerenciador: `"packageManager": "npm@11.12.1"` + `engines.npm >=10` no root.
+  Corrigido o comentário enganoso do `.gitignore` ("this is a yarn workspace" → npm) e adicionada
+  guarda contra `yarn.lock` / lockfiles aninhados. Doc `estado-atual` "yarn mobile:start" → `npm run`.
 - [x] **Paridade de schema mobile ↔ API** ✅ `2026-06-20`
   Correção do diagnóstico: `musculo_alvo`/`group_muscle` **já** eram consistentes — o shape
   `string[]` só existe na camada de domínio do mobile; storage/wire/Prisma carregam strings
@@ -40,19 +39,24 @@
   `20260620120000_exercise_biomechanical_fields`, `sync.service` (create/update/mapExercise),
   e `SQLiteExerciseRepository` (getDirty + applyServerRows). Testes: novo round-trip no
   `sync.service.spec` (api 19 verdes), mobile 357 verdes, ambos typechecks OK.
-  ⚠️ **Pendente de você:** rodar a migration no Postgres (`npm --prefix apps/api run prisma:migrate:dev`)
-  — não há banco neste ambiente; o SQL já está hand-authored e pronto.
-- [ ] **`GIFS/` versionada na raiz** — binários grandes incham o git para sempre.
-  Avaliar Git LFS ou mover para asset bundle/CDN. _Ref: item 5._
+  **Validado no Docker (2026-06-20):** Postgres 16 no compose, as 3 migrations aplicaram limpo
+  (incl. `20260620..._exercise_biomechanical_fields`), as 8 colunas existem com os tipos certos,
+  e um round-trip push→pull pelo `SyncService` real preservou os 8 campos (o bug do wipe está
+  comprovadamente corrigido).
+  ⚠️ **Ainda pesado:** `apps/mobile/assets/gifs/` (~118M, GIFs que o app USA) segue no histórico
+  — candidato a **Git LFS** num passo futuro (não removível, o app depende deles).
 
 ---
 
 ## 🐞 Bugs confirmados em uso real (abertos)
 
-- [ ] **CSV duplica coluna `Serie`** — `RegistrarSerieUseCase` calcula `ordem` com
-  `COUNT(ativas)+1`; após deletar+recriar uma série há colisão de `ordem`.
-  **Fix:** `MAX(ordem)+1` em `SQLiteSerieRegistradaRepository`. (P1)
-  _Ref: problems-audit item 12 · `RegistrarSerieUseCase.ts:63`._
+- [x] **CSV duplica coluna `Serie`** ✅ `2026-06-20`
+  `RegistrarSerieUseCase` usava `COUNT(ativas)+1`; deletar (soft-delete) uma série do meio
+  deixa um gap e o `count+1` reutilizava um `ordem` já existente → linhas duplicadas no CSV.
+  **Fix:** novo método `maxOrdemBySessaoExercicioId` (interface + SQLite + InMemory) usando
+  `MAX(ordem)` **incluindo soft-deletadas** (ordem nunca reutilizada); use case passou a usar
+  `maxOrdem+1`. Testes: regressão no use case + 2 no repo SQLite (cobrindo o soft-delete).
+  Mobile **360 verdes**, typecheck OK. _Ref: problems-audit item 12._
 - [ ] **Histórico estranho com uma única sessão** — gráfico/tabela quebram com `n = 1`.
   **Fix:** tratar `n = 1` explicitamente (texto "Primeira execução registrada" ou
   gráfico que renderize bem com um ponto). (P2)
