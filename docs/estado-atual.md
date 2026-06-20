@@ -196,7 +196,7 @@ Migrações versionadas de v1 a v16 em `ExpoSQLiteDatabaseClient.ts`. GIFs embut
 npm install
 
 # Iniciar servidor Expo
-yarn mobile:start
+npm run mobile:start
 # → escaneie QR code com Expo Go, pressione 'a' para Android, 'i' para iOS
 
 # Testes

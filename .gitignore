@@ -6,8 +6,13 @@
 # Added by code-review-graph
 .code-review-graph/
 
-# nested npm lockfiles are forbidden — this is a yarn workspace
+# this repo uses npm workspaces — a single root package-lock.json is the source of truth.
+# nested lockfiles (per-workspace) and yarn.lock are forbidden to avoid drift.
 apps/*/package-lock.json
+packages/*/package-lock.json
+yarn.lock
+apps/*/yarn.lock
+packages/*/yarn.lock
 
 # secrets
 apps/api/.env

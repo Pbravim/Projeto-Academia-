@@ -1,6 +1,10 @@
 {
   "name": "projeto-academia",
   "private": true,
+  "packageManager": "npm@11.12.1",
+  "engines": {
+    "npm": ">=10"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
