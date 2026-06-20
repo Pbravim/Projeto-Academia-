@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
@@ -17,7 +17,7 @@ interface Props {
   onViewMedia: (exercise: ExercisePrimitives) => void;
 }
 
-export function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd, onViewMedia }: Props) {
+export const ExercisePickerGroup = memo(function ExercisePickerGroup({ group, items, selected, forceExpanded, hasSelection, onToggleSelect, onAdd, onViewMedia }: Props) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -65,7 +65,7 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
                 <View style={styles.availableCardContent}>
                   {gifSource ? (
                     <Pressable onPress={() => onViewMedia(exercise)} hitSlop={4} style={styles.thumbnailWrap}>
-                      <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+                      <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} recyclingKey={exercise.id} cachePolicy="memory-disk" />
                       <View style={styles.thumbnailOverlay}>
                         <Text style={styles.thumbnailPlayIcon}>▶</Text>
                       </View>
@@ -92,7 +92,7 @@ export function ExercisePickerGroup({ group, items, selected, forceExpanded, has
       ) : null}
     </View>
   );
-}
+});
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({

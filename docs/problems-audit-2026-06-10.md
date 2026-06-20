@@ -7,7 +7,13 @@
 
 ## P0 — Quebrado agora
 
-### 1. Suite inteira de testes morta: `useExerciseCatalogController.test.tsx` (0 testes executados)
+### 1. ✅ RESOLVIDO (2026-06-20) — Suite inteira de testes morta: `useExerciseCatalogController.test.tsx` (0 testes executados)
+
+> **Fix:** o teste mockava `expo-file-system/legacy`, mas o controller importa `expo-file-system`
+> (API nova `File`/`Paths`). Trocado o `vi.mock` para `'expo-file-system'` expondo `File` (com
+> `.move()`/`.uri`) e `Paths.document`. Suite voltou (8 testes); total **357 em 87 arquivos, todos verdes**.
+
+
 
 `npm --prefix apps/mobile run test` reporta **"1 failed | 81 passed"** — o arquivo
 `src/ui/exercises/hooks/useExerciseCatalogController.test.tsx` falha no *parse*, antes de rodar qualquer teste:
@@ -88,6 +94,34 @@ diretório. Deletar e corrigir o script que os cria.
 ### 11. `docker-compose.yml` com credenciais hardcoded
 `academia/academia` — aceitável para dev local, mas mover para `.env` quando o compose
 ganhar mais serviços (API, etc.) para não normalizar o padrão.
+
+---
+
+---
+
+## Bugs reportados em uso real (2026-06-17)
+
+### 12. CSV exportado duplica `Serie` ao deletar e recriar uma série
+
+**Arquivo:** `apps/mobile/src/application/sessoes/use-cases/RegistrarSerieUseCase.ts:63`
+
+A `ordem` de uma nova série é calculada como `countBySessaoExercicioId() + 1`, onde o count considera apenas registros não deletados (`deleted_at IS NULL`). Se o usuário tinha 3 séries (ordens 1, 2, 3), deletou a série 2 (soft-delete) e criou outra no lugar, o count retorna 2 e a nova série recebe `ordem = 3` — colisão com a série 3 já existente. O CSV exportado (`historico_treinos.csv`) exibe dois registros com `Serie = 3` para o mesmo exercício na mesma sessão.
+
+**Fix:** substituir `countBySessaoExercicioId` por uma query `MAX(ordem) + 1` em `SQLiteSerieRegistradaRepository`, e usar esse valor em `RegistrarSerieUseCase`.
+
+**Severidade:** P1 — corrompe dados exportados silenciosamente; o usuário não tem aviso dentro do app.
+
+---
+
+### 13. Histórico de exercício: visualização estranha com apenas uma sessão
+
+**Área:** `apps/mobile/src/ui/historico/screens/HistoricoExercicioScreen.tsx` (e presenter associado)
+
+Quando um exercício tem apenas uma sessão registrada, o gráfico de linha e/ou a tabela de histórico exibem uma visualização ruim (ponto único, layout quebrado ou inconsistente).
+
+**Fix:** tratar o caso de `n = 1` explicitamente na tela — mostrar texto descritivo ("Primeira execução registrada") em vez do gráfico, ou garantir que o gráfico renderize bem com um único ponto.
+
+**Severidade:** P2 — UX degradada, não perde dados.
 
 ---
 

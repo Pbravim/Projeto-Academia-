@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { buildExerciseCatalogViewModel, type CatalogSortMode } from '../presenters/buildExerciseCatalogViewModel';
@@ -78,23 +78,39 @@ export function ExerciseCatalogScreen({
     [exercises, filterCategory, filterEquipment]
   );
 
-  const viewModel = buildExerciseCatalogViewModel(preFilteredExercises, ultimosPesos, sortMode);
+  const viewModel = useMemo(
+    () => buildExerciseCatalogViewModel(preFilteredExercises, ultimosPesos, sortMode),
+    [preFilteredExercises, ultimosPesos, sortMode]
+  );
+
+  // O(1) lookup por id — evita exercises.find() por card a cada render (era O(n) por card).
+  const exercisesById = useMemo(
+    () => new Map(exercises.map((e) => [e.id, e] as const)),
+    [exercises]
+  );
 
   // Aplica busca por texto sobre as sections já filtradas
   const activeSearch = search.trim();
   const hasAnyFilter = activeSearch.length > 0 || !!filterCategory || !!filterEquipment;
-  const filteredSections = activeSearch.length > 0
-    ? viewModel.sections
-        .map((section) => ({
-          ...section,
-          cards: section.cards.filter((card) =>
-            card.title.toLowerCase().includes(activeSearch.toLowerCase()) ||
-            section.groupMuscle.toLowerCase().includes(activeSearch.toLowerCase()) ||
-            card.nameVariations.some((v) => v.toLowerCase().includes(activeSearch.toLowerCase()))
-          ),
-        }))
-        .filter((section) => section.cards.length > 0)
-    : viewModel.sections;
+  const filteredSections = useMemo(() => {
+    if (activeSearch.length === 0) return viewModel.sections;
+    const q = normalizeText(activeSearch);
+    return viewModel.sections
+      .map((section) => ({
+        ...section,
+        cards: section.cards.filter((card) =>
+          normalizeText(card.title).includes(q) ||
+          normalizeText(section.groupMuscle).includes(q) ||
+          card.nameVariations.some((v) => normalizeText(v).includes(q))
+        ),
+      }))
+      .filter((section) => section.cards.length > 0);
+  }, [viewModel, activeSearch]);
+
+  const handleViewMedia = useCallback(
+    (id: string) => setViewerExercise(exercisesById.get(id) ?? null),
+    [exercisesById]
+  );
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -420,13 +436,13 @@ export function ExerciseCatalogScreen({
               <ExerciseSection
                 key={section.groupMuscle}
                 section={section}
-                exercises={exercises}
+                exercisesById={exercisesById}
                 editingExerciseId={editingExerciseId}
                 deletingId={deletingId}
                 forceExpanded={hasAnyFilter}
                 onSelectEdit={onSelectEdit}
                 onViewHistorico={onViewHistorico}
-                onViewMedia={(id) => setViewerExercise(exercises.find((e) => e.id === id) ?? null)}
+                onViewMedia={handleViewMedia}
                 onDelete={onDelete}
               />
             ))

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
@@ -9,7 +9,7 @@ import { useTheme } from '../../shared/theme';
 
 interface SectionProps {
   section: ExerciseSectionViewModel;
-  exercises: ExercisePrimitives[];
+  exercisesById: Map<string, ExercisePrimitives>;
   editingExerciseId: string | null;
   deletingId: string | null;
   forceExpanded?: boolean;
@@ -19,7 +19,7 @@ interface SectionProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-export function ExerciseSection({ section, exercises, editingExerciseId, deletingId, forceExpanded, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: SectionProps) {
+export const ExerciseSection = memo(function ExerciseSection({ section, exercisesById, editingExerciseId, deletingId, forceExpanded, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: SectionProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(false);
@@ -49,7 +49,7 @@ export function ExerciseSection({ section, exercises, editingExerciseId, deletin
               isEditing={editingExerciseId === card.id}
               isDeleting={deletingId === card.id}
               anyDeleting={deletingId !== null}
-              exercise={exercises.find((e) => e.id === card.id)!}
+              exercise={exercisesById.get(card.id)!}
               onSelectEdit={onSelectEdit}
               onViewHistorico={onViewHistorico}
               onViewMedia={onViewMedia}
@@ -60,7 +60,7 @@ export function ExerciseSection({ section, exercises, editingExerciseId, deletin
       ) : null}
     </View>
   );
-}
+});
 
 interface CardProps {
   card: ExerciseCardViewModel;
@@ -74,7 +74,7 @@ interface CardProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: CardProps) {
+const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: CardProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
 
@@ -85,7 +85,7 @@ function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSe
       <View style={styles.exerciseRow}>
         {gifSource ? (
           <Pressable onPress={() => onViewMedia(card.id)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
-            <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} />
+            <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} recyclingKey={card.id} cachePolicy="memory-disk" />
             <View style={styles.thumbnailOverlay}>
               <Text style={styles.thumbnailPlayIcon}>▶</Text>
             </View>
@@ -134,7 +134,7 @@ function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSe
       </View>
     </View>
   );
-}
+});
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({

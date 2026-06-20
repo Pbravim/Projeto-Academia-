@@ -80,6 +80,10 @@ export class SyncService {
           // Always force isCustom: true on create — never trust the client value
           isCustom: true, mediaOnline: winner.mediaOnline,
           mediaLocal: winner.mediaLocal, musculoAlvo: winner.musculoAlvo,
+          movementPattern: winner.movementPattern, stabilizers: winner.stabilizers,
+          executionType: winner.executionType, nameVariations: winner.nameVariations,
+          primaryEquipment: winner.primaryEquipment, secondaryEquipment: winner.secondaryEquipment,
+          catalogVersion: winner.catalogVersion, trackingType: winner.trackingType,
           createdAt: winner.createdAt, updatedAt: winner.updatedAt,
           deletedAt: winner.deletedAt, dirty: false, serverUpdatedAt: now,
           userId,
@@ -91,6 +95,10 @@ export class SyncService {
           // isCustom is intentionally omitted from updates — it must never change
           mediaOnline: winner.mediaOnline,
           mediaLocal: winner.mediaLocal, musculoAlvo: winner.musculoAlvo,
+          movementPattern: winner.movementPattern, stabilizers: winner.stabilizers,
+          executionType: winner.executionType, nameVariations: winner.nameVariations,
+          primaryEquipment: winner.primaryEquipment, secondaryEquipment: winner.secondaryEquipment,
+          catalogVersion: winner.catalogVersion, trackingType: winner.trackingType,
           updatedAt: winner.updatedAt, deletedAt: winner.deletedAt,
           dirty: false, serverUpdatedAt: now,
         },
@@ -471,6 +479,10 @@ export class SyncService {
     groupMuscle: r.groupMuscle, category: r.category, equipment: r.equipment,
     loadUnit: r.loadUnit, isCustom: r.isCustom, mediaOnline: r.mediaOnline,
     mediaLocal: r.mediaLocal, musculoAlvo: r.musculoAlvo,
+    movementPattern: r.movementPattern, stabilizers: r.stabilizers,
+    executionType: r.executionType, nameVariations: r.nameVariations,
+    primaryEquipment: r.primaryEquipment, secondaryEquipment: r.secondaryEquipment,
+    catalogVersion: r.catalogVersion, trackingType: r.trackingType,
     createdAt: r.createdAt, updatedAt: r.updatedAt, deletedAt: r.deletedAt,
   });
 

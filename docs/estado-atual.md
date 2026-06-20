@@ -103,6 +103,7 @@ apps/mobile/src/
 - Gráfico de linha do 1RM ao longo das sessões
 - Detecção de plateau (1RM estagnado em 4 sessões consecutivas)
 - `GetUltimasExecucoesValidas` usa uma única query bulk (evita crash Android)
+- **Bug conhecido (UI):** com apenas uma sessão registrada para o exercício, a visualização do histórico (gráfico + tabela) fica estranha — precisa tratar o caso `n = 1` explicitamente — ver item 13 em `docs/problems-audit-2026-06-10.md`
 
 ### Perfil
 
@@ -136,6 +137,7 @@ Tab que substituiu **Peso** na navegação inferior. Exibe:
   - **Mensal**: calendário real com dias 1–31 alinhados por dia da semana; células com sessão em accent com contagem; hoje com borda
   - **Anual**: barras dos 12 meses do ano atual, mês atual destacado
 - **Exportar CSV**: botão no Dashboard; gera `historico_treinos.csv` com todas as séries finalizadas (`Data, Treino, Exercicio, Serie, Tipo, Carga, Repeticoes, Observacao`) e abre diálogo de compartilhamento nativo via `expo-sharing`
+- **Bug conhecido (CSV):** se o usuário deletou uma série e criou outra no lugar durante a sessão, a coluna `Serie` pode ter valores duplicados no CSV. Causa: `RegistrarSerieUseCase` usa `COUNT(ativas)+1` para calcular `ordem`, mas séries remanescentes mantêm suas ordens originais. Fix: usar `MAX(ordem)+1` — ver item 12 em `docs/problems-audit-2026-06-10.md`
 
 ---
 

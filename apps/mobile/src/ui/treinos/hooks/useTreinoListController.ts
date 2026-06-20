@@ -38,6 +38,7 @@ export interface TreinoListControllerState {
   onDelete: (id: string) => Promise<void>;
   onDuplicate: (id: string) => Promise<void>;
   onSelectTreino: (treino: TreinoPrimitives) => void;
+  reload: () => Promise<void>;
 }
 
 const initialDraft: TreinoDraft = { name: '', objetivo: '' };
@@ -164,5 +165,6 @@ export function useTreinoListController(
     onDelete,
     onDuplicate,
     onSelectTreino,
+    reload: loadTreinos,
   };
 }

@@ -116,7 +116,7 @@ export function ExercicioCardTreino({
 
         {gifSource ? (
           <Pressable onPress={onViewMedia} hitSlop={4} style={styles.thumbnailWrap}>
-            <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+            <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} recyclingKey={item.treinoExercicioId} cachePolicy="memory-disk" />
             <View style={styles.thumbnailOverlay}>
               <Text style={styles.thumbnailPlayIcon}>▶</Text>
             </View>
@@ -124,7 +124,7 @@ export function ExercicioCardTreino({
         ) : null}
 
         <View style={styles.nameBlock}>
-          <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
+          <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
           <Text style={styles.meta} numberOfLines={1}>
             {item.groupMuscle}{item.category ? ` · ${item.category}` : ''}
           </Text>

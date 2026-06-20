@@ -210,6 +210,36 @@ describe('SyncService', () => {
     });
   });
 
+  it('passes biomechanical exercise fields through on custom exercise push', async () => {
+    const now = '2026-06-20T10:00:00.000Z';
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        exercises: [{
+          id: 'ex-1', name: 'Supino', normalizedName: 'supino', groupMuscle: 'Peito',
+          category: '', equipment: 'Barra', loadUnit: 'kg', isCustom: true,
+          mediaOnline: null, mediaLocal: null, musculoAlvo: '["Peitoral maior"]',
+          movementPattern: 'Horizontal Push', stabilizers: '["Triceps"]',
+          executionType: 'Bilateral', nameVariations: '["Bench Press"]',
+          primaryEquipment: 'Barbell', secondaryEquipment: 'Bench',
+          catalogVersion: 3, trackingType: 'reps_load',
+          createdAt: now, updatedAt: now, deletedAt: null,
+        }],
+      },
+    });
+
+    const fields = {
+      movementPattern: 'Horizontal Push', stabilizers: '["Triceps"]',
+      executionType: 'Bilateral', nameVariations: '["Bench Press"]',
+      primaryEquipment: 'Barbell', secondaryEquipment: 'Bench',
+      catalogVersion: 3, trackingType: 'reps_load',
+    };
+    const call = mockPrisma.exercise.upsert.mock.calls[0][0];
+    expect(call.create).toMatchObject(fields);
+    expect(call.update).toMatchObject(fields);
+  });
+
   it('throws ForbiddenException when a serie targets a sessaoExercicio the user does not own', async () => {
     mockPrisma.sessaoExercicio.findMany.mockResolvedValueOnce([]); // parent not owned
 

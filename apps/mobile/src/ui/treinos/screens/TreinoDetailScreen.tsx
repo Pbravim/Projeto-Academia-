@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
@@ -9,6 +9,7 @@ import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
+import { normalizeText } from '../../../shared/utils/normalizeText';
 import { useTheme } from '../../shared/theme';
 
 const GROUP_ORDER = [
@@ -88,10 +89,15 @@ export function TreinoDetailScreen({
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(() => { void handleSaveAll(); });
 
-  const viewModel = buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById);
+  const viewModel = useMemo(
+    () => buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById),
+    [treino, treinoExercicios, exercisesById]
+  );
 
-  const addedExercicioIds = new Set(treinoExercicios.map((te) => te.exercicioId));
-  const notAddedExercises = availableExercises.filter((e) => !addedExercicioIds.has(e.id));
+  const notAddedExercises = useMemo(() => {
+    const addedExercicioIds = new Set(treinoExercicios.map((te) => te.exercicioId));
+    return availableExercises.filter((e) => !addedExercicioIds.has(e.id));
+  }, [availableExercises, treinoExercicios]);
 
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -166,10 +172,15 @@ export function TreinoDetailScreen({
     await performSave();
   };
 
-  const filteredExercises = notAddedExercises.filter((e) =>
-    e.name.toLowerCase().includes(search.toLowerCase()) ||
-    e.groupMuscles.join(', ').toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredExercises = useMemo(() => {
+    const normalizedSearch = normalizeText(search);
+    return notAddedExercises.filter((e) =>
+      normalizeText(e.name).includes(normalizedSearch) ||
+      normalizeText(e.groupMuscles.join(', ')).includes(normalizedSearch)
+    );
+  }, [notAddedExercises, search]);
+
+  const groupedExercises = useMemo(() => groupExercises(filteredExercises), [filteredExercises]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -248,7 +259,13 @@ export function TreinoDetailScreen({
 
   return (
     <>
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+    >
       <View style={styles.header}>
         <Pressable
           onPress={() => { void handleSaveAll(); }}
@@ -522,7 +539,7 @@ export function TreinoDetailScreen({
               {search ? 'Nenhum exercicio encontrado.' : 'Todos os exercicios ja estao no treino.'}
             </Text>
           ) : (
-            groupExercises(filteredExercises).map(({ group, items }) => (
+            groupedExercises.map(({ group, items }) => (
               <ExercisePickerGroup
                 key={group}
                 group={group}
@@ -550,6 +567,7 @@ export function TreinoDetailScreen({
         />
       ) : null}
     </ScrollView>
+    </KeyboardAvoidingView>
     {mediaViewerInfo ? (
       <ExerciseMediaViewer
         visible

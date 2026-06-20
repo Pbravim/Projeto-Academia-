@@ -28,10 +28,18 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   const planoController = usePlanoController(dependencies.plano);
   const listController = useTreinoListController(dependencies.list, setSelectedTreino, planoController.reload);
 
+  // Closing the detail view (back button, hardware back, or after saving) returns to the
+  // list. Reload so edits made in the detail screen are reflected instead of showing stale data.
+  const closeDetail = () => {
+    setSelectedTreino(null);
+    void listController.reload();
+    void planoController.reload();
+  };
+
   useEffect(() => {
     if (!selectedTreino) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      setSelectedTreino(null);
+      closeDetail();
       return true;
     });
     return () => sub.remove();
@@ -42,7 +50,7 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
       <TreinoDetailView
         treino={selectedTreino}
         dependencies={dependencies.detail}
-        onBack={() => setSelectedTreino(null)}
+        onBack={closeDetail}
         onGoToSessao={onGoToSessao}
       />
     );

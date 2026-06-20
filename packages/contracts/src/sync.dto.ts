@@ -15,6 +15,17 @@ export interface ExerciseSyncRow extends SyncRow {
   mediaOnline: string | null;
   mediaLocal: string | null;
   musculoAlvo: string | null;
+  // Biomechanical fields (mobile v17/v20). Carried as raw column values to match the
+  // mobile SQLite storage: JSON-encoded arrays (stabilizers, nameVariations) and plain
+  // TEXT for the rest. The wire treats them as opaque strings — no parsing in the sync path.
+  movementPattern: string | null;
+  stabilizers: string | null;
+  executionType: string | null;
+  nameVariations: string | null;
+  primaryEquipment: string | null;
+  secondaryEquipment: string | null;
+  catalogVersion: number;
+  trackingType: string | null;
   createdAt: string;
 }
 

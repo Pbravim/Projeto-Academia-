@@ -6,11 +6,18 @@ import { ExerciseValidationError } from '../../../domain/exercises/errors/Exerci
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../../../application/exercises/errors/ExerciseNotFoundError';
 
-vi.mock('expo-file-system/legacy', () => ({
-  getInfoAsync: vi.fn().mockResolvedValue({ exists: false }),
-  moveAsync: vi.fn().mockResolvedValue(undefined),
-  documentDirectory: '/tmp/',
-}));
+// The controller imports { File, Paths } from 'expo-file-system' (new API), which pulls in
+// react-native (Flow) and breaks the Vitest/Rolldown parser. Mock it so the suite can load.
+vi.mock('expo-file-system', () => {
+  const FileMock = vi.fn((...segments: string[]) => ({
+    uri: segments.filter(Boolean).join('/'),
+    move: vi.fn(),
+  })) as unknown as { new (...segments: string[]): { uri: string; move: () => void } };
+  return {
+    File: FileMock,
+    Paths: { document: 'file:///documents/' },
+  };
+});
 
 const exA: ExercisePrimitives = {
   id: 'e1',
