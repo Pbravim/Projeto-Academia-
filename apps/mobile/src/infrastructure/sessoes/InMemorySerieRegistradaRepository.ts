@@ -34,6 +34,15 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
     return count;
   }
 
+  async maxOrdemBySessaoExercicioId(sessaoExercicioId: string): Promise<number> {
+    let max = 0;
+    for (const s of this.seriesById.values()) {
+      const p = s.toPrimitives();
+      if (p.sessaoExercicioId === sessaoExercicioId && p.ordem > max) max = p.ordem;
+    }
+    return max;
+  }
+
   async delete(id: string): Promise<void> {
     this.seriesById.delete(id);
   }

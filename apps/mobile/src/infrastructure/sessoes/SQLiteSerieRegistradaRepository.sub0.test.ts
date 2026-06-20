@@ -28,6 +28,26 @@ describe('SQLiteSerieRegistradaRepository soft-delete', () => {
     expect(await repo.countBySessaoExercicioId('se1')).toBe(0);
   });
 
+  it('maxOrdemBySessaoExercicioId counts soft-deleted rows so ordem is never reused', async () => {
+    const withOrdem = (id: string, ordem: number) =>
+      SerieRegistrada.restore({
+        id, sessaoExercicioId: 'se1', ordem, cargaKg: 50, repeticoes: 10,
+        observacao: null, tipoSerie: 'valida', duracaoSegundos: null, distanciaMetros: null, intensidade: null,
+      });
+    await repo.save(withOrdem('sr1', 1));
+    await repo.save(withOrdem('sr2', 2));
+    await repo.save(withOrdem('sr3', 3));
+    await repo.delete('sr2'); // soft-delete da serie do meio
+
+    // count cai para 2, mas maxOrdem continua 3 -> proxima sera 4 (sem colisao)
+    expect(await repo.countBySessaoExercicioId('se1')).toBe(2);
+    expect(await repo.maxOrdemBySessaoExercicioId('se1')).toBe(3);
+  });
+
+  it('maxOrdemBySessaoExercicioId returns 0 when there are no series', async () => {
+    expect(await repo.maxOrdemBySessaoExercicioId('se-vazio')).toBe(0);
+  });
+
   it('deleteBySessaoExercicioId and update stamp dirty', async () => {
     await repo.save(make('sr1', 'se1'));
     await repo.update('sr1', { cargaKg: 60, repeticoes: 8 });

@@ -101,7 +101,13 @@ ganhar mais serviços (API, etc.) para não normalizar o padrão.
 
 ## Bugs reportados em uso real (2026-06-17)
 
-### 12. CSV exportado duplica `Serie` ao deletar e recriar uma série
+### 12. ✅ RESOLVIDO (2026-06-20) — CSV exportado duplica `Serie` ao deletar e recriar uma série
+
+> **Fix:** `RegistrarSerieUseCase` passou de `COUNT(ativas)+1` para `maxOrdemBySessaoExercicioId + 1`
+> (novo método na interface + SQLite + InMemory; `MAX(ordem)` inclui soft-deletadas, então o `ordem`
+> nunca é reutilizado). Cobertura: regressão no use case + 2 testes no repo SQLite. Mobile 360 verdes.
+
+
 
 **Arquivo:** `apps/mobile/src/application/sessoes/use-cases/RegistrarSerieUseCase.ts:63`
 

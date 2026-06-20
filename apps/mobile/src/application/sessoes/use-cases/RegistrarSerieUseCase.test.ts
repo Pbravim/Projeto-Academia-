@@ -62,6 +62,26 @@ describe('RegistrarSerieUseCase', () => {
     expect(second.ordem).toBe(2);
   });
 
+  it('does not reuse an ordem after a middle serie is deleted (no CSV duplicate)', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps);
+
+    await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 60, repeticoes: 10 }); // ordem 1
+    await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 70, repeticoes: 10 }); // ordem 2 (serie_2)
+    await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 80, repeticoes: 10 }); // ordem 3
+
+    // Usuario deleta a serie do meio e registra outra no lugar
+    await deps.serieRegistradaRepository.delete('serie_2');
+    const replacement = await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 75, repeticoes: 10 });
+
+    // Antes do fix: count(ativas)+1 = 3, colidindo com a serie de ordem 3 ja existente.
+    expect(replacement.ordem).toBe(4);
+
+    const remaining = await deps.serieRegistradaRepository.listBySessaoExercicioId('se_1');
+    const ordens = remaining.map((s) => s.toPrimitives().ordem);
+    expect(new Set(ordens).size).toBe(ordens.length); // sem duplicatas
+  });
+
   it('throws SessaoEncerradaError when session is finalized', async () => {
     const deps = makeDeps();
     await seedAtiva(deps);

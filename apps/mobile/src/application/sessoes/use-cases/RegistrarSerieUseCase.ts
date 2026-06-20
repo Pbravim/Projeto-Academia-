@@ -33,7 +33,7 @@ export class RegistrarSerieUseCase {
   constructor(private readonly dependencies: RegistrarSerieUseCaseDependencies) {}
 
   /**
-   * A ordem da serie e atribuida automaticamente (count + 1 dentro do sessaoExercicio).
+   * A ordem da serie e atribuida automaticamente (maior ordem ja usada + 1, dentro do sessaoExercicio).
    * @throws {SessaoExercicioNotFoundError} exercicio da sessao nao encontrado
    * @throws {SessaoEncerradaError} sessao pai ja foi finalizada
    * @throws {SerieValidationError} cargaKg < 0 ou repeticoes < 1
@@ -52,7 +52,9 @@ export class RegistrarSerieUseCase {
     let serie!: SerieRegistrada;
 
     const saveNew = async () => {
-      const count = await this.dependencies.serieRegistradaRepository.countBySessaoExercicioId(
+      // MAX(ordem)+1, nao COUNT+1: deletar uma serie do meio (soft-delete) deixa um gap;
+      // COUNT+1 reutilizaria um ordem ja existente e duplicaria a coluna `Serie` no CSV.
+      const maxOrdem = await this.dependencies.serieRegistradaRepository.maxOrdemBySessaoExercicioId(
         input.sessaoExercicioId
       );
       const sePrimitives = sessaoExercicio.toPrimitives();
@@ -60,7 +62,7 @@ export class RegistrarSerieUseCase {
         id: this.dependencies.idGenerator(),
         sessaoExercicioId: input.sessaoExercicioId,
         tipoSerie: input.tipoSerie ?? 'valida',
-        ordem: count + 1,
+        ordem: maxOrdem + 1,
         cargaKg: input.cargaKg,
         repeticoes: input.repeticoes,
         duracaoSegundos: input.duracaoSegundos,

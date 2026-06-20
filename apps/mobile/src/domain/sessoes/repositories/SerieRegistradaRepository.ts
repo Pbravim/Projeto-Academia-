@@ -6,6 +6,11 @@ export interface SerieRegistradaRepository {
   listBySessaoExercicioId(sessaoExercicioId: string): Promise<SerieRegistrada[]>;
   listBySessaoExercicioIds(ids: string[]): Promise<SerieRegistrada[]>;
   countBySessaoExercicioId(sessaoExercicioId: string): Promise<number>;
+  /**
+   * Maior `ordem` ja usada no exercicio (inclui series soft-deletadas), ou 0 se nenhuma.
+   * Usar `maxOrdem + 1` ao criar — `count + 1` colide quando uma serie do meio e deletada.
+   */
+  maxOrdemBySessaoExercicioId(sessaoExercicioId: string): Promise<number>;
   delete(id: string): Promise<void>;
   deleteBySessaoExercicioId(sessaoExercicioId: string): Promise<void>;
   deleteBySessaoExercicioIds(ids: string[]): Promise<void>;

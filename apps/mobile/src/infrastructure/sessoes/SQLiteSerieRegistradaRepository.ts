@@ -62,6 +62,16 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     return row?.count ?? 0;
   }
 
+  async maxOrdemBySessaoExercicioId(sessaoExercicioId: string): Promise<number> {
+    // Considera tambem as soft-deletadas: assim o `ordem` nunca e reutilizado e o CSV
+    // exportado nao gera linhas com `Serie` duplicada apos deletar+recriar.
+    const row = await this.database.getFirst<{ maxOrdem: number | null }>(
+      'SELECT MAX(ordem) as maxOrdem FROM series_registradas WHERE sessao_exercicio_id = ?',
+      [sessaoExercicioId]
+    );
+    return row?.maxOrdem ?? 0;
+  }
+
   async delete(id: string): Promise<void> {
     await this.database.run(
       'UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?',
