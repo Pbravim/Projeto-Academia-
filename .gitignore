@@ -16,6 +16,8 @@ packages/*/yarn.lock
 
 # secrets
 apps/api/.env
+.env
+!.env.example
 
 # Claude worktrees + local IDE state
 .claude/worktrees/
