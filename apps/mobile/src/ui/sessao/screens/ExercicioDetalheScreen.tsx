@@ -17,6 +17,7 @@ import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -230,7 +231,7 @@ export function ExercicioDetalheScreen({
   };
 
   const switchToCarousel = () => {
-    const num = parseFloat(cargaText.replace(/,/g, '.'));
+    const num = parseDecimalInput(cargaText);
     if (Number.isFinite(num) && num >= 0) setCargaIndex(kgIndexFor(num));
     setCargaMode('carousel');
   };
@@ -263,7 +264,7 @@ export function ExercicioDetalheScreen({
   })();
 
   const adjustCarga = (delta: number) => {
-    const current = parseFloat(cargaText.replace(/,/g, '.'));
+    const current = parseDecimalInput(cargaText);
     const base = Number.isFinite(current) && current >= 0 ? current : 0;
     const result = Math.max(0, Math.round((base + delta) * 10) / 10);
     setCargaText(String(result));
@@ -299,7 +300,7 @@ export function ExercicioDetalheScreen({
 
         let intensidade: number | undefined;
         if (intensidadeText.trim() !== '') {
-          const intNum = parseFloat(intensidadeText.replace(/,/g, '.'));
+          const intNum = parseDecimalInput(intensidadeText);
           if (!Number.isFinite(intNum) || intNum < 0) {
             setFormError('Intensidade invalida. Use um numero igual ou maior que 0.');
             return;
@@ -309,7 +310,7 @@ export function ExercicioDetalheScreen({
 
         let distanciaMetros: number | undefined;
         if (distanciaText.trim() !== '') {
-          const distNum = parseFloat(distanciaText.replace(/,/g, '.'));
+          const distNum = parseDecimalInput(distanciaText);
           if (!Number.isFinite(distNum) || distNum < 0) {
             setFormError('Distancia invalida. Use um numero igual ou maior que 0.');
             return;
@@ -369,7 +370,7 @@ export function ExercicioDetalheScreen({
       // reps_load (default)
       const cargaNum = cargaMode === 'carousel'
         ? KG_VALUES[cargaIndex]
-        : parseFloat(cargaText.replace(/,/g, '.'));
+        : parseDecimalInput(cargaText);
 
       if (!Number.isFinite(cargaNum) || cargaNum < 0) {
         setFormError('Carga invalida. Use um numero como 80 ou 102,5.');
@@ -998,8 +999,8 @@ export function ExercicioDetalheScreen({
                             const duracaoFinal = Number.isInteger(totalSegundos) && totalSegundos >= 1
                               ? totalSegundos
                               : (sessaoExercicio.duracaoRecomendadaSegundos ?? 60);
-                            const intensidadeNum = parseFloat(intensidadeText.replace(/,/g, '.'));
-                            const distanciaNum = parseFloat(distanciaText.replace(/,/g, '.'));
+                            const intensidadeNum = parseDecimalInput(intensidadeText);
+                            const distanciaNum = parseDecimalInput(distanciaText);
                             baseInput = {
                               sessaoExercicioId: sessaoExercicio.id,
                               duracaoSegundos: duracaoFinal,
@@ -1028,7 +1029,7 @@ export function ExercicioDetalheScreen({
                           } else {
                             const cargaNum = cargaMode === 'carousel'
                               ? KG_VALUES[cargaIndex]
-                              : parseFloat(cargaText.replace(/,/g, '.'));
+                              : parseDecimalInput(cargaText);
                             const repsNum = repsMode === 'carousel'
                               ? repsIndex + 1
                               : parseInt(repsText, 10);

@@ -1,4 +1,7 @@
-export type MetodoExercicio = 'normal' | 'drop_set' | 'piramide' | 'rest_pause';
+/** Lista canônica de métodos de execução — fonte única para tipo e validação. */
+export const METODOS_EXERCICIO = ['normal', 'drop_set', 'piramide', 'rest_pause'] as const;
+
+export type MetodoExercicio = (typeof METODOS_EXERCICIO)[number];
 
 export interface TreinoExercicioPrimitives {
   id: string;

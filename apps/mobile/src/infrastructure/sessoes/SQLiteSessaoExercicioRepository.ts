@@ -1,5 +1,6 @@
 import { SessaoExercicio, type SessaoExercicioPrimitives, type SubstituicaoMotivo } from '../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoExercicioRepository } from '../../domain/sessoes/repositories/SessaoExercicioRepository';
+import { METODOS_EXERCICIO } from '../../domain/treinos/entities/TreinoExercicio';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
 
@@ -152,7 +153,7 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
   }
 }
 
-const VALID_METODO = new Set(['normal', 'drop_set', 'piramide', 'rest_pause']);
+const VALID_METODO = new Set<string>(METODOS_EXERCICIO);
 function toMetodo(v: string | null): SessaoExercicioPrimitives['metodo'] {
   return (v && VALID_METODO.has(v)) ? v as SessaoExercicioPrimitives['metodo'] : 'normal';
 }

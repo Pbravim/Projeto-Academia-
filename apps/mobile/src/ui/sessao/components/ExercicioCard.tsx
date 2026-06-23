@@ -6,6 +6,7 @@ import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { gifAssets } from '../../exercises/components/gifAssets';
+import { METODO_CONFIG } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -17,12 +18,6 @@ interface Props {
   onToggleRealizado?: () => void;
   hideProgress?: boolean;
 }
-
-const METODO_CONFIG: Record<string, { label: string; color: string }> = {
-  drop_set:   { label: 'Drop-set',   color: '#9333ea' },
-  piramide:   { label: 'Piramide',   color: '#d97706' },
-  rest_pause: { label: 'Rest-pause', color: '#e11d48' },
-};
 
 const MAX_DOTS = 8;
 

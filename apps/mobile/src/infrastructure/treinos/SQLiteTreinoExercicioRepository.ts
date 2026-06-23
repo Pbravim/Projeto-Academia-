@@ -1,4 +1,4 @@
-import { TreinoExercicio, type TreinoExercicioPrimitives, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
+import { TreinoExercicio, METODOS_EXERCICIO, type TreinoExercicioPrimitives, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
@@ -153,7 +153,7 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
   }
 }
 
-const VALID_METODO = new Set<string>(['normal', 'drop_set', 'piramide', 'rest_pause']);
+const VALID_METODO = new Set<string>(METODOS_EXERCICIO);
 function toMetodo(v: string | null): MetodoExercicio {
   return (v && VALID_METODO.has(v)) ? v as MetodoExercicio : 'normal';
 }

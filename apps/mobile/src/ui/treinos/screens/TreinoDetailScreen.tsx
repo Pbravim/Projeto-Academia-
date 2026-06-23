@@ -10,6 +10,7 @@ import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaVie
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { normalizeText } from '../../../shared/utils/normalizeText';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { useTheme } from '../../shared/theme';
 
 const GROUP_ORDER = [
@@ -129,7 +130,7 @@ export function TreinoDetailScreen({
       if (!vals) continue;
       const s = parseInt(vals.series, 10);
       const e = parseInt(vals.execucoes, 10);
-      const cv = parseFloat(vals.carga.replace(/,/g, '.'));
+      const cv = parseDecimalInput(vals.carga);
       const d = parseInt(vals.descanso, 10);
       await onUpdateRecomendacoes(
         te.id,
