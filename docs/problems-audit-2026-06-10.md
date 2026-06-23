@@ -121,6 +121,10 @@ A `ordem` de uma nova série é calculada como `countBySessaoExercicioId() + 1`,
 
 ### 13. Histórico de exercício: visualização estranha com apenas uma sessão
 
+> ⚠️ **Reclassificado em 2026-06-22:** não é bug (o gráfico já tem guarda para `n=1`; não há crash).
+> É **UI/UX mal feita** — incorporado à pendência de retrabalho de UX em `docs/pendencias.md` (Roadmap).
+> Não tratar isoladamente.
+
 **Área:** `apps/mobile/src/ui/historico/screens/HistoricoExercicioScreen.tsx` (e presenter associado)
 
 Quando um exercício tem apenas uma sessão registrada, o gráfico de linha e/ou a tabela de histórico exibem uma visualização ruim (ponto único, layout quebrado ou inconsistente).
