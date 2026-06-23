@@ -2,7 +2,7 @@ import { Treino, type TreinoPrimitives } from '../../../domain/treinos/entities/
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
 interface DuplicarTreinoDependencies {
@@ -10,7 +10,7 @@ interface DuplicarTreinoDependencies {
   treinoExercicioRepository: TreinoExercicioRepository;
   idGenerator: () => string;
   now: () => Date;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /** Cria uma cópia de um treino existente com todos os seus exercícios e recomendações. */

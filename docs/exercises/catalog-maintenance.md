@@ -342,6 +342,16 @@ restam só as sessões de expansão — cardio/mobilidade/alongamento/reabilita�
 
 ## 13. Portão de prontidão das sessões de expansão (UI/backend) — 2026-06-13
 
+> ⚠️ **ATUALIZAÇÃO 2026-06-22 — o bloqueio abaixo foi RESOLVIDO.** O app passou a modelar registro
+> não-força: `SerieRegistrada` ganhou `trackingType` (`reps_load`/`cardio`/`hold`/`reps_only`) +
+> `duracaoSegundos`/`distanciaMetros` (schema v21/v22, validação relaxada de `repeticoes>=1`), e
+> `Exercise`/`SessaoExercicio` + use cases de sessão + SQLite propagam `tracking_type`.
+> Com isso, **8 das 9 sessões `new_categories` já foram criadas e ligadas no bootstrap**:
+> `cardio_steady_state`, `cardio_hiit_funcional`, `mobilidade_inferior`, `mobilidade_superior_coluna`,
+> `alongamento_estatico`, `aquecimento_dinamico`, `reabilitacao_ombro_cotovelo`,
+> `reabilitacao_quadril_joelho`. **Falta apenas `reabilitacao_lombar_core`** (sem seed nem
+> `research-*.md`). O texto original abaixo fica como registro histórico do estado em 2026-06-13.
+
 > Verificação pedida antes de criar os seeds de expansão: "garantir que o resto do código (UI e
 > backend) aceita estes updates; se não estiver pronto, só atualizar a documentação."
 
@@ -379,4 +389,4 @@ tratamento de catálogo/picker para exercícios sem grupo muscular. Só então r
 O plano/escopo de cada sessão bloqueada está registrado no manifest (`pending_expansion_sessions`
 → `new_categories.readiness_review` + `sessions`). Os movimentos já roteados das sessões de força
 (jump rope, mountain climber, ball slam, bird dog, superman, tibialis raise, carries, alongamentos)
-aguardam ali. **Nenhum seed de `new_categories` foi criado.**
+aguardam ali. ~~**Nenhum seed de `new_categories` foi criado.**~~ → ver atualização 2026-06-22 no topo desta seção: 8 das 9 já criadas; falta só `reabilitacao_lombar_core`.

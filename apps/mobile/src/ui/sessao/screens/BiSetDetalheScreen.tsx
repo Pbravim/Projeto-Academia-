@@ -8,6 +8,7 @@ import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { useTheme } from '../../shared/theme';
 
 const TECNICA_CONFIG: Record<string, { label: string; color: string }> = {
@@ -150,7 +151,7 @@ export function BiSetDetalheScreen({
     setMode(setCargaModes, i, 'text');
   };
   const switchCargaToCarousel = (i: number) => {
-    const num = parseFloat(cargaTexts[i].replace(/,/g, '.'));
+    const num = parseDecimalInput(cargaTexts[i]);
     if (Number.isFinite(num) && num >= 0) updateArr(setCargaIndexes, i, kgIndexFor(num));
     setMode(setCargaModes, i, 'carousel');
   };
@@ -164,7 +165,7 @@ export function BiSetDetalheScreen({
     setMode(setRepsModes, i, 'carousel');
   };
   const adjustCarga = (i: number, delta: number) => {
-    const current = parseFloat(cargaTexts[i].replace(/,/g, '.'));
+    const current = parseDecimalInput(cargaTexts[i]);
     const base = Number.isFinite(current) && current >= 0 ? current : 0;
     updateArr(setCargaTexts, i, String(Math.max(0, Math.round((base + delta) * 10) / 10)));
   };
@@ -179,7 +180,7 @@ export function BiSetDetalheScreen({
         const item = grupoItens[i];
         const cargaNum = cargaModes[i] === 'carousel'
           ? KG_VALUES[cargaIndexes[i]]
-          : parseFloat(cargaTexts[i].replace(/,/g, '.'));
+          : parseDecimalInput(cargaTexts[i]);
         if (!Number.isFinite(cargaNum) || cargaNum < 0) {
           setFormError(`Carga invalida para ${item.sessaoExercicio.nomeSnapshot}.`);
           setIsSubmitting(false);
@@ -250,7 +251,7 @@ export function BiSetDetalheScreen({
                 const missing = Math.max(0, recomendadas - validCount);
                 const cargaNum = cargaModes[i] === 'carousel'
                   ? KG_VALUES[cargaIndexes[i]]
-                  : parseFloat(cargaTexts[i].replace(/,/g, '.'));
+                  : parseDecimalInput(cargaTexts[i]);
                 const repsNum = repsModes[i] === 'carousel'
                   ? repsIndexes[i] + 1
                   : parseInt(repsTexts[i], 10);

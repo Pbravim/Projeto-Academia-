@@ -6,6 +6,7 @@ import type { RegistrarPesoUseCase } from '../../../application/peso/use-cases/R
 import type { RegistroPesoPrimitives } from '../../../domain/peso/entities/RegistroPeso';
 import { PesoValidationError } from '../../../domain/peso/errors/PesoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { buildPesoViewModel, type PesoViewModel } from '../presenters/buildPesoViewModel';
 
 export interface PesoControllerDependencies {
@@ -33,7 +34,7 @@ export interface PesoControllerState {
 }
 
 export function parsePesoInput(input: string): number {
-  return parseFloat(input.replace(/,/g, '.'));
+  return parseDecimalInput(input);
 }
 
 export function usePesoController(dependencies: PesoControllerDependencies): PesoControllerState {

@@ -1,6 +1,6 @@
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
@@ -19,7 +19,7 @@ export interface ReordenarExerciciosInput {
 interface ReordenarExerciciosUseCaseDependencies {
   treinoRepository: TreinoRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /** Reordena os exercicios de um treino. A nova ordem e determinada pela posicao dos IDs em `treinoExercicioIds`. */

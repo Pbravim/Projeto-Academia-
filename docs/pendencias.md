@@ -57,35 +57,48 @@
   `MAX(ordem)` **incluindo soft-deletadas** (ordem nunca reutilizada); use case passou a usar
   `maxOrdem+1`. Testes: regressão no use case + 2 no repo SQLite (cobrindo o soft-delete).
   Mobile **360 verdes**, typecheck OK. _Ref: problems-audit item 12._
-- [ ] **Histórico estranho com uma única sessão** — gráfico/tabela quebram com `n = 1`.
-  **Fix:** tratar `n = 1` explicitamente (texto "Primeira execução registrada" ou
-  gráfico que renderize bem com um ponto). (P2)
-  _Ref: item 13 · `HistoricoExercicioScreen.tsx`._
+> **Nota (2026-06-22):** o item "Histórico estranho com uma única sessão" foi reclassificado —
+> **não é bug** (o gráfico já tem guarda para 1 ponto), é **UI/UX mal feita**. Movido para a
+> seção de UX no Roadmap (item "Melhorar UI/UX da visualização de sessões/exercícios já realizados").
+> Não trabalhar isoladamente; resolver junto com o retrabalho de UX.
 
 ---
 
 ## 🟡 P2 — Qualidade / manutenção
 
-- [ ] **Cobertura de testes** — ~30 use cases sem testes (Finalizar, GetDetalhe,
-  RegistrarSerie, Substituir, todos os de dashboard, etc.).
-  _Ref: AUDIT.md + plano `2026-06-02-p2-test-coverage.md`._
-- [ ] **N+1 de séries** em `GetSessaoDetalheUseCase`.
-- [ ] **`InMemoryHistoricoRepository.getUltimasExecucoesValidas`** usa loop O(N²).
-- [ ] **3 violações de DIP** — `AddExercicioAoTreino`, `RegistrarSerie`, `IniciarSessao`
-  importam `SQLiteDatabaseClient` (infra) direto.
+- [x] **Cobertura de testes** ✅ `2026-06-23` — todos os **48/48 use cases** agora têm teste.
+  Adicionados 6 arquivos (14 testes): `GetPlanoSemanal`, `GetUltimasExecucoesValidas`, `SugerirTreino`,
+  `AddExercicioASessao`, `ResetHistorico`, `BaixarTodasMidias`. (O "~30 sem testes" estava muito velho;
+  os nomeados Finalizar/GetDetalhe/RegistrarSerie/dashboard já tinham cobertura.) Suíte: 379 verdes.
+- [x] **N+1 de séries** em `GetSessaoDetalheUseCase` ✅ `2026-06-23` — **já estava corrigido**: usa
+  `Promise.all([findByIds, listBySessaoExercicioIds])` com Maps; `listBySessaoExercicioIds` é uma única
+  query `IN (...)`. Pendência obsoleta; nenhuma mudança necessária.
+- [ ] **`InMemoryHistoricoRepository.getUltimasExecucoesValidas`** usa loop O(N²). _(só afeta testes)_
+- [x] **Violações de DIP** ✅ `2026-06-23` — os 3 nomeados (`AddExercicioAoTreino`, `RegistrarSerie`,
+  `IniciarSessao`) **já dependiam de `TransactionPort`** (`domain/shared/ports`). Estendido por
+  consistência a mais **6 use cases** que só usavam `withTransaction` (`DeleteExercise`, `AddExercicioASessao`,
+  `DeleteTreino`, `DuplicarTreino`, `RemoveExercicioDoTreino`, `ReordenarExercicios`).
   _Ref: plano `2026-06-04-p2-clean-architecture-dip.md`._
-- [ ] **Parse de vírgula** — 9 ocorrências de `replace(',', '.')` (single-replace) em telas
-  (`TreinoDetailScreen`, `BiSetDetalheScreen`, `ExercicioDetalheScreen`).
-  _Ref: plano `2026-06-04-p2-comma-parse-screens.md`._
-- [ ] **Fórmula 1RM duplicada em SQL** (`SqliteDashboardRepository`, `SQLiteHistoricoRepository`).
-  TS já consolidado em `estimativa1rm.ts`. (baixa prioridade)
-- [ ] **`METODO_LABELS`/`METODO_COLORS`/`METODO_CONFIG` duplicados** em
-  `SessaoAtivaScreen`, `ExercicioCard` e os `VALID_METODO` de 2 repos SQLite. Centralizar em `shared/`.
-- [ ] **Telas-deus** — `ExercicioDetalheScreen` (1009 linhas), `PerfilScreen` (791),
-  `BiSetDetalheScreen` (740), `TreinoDetailScreen` (738), `DashboardScreen` (737).
-  Extrair seções quando forem tocadas.
-- [ ] **Arquivos `NUL`** na raiz e em `apps/api` — corrigir o script que os cria.
-- [ ] **`docker-compose.yml` com credenciais hardcoded** (`academia/academia`) → mover para `.env`.
+- [x] **Parse de vírgula** ✅ `2026-06-23` — o bug single-replace já não existia (telas usavam `/,/g`).
+  Deduplicado em `shared/utils/parseDecimalInput.ts` (com teste); 14 chamadas migradas em
+  `usePesoController`, `BiSetDetalheScreen`, `ExercicioDetalheScreen`, `TreinoDetailScreen`.
+- [x] **Fórmula 1RM duplicada em SQL** ✅ `2026-06-23` — novo helper `estimativa1rmSql()` em
+  `estimativa1rm.ts`; 4 expressões SQL + 1 cálculo JS consolidados em `SqliteDashboardRepository`
+  e `SQLiteHistoricoRepository`.
+- [x] **`METODO_*` duplicados** ✅ `2026-06-23` — lista canônica `METODOS_EXERCICIO` no domínio
+  (`TreinoExercicio.ts`, deriva o tipo); `VALID_METODO` dos 2 repos SQLite usa ela; labels/cores
+  centralizados em `ui/shared/metodoPresentation.ts` (`SessaoAtivaScreen` + `ExercicioCard`).
+- [ ] **Telas-deus** — `ExercicioDetalheScreen` (~1009 linhas), `PerfilScreen` (~791),
+  `BiSetDetalheScreen` (~740), `TreinoDetailScreen` (~738), `DashboardScreen` (~737).
+  Extrair seções quando forem tocadas. _(refactor incremental, deixado em aberto de propósito)_
+- [x] **Arquivos `NUL`** na raiz e em `apps/api` ✅ `2026-06-22`
+  Causa: hooks em `.claude/settings.json` (PostToolUse + SessionStart) usavam `git rev-parse --git-dir > NUL 2>&1`
+  (sintaxe cmd.exe) mas rodam no git-bash, onde `NUL` vira arquivo. Trocado para `> /dev/null 2>&1`;
+  7 arquivos `NUL` removidos (raiz, `apps/api`, `apps/mobile`, `src`, `infrastructure/exercises`, `seeds`, `docs/exercises`).
+  `.claude/settings.json` é gitignored, então o fix é local (a correção não vai no histórico).
+- [x] **`docker-compose.yml` com credenciais hardcoded** ✅ `2026-06-23` — parametrizado com
+  `${POSTGRES_USER:-academia}` etc. + `.env.example` na raiz + `.env` no `.gitignore`; removido o
+  `version` obsoleto.
 - [ ] **TODO** em `SugerirTreinoUseCase.ts:26` — avaliar `SugestaoRepository` dedicado.
 
 ---
@@ -105,16 +118,32 @@
   _Ref: spec `2026-06-07-i18n-language-switcher-design.md`._
 - [ ] **Sync / Backup em nuvem (sub-2)** — bloqueado pela paridade de schema (P1) e pela
   cobertura de teste do `sync.service` (P1). _Ref: roadmap._
+- [ ] **Exportar CSV por treino específico** — hoje `ExportarHistoricoUseCase` só exporta
+  *todas* as sessões finalizadas (`historico_treinos.csv`, botão no Dashboard e no Perfil).
+  Falta poder exportar apenas as sessões de um treino escolhido (ex.: filtro `treino_id`
+  + entrada na `TreinoEvolucaoScreen`/detalhe do treino). _Solicitado pelo usuário em 2026-06-22._
+- [ ] **Melhorar UI/UX da visualização de sessões/exercícios já realizados** — o usuário relata
+  que rever um treino passado hoje é confuso. Hoje só há `SessaoResumoScreen` (logo após finalizar),
+  `TreinoEvolucaoScreen` (gráfico + chips por sessão) e `HistoricoExercicioScreen` (por exercício);
+  não há uma lista navegável de "sessões passadas" para abrir uma sessão específica e ver o que foi
+  feito naquele dia de forma legível. Avaliar: lista de sessões finalizadas, tela read-only de
+  detalhe da sessão, e comparação sessão-a-sessão.
+  - Inclui o caso `n = 1` em `HistoricoExercicioScreen` (antes listado como bug): com uma única
+    sessão a tela mostra um card "Evolução do 1RM estimado" com mensagem genérica — título sem
+    sentido. Tratar explicitamente (ex.: "Primeira execução registrada"). _Ref antigo: problems-audit item 13._
+  _Solicitado pelo usuário em 2026-06-22; requer brainstorming/spec antes de implementar._
 
 ---
 
 ## 📄 DOC — Documentação desatualizada (corrigir)
 
-- [ ] `docs/estado-atual.md` (2026-06-02) — diz "sem backend, 100% local, 299 testes";
-  `apps/api` (NestJS+Prisma: auth/sync/users/treinos/exercises) já existe.
-- [ ] `docs/roadmap.md` (2026-05-07) — sub-5 listado como pendente mas está em execução;
-  não menciona estado dos sub-projetos 1–4 vs. backend já criado.
-- [ ] `MISSING_FOR_MVP.md` — contagem "218 testes" envelhecida; considerar remover números absolutos.
+- [x] `docs/estado-atual.md` ✅ `2026-06-22` — atualizado: backend (`apps/api`) documentado, schema
+  v16→v22, contagens de teste (~360 mobile + 36/4 api), Sub-5 marcado como em grande parte implementado.
+- [x] `docs/roadmap.md` ✅ `2026-06-22` — banner de status + notas ⚠️ por item: Sub-5 implementado,
+  backend criado, planejamento semanal e edição de série marcados como feitos, "Fora do Escopo" revisado.
+- [x] `docs/exercises/catalog-maintenance.md` §13 ✅ `2026-06-22` — nota de atualização: bloqueio de
+  `new_categories` resolvido, 8/9 seeds criados (falta `reabilitacao_lombar_core`).
+- [x] `MISSING_FOR_MVP.md` ✅ `2026-06-22` — contagem "218 testes" → suíte mobile ~360 + api 36/4.
 
 ---
 

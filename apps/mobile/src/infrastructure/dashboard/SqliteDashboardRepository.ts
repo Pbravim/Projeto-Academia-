@@ -1,3 +1,4 @@
+import { calcularEstimativa1rm, estimativa1rmSql } from '../../shared/utils/estimativa1rm';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import type {
   DashboardRepository,
@@ -68,7 +69,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
            st.data_hora_fim,
            st.arquivado,
            COALESCE(SUM(sr.carga_kg * sr.repeticoes), 0) AS volume_total,
-           COALESCE(MAX(sr.carga_kg * (1.0 + sr.repeticoes / 30.0)), 0) AS melhor_orm
+           COALESCE(MAX(${estimativa1rmSql()}), 0) AS melhor_orm
          FROM sessao_treinos st
          LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id AND se.deleted_at IS NULL
          LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
@@ -79,7 +80,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
       ),
       this.database.getAll<{ exercicio_nome: string; melhor_orm: number }>(
         `SELECT e.name AS exercicio_nome,
-                MAX(sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) AS melhor_orm
+                MAX(${estimativa1rmSql()}) AS melhor_orm
          FROM series_registradas sr
          JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id AND se.deleted_at IS NULL
          JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
@@ -249,7 +250,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
       const sessoes: SessaoExercicioEvolucao[] = ex.sessaoOrder.map((sid) => {
         const s = ex.sessoes.get(sid)!;
         const melhorOrm = s.series.reduce((max, sr) => {
-          const orm = sr.cargaKg * (1 + sr.repeticoes / 30);
+          const orm = calcularEstimativa1rm(sr.cargaKg, sr.repeticoes);
           return orm > max ? orm : max;
         }, 0);
         return {

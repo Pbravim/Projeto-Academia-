@@ -1,12 +1,14 @@
 # Estado Atual — App Academia
 
-> Atualizado em `2026-06-02`.
+> Atualizado em `2026-06-22`.
 
 ---
 
 ## Visão Geral
 
-App mobile de acompanhamento de treino de musculação. Registro rápido durante o treino, histórico confiável, análise de evolução. Uso pessoal, sem backend, dados 100% locais.
+App mobile de acompanhamento de treino de musculação. Registro rápido durante o treino, histórico confiável, análise de evolução. Uso pessoal, dados primariamente locais (SQLite).
+
+> **Backend (em construção):** já existe `apps/api` (NestJS + Prisma + Postgres) com módulos `auth`, `users`, `treinos`, `exercises` e `sync` — base para sincronização/backup em nuvem (sub-projeto 2). Ainda **não está ligado** no app mobile por padrão; o sync depende de itens de prontidão (ver `docs/pendencias.md`). Catálogo global (seeds/GIFs) não sincroniza.
 
 ---
 
@@ -17,8 +19,9 @@ App mobile de acompanhamento de treino de musculação. Registro rápido durante
 | Framework | React Native 0.81.5 + React 19.1 |
 | Plataforma | Expo SDK 54 |
 | Linguagem | TypeScript 5.9 (strict) |
-| Banco local | SQLite via expo-sqlite 16 (schema v16) |
-| Testes | Vitest 4.1 — 299 testes passando |
+| Banco local | SQLite via expo-sqlite 16 (schema v22) |
+| Backend | NestJS + Prisma + Postgres (`apps/api`) — auth/sync/users/treinos/exercises |
+| Testes | Vitest 4.1 (mobile, ~360) · Jest (api, 36 unit + 4 e2e) |
 
 ---
 
@@ -62,12 +65,15 @@ apps/mobile/src/
 - Navegação para histórico individual do exercício
 - **Mídia custom:** campo para URL online (YouTube, GIF, MP4) e upload de arquivo local (imagem/vídeo) via `expo-image-picker`; arquivos copiados para `documentDirectory/exercises/` e limpos ao remover/deletar
 
-**Limitações atuais (planejado no Sub-projeto 5):**
-- `musculo_alvo` é um único `string | null` — não captura múltiplos músculos primários
-- Sem `movement_pattern` — substituição não distingue push horizontal de push vertical
-- `equipment` é texto livre — sem vocabulário controlado para filtros por equipamento
-- `listAlternativas` é lista plana — não diferencia "equivalente" de "mesmo grupo muscular"
-- Busca somente por `normalized_name` — variações de nome não encontram o mesmo exercício
+**Exercise Intelligence (Sub-projeto 5 — em grande parte implementado):**
+- `musculo_alvo` agora é `string[]` (domínio); campos biomecânicos estruturados adicionados no schema v20:
+  `movement_pattern`, `stabilizers[]`, `execution_type`, `name_variations[]`, `primary_equipment`/
+  `secondary_equipment` (vocabulário controlado), `catalog_version` e `tracking_type`.
+- Engine de substituição em camadas no `SugerirSubstitutosUseCase` (equivalente × mesmo grupo) já em uso.
+- `tracking_type` (`reps_load`/`cardio`/`hold`/`reps_only`) + métricas `duracaoSegundos`/`distanciaMetros`
+  (schema v21/v22) permitem registrar cardio, sustentações e exercícios sem carga.
+- _Restante do sub-5:_ auditoria de ~7 grupos musculares e a 9ª categoria de expansão
+  (`reabilitacao_lombar_core`) ainda pendentes — ver `docs/pendencias.md` e `docs/exercises/catalog-maintenance.md`.
 
 ### Treinos
 
@@ -141,9 +147,11 @@ Tab que substituiu **Peso** na navegação inferior. Exibe:
 
 ---
 
-## Schema SQLite (v16)
+## Schema SQLite (v22)
 
-v16 adiciona colunas de sincronização (`updated_at` ISO, `deleted_at` tombstone, `dirty`, `server_rev`) em todas as tabelas de dados do usuário; deletes passam a ser soft-deletes. Catálogo global (seeds/GIFs) não sincroniza.
+v19 adiciona colunas de sincronização (`updated_at` ISO, `deleted_at` tombstone, `dirty`, `server_rev`) em todas as tabelas de dados do usuário; deletes passam a ser soft-deletes. Catálogo global (seeds/GIFs) não sincroniza.
+
+Migrações posteriores: **v20** campos biomecânicos do Exercise Intelligence (`movement_pattern`, `stabilizers`, `execution_type`, `name_variations`, `primary_equipment`, `secondary_equipment`, `catalog_version`, `musculo_alvo` estruturado); **v21** `tracking_type` + métricas não-força (`duracao_segundos`, `distancia_metros`) para cardio/hold/reps_only; **v22** torna `carga_kg`/`repeticoes` NULLABLE para persistir séries sem carga/reps.
 
 ```sql
 exercises         (id, name, normalized_name, group_muscle, category, equipment,
@@ -169,16 +177,17 @@ exercise_alternatives (exercicio_id, alternativa_id)
 settings          (key TEXT PRIMARY KEY, value TEXT)
 ```
 
-Migrações versionadas de v1 a v16 em `ExpoSQLiteDatabaseClient.ts`. GIFs embutidos como assets estáticos — ver `GIF_MAPPING.md`.
+Migrações versionadas de v1 a v22 em `ExpoSQLiteDatabaseClient.ts`. GIFs embutidos como assets estáticos — ver `GIF_MAPPING.md`.
 
 ---
 
 ## Testes
 
-- **299 testes** passando (Vitest, ambiente node)
+- **Mobile:** ~360 testes passando (Vitest, ambiente node)
+- **Backend (`apps/api`):** 36 testes unit + 4 e2e (Jest + supertest; e2e roda contra Postgres do docker)
 - **Estratégia:** InMemory repos para use cases, SQLite real para integração
 - **Cobertos:** entities, use cases, repositórios, presenters, hook controllers (8 controllers)
-- **Sem cobertura:** screens, E2E
+- **Sem cobertura:** screens, E2E mobile
 
 ---
 

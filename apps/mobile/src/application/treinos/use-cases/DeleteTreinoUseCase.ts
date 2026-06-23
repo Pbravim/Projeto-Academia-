@@ -2,7 +2,7 @@ import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositorie
 import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
 interface DeleteTreinoUseCaseDependencies {
@@ -10,7 +10,7 @@ interface DeleteTreinoUseCaseDependencies {
   treinoExercicioRepository: TreinoExercicioRepository;
   sessaoTreinoRepository: SessaoTreinoRepository;
   planoSemanalRepository?: PlanoSemanalRepository;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 export class DeleteTreinoUseCase {

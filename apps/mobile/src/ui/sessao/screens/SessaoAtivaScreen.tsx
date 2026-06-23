@@ -12,32 +12,21 @@ import { BiSetDetalheScreen } from './BiSetDetalheScreen';
 import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { gifAssets } from '../../exercises/components/gifAssets';
+import { METODO_CONFIG } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-
-const METODO_LABELS: Record<string, string> = {
-  drop_set:   'Drop-set',
-  piramide:   'Pirâmide',
-  rest_pause: 'Rest-pause',
-};
-
-const METODO_COLORS: Record<string, string> = {
-  drop_set:   '#9333ea',
-  piramide:   '#d97706',
-  rest_pause: '#e11d48',
-};
 
 function grupoLabelFor(metodo: string, count: number): string {
   if (count === 2) return 'Bi-set';
   if (count === 3) return 'Tri-set';
   if (count > 3) return 'Circuito';
-  return METODO_LABELS[metodo] ?? metodo;
+  return METODO_CONFIG[metodo as keyof typeof METODO_CONFIG]?.label ?? metodo;
 }
 
 function grupoColorFor(metodo: string, count: number): string {
   if (count === 2) return '#16a34a';
   if (count === 3) return '#ea580c';
   if (count > 3) return '#0891b2';
-  return METODO_COLORS[metodo] ?? '#666';
+  return METODO_CONFIG[metodo as keyof typeof METODO_CONFIG]?.color ?? '#666';
 }
 
 interface Grupo {
@@ -318,8 +307,8 @@ export function SessaoAtivaScreen({
                         <View style={styles.grupoItemNameRow}>
                           <Text style={styles.grupoItemNome}>{item.sessaoExercicio.nomeSnapshot}</Text>
                           {item.sessaoExercicio.metodo !== 'normal' ? (
-                            <View style={[styles.grupoItemTecnicaBadge, { backgroundColor: METODO_COLORS[item.sessaoExercicio.metodo] }]}>
-                              <Text style={styles.grupoItemTecnicaBadgeText}>{METODO_LABELS[item.sessaoExercicio.metodo]}</Text>
+                            <View style={[styles.grupoItemTecnicaBadge, { backgroundColor: METODO_CONFIG[item.sessaoExercicio.metodo].color }]}>
+                              <Text style={styles.grupoItemTecnicaBadgeText}>{METODO_CONFIG[item.sessaoExercicio.metodo].label}</Text>
                             </View>
                           ) : null}
                         </View>

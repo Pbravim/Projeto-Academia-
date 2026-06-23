@@ -1,12 +1,27 @@
 # Roadmap — Features Pendentes
 
-> Atualizado em `2026-05-07` (sessão 3). Itens 1, 3, 4, 6, 7, 8 concluídos nesta sessão.
+> Estrutura original de `2026-05-07` (sessão 3). **Status revisado em `2026-06-22`** — ver notas
+> ⚠️ em cada item. A fonte de verdade priorizada do que está aberto é `docs/pendencias.md`.
+
+> ⚠️ **Mudanças relevantes desde 2026-05-07:**
+> - **Backend criado** (`apps/api`, NestJS + Prisma + Postgres: auth/users/treinos/exercises/sync) —
+>   vários itens abaixo marcados "sem backend / fora do escopo" já não valem.
+> - **Sub-projeto 5 (Exercise Intelligence)** em grande parte **implementado** (schema v20–v22,
+>   campos biomecânicos, engine de substituição, `tracking_type`). Restam auditorias de grupos e
+>   a categoria `reabilitacao_lombar_core`.
+> - **Planejamento semanal** e **edição de série registrada** (antes listados como futuros/fora de
+>   escopo) já estão **implementados**.
 
 ---
 
 ## Prioridade Alta
 
 ### Sub-projeto 5: Exercise Intelligence — modelo de exercício mais rico + substituição escalonada
+
+> ⚠️ **Status (2026-06-22): em grande parte CONCLUÍDO.** Os campos biomecânicos e o engine de
+> substituição abaixo já foram implementados (schema v20–v22; engine escalonado landou em 2026-06-10).
+> Pendente: auditoria de ~7 grupos musculares restantes e a 9ª categoria de expansão
+> `reabilitacao_lombar_core`. Detalhes em `docs/exercises/catalog-maintenance.md` e `docs/pendencias.md`.
 
 **O que:** enriquecer a entidade `Exercise` com dados biomecânicos estruturados e melhorar o engine de sugestão de substitutos com camadas de similaridade.
 
@@ -52,10 +67,15 @@
 
 ### 1. Sincronização / Backup na nuvem
 
+> ⚠️ **Status (2026-06-22):** o backend próprio já existe (`apps/api`, com `auth` + `sync` e o
+> contrato de sync em `packages/contracts`); o schema mobile já carrega metadados de sincronização
+> (v19). Falta ligar o sync no app e os itens de prontidão listados em `docs/pendencias.md`
+> (sub-projeto 2). Não depende mais de Supabase/Firebase.
+
 **O que:** backup do banco local em conta do usuário (iCloud / Google Drive / backend próprio)  
 **Por que:** proteção contra perda de dados por troca de celular  
 **Estratégia recomendada:** backup do arquivo SQLite completo como primeiro passo  
-**Depende de:** expo-file-system + autenticação (Supabase ou Firebase Auth)
+**Depende de:** `apps/api` (auth + sync) já criado — falta integração no mobile
 
 ---
 
@@ -106,7 +126,7 @@ inactive   → #AAAAAA (cinza)
 
 **RIR / RPE por série** — campo opcional de esforço percebido (RIR 0–4 ou RPE 1–10) por série; impacto no schema: nova coluna em `series_registradas`
 
-**Planejamento semanal** — definir quais treinos serão feitos em quais dias; requer novo modelo `PlanoSemanal` + `DiaTreino`
+**Planejamento semanal** — ✅ **IMPLEMENTADO** (schema v16, `GetPlanoSemanalUseCase`/`SetDiaPlanoUseCase`, 7 linhas fixas por dia da semana)
 
 **Múltiplos perfis** — mais de uma pessoa usando o mesmo dispositivo; depende de `PerfilLocal` (já previsto no modelo de domínio original)
 
@@ -118,10 +138,10 @@ inactive   → #AAAAAA (cinza)
 
 Itens deliberadamente deixados de fora, revisáveis no futuro:
 
-- Login e autenticação
-- Backend próprio
+- ~~Login e autenticação~~ — ⚠️ revisado: `apps/api` já tem módulo `auth` (JWT) para o sync/backup
+- ~~Backend próprio~~ — ⚠️ revisado: `apps/api` (NestJS + Prisma + Postgres) já existe
 - Versão web
-- Edição de série já registrada (deletar e redigitar é suficiente por ora)
+- ~~Edição de série já registrada~~ — ✅ **IMPLEMENTADO** (long-press na série durante a sessão abre edição inline)
 - Recursos sociais (compartilhar treino, seguir amigos)
 - Integração com wearables (smartwatch, sensor de frequência cardíaca)
 - Monetização

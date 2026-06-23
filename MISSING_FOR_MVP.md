@@ -1,9 +1,9 @@
 # Missing for MVP / 1.0
 
 > Lacunas entre o estado atual e uma versão 1.0 publicável.
-> Atualizado em `2026-06-02`.
+> Atualizado em `2026-06-22`.
 
-O app já cobre o loop completo (treinos → sessão → histórico → dashboard → perfil/peso) e tem 218 testes verdes. Para virar "1.0 publicável", faltam os itens abaixo, em ordem de prioridade.
+O app já cobre o loop completo (treinos → sessão → histórico → dashboard → perfil/peso) e tem a suíte mobile verde (~360 testes; há também `apps/api` com 36 unit + 4 e2e). Para virar "1.0 publicável", faltam os itens abaixo, em ordem de prioridade.
 
 ---
 
@@ -29,7 +29,7 @@ Botões "Exportar backup (.db)" e "Importar backup (.db)" em `PerfilScreen`. `Ex
 ---
 
 ### ~~4. Testes de hook controller~~ ✅ FEITO (2026-06-02)
-218 testes passando (era 126). Controllers com cobertura: `useSessaoAtivaController`, `useSessaoFeatureController`, `useExerciseCatalogController`, `useTreinoListController`, `useDashboardController`, `useTreinoEvolucaoController`, `useStatsController`, `usePerfilController`.
+Suíte mobile verde (~360 testes). Controllers com cobertura: `useSessaoAtivaController`, `useSessaoFeatureController`, `useExerciseCatalogController`, `useTreinoListController`, `useDashboardController`, `useTreinoEvolucaoController`, `useStatsController`, `usePerfilController`.
 
 ---
 

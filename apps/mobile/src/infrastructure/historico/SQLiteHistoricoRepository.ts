@@ -4,6 +4,7 @@ import type {
   HistoricoRepository,
   UltimaExecucaoValida,
 } from '../../domain/historico/repositories/HistoricoRepository';
+import { estimativa1rmSql } from '../../shared/utils/estimativa1rm';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface UltimaRow {
@@ -43,7 +44,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
        JOIN sessao_exercicios se ON se.exercicio_id = latest.exercicio_id AND se.deleted_at IS NULL
        JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.data_hora_fim = latest.max_fim AND st.id = latest.max_id AND st.deleted_at IS NULL
        JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
-       ORDER BY se.exercicio_id, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC`
+       ORDER BY se.exercicio_id, ${estimativa1rmSql()} DESC`
     );
 
     const result = new Map<string, UltimaExecucaoValida>();
@@ -66,7 +67,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
        INNER JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id AND se.deleted_at IS NULL
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
        WHERE se.exercicio_id = ? AND st.status = 'finalizada' AND sr.deleted_at IS NULL
-       ORDER BY st.data_hora_fim DESC, (sr.carga_kg * (1.0 + sr.repeticoes / 30.0)) DESC
+       ORDER BY st.data_hora_fim DESC, ${estimativa1rmSql()} DESC
        LIMIT 1`,
       [exercicioId]
     );

@@ -11,6 +11,19 @@ export function calcularEstimativa1rm(cargaKg: number, repeticoes: number): numb
 }
 
 /**
+ * Fragmento SQL da estimativa de 1RM (Epley), para uso dentro de queries.
+ * Mantém a fórmula idêntica a {@link calcularEstimativa1rm}, evitando duplicar a
+ * expressão `carga_kg * (1.0 + repeticoes / 30.0)` espalhada pelos repositórios SQL.
+ * Não recebe entrada do usuário — o alias é um literal controlado.
+ *
+ * @param alias Alias da tabela `series_registradas` na query (default `sr`)
+ * @returns Expressão SQL, e.g. `(sr.carga_kg * (1.0 + sr.repeticoes / 30.0))`
+ */
+export function estimativa1rmSql(alias = 'sr'): string {
+  return `(${alias}.carga_kg * (1.0 + ${alias}.repeticoes / 30.0))`;
+}
+
+/**
  * Formata a estimativa de 1RM como string para exibição.
  *
  * @param cargaKg Peso levantado em kg

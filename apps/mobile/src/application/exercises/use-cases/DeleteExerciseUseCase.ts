@@ -2,7 +2,7 @@ import type { ExerciseRepository } from '../../../domain/exercises/repositories/
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
 
 export interface MediaFileCleanup {
@@ -15,7 +15,7 @@ interface DeleteExerciseUseCaseDependencies {
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
   mediaFileCleanup?: MediaFileCleanup;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /**
