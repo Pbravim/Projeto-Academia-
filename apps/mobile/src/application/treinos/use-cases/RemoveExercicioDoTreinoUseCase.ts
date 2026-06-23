@@ -1,10 +1,10 @@
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
 
 interface RemoveExercicioDoTreinoUseCaseDependencies {
   treinoExercicioRepository: TreinoExercicioRepository;
-  database?: SQLiteDatabaseClient;
+  database?: TransactionPort;
 }
 
 /** Remove um exercicio de um treino template pelo ID do vinculo (TreinoExercicio), nao pelo ID do exercicio. */
