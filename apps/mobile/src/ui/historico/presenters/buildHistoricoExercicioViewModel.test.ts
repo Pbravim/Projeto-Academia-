@@ -7,15 +7,17 @@ const serie = (
   id: string,
   tipo: 'aquecimento' | 'valida',
   cargaKg: number,
-  repeticoes: number
-) => ({ id, tipoSerie: tipo, cargaKg, repeticoes, observacao: null, ordem: 1 });
+  repeticoes: number,
+  ordem = 1
+) => ({ id, tipoSerie: tipo, cargaKg, repeticoes, observacao: null, ordem });
 
 const execucao = (
   sessaoId: string,
-  series: ReturnType<typeof serie>[]
+  series: ReturnType<typeof serie>[],
+  date = '2026-05-03T10:00:00.000Z'
 ): ExecucaoExercicio => ({
   sessaoTreinoId: sessaoId,
-  dataExecucao: '2026-05-03T10:00:00.000Z',
+  dataExecucao: date,
   nomeSnapshot: 'Supino reto',
   series,
 });
@@ -25,77 +27,96 @@ describe('buildHistoricoExercicioViewModel', () => {
     it('retorna mensagem de estado vazio quando nao ha execucoes', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', []);
       expect(vm.emptyStateMessage).not.toBeNull();
-      expect(vm.execucoes).toHaveLength(0);
+      expect(vm.sessionRows).toHaveLength(0);
       expect(vm.exercicioNome).toBe('Supino reto');
     });
   });
 
-  describe('execucao com series', () => {
-    it('formata descricao de serie como "carga kg x reps rep"', () => {
+  describe('sessionRows', () => {
+    it('formata cada set como carga×reps', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
         execucao('s1', [serie('sr1', 'valida', 80, 8)]),
       ]);
-      expect(vm.execucoes[0].series[0].descricao).toBe('80 kg × 8 rep');
+      expect(vm.sessionRows[0].sets[0].label).toBe('80×8');
     });
 
-    it('serie valida recebe rm1Estimado calculado', () => {
+    it('calcula ormLabel do melhor set valido (Epley)', () => {
+      // 80×8 -> 80 * (1 + 8/30) = 101.33 -> 101,3
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
         execucao('s1', [serie('sr1', 'valida', 80, 8)]),
       ]);
-      // 1RM = 80 * (1 + 8/30) = 80 * 1.2667 = 101.3
-      expect(vm.execucoes[0].series[0].rm1Estimado).toBe('1RM ~101.3 kg');
+      expect(vm.sessionRows[0].ormLabel).toBe('1RM ~101,3');
     });
 
-    it('serie de aquecimento nao recebe rm1Estimado', () => {
-      const vm = buildHistoricoExercicioViewModel('Supino reto', [
-        execucao('s1', [serie('sr1', 'aquecimento', 40, 15)]),
-      ]);
-      expect(vm.execucoes[0].series[0].rm1Estimado).toBeNull();
-    });
-
-    it('calcula melhorRm1 a partir das series validas', () => {
+    it('series de aquecimento ficam muted e fora do 1RM/volume', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
         execucao('s1', [
-          serie('sr1', 'aquecimento', 40, 15),
-          serie('sr2', 'valida', 80, 8),   // 1RM = 101.3
-          serie('sr3', 'valida', 85, 5),   // 1RM = 85 * 1.167 = 99.2
+          serie('sr1', 'aquecimento', 40, 15, 1),
+          serie('sr2', 'valida', 80, 8, 2),
         ]),
       ]);
-      // 80x8 tem 1RM maior: 101.3
-      expect(vm.execucoes[0].melhorRm1).toBe('101.3 kg');
+      expect(vm.sessionRows[0].sets[0].muted).toBe(true);
+      expect(vm.sessionRows[0].sets[1].muted).toBe(false);
+      expect(vm.sessionRows[0].ormLabel).toBe('1RM ~101,3');
+      expect(vm.sessionRows[0].volumeLabel).toBe('640 kg');
     });
 
-    it('exibe "—" como melhorRm1 quando so ha series de aquecimento', () => {
+    it('ordena sets pela ordem registrada', () => {
+      const vm = buildHistoricoExercicioViewModel('Supino reto', [
+        execucao('s1', [
+          serie('sr2', 'valida', 85, 6, 2),
+          serie('sr1', 'valida', 80, 8, 1),
+        ]),
+      ]);
+      expect(vm.sessionRows[0].sets.map((s) => s.label)).toEqual(['80×8', '85×6']);
+    });
+
+    it('ormLabel nulo quando so ha aquecimento', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
         execucao('s1', [serie('sr1', 'aquecimento', 40, 15)]),
       ]);
-      expect(vm.execucoes[0].melhorRm1).toBe('—');
+      expect(vm.sessionRows[0].ormLabel).toBeNull();
     });
 
-    it('preserva o nome do exercicio no view model', () => {
-      const vm = buildHistoricoExercicioViewModel('Agachamento livre', [
-        execucao('s1', [serie('sr1', 'valida', 100, 5)]),
-      ]);
-      expect(vm.exercicioNome).toBe('Agachamento livre');
-    });
-
-    it('gera um card por execucao', () => {
+    it('gera uma linha por execucao, mais recente primeiro com isLatest', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
-        execucao('s1', [serie('sr1', 'valida', 80, 8)]),
-        execucao('s2', [serie('sr2', 'valida', 85, 6)]),
+        execucao('s1', [serie('sr1', 'valida', 85, 8)], '2026-05-04T10:00:00Z'),
+        execucao('s2', [serie('sr2', 'valida', 80, 8)], '2026-05-03T10:00:00Z'),
       ]);
-      expect(vm.execucoes).toHaveLength(2);
+      expect(vm.sessionRows).toHaveLength(2);
+      expect(vm.sessionRows[0].isLatest).toBe(true);
+      expect(vm.sessionRows[1].isLatest).toBe(false);
+      expect(vm.sessionRows[0].trend).toBe('up');
+    });
+
+    it('propaga label de substituicao', () => {
+      const vm = buildHistoricoExercicioViewModel('Supino inclinado', [
+        {
+          ...execucao('s1', [serie('sr1', 'valida', 80, 8)]),
+          substituiuExercicio: { nomeOriginal: 'Supino reto', motivo: 'variacao' },
+        },
+      ]);
+      expect(vm.sessionRows[0].subLabel).toBe('Substituiu: Supino reto · variação');
     });
   });
 
-  describe('formula 1RM', () => {
-    it('aplica a formula carga * (1 + reps / 30)', () => {
-      // 100kg x 5 reps => 100 * (1 + 5/30) = 100 * 1.1667 = 116.7
-      const vm = buildHistoricoExercicioViewModel('Agachamento', [
-        execucao('s1', [serie('sr1', 'valida', 100, 5)]),
+  describe('rm1ChartPoints', () => {
+    it('gera pontos em ordem cronologica com o 1RM da melhor serie valida', () => {
+      const vm = buildHistoricoExercicioViewModel('Supino reto', [
+        execucao('s1', [serie('sr1', 'valida', 85, 8)], '2026-05-04T10:00:00Z'),
+        execucao('s2', [serie('sr2', 'valida', 80, 8)], '2026-05-03T10:00:00Z'),
       ]);
-      expect(vm.execucoes[0].series[0].rm1Estimado).toBe('1RM ~116.7 kg');
-      expect(vm.execucoes[0].melhorRm1).toBe('116.7 kg');
+      // ordem ascendente: s2 (03/05) depois s1 (04/05)
+      expect(vm.rm1ChartPoints).toHaveLength(2);
+      expect(vm.rm1ChartPoints[0].value).toBeCloseTo(101.3, 1);
+      expect(vm.rm1ChartPoints[1].value).toBeCloseTo(107.7, 1);
+    });
+
+    it('ignora execucoes sem series validas', () => {
+      const vm = buildHistoricoExercicioViewModel('Supino reto', [
+        execucao('s1', [serie('sr1', 'aquecimento', 40, 15)]),
+      ]);
+      expect(vm.rm1ChartPoints).toHaveLength(0);
     });
   });
 
