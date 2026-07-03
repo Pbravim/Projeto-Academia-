@@ -2,8 +2,14 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
-import type { SessaoExercicioEvolucao } from '../../../domain/dashboard/repositories/DashboardRepository';
 import { LineChart } from '../../shared/LineChart';
+import { Sparkline } from '../../shared/Sparkline';
+import { SessionSeriesTable } from '../../shared/components/SessionSeriesTable';
+import {
+  buildSessionTableRows,
+  formatCarga,
+  formatKgDelta,
+} from '../../shared/components/sessionSeriesTableModel';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
 
@@ -13,6 +19,10 @@ interface Props {
   isLoading: boolean;
   errorMessage: string | null;
   onBack: () => void;
+}
+
+function formatShortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
 
 export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorMessage, onBack }: Props) {
@@ -32,10 +42,10 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Evolucao por exercicio</Text>
+        <Text style={styles.eyebrow}>Evolução por exercício</Text>
         <Text style={styles.title}>{treinoNome}</Text>
         <Text style={styles.description}>
-          Ultimas 10 sessoes por exercicio — séries, cargas e 1RM estimado.
+          Toque em um exercício para ver gráficos e séries das últimas 10 sessões.
         </Text>
       </View>
 
@@ -48,7 +58,7 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
       ) : exercicios.length === 0 ? (
         <View style={styles.card}>
           <Text style={styles.emptyText}>
-            Nenhuma sessao finalizada encontrada para este treino.
+            Nenhuma sessão finalizada encontrada para este treino.
           </Text>
         </View>
       ) : (
@@ -65,39 +75,53 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(false);
 
-  const sessoes = exercicio.sessoes;
-  const temDados = sessoes.some((s) => s.melhorOrm > 0);
+  const sessoes = exercicio.sessoes; // mais recente primeiro
+  const sessoesAsc = useMemo(() => [...sessoes].reverse(), [sessoes]);
 
-  const sessoesAsc = [...sessoes].reverse();
+  const ormValues = sessoesAsc.map((s) => s.melhorOrm).filter((v) => v > 0);
+  const temDados = ormValues.length > 0;
 
-  const ormChartPoints = temDados
-    ? sessoesAsc.map((s) => ({
-        value: s.melhorOrm,
-        label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      })).filter((p) => p.value > 0)
-    : [];
+  const ormChartPoints = sessoesAsc
+    .filter((s) => s.melhorOrm > 0)
+    .map((s) => ({ value: s.melhorOrm, label: formatShortDate(s.dataHoraInicio) }));
 
   const volumeChartPoints = sessoesAsc
     .map((s) => ({
-      value: s.series.reduce((sum, sr) => sum + sr.cargaKg * sr.repeticoes, 0),
-      label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      value: s.series.reduce((sum, sr) => sum + (sr.cargaKg ?? 0) * (sr.repeticoes ?? 0), 0),
+      label: formatShortDate(s.dataHoraInicio),
     }))
     .filter((p) => p.value > 0);
 
+  const delta = ormValues.length >= 2
+    ? formatKgDelta(ormValues[0], ormValues[ormValues.length - 1])
+    : null;
+
   const ultima = sessoes[0];
   const penultima = sessoes[1] ?? null;
-
   const ormDiff =
-    ultima && penultima && penultima.melhorOrm > 0
+    ultima && penultima && penultima.melhorOrm > 0 && ultima.melhorOrm > 0
       ? Math.round((ultima.melhorOrm - penultima.melhorOrm) * 10) / 10
       : null;
 
-  const trend =
-    ormDiff === null ? null : ormDiff > 0 ? 'up' : ormDiff < 0 ? 'down' : 'equal';
+  const windowBest = Math.max(0, ...sessoes.map((s) => s.melhorOrm));
+  const isPr = sessoes.length >= 2 && ultima != null && ultima.melhorOrm > 0 && ultima.melhorOrm >= windowBest;
+
+  const tableRows = useMemo(
+    () =>
+      buildSessionTableRows(
+        sessoes.map((s) => ({
+          id: s.sessaoId,
+          dateLabel: formatShortDate(s.dataHoraInicio),
+          sets: s.series.map((sr) => ({ cargaKg: sr.cargaKg, repeticoes: sr.repeticoes })),
+        })),
+      ),
+    [sessoes],
+  );
+
+  const plural = sessoes.length === 1 ? 'sessão' : 'sessões';
 
   return (
     <View style={styles.card}>
-      {/* Cabeçalho — sempre visível, toque para expandir */}
       <Pressable
         onPress={() => setExpanded((v) => !v)}
         style={({ pressed }) => [styles.cardHeader, pressed ? { opacity: 0.7 } : null]}
@@ -105,113 +129,78 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
         <View style={{ flex: 1 }}>
           <Text style={styles.exercicioNome}>{exercicio.exercicioNome}</Text>
           <Text style={styles.exercicioMeta}>{exercicio.groupMuscle}</Text>
-          {!expanded && ultima && temDados ? (
+          {!expanded && !(temDados && ormValues.length >= 2) ? (
             <Text style={styles.collapsedHint}>
-              1RM: {ultima.melhorOrm} kg
-              {ormDiff !== null ? (ormDiff > 0 ? ` ↑ +${ormDiff}` : ormDiff < 0 ? ` ↓ ${ormDiff}` : '') : ''}
-              {' · '}{sessoes.length} sessão{sessoes.length !== 1 ? 'oes' : ''}
+              {temDados && ultima
+                ? `1RM: ${formatCarga(ultima.melhorOrm)} kg · ${sessoes.length} ${plural}`
+                : `${sessoes.length} ${plural}`}
             </Text>
-          ) : null}
-          {!expanded && !(ultima && temDados) ? (
-            <Text style={styles.collapsedHint}>{sessoes.length} sessão{sessoes.length !== 1 ? 'oes' : ''}</Text>
           ) : null}
         </View>
         <View style={styles.cardHeaderRight}>
-          {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
-          {trend === 'down' ? <Text style={styles.trendDown}>↓</Text> : null}
-          {trend === 'equal' ? <Text style={styles.trendEqual}>→</Text> : null}
+          {!expanded && ormValues.length >= 2 ? (
+            <View style={styles.sparkCol}>
+              <Sparkline values={ormValues} />
+              {delta ? (
+                <Text
+                  style={[
+                    styles.deltaText,
+                    delta.direction === 'up'
+                      ? styles.deltaUp
+                      : delta.direction === 'down'
+                        ? styles.deltaDown
+                        : styles.deltaFlat,
+                  ]}
+                >
+                  {delta.label}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
           <Text style={styles.cardChevron}>{expanded ? '▲' : '▼'}</Text>
         </View>
       </Pressable>
 
       {expanded ? (
         <>
-          {/* Pills de resumo */}
           {ultima && temDados ? (
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Melhor 1RM</Text>
-                <Text style={styles.summaryValue}>{ultima.melhorOrm} kg</Text>
+                <View style={styles.summaryLabelRow}>
+                  <Text style={styles.summaryLabel}>Melhor 1RM</Text>
+                  {isPr ? (
+                    <View style={styles.prTag}>
+                      <Text style={styles.prTagText}>PR</Text>
+                    </View>
+                  ) : null}
+                </View>
+                <Text style={styles.summaryValue}>{formatCarga(windowBest)} kg</Text>
               </View>
               {ormDiff !== null ? (
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>vs anterior</Text>
-                  <Text style={[
-                    styles.summaryDiff,
-                    ormDiff > 0 ? styles.diffUp : ormDiff < 0 ? styles.diffDown : styles.diffEqual,
-                  ]}>
-                    {ormDiff > 0 ? `+${ormDiff}` : String(ormDiff)} kg
+                  <Text
+                    style={[
+                      styles.summaryDiff,
+                      ormDiff > 0 ? styles.diffUp : ormDiff < 0 ? styles.diffDown : styles.diffEqual,
+                    ]}
+                  >
+                    {ormDiff > 0 ? `+${formatCarga(ormDiff)}` : formatCarga(ormDiff)} kg
                   </Text>
                 </View>
               ) : null}
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Series (ult.)</Text>
+                <Text style={styles.summaryLabel}>Séries (últ.)</Text>
                 <Text style={styles.summaryValue}>{ultima.series.length}</Text>
               </View>
             </View>
           ) : null}
 
-          {/* Gráfico com toggle */}
-          <ChartToggle
-            ormPoints={ormChartPoints}
-            volumePoints={volumeChartPoints}
-          />
+          <ChartToggle ormPoints={ormChartPoints} volumePoints={volumeChartPoints} />
 
-          {/* Lista de sessões com séries reais */}
-          {sessoes.length > 0 ? (
-            <View style={styles.sessoesList}>
-              {sessoes.map((s, i) => (
-                <SessaoSeriesRow key={s.sessaoId} sessao={s} isFirst={i === 0} />
-              ))}
-            </View>
-          ) : null}
+          {tableRows.length > 0 ? <SessionSeriesTable rows={tableRows} /> : null}
         </>
       ) : null}
-    </View>
-  );
-}
-
-function SessaoSeriesRow({ sessao, isFirst }: { sessao: SessaoExercicioEvolucao; isFirst: boolean }) {
-  const c = useTheme();
-  const styles = useMemo(() => makeStyles(c), [c]);
-
-  const dataStr = new Date(sessao.dataHoraInicio).toLocaleDateString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: '2-digit',
-  });
-
-  // Agrupa séries com mesma carga+reps para exibição compacta: "80×10 (×3)"
-  const seriesAgrupadas: { label: string; count: number }[] = [];
-  for (const serie of sessao.series) {
-    const label = `${serie.cargaKg}×${serie.repeticoes}`;
-    const last = seriesAgrupadas[seriesAgrupadas.length - 1];
-    if (last && last.label === label) {
-      last.count += 1;
-    } else {
-      seriesAgrupadas.push({ label, count: 1 });
-    }
-  }
-
-  return (
-    <View style={[styles.sessaoRow, isFirst ? styles.sessaoRowFirst : null]}>
-      <View style={styles.sessaoTopLine}>
-        <Text style={styles.sessaoData}>{dataStr}</Text>
-        {sessao.melhorOrm > 0 ? (
-          <Text style={styles.sessaoOrm}>1RM ~{sessao.melhorOrm} kg</Text>
-        ) : null}
-      </View>
-      {sessao.series.length > 0 ? (
-        <View style={styles.seriesChips}>
-          {seriesAgrupadas.map(({ label, count }, i) => (
-            <View key={i} style={styles.serieChip}>
-              <Text style={styles.serieChipText}>
-                {count > 1 ? `${count}× ${label}` : label}
-              </Text>
-            </View>
-          ))}
-        </View>
-      ) : (
-        <Text style={styles.semSeries}>Sem series validas</Text>
-      )}
     </View>
   );
 }
@@ -226,10 +215,10 @@ interface ChartToggleProps {
 function ChartToggle({ ormPoints, volumePoints }: ChartToggleProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const [mode, setMode] = useState<ChartMode>('orm');
 
-  const hasOrm = ormPoints.length >= 2;
-  const hasVolume = volumePoints.length >= 2;
+  const hasOrm = ormPoints.length >= 1;
+  const hasVolume = volumePoints.length >= 1;
+  const [mode, setMode] = useState<ChartMode>(hasOrm ? 'orm' : 'volume');
 
   if (!hasOrm && !hasVolume) return null;
 
@@ -237,37 +226,36 @@ function ChartToggle({ ormPoints, volumePoints }: ChartToggleProps) {
   const activeColor = mode === 'orm' ? undefined : c.success;
   const activeFormat = mode === 'orm'
     ? (v: number) => `${v} kg`
-    : (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`;
+    : (v: number) => (v >= 1000 ? `${(v / 1000).toFixed(1)}t` : `${v}kg`);
 
   return (
     <View style={styles.chartContainer}>
-      <View style={styles.chartToggleRow}>
-        {hasOrm ? (
+      {hasOrm && hasVolume ? (
+        <View style={styles.segmented}>
           <Pressable
             onPress={() => setMode('orm')}
-            style={[styles.chartToggleBtn, mode === 'orm' ? styles.chartToggleBtnActive : null]}
+            style={[styles.segment, mode === 'orm' ? styles.segmentActive : null]}
           >
-            <Text style={[styles.chartToggleBtnText, mode === 'orm' ? styles.chartToggleBtnTextActive : null]}>
+            <Text style={[styles.segmentText, mode === 'orm' ? styles.segmentTextActive : null]}>
               1RM estimado
             </Text>
           </Pressable>
-        ) : null}
-        {hasVolume ? (
           <Pressable
             onPress={() => setMode('volume')}
-            style={[styles.chartToggleBtn, mode === 'volume' ? styles.chartToggleBtnActiveVolume : null]}
+            style={[styles.segment, mode === 'volume' ? styles.segmentActive : null]}
           >
-            <Text style={[styles.chartToggleBtnText, mode === 'volume' ? styles.chartToggleBtnTextActive : null]}>
+            <Text style={[styles.segmentText, mode === 'volume' ? styles.segmentTextActive : null]}>
               Volume total
             </Text>
           </Pressable>
-        ) : null}
-      </View>
+        </View>
+      ) : null}
       <LineChart
         points={activePoints}
         color={activeColor}
         height={110}
         formatValue={activeFormat}
+        markMax={mode === 'orm'}
       />
     </View>
   );
@@ -289,66 +277,36 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     card: { backgroundColor: c.card, borderRadius: 24, padding: 18, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     errorText: { color: c.error, fontSize: 14, fontWeight: '600' },
     emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
-    // Card header
-    cardHeader: { flexDirection: 'row', alignItems: 'flex-start' },
-    cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2 },
+    // Cabecalho do card
+    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     cardChevron: { color: c.textSecondary, fontSize: 10, fontWeight: '700' },
-    collapsedHint: { color: c.accent, fontSize: 12, fontWeight: '600', marginTop: 3 },
+    collapsedHint: { color: c.textSecondary, fontSize: 12, fontWeight: '600', marginTop: 3, fontVariant: ['tabular-nums'] },
     exercicioNome: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
     exercicioMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
-    sessaoCount: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },
-    trendUp: { color: c.success, fontSize: 16, fontWeight: '800' },
-    trendDown: { color: c.error, fontSize: 16, fontWeight: '800' },
-    trendEqual: { color: c.textSecondary, fontSize: 16, fontWeight: '800' },
-    // Summary pills
+    sparkCol: { alignItems: 'flex-end', gap: 2 },
+    deltaText: { fontSize: 11, fontWeight: '700', fontVariant: ['tabular-nums'] },
+    deltaUp: { color: c.success },
+    deltaDown: { color: c.error },
+    deltaFlat: { color: c.textSecondary },
+    // Pills de resumo
     summaryRow: { flexDirection: 'row', gap: 10 },
     summaryItem: { flex: 1, backgroundColor: c.cardAlt, borderRadius: 12, padding: 10, alignItems: 'center' },
+    summaryLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     summaryLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
-    summaryValue: { color: c.textPrimary, fontSize: 16, fontWeight: '800', marginTop: 4 },
-    summaryDiff: { fontSize: 15, fontWeight: '800', marginTop: 4 },
+    summaryValue: { color: c.textPrimary, fontSize: 16, fontWeight: '800', marginTop: 4, fontVariant: ['tabular-nums'] },
+    summaryDiff: { fontSize: 15, fontWeight: '800', marginTop: 4, fontVariant: ['tabular-nums'] },
     diffUp: { color: c.success },
     diffDown: { color: c.error },
     diffEqual: { color: c.textSecondary },
-    // Chart toggle
+    prTag: { backgroundColor: c.success, borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1 },
+    prTagText: { color: '#fff', fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
+    // Grafico + controle segmentado
     chartContainer: { gap: 10 },
-    chartToggleRow: { flexDirection: 'row', gap: 8 },
-    chartToggleBtn: {
-      paddingHorizontal: 14,
-      paddingVertical: 7,
-      borderRadius: 10,
-      backgroundColor: c.cardAlt,
-      borderWidth: 1,
-      borderColor: c.cardBorder,
-    },
-    chartToggleBtnActive: { backgroundColor: c.hero, borderColor: c.hero },
-    chartToggleBtnActiveVolume: { backgroundColor: c.successBg, borderColor: c.success },
-    chartToggleBtnText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
-    chartToggleBtnTextActive: { color: c.heroText },
-    // Sessions list
-    sessoesList: { gap: 8 },
-    sessaoRow: {
-      backgroundColor: c.cardAlt,
-      borderRadius: 14,
-      padding: 12,
-      gap: 8,
-    },
-    sessaoRowFirst: {
-      borderWidth: 1.5,
-      borderColor: c.accent,
-    },
-    sessaoTopLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    sessaoData: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
-    sessaoOrm: { color: c.accent, fontSize: 12, fontWeight: '700' },
-    seriesChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-    serieChip: {
-      backgroundColor: c.card,
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-      borderWidth: 1,
-      borderColor: c.cardBorder,
-    },
-    serieChipText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
-    semSeries: { color: c.textSecondary, fontSize: 12 },
+    segmented: { flexDirection: 'row', backgroundColor: c.cardAlt, borderRadius: 10, padding: 3, alignSelf: 'flex-start' },
+    segment: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8 },
+    segmentActive: { backgroundColor: c.hero },
+    segmentText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
+    segmentTextActive: { color: c.heroText },
   });
 }
