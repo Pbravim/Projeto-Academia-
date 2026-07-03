@@ -18,6 +18,8 @@ import { RestTimerBanner } from '../components/RestTimerBanner';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
+import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
+import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -82,7 +84,7 @@ function formatSerieMetric(serie: SerieRegistradaPrimitives, trackingType: strin
       return serie.repeticoes != null ? `${serie.repeticoes} reps` : '-';
     default:
       return serie.cargaKg != null && serie.repeticoes != null
-        ? `${serie.cargaKg}kg × ${serie.repeticoes}`
+        ? `${formatCarga(serie.cargaKg)} kg × ${serie.repeticoes}`
         : '-';
   }
 }
@@ -163,6 +165,20 @@ export function ExercicioDetalheScreen({
   const [editingSerieId, setEditingSerieId] = useState<string | null>(null);
   const [editKg, setEditKg] = useState(0);
   const [editReps, setEditReps] = useState(0);
+
+  // Melhor serie (maior 1RM estimado) — so destaca com 2+ series comparaveis.
+  const bestSerieId = useMemo(() => {
+    if (trackingType !== 'reps_load') return null;
+    const comparaveis = series.filter((s) => s.cargaKg != null && s.repeticoes != null);
+    if (comparaveis.length < 2) return null;
+    let best = comparaveis[0];
+    for (const s of comparaveis) {
+      if (calcularEstimativa1rm(s.cargaKg!, s.repeticoes!) > calcularEstimativa1rm(best.cargaKg!, best.repeticoes!)) {
+        best = s;
+      }
+    }
+    return best.id;
+  }, [series, trackingType]);
 
   // --- timer ---
   const [timer, setTimer] = useState<TimerState | null>(null);
@@ -1090,7 +1106,7 @@ export function ExercicioDetalheScreen({
         <View style={styles.seriesCard}>
           <Text style={styles.seriesTitle}>Series registradas</Text>
           <View style={styles.seriesList}>
-            {series.map((serie) => {
+            {series.map((serie, i) => {
               const isEditing = editingSerieId === serie.id;
               if (isEditing) {
                 return (
@@ -1138,8 +1154,10 @@ export function ExercicioDetalheScreen({
                   </View>
                 );
               }
+              const isBest = serie.id === bestSerieId;
               return (
-                <View key={serie.id} style={styles.serieRow}>
+                <View key={serie.id} style={[styles.serieRow, isBest ? styles.serieRowBest : null]}>
+                  <Text style={styles.serieIndex}>S{i + 1}</Text>
                   <Pressable
                     style={{ flex: 1 }}
                     onLongPress={() => {
@@ -1150,7 +1168,9 @@ export function ExercicioDetalheScreen({
                       }
                     }}
                   >
-                    <Text style={styles.serieLabel}>{formatSerieMetric(serie, trackingType)}</Text>
+                    <Text style={[styles.serieLabel, isBest ? styles.serieLabelBest : null]}>
+                      {formatSerieMetric(serie, trackingType)}
+                    </Text>
                     {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
                   </Pressable>
                   {!sessaoExercicio.realizado ? (
@@ -1259,7 +1279,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     tipoBadgeAquec: { backgroundColor: '#d4e8fc' },
     tipoBadgeValida: { backgroundColor: c.accentLight },
     tipoBadgeText: { fontSize: 11, fontWeight: '700', color: c.inputText },
-    serieLabel: { flex: 1, color: c.textPrimary, fontSize: 15, fontWeight: '600' },
+    serieLabel: { flex: 1, color: c.textPrimary, fontSize: 15, fontWeight: '600', fontVariant: ['tabular-nums'] },
+    serieLabelBest: { color: c.accent, fontWeight: '800' },
+    serieRowBest: { borderWidth: 1, borderColor: c.accent },
+    serieIndex: { color: c.textSecondary, fontSize: 11, fontWeight: '800', width: 24 },
     serieObs: { color: c.textSecondary, fontSize: 12, flexShrink: 1 },
     deleteSerieBtn: { padding: 4 },
     deleteSerieBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
