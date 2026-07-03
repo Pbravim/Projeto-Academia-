@@ -1,6 +1,9 @@
-import { useMemo } from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useId, useMemo, useState } from 'react';
+import type { GestureResponderEvent } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
+import { buildChartGeometry, clamp, nearestDotIndex } from './lineChartGeometry';
 import { useTheme } from './theme';
 
 export interface LineChartPoint {
@@ -13,137 +16,186 @@ interface LineChartProps {
   color?: string;
   height?: number;
   formatValue?: (v: number) => string;
+  markMax?: boolean;
+  showArea?: boolean;
 }
 
-const CHART_PAD_V = 18;
+const X_AXIS_H = 18;
+const X_LABEL_W = 48;
+const TOOLTIP_W = 128;
+
+const defaultFormat = (v: number) => (v % 1 === 0 ? String(v) : v.toFixed(1));
 
 export function LineChart({
   points,
   color,
   height = 130,
   formatValue,
+  markMax = false,
+  showArea = true,
 }: LineChartProps) {
   const c = useTheme();
-  const styles = useMemo(() => makeStyles(c), [c]);
   const { width } = useWindowDimensions();
+  const [selected, setSelected] = useState<number | null>(null);
+  const rawId = useId();
+  const gradId = useMemo(() => `lcgrad${rawId.replace(/[^a-zA-Z0-9]/g, '')}`, [rawId]);
 
-  if (points.length < 2) return null;
-
-  const lineColor = color ?? c.accent;
   const chartWidth = width - 80;
+  const lineColor = color ?? c.accent;
+  const fmt = formatValue ?? defaultFormat;
 
-  const computed = useMemo(() => {
-    const plotH = height - CHART_PAD_V * 2;
-    const vals = points.map((p) => p.value);
-    const minV = Math.min(...vals);
-    const maxV = Math.max(...vals);
-    const range = maxV === minV ? 1 : maxV - minV;
-    const getX = (i: number) => (i / (points.length - 1)) * chartWidth;
-    const getY = (v: number) => CHART_PAD_V + (1 - (v - minV) / range) * plotH;
+  if (points.length === 0) return null;
 
-    const segmentStyles: object[] = [];
-    for (let i = 0; i < points.length - 1; i++) {
-      const x1 = getX(i);     const y1 = getY(vals[i]);
-      const x2 = getX(i + 1); const y2 = getY(vals[i + 1]);
-      const dx = x2 - x1;     const dy = y2 - y1;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      segmentStyles.push({
-        position: 'absolute' as const,
-        height: 3,
-        borderRadius: 2,
-        backgroundColor: lineColor,
-        left: (x1 + x2) / 2 - len / 2,
-        top: (y1 + y2) / 2 - 1.5,
-        width: len,
-        transform: [{ rotate: `${Math.atan2(dy, dx) * 180 / Math.PI}deg` }],
-      });
-    }
+  // Estado de ponto único: mostra o valor em destaque em vez de esconder o grafico.
+  if (points.length === 1) {
+    return (
+      <View style={[styles.singleWrap, { width: chartWidth, height: height + X_AXIS_H }]}>
+        <Text style={[styles.singleValue, { color: c.textPrimary }]}>{fmt(points[0].value)}</Text>
+        <View style={[styles.singleDot, { backgroundColor: lineColor, borderColor: c.card }]} />
+        <Text style={[styles.singleLabel, { color: c.textSecondary }]}>{points[0].label}</Text>
+      </View>
+    );
+  }
 
-    const pointStyles: object[] = points.map((p, i) => {
-      const isLast = i === points.length - 1;
-      const size = isLast ? 12 : 8;
-      return {
-        position: 'absolute' as const,
-        backgroundColor: lineColor,
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        left: getX(i) - size / 2,
-        top: getY(p.value) - size / 2,
-        ...(isLast ? { borderWidth: 2.5, borderColor: c.card } : {}),
-      };
-    });
+  const geo = buildChartGeometry(points, chartWidth, height, fmt);
+  if (!geo) return null;
 
-    const gridStyles = ([0, 0.5, 1] as const).map((t) => [
-      styles.gridLine,
-      { top: CHART_PAD_V + (1 - t) * plotH },
-    ]);
+  const handlePress = (e: GestureResponderEvent) => {
+    const idx = nearestDotIndex(geo.dots, e.nativeEvent.locationX);
+    setSelected((cur) => (cur === idx ? null : idx));
+  };
 
-    const fmtMin = formatValue ? formatValue(minV) : String(minV % 1 === 0 ? minV : minV.toFixed(1));
-    const fmtMax = formatValue ? formatValue(maxV) : String(maxV % 1 === 0 ? maxV : maxV.toFixed(1));
-    const yMaxStyle = [styles.yLabel, { top: CHART_PAD_V - 8 }];
-    const yMinStyle = [styles.yLabel, { top: CHART_PAD_V + plotH - 8 }];
-
-    return {
-      segmentStyles,
-      pointStyles,
-      gridStyles,
-      fmtMin,
-      fmtMax,
-      showMin: minV !== maxV,
-      yMaxStyle,
-      yMinStyle,
-      midIndex: Math.floor((points.length - 1) / 2),
-    };
-  }, [points, lineColor, chartWidth, height, c.card, formatValue, styles.gridLine, styles.yLabel]);
+  const maxDot = geo.dots[geo.maxIndex];
+  const selectedDot = selected != null ? geo.dots[selected] : null;
 
   return (
-    <View style={useMemo(() => ({ width: chartWidth }), [chartWidth])}>
-      <View style={useMemo(() => ({ height, position: 'relative' as const }), [height])}>
-        {/* Linhas de grade */}
-        {([0, 0.5, 1] as const).map((t, i) => (
-          <View key={t} style={computed.gridStyles[i]} />
+    <View style={{ width: chartWidth }}>
+      <Pressable onPress={handlePress}>
+        <Svg width={chartWidth} height={height}>
+          <Defs>
+            <LinearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={lineColor} stopOpacity={0.22} />
+              <Stop offset="1" stopColor={lineColor} stopOpacity={0.02} />
+            </LinearGradient>
+          </Defs>
+
+          {geo.gridYs.map((y) => (
+            <Path
+              key={y}
+              d={`M 0 ${y} L ${chartWidth} ${y}`}
+              stroke={c.cardBorder}
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+          ))}
+
+          {showArea ? <Path d={geo.areaPath} fill={`url(#${gradId})`} /> : null}
+          <Path d={geo.linePath} stroke={lineColor} strokeWidth={2.5} fill="none" strokeLinecap="round" />
+
+          {geo.dots.map((d, i) => {
+            const isLast = i === geo.dots.length - 1;
+            return (
+              <Circle
+                key={i}
+                cx={d.x}
+                cy={d.y}
+                r={isLast ? 5.5 : 3.5}
+                fill={lineColor}
+                stroke={c.card}
+                strokeWidth={isLast ? 2 : 0}
+              />
+            );
+          })}
+
+          {selectedDot ? (
+            <Circle cx={selectedDot.x} cy={selectedDot.y} r={7.5} fill="none" stroke={lineColor} strokeWidth={2} />
+          ) : null}
+        </Svg>
+
+        {geo.yLabels.map((l) => (
+          <View key={`${l.text}-${l.y}`} pointerEvents="none" style={[styles.yLabel, { top: l.y - 7 }]}>
+            <Text style={[styles.yLabelText, { color: c.textSecondary, backgroundColor: c.card }]}>{l.text}</Text>
+          </View>
         ))}
 
-        {/* Segmentos */}
-        {computed.segmentStyles.map((s, i) => (
-          <View key={i} style={s} />
-        ))}
-
-        {/* Pontos */}
-        {computed.pointStyles.map((s, i) => (
-          <View key={i} style={s} />
-        ))}
-
-        {/* Labels Y */}
-        <View style={computed.yMaxStyle}>
-          <Text style={styles.yLabelText}>{computed.fmtMax}</Text>
-        </View>
-        {computed.showMin ? (
-          <View style={computed.yMinStyle}>
-            <Text style={styles.yLabelText}>{computed.fmtMin}</Text>
+        {markMax ? (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.prBadge,
+              {
+                backgroundColor: c.success,
+                left: clamp(maxDot.x - 13, 0, chartWidth - 26),
+                top: Math.max(0, maxDot.y - 26),
+              },
+            ]}
+          >
+            <Text style={styles.prBadgeText}>PR</Text>
           </View>
         ) : null}
-      </View>
 
-      {/* Labels X */}
-      <View style={styles.xAxis}>
-        <Text style={styles.axisLabel}>{points[0].label}</Text>
-        {points.length > 2 ? (
-          <Text style={styles.axisLabel}>{points[computed.midIndex].label}</Text>
+        {selectedDot && selected != null ? (
+          <View
+            pointerEvents="none"
+            style={[
+              styles.tooltip,
+              {
+                backgroundColor: c.hero,
+                left: clamp(selectedDot.x - TOOLTIP_W / 2, 0, chartWidth - TOOLTIP_W),
+                top: Math.max(0, selectedDot.y - 42),
+              },
+            ]}
+          >
+            <Text style={[styles.tooltipText, { color: c.heroText }]} numberOfLines={1}>
+              {fmt(points[selected].value)} · {points[selected].label}
+            </Text>
+          </View>
         ) : null}
-        <Text style={styles.axisLabel}>{points[points.length - 1].label}</Text>
+      </Pressable>
+
+      <View style={{ height: X_AXIS_H }}>
+        {geo.xLabels.map((l) => (
+          <Text
+            key={`${l.text}-${l.x}`}
+            numberOfLines={1}
+            style={[
+              styles.xLabelText,
+              { color: c.textSecondary, left: clamp(l.x - X_LABEL_W / 2, 0, chartWidth - X_LABEL_W) },
+            ]}
+          >
+            {l.text}
+          </Text>
+        ))}
       </View>
     </View>
   );
 }
 
-function makeStyles(c: ReturnType<typeof useTheme>) {
-  return StyleSheet.create({
-    gridLine: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: c.cardBorder },
-    xAxis: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-    axisLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '600' },
-    yLabel: { position: 'absolute', right: 0 },
-    yLabelText: { color: c.textSecondary, fontSize: 10, fontWeight: '600', backgroundColor: c.card, paddingHorizontal: 2 },
-  });
-}
+const styles = StyleSheet.create({
+  yLabel: { position: 'absolute', right: 0 },
+  yLabelText: { fontSize: 10, fontWeight: '600', paddingHorizontal: 2, fontVariant: ['tabular-nums'] },
+  xLabelText: {
+    position: 'absolute',
+    top: 2,
+    width: X_LABEL_W,
+    textAlign: 'center',
+    fontSize: 11,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
+  prBadge: { position: 'absolute', width: 26, borderRadius: 7, paddingVertical: 1, alignItems: 'center' },
+  prBadgeText: { color: '#fff', fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
+  tooltip: {
+    position: 'absolute',
+    width: TOOLTIP_W,
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+  },
+  tooltipText: { fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  singleWrap: { alignItems: 'center', justifyContent: 'center' },
+  singleValue: { fontSize: 22, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  singleDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 2.5, marginVertical: 8 },
+  singleLabel: { fontSize: 12, fontWeight: '600' },
+});
