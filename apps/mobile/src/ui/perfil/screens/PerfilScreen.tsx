@@ -19,6 +19,7 @@ import { AderenciaCard } from '../../shared/components/AderenciaCard';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { LineChart, type LineChartPoint } from '../../shared/LineChart';
 import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
+import { useLocalePreference, type LocalePreference } from '../../shared/i18n';
 
 // ─── Metric abstraction ──────────────────────────────────────────────────────
 // To add a new metric (arm, height, body fat…), push a MetricSeries into the
@@ -57,6 +58,12 @@ const THEME_OPTIONS: { value: ThemePreference; icon: string; label: string }[] =
   { value: 'system', icon: '⊙', label: 'Auto' },
   { value: 'light',  icon: '☀', label: 'Claro' },
   { value: 'dark',   icon: '🌙', label: 'Escuro' },
+];
+
+const LOCALE_OPTIONS: { value: LocalePreference; icon: string; label: string }[] = [
+  { value: 'system', icon: '⊙', label: 'Sistema' },
+  { value: 'pt-BR',  icon: '🇧🇷', label: 'Português (BR)' },
+  { value: 'en-US',  icon: '🇺🇸', label: 'English (US)' },
 ];
 
 function getInitials(name: string): string {
@@ -124,6 +131,7 @@ export function PerfilScreen({
 }: PerfilScreenProps) {
   const c = useTheme();
   const { preference, setPreference } = useThemePreference();
+  const { preference: localePref, setPreference: setLocalePref } = useLocalePreference();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -272,6 +280,35 @@ export function PerfilScreen({
                   <Pressable
                     key={opt.value}
                     onPress={() => setPreference(opt.value)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={opt.label}
+                    style={({ pressed }) => [
+                      styles.themeOption,
+                      active ? styles.themeOptionActive : null,
+                      pressed && !active ? styles.themeOptionPressed : null,
+                    ]}
+                  >
+                    <Text style={styles.themeIcon}>{opt.icon}</Text>
+                    <Text style={[styles.themeOptionLabel, active ? styles.themeOptionLabelActive : null]}>
+                      {opt.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Idioma */}
+          <View style={styles.configRow}>
+            <Text style={styles.configLabel}>Idioma</Text>
+            <View style={styles.themeTrack}>
+              {LOCALE_OPTIONS.map((opt) => {
+                const active = localePref === opt.value;
+                return (
+                  <Pressable
+                    key={opt.value}
+                    onPress={() => setLocalePref(opt.value)}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: active }}
                     accessibilityLabel={opt.label}
