@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../theme';
+import { useT } from '../i18n';
 
 interface Props {
   visible: boolean;
@@ -22,14 +23,16 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel,
-  cancelLabel = 'Voltar',
+  cancelLabel,
   destructive = false,
   hideCancel = false,
   onConfirm,
   onCancel,
 }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const resolvedCancelLabel = cancelLabel ?? t('common.back');
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onCancel}>
@@ -43,7 +46,7 @@ export function ConfirmDialog({
                 onPress={onCancel}
                 style={({ pressed }) => [styles.cancelBtn, pressed ? { opacity: 0.7 } : null]}
               >
-                <Text style={styles.cancelBtnText}>{cancelLabel}</Text>
+                <Text style={styles.cancelBtnText}>{resolvedCancelLabel}</Text>
               </Pressable>
             ) : null}
             <Pressable

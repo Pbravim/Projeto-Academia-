@@ -114,6 +114,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
           dateLabel: formatShortDate(s.dataHoraInicio, locale),
           sets: s.series.map((sr) => ({ cargaKg: sr.cargaKg, repeticoes: sr.repeticoes })),
         })),
+        locale,
       ),
     [sessoes, locale],
   );

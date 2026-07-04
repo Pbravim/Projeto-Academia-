@@ -7,4 +7,14 @@ export const ptBR = {
     onlyInPt: 'só em pt',
   },
   tabs: { sessao: 'Sessão', treinos: 'Treinos', exercicios: 'Exercícios', evolucao: 'Evolução' },
+  shell: { greeting: 'Bem-vindo', profileLabel: 'Perfil' },
+  sessionSeriesTable: { emptyState: 'Sem séries válidas' },
+  aderencia: {
+    title: 'Aderência',
+    subtitle: { semanal: 'Semana atual', mensal: 'Mês atual', anual: 'Ano atual' },
+    mode: { semanal: 'Semanal', mensal: 'Mensal', anual: 'Anual' },
+    footerUnit: { meses: 'meses ativos', dias: 'dias ativos' },
+    footer: { treinos: 'treinos' },
+    weekday: { mon: 'Seg', tue: 'Ter', wed: 'Qua', thu: 'Qui', fri: 'Sex', sat: 'Sab', sun: 'Dom' },
+  },
 } as const;

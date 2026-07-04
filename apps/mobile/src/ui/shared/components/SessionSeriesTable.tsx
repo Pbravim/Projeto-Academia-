@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { SessionTableRowVM } from './sessionSeriesTableModel';
 import { useTheme } from '../theme';
+import { useT } from '../i18n';
 
 interface Props {
   rows: SessionTableRowVM[];
@@ -12,6 +13,7 @@ interface Props {
 /** Tabela compacta de sessoes: data, sets individuais, volume/1RM com tendencia. */
 export function SessionSeriesTable({ rows, showVolume = false }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   return (
@@ -52,7 +54,7 @@ export function SessionSeriesTable({ rows, showVolume = false }: Props) {
               ))}
             </View>
           ) : (
-            <Text style={styles.semSeries}>Sem séries válidas</Text>
+            <Text style={styles.semSeries}>{t('sessionSeriesTable.emptyState')}</Text>
           )}
         </View>
       ))}

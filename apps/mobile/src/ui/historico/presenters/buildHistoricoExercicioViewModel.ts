@@ -62,6 +62,7 @@ export function buildHistoricoExercicioViewModel(
           muted: s.tipoSerie !== 'valida',
         })),
     })),
+    locale,
   );
 
   return {

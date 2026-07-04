@@ -3,10 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DiaAderencia } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { useTheme } from '../theme';
+import { useT } from '../i18n';
 
 type AderenciaMode = 'semanal' | 'mensal' | 'anual';
-
-const CAL_HEADERS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
 
 function CalendarMonthView({
   dias,
@@ -17,6 +16,16 @@ function CalendarMonthView({
   c: ReturnType<typeof useTheme>;
   styles: ReturnType<typeof makeStyles>;
 }) {
+  const t = useT();
+  const calHeaders = [
+    t('aderencia.weekday.mon'),
+    t('aderencia.weekday.tue'),
+    t('aderencia.weekday.wed'),
+    t('aderencia.weekday.thu'),
+    t('aderencia.weekday.fri'),
+    t('aderencia.weekday.sat'),
+    t('aderencia.weekday.sun'),
+  ];
   const now = new Date();
   const firstWeekday = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
   const startOffset = firstWeekday === 0 ? 6 : firstWeekday - 1;
@@ -32,7 +41,7 @@ function CalendarMonthView({
   return (
     <View style={styles.calendarGrid}>
       <View style={styles.calendarRow}>
-        {CAL_HEADERS.map((h) => (
+        {calHeaders.map((h) => (
           <View key={h} style={styles.calendarCell}>
             <Text style={styles.calendarHeaderText}>{h}</Text>
           </View>
@@ -74,6 +83,7 @@ interface AderenciaCardProps {
 
 export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [mode, setMode] = useState<AderenciaMode>('semanal');
 
@@ -84,13 +94,13 @@ export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
 
   const MAX_BAR_H = 56;
   const MIN_BAR_H = 3;
-  const subtitle = mode === 'semanal' ? 'Semana atual' : mode === 'mensal' ? 'Mês atual' : 'Ano atual';
-  const footerUnit = mode === 'anual' ? 'meses ativos' : 'dias ativos';
+  const subtitle = t(`aderencia.subtitle.${mode}`);
+  const footerUnit = mode === 'anual' ? t('aderencia.footerUnit.meses') : t('aderencia.footerUnit.dias');
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Aderência</Text>
+        <Text style={styles.title}>{t('aderencia.title')}</Text>
         <View style={styles.modeToggle}>
           {(['semanal', 'mensal', 'anual'] as AderenciaMode[]).map((m) => (
             <Pressable
@@ -99,7 +109,7 @@ export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
               style={[styles.modeBtn, mode === m ? styles.modeBtnActive : null]}
             >
               <Text style={[styles.modeBtnText, mode === m ? styles.modeBtnTextActive : null]}>
-                {m.charAt(0).toUpperCase() + m.slice(1)}
+                {t(`aderencia.mode.${m}`)}
               </Text>
             </Pressable>
           ))}
@@ -146,7 +156,7 @@ export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
       )}
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>{totalSessoes} treinos</Text>
+        <Text style={styles.footerText}>{totalSessoes} {t('aderencia.footer.treinos')}</Text>
         <Text style={styles.footerDot}>·</Text>
         <Text style={styles.footerText}>{totalAtivas} {footerUnit}</Text>
       </View>

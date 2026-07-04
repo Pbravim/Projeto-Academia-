@@ -1,4 +1,5 @@
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
+import { translate, type AppLocale } from '../i18n/core';
 
 export interface SessionTableInputSet {
   cargaKg: number;
@@ -57,7 +58,10 @@ export function formatKgDelta(
 }
 
 /** Sessoes em ordem: mais recente primeiro. `trend` compara com a proxima da lista (mais antiga). */
-export function buildSessionTableRows(sessions: SessionTableInputSession[]): SessionTableRowVM[] {
+export function buildSessionTableRows(
+  sessions: SessionTableInputSession[],
+  locale: AppLocale = 'pt-BR',
+): SessionTableRowVM[] {
   const bestOrms = sessions.map((s) =>
     s.sets
       .filter((x) => !x.muted)
@@ -96,7 +100,7 @@ export function buildSessionTableRows(sessions: SessionTableInputSession[]): Ses
       dateLabel: s.dateLabel,
       subLabel: s.subLabel ?? null,
       sets,
-      setsCountLabel: valid.length > 0 ? `${valid.length} série${valid.length !== 1 ? 's' : ''}` : null,
+      setsCountLabel: valid.length > 0 ? translate(locale, 'common.seriesCount', { count: valid.length }) : null,
       ormLabel: best > 0 ? `1RM ~${formatCarga(Math.round(best * 10) / 10)}` : null,
       volumeLabel: valid.length > 0 ? formatVolume(volume) : null,
       trend,

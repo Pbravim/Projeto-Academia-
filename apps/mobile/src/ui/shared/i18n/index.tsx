@@ -1,22 +1,12 @@
-import { I18n } from 'i18n-js';
 import { getLocales } from 'expo-localization';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { databaseClient } from '../../../bootstrap/databaseClient';
-import { ptBR } from './translations/pt-BR';
-import { enUS } from './translations/en-US';
+import { translate, type AppLocale, type LocalePreference } from './core';
 
-export type LocalePreference = 'system' | 'pt-BR' | 'en-US';
-export type AppLocale = 'pt-BR' | 'en-US';
+export { translate, type AppLocale, type LocalePreference };
 
 const SETTING_KEY = 'locale_preference';
-const i18n = new I18n({ 'pt-BR': ptBR, 'en-US': enUS });
-i18n.defaultLocale = 'pt-BR';
-i18n.enableFallback = true;
-
-export function translate(locale: AppLocale, key: string, options?: Record<string, unknown>): string {
-  return i18n.t(key, { ...options, locale });
-}
 
 function systemLocale(): AppLocale {
   const tag = getLocales()[0]?.languageTag ?? 'pt-BR';

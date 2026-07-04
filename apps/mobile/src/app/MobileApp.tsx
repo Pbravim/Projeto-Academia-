@@ -14,7 +14,7 @@ import { TreinoFeature } from '../ui/treinos/TreinoFeature';
 import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 import { DashboardFeature } from '../ui/dashboard/DashboardFeature';
 import { ThemeContext, useTheme, useThemeProvider } from '../ui/shared/theme';
-import { LocaleProvider } from '../ui/shared/i18n';
+import { LocaleProvider, useT } from '../ui/shared/i18n';
 
 type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'evolucao' | 'perfil';
 type TabModule = Exclude<ActiveModule, 'perfil'>;
@@ -57,6 +57,7 @@ function AppContent() {
   const lastTabRef = useRef<TabModule>('sessao');
   const insets = useSafeAreaInsets();
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
@@ -111,7 +112,7 @@ function AppContent() {
       {/* ── Top bar ── */}
       <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
         <View style={styles.greetingBlock}>
-          <Text style={styles.greetingLabel}>Bem-vindo{displayName ? ',' : ''}</Text>
+          <Text style={styles.greetingLabel}>{t('shell.greeting')}{displayName ? ',' : ''}</Text>
           {displayName ? (
             <Text style={styles.greetingName} numberOfLines={1}>{displayName}</Text>
           ) : null}
@@ -124,7 +125,7 @@ function AppContent() {
             profileOpen ? styles.profileButtonActive : null,
             pressed ? styles.profileButtonPressed : null,
           ]}
-          accessibilityLabel="Perfil"
+          accessibilityLabel={t('shell.profileLabel')}
           accessibilityRole="button"
         >
           {photoUri ? (
@@ -171,10 +172,10 @@ function AppContent() {
 
       {/* ── Bottom tab bar ── */}
       <View style={[styles.tabBar, { paddingBottom: insets.bottom + 4 }]}>
-        <TabButton label="Sessão"     icon="barbell"   active={activeModule === 'sessao'}     onPress={() => handleTabPress('sessao')} />
-        <TabButton label="Treinos"    icon="clipboard" active={activeModule === 'treinos'}    onPress={() => handleTabPress('treinos')} />
-        <TabButton label="Exercícios" icon="fitness"   active={activeModule === 'exercicios'} onPress={() => handleTabPress('exercicios')} />
-        <TabButton label="Evolução"   icon="stats-chart" active={activeModule === 'evolucao'} onPress={() => handleTabPress('evolucao')} />
+        <TabButton label={t('tabs.sessao')}     icon="barbell"   active={activeModule === 'sessao'}     onPress={() => handleTabPress('sessao')} />
+        <TabButton label={t('tabs.treinos')}    icon="clipboard" active={activeModule === 'treinos'}    onPress={() => handleTabPress('treinos')} />
+        <TabButton label={t('tabs.exercicios')} icon="fitness"   active={activeModule === 'exercicios'} onPress={() => handleTabPress('exercicios')} />
+        <TabButton label={t('tabs.evolucao')}   icon="stats-chart" active={activeModule === 'evolucao'} onPress={() => handleTabPress('evolucao')} />
       </View>
     </View>
   );
