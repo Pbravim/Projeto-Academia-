@@ -1,6 +1,8 @@
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import type { AppLocale } from '../../shared/i18n';
+import { translate } from '../../shared/i18n/core';
 
 export interface TreinoExercicioViewModel {
   treinoExercicioId: string;
@@ -26,7 +28,8 @@ export interface TreinoDetailViewModel {
 export function buildTreinoDetailViewModel(
   treino: TreinoPrimitives,
   treinoExercicios: TreinoExercicioPrimitives[],
-  exercisesById: Map<string, ExercisePrimitives>
+  exercisesById: Map<string, ExercisePrimitives>,
+  locale: AppLocale = 'pt-BR'
 ): TreinoDetailViewModel {
   const sorted = [...treinoExercicios].sort((a, b) => a.ordem - b.ordem);
   const total = sorted.length;
@@ -54,11 +57,11 @@ export function buildTreinoDetailViewModel(
 
   return {
     treinoName: treino.name,
-    objetivo: treino.objetivo ?? 'Sem objetivo definido',
+    objetivo: treino.objetivo ?? translate(locale, 'treinos.semObjetivoDefinido'),
     exercicios,
     emptyStateMessage:
       exercicios.length === 0
-        ? 'Nenhum exercicio adicionado. Adicione exercicios do seu catalogo.'
+        ? translate(locale, 'treinos.detail.emptyStateMessage')
         : null,
   };
 }

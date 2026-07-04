@@ -1,4 +1,6 @@
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import type { AppLocale } from '../../shared/i18n';
+import { translate } from '../../shared/i18n/core';
 
 export interface TreinoCardViewModel {
   id: string;
@@ -11,11 +13,11 @@ export interface TreinoListViewModel {
   emptyStateMessage: string | null;
 }
 
-export function buildTreinoListViewModel(treinos: TreinoPrimitives[]): TreinoListViewModel {
+export function buildTreinoListViewModel(treinos: TreinoPrimitives[], locale: AppLocale = 'pt-BR'): TreinoListViewModel {
   if (treinos.length === 0) {
     return {
       cards: [],
-      emptyStateMessage: 'Nenhum treino criado ainda. Crie o primeiro para comecar.',
+      emptyStateMessage: translate(locale, 'treinos.list.emptyStateMessage'),
     };
   }
 
@@ -23,7 +25,7 @@ export function buildTreinoListViewModel(treinos: TreinoPrimitives[]): TreinoLis
     cards: treinos.map((t) => ({
       id: t.id,
       title: t.name,
-      subtitle: t.objetivo ?? 'Sem objetivo definido',
+      subtitle: t.objetivo ?? translate(locale, 'treinos.semObjetivoDefinido'),
     })),
     emptyStateMessage: null,
   };

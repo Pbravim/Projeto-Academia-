@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   visible: boolean;
@@ -141,6 +142,7 @@ export function SubstitutosPickerModal({
   onClose,
 }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [search, setSearch] = useState('');
@@ -186,14 +188,14 @@ export function SubstitutosPickerModal({
       <View style={styles.screen}>
         <View style={styles.header}>
           <Pressable onPress={handleClose} style={({ pressed }) => [styles.backBtn, pressed ? { opacity: 0.6 } : null]}>
-            <Text style={styles.backBtnText}>← Voltar</Text>
+            <Text style={styles.backBtnText}>{t('common.backArrow')}</Text>
           </Pressable>
-          <Text style={styles.title}>Adicionar substitutos</Text>
+          <Text style={styles.title}>{t('treinos.substitutos.title')}</Text>
         </View>
 
         <TextInput
           style={styles.search}
-          placeholder="Buscar por nome ou grupo muscular..."
+          placeholder={t('treinos.substitutos.buscarPlaceholder')}
           placeholderTextColor={c.inputPlaceholder}
           value={search}
           onChangeText={setSearch}
@@ -217,7 +219,7 @@ export function SubstitutosPickerModal({
             />
           ))}
           {grouped.length === 0 ? (
-            <Text style={styles.empty}>Nenhum exercício encontrado</Text>
+            <Text style={styles.empty}>{t('treinos.substitutos.nenhumEncontrado')}</Text>
           ) : null}
         </ScrollView>
       </View>

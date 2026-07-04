@@ -13,6 +13,7 @@ import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { useTheme } from '../../shared/theme';
+import { useLocale, useT } from '../../shared/i18n';
 
 const GROUP_ORDER = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
@@ -20,10 +21,10 @@ const GROUP_ORDER = [
   'Abdomen', 'Trapezio', 'Antebraco',
 ];
 
-function grupoLabel(n: number): string {
-  if (n === 2) return 'Bi-set';
-  if (n === 3) return 'Tri-set';
-  return 'Circuito';
+function grupoLabel(n: number, t: (key: string) => string): string {
+  if (n === 2) return t('treinos.detail.grupoLabel.biSet');
+  if (n === 3) return t('treinos.detail.grupoLabel.triSet');
+  return t('treinos.detail.grupoLabel.circuito');
 }
 
 function grupoColor(n: number): string {
@@ -88,12 +89,14 @@ export function TreinoDetailScreen({
   onGoToSessao,
 }: TreinoDetailControllerState) {
   const c = useTheme();
+  const t = useT();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(() => { void handleSaveAll(); });
 
   const viewModel = useMemo(
-    () => buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById),
-    [treino, treinoExercicios, exercisesById]
+    () => buildTreinoDetailViewModel(treino, treinoExercicios, exercisesById, locale),
+    [treino, treinoExercicios, exercisesById, locale]
   );
 
   const notAddedExercises = useMemo(() => {
@@ -260,12 +263,12 @@ export function TreinoDetailScreen({
           disabled={isSaving}
           style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
         >
-          <Text style={styles.backButtonText}>{isSaving ? 'Salvando...' : '← Voltar'}</Text>
+          <Text style={styles.backButtonText}>{isSaving ? t('treinos.detail.salvando') : t('common.backArrow')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Treino</Text>
+        <Text style={styles.eyebrow}>{t('treinos.detail.eyebrow')}</Text>
         {editingNome ? (
           <View style={styles.editNomeRow}>
             <TextInput
@@ -278,7 +281,7 @@ export function TreinoDetailScreen({
               returnKeyType="done"
             />
             <Pressable onPress={() => { void handleSaveNome(); }} style={styles.saveNomeBtn}>
-              <Text style={styles.saveNomeBtnText}>Salvar</Text>
+              <Text style={styles.saveNomeBtnText}>{t('common.save')}</Text>
             </Pressable>
           </View>
         ) : (
@@ -298,7 +301,7 @@ export function TreinoDetailScreen({
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Exercícios do treino</Text>
+        <Text style={styles.sectionTitle}>{t('treinos.detail.exerciciosDoTreino')}</Text>
 
         {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
         {feedbackMessage ? <Text style={styles.successMessage}>{feedbackMessage}</Text> : null}
@@ -349,7 +352,7 @@ export function TreinoDetailScreen({
             // Bloco agrupado
             const n = bloco.exercicios.length;
             const color = grupoColor(n);
-            const label = grupoLabel(n);
+            const label = grupoLabel(n, t);
             const lastTeIdx = sorted.findIndex((x) => x.id === bloco.exercicios[n - 1].id);
             const nextAfterGrupo = lastTeIdx < sorted.length - 1 ? sorted[lastTeIdx + 1] : null;
             // Unified series/descanso from first exercise in group
@@ -377,7 +380,7 @@ export function TreinoDetailScreen({
                     <Pressable
                       onPress={() => { void desfazerGrupo(bloco.grupoId!); }}
                       style={({ pressed }) => [styles.desfazerBtn, pressed ? { opacity: 0.7 } : null]}>
-                      <Text style={styles.desfazerBtnText}>Desfazer</Text>
+                      <Text style={styles.desfazerBtnText}>{t('treinos.detail.desfazer')}</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -385,7 +388,7 @@ export function TreinoDetailScreen({
                 {/* ── Unified Series + Descanso ── */}
                 <View style={styles.grupoRecs}>
                   <View style={styles.grupoRecCell}>
-                    <Text style={[styles.grupoRecLabel, { color }]}>Séries (todas)</Text>
+                    <Text style={[styles.grupoRecLabel, { color }]}>{t('treinos.rec.seriesTodas')}</Text>
                     <TextInput
                       style={[styles.grupoRecInput, { borderColor: color }]}
                       defaultValue={firstTe.seriesRecomendadas != null ? String(firstTe.seriesRecomendadas) : ''}
@@ -402,7 +405,7 @@ export function TreinoDetailScreen({
                     />
                   </View>
                   <View style={styles.grupoRecCell}>
-                    <Text style={[styles.grupoRecLabel, { color }]}>Descanso (s)</Text>
+                    <Text style={[styles.grupoRecLabel, { color }]}>{t('treinos.rec.descansoS')}</Text>
                     <TextInput
                       style={[styles.grupoRecInput, { borderColor: color }]}
                       defaultValue={firstTe.tempoDescansoSegundos != null ? String(firstTe.tempoDescansoSegundos) : ''}
@@ -471,7 +474,7 @@ export function TreinoDetailScreen({
                       onPress={() => { void vincular(bloco.exercicios[n - 1].id, nextAfterGrupo.id, bloco.grupoId); }}
                       style={({ pressed }) => [styles.vincularAoGrupoBtn, { borderColor: color }, pressed ? { opacity: 0.65 } : null]}
                     >
-                      <Text style={[styles.vincularAoGrupoBtnText, { color }]}>+ Adicionar próximo ao grupo</Text>
+                      <Text style={[styles.vincularAoGrupoBtnText, { color }]}>{t('treinos.detail.adicionarProximoAoGrupo')}</Text>
                     </Pressable>
                   ) : null}
                 </View>
@@ -492,7 +495,7 @@ export function TreinoDetailScreen({
               ]}
             >
               <Text style={styles.saveTreinoBtnText}>
-                {isSaving ? 'Salvando...' : 'Salvar treino'}
+                {isSaving ? t('treinos.detail.salvando') : t('treinos.detail.salvarTreino')}
               </Text>
             </Pressable>
           </View>
@@ -501,11 +504,11 @@ export function TreinoDetailScreen({
 
       {notAddedExercises.length > 0 ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Adicionar exercícios</Text>
+          <Text style={styles.sectionTitle}>{t('treinos.detail.adicionarExercicios')}</Text>
 
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar exercicio ou grupo muscular..."
+            placeholder={t('treinos.detail.buscarPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             value={search}
             onChangeText={(v) => { setSearch(v); setSelected(new Set()); }}
@@ -516,15 +519,15 @@ export function TreinoDetailScreen({
               onPress={() => { void handleAddSelected(); }}
               style={({ pressed }) => [styles.addSelectedBtn, pressed ? { opacity: 0.85 } : null]}
             >
-              <Text style={styles.addSelectedBtnText}>+ Adicionar selecionados ({selected.size})</Text>
+              <Text style={styles.addSelectedBtnText}>{t('treinos.detail.adicionarSelecionados', { count: selected.size })}</Text>
             </Pressable>
           ) : (
-            <Text style={styles.helperText}>Toque para selecionar. Toque novamente para desmarcar.</Text>
+            <Text style={styles.helperText}>{t('treinos.detail.toqueParaSelecionar')}</Text>
           )}
 
           {filteredExercises.length === 0 ? (
             <Text style={styles.emptyState}>
-              {search ? 'Nenhum exercício encontrado.' : 'Todos os exercícios já estão no treino.'}
+              {search ? t('treinos.detail.nenhumExercicioEncontrado') : t('treinos.detail.todosExerciciosJaEstao')}
             </Text>
           ) : (
             groupedExercises.map(({ group, items }) => (
@@ -557,10 +560,10 @@ export function TreinoDetailScreen({
 
       <ConfirmDialog
         visible={sessaoConflito !== null}
-        title="Sessão em andamento"
-        message={`Há uma sessão de "${sessaoConflito?.nome ?? ''}" em andamento. Salvar o treino agora vai cancelar essa sessão e perder todo o progresso.`}
-        confirmLabel="Salvar e cancelar sessão"
-        cancelLabel="Continuar sessão"
+        title={t('treinos.detail.sessaoConflito.title')}
+        message={t('treinos.detail.sessaoConflito.message', { nome: sessaoConflito?.nome ?? '' })}
+        confirmLabel={t('treinos.detail.sessaoConflito.confirmLabel')}
+        cancelLabel={t('treinos.detail.sessaoConflito.cancelLabel')}
         destructive
         onConfirm={() => {
           const conflito = sessaoConflito;
@@ -592,11 +595,6 @@ export function TreinoDetailScreen({
   );
 }
 
-const OBJETIVOS = [
-  'Hipertrofia', 'Forca', 'Resistencia', 'Emagrecimento',
-  'Mobilidade', 'Reabilitacao', 'Condicionamento',
-];
-
 interface ObjetivoInlineFieldProps {
   value: string;
   onChange: (value: string) => void;
@@ -606,8 +604,19 @@ interface ObjetivoInlineFieldProps {
 
 function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: ObjetivoInlineFieldProps) {
   const c = useTheme();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [customText, setCustomText] = useState('');
+
+  const OBJETIVOS = [
+    t('treinos.detail.objetivoField.options.hipertrofia'),
+    t('treinos.detail.objetivoField.options.forca'),
+    t('treinos.detail.objetivoField.options.resistencia'),
+    t('treinos.detail.objetivoField.options.emagrecimento'),
+    t('treinos.detail.objetivoField.options.mobilidade'),
+    t('treinos.detail.objetivoField.options.reabilitacao'),
+    t('treinos.detail.objetivoField.options.condicionamento'),
+  ];
 
   const isCustom = value !== '' && !OBJETIVOS.includes(value);
   const displayValue = value || null;
@@ -634,7 +643,7 @@ function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: 
     <>
       <Pressable onPress={() => setOpen(true)} style={styles.objetivoTrigger}>
         <Text style={[styles.description, !displayValue ? styles.objetivoPlaceholder : null]}>
-          {displayValue ?? 'Definir objetivo...'}
+          {displayValue ?? t('treinos.detail.objetivoField.placeholder')}
         </Text>
         <Text style={styles.objetivoEditIcon}>✎</Text>
       </Pressable>
@@ -643,13 +652,13 @@ function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: 
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
         <View style={styles.sheet}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.sheetTitle}>Objetivo do treino</Text>
+          <Text style={styles.sheetTitle}>{t('treinos.detail.objetivoField.sheetTitle')}</Text>
           <ScrollView showsVerticalScrollIndicator={false}>
             <Pressable
               onPress={clear}
               style={({ pressed }) => [styles.sheetRow, pressed ? { backgroundColor: c.cardAlt } : null]}
             >
-              <Text style={[styles.sheetRowText, !value ? styles.sheetRowActive : null]}>Sem objetivo</Text>
+              <Text style={[styles.sheetRowText, !value ? styles.sheetRowActive : null]}>{t('treinos.detail.objetivoField.semObjetivo')}</Text>
               {!value ? <Text style={styles.sheetCheck}>✓</Text> : null}
             </Pressable>
             <View style={styles.sheetDivider} />
@@ -667,7 +676,7 @@ function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: 
               );
             })}
             <View style={styles.sheetDivider} />
-            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+            <Text style={styles.sheetSectionLabel}>{t('treinos.objetivo.outroPersonalizado')}</Text>
             {isCustom ? (
               <View style={styles.sheetRow}>
                 <Text style={[styles.sheetRowText, styles.sheetRowActive]}>{value}</Text>
@@ -677,7 +686,7 @@ function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: 
             <View style={styles.customInputRow}>
               <TextInput
                 style={styles.customInput}
-                placeholder="Digite o objetivo..."
+                placeholder={t('treinos.objetivo.digitePlaceholder')}
                 placeholderTextColor={placeholderTextColor}
                 value={customText}
                 onChangeText={setCustomText}
@@ -685,7 +694,7 @@ function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: 
                 returnKeyType="done"
               />
               <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
-                <Text style={styles.addCustomBtnText}>OK</Text>
+                <Text style={styles.addCustomBtnText}>{t('common.ok')}</Text>
               </Pressable>
             </View>
           </ScrollView>

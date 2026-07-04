@@ -6,12 +6,16 @@ import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExe
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
-const TECNICAS: { value: Exclude<MetodoExercicio, 'normal'>; label: string; color: string }[] = [
-  { value: 'drop_set',   label: 'Drop-set',  color: '#9333ea' },
-  { value: 'piramide',   label: 'Pirâmide',  color: '#d97706' },
-  { value: 'rest_pause', label: 'Rest-pause', color: '#e11d48' },
-];
+function useTecnicas(): { value: Exclude<MetodoExercicio, 'normal'>; label: string; color: string }[] {
+  const t = useT();
+  return [
+    { value: 'drop_set',   label: t('treinos.card.tecnica.dropSet'),  color: '#9333ea' },
+    { value: 'piramide',   label: t('treinos.card.tecnica.piramide'),  color: '#d97706' },
+    { value: 'rest_pause', label: t('treinos.card.tecnica.restPause'), color: '#e11d48' },
+  ];
+}
 
 interface Props {
   item: {
@@ -76,6 +80,8 @@ export function ExercicioCardTreino({
   onViewMedia,
 }: Props) {
   const c = useTheme();
+  const t = useT();
+  const TECNICAS = useTecnicas();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [seriesText,   setSeriesText]   = useState(seriesRecomendadas   != null ? String(seriesRecomendadas)   : '');
@@ -83,7 +89,7 @@ export function ExercicioCardTreino({
   const [cargaText,    setCargaText]    = useState(cargaPadrao           != null ? String(cargaPadrao)           : '');
   const [descansoText, setDescansoText] = useState(tempoDescansoSegundos != null ? String(tempoDescansoSegundos) : '');
 
-  const tecnicaAtiva = TECNICAS.find((t) => t.value === item.metodo);
+  const tecnicaAtiva = TECNICAS.find((tec) => tec.value === item.metodo);
   const isNormal = item.metodo === 'normal';
   const gifSource = item.mediaLocal ? (gifAssets[item.mediaLocal] ?? null) : null;
 
@@ -158,19 +164,19 @@ export function ExercicioCardTreino({
           style={[styles.tecnicaChip, isNormal ? styles.tecnicaChipNormal : null]}
         >
           <Text style={[styles.tecnicaText, isNormal ? styles.tecnicaTextNormal : null]} numberOfLines={1} adjustsFontSizeToFit>
-            Normal
+            {t('treinos.card.tecnica.normal')}
           </Text>
         </Pressable>
-        {TECNICAS.map((t) => {
-          const active = item.metodo === t.value;
+        {TECNICAS.map((tec) => {
+          const active = item.metodo === tec.value;
           return (
             <Pressable
-              key={t.value}
-              onPress={() => toggleTecnica(t.value)}
-              style={[styles.tecnicaChip, active ? { backgroundColor: t.color, borderColor: t.color } : null]}
+              key={tec.value}
+              onPress={() => toggleTecnica(tec.value)}
+              style={[styles.tecnicaChip, active ? { backgroundColor: tec.color, borderColor: tec.color } : null]}
             >
               <Text style={[styles.tecnicaText, active ? styles.tecnicaTextActive : null]} numberOfLines={1} adjustsFontSizeToFit>
-                {t.label}
+                {tec.label}
               </Text>
             </Pressable>
           );
@@ -182,7 +188,7 @@ export function ExercicioCardTreino({
         // Inside a group: only Reps + Carga (Series/Rest are at group level)
         <View style={styles.recsRow}>
           <View style={styles.recCellHalf}>
-            <Text style={styles.recLabel}>Reps</Text>
+            <Text style={styles.recLabel}>{t('treinos.rec.reps')}</Text>
             <TextInput
               style={styles.recInput}
               value={execText}
@@ -191,7 +197,7 @@ export function ExercicioCardTreino({
             />
           </View>
           <View style={styles.recCellHalf}>
-            <Text style={styles.recLabel}>Carga (kg)</Text>
+            <Text style={styles.recLabel}>{t('treinos.rec.cargaKg')}</Text>
             <TextInput
               style={styles.recInput}
               value={cargaText}
@@ -204,7 +210,7 @@ export function ExercicioCardTreino({
         // Standalone: full 2×2 grid
         <View style={styles.recsGrid}>
           <View style={styles.recCell}>
-            <Text style={styles.recLabel}>Séries</Text>
+            <Text style={styles.recLabel}>{t('treinos.rec.series')}</Text>
             <TextInput
               style={styles.recInput}
               value={seriesText}
@@ -213,7 +219,7 @@ export function ExercicioCardTreino({
             />
           </View>
           <View style={styles.recCell}>
-            <Text style={styles.recLabel}>Reps</Text>
+            <Text style={styles.recLabel}>{t('treinos.rec.reps')}</Text>
             <TextInput
               style={styles.recInput}
               value={execText}
@@ -222,7 +228,7 @@ export function ExercicioCardTreino({
             />
           </View>
           <View style={styles.recCell}>
-            <Text style={styles.recLabel}>Carga (kg)</Text>
+            <Text style={styles.recLabel}>{t('treinos.rec.cargaKg')}</Text>
             <TextInput
               style={styles.recInput}
               value={cargaText}
@@ -231,7 +237,7 @@ export function ExercicioCardTreino({
             />
           </View>
           <View style={styles.recCell}>
-            <Text style={styles.recLabel}>Descanso (s)</Text>
+            <Text style={styles.recLabel}>{t('treinos.rec.descansoS')}</Text>
             <TextInput
               style={styles.recInput}
               value={descansoText}
@@ -248,13 +254,13 @@ export function ExercicioCardTreino({
           {onSairDoGrupo ? (
             <Pressable onPress={onSairDoGrupo}
               style={({ pressed }) => [styles.sairBtn, pressed ? { opacity: 0.65 } : null]}>
-              <Text style={styles.sairBtnText}>Sair do grupo</Text>
+              <Text style={styles.sairBtnText}>{t('treinos.card.sairDoGrupo')}</Text>
             </Pressable>
           ) : null}
           {canVincular ? (
             <Pressable onPress={() => { void onVincular(); }}
               style={({ pressed }) => [styles.vincularBtn, pressed ? { opacity: 0.65 } : null]}>
-              <Text style={styles.vincularBtnText}>+ Vincular com próximo</Text>
+              <Text style={styles.vincularBtnText}>{t('treinos.card.vincularComProximo')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -264,7 +270,7 @@ export function ExercicioCardTreino({
       <View style={styles.substitutosSection}>
         <View style={styles.substitutosHeader}>
           <Text style={styles.substitutosLabel}>
-            Substitutos{alternativas.length > 0 ? ` (${alternativas.length})` : ''}
+            {t('treinos.card.substitutos')}{alternativas.length > 0 ? ` (${alternativas.length})` : ''}
           </Text>
           <Pressable
             onPress={onOpenSubstitutoPicker}

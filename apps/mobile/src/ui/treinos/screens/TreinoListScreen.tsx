@@ -16,6 +16,7 @@ import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
 import { PlanoPickerModal } from '../components/PlanoPickerModal';
 import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
 import { useTheme } from '../../shared/theme';
+import { useLocale, useT } from '../../shared/i18n';
 
 interface TreinoListScreenProps extends TreinoListControllerState {
   plano: PlanoControllerState;
@@ -40,8 +41,10 @@ export function TreinoListScreen({
 }: TreinoListScreenProps) {
   const canSubmit = draft.name.trim().length > 0 && !isSubmitting;
   const c = useTheme();
+  const t = useT();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const viewModel = buildTreinoListViewModel(treinos);
+  const viewModel = useMemo(() => buildTreinoListViewModel(treinos, locale), [treinos, locale]);
   const nameInputRef = useRef<TextInput>(null);
 
   return (
@@ -59,36 +62,35 @@ export function TreinoListScreen({
 
       {treinos.length === 0 && !isLoading ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>Nenhum treino ainda</Text>
+          <Text style={styles.emptyStateTitle}>{t('treinos.list.emptyStateTitle')}</Text>
           <Text style={styles.emptyStateBody}>
-            Crie seu primeiro treino para começar a registrar sessões.
+            {t('treinos.list.emptyStateBody')}
           </Text>
           <Pressable
             accessibilityRole="button"
             onPress={() => nameInputRef.current?.focus()}
             style={({ pressed }) => [styles.emptyStateCta, pressed ? { opacity: 0.85 } : null]}
           >
-            <Text style={styles.emptyStateCtaText}>Criar primeiro treino</Text>
+            <Text style={styles.emptyStateCtaText}>{t('treinos.list.emptyStateCta')}</Text>
           </Pressable>
         </View>
       ) : null}
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Modulo de treinos</Text>
-        <Text style={styles.title}>Meus treinos</Text>
+        <Text style={styles.eyebrow}>{t('treinos.list.eyebrow')}</Text>
+        <Text style={styles.title}>{t('treinos.list.title')}</Text>
         <Text style={styles.description}>
-          Monte seus treinos A, B, C com os exercícios do catálogo. Cada treino
-          vira uma sessão.
+          {t('treinos.list.description')}
         </Text>
       </View>
 
       <View style={styles.formCard}>
-        <Text style={styles.sectionTitle}>Novo treino</Text>
+        <Text style={styles.sectionTitle}>{t('treinos.list.novoTreino')}</Text>
 
         <Field
           ref={nameInputRef}
-          label="Nome"
-          placeholder="Ex.: Treino A"
+          label={t('treinos.list.nameLabel')}
+          placeholder={t('treinos.list.namePlaceholder')}
           value={draft.name}
           onChangeText={(v) => onChangeField('name', v)}
           onSubmitEditing={() => {
@@ -128,13 +130,13 @@ export function TreinoListScreen({
           disabled={!canSubmit}
         >
           <Text style={styles.primaryButtonText}>
-            {isSubmitting ? 'Criando...' : 'Criar treino'}
+            {isSubmitting ? t('treinos.list.criando') : t('treinos.list.criarTreino')}
           </Text>
         </Pressable>
       </View>
 
       <View style={styles.listCard}>
-        <Text style={styles.sectionTitle}>Treinos criados</Text>
+        <Text style={styles.sectionTitle}>{t('treinos.list.treinosCriados')}</Text>
 
         {isLoading ? (
           <ActivityIndicator
@@ -145,7 +147,7 @@ export function TreinoListScreen({
         ) : viewModel.emptyStateMessage ? (
           <View style={styles.emptyStateBox}>
             <Text style={styles.emptyStateIcon}>↑</Text>
-            <Text style={styles.emptyStateTitle}>Crie seu primeiro treino</Text>
+            <Text style={styles.emptyStateTitle}>{t('treinos.list.criePrimeiroTreino')}</Text>
             <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
           </View>
         ) : (
@@ -184,7 +186,7 @@ export function TreinoListScreen({
                   ]}
                 >
                   <Text style={styles.duplicateButtonText}>
-                    {duplicandoId === card.id ? 'Duplicando...' : 'Duplicar'}
+                    {duplicandoId === card.id ? t('treinos.list.duplicando') : t('treinos.list.duplicar')}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -200,7 +202,7 @@ export function TreinoListScreen({
                   ]}
                 >
                   <Text style={styles.deleteButtonText}>
-                    {deletingId === card.id ? 'Excluindo...' : 'Excluir'}
+                    {deletingId === card.id ? t('treinos.list.excluindo') : t('common.delete')}
                   </Text>
                 </Pressable>
               </View>
@@ -222,16 +224,6 @@ export function TreinoListScreen({
   );
 }
 
-const OBJETIVOS = [
-  'Hipertrofia',
-  'Força',
-  'Resistência',
-  'Emagrecimento',
-  'Mobilidade',
-  'Reabilitação',
-  'Condicionamento',
-];
-
 interface ObjetivoPickerProps {
   value: string;
   onChange: (value: string) => void;
@@ -248,8 +240,19 @@ function ObjetivoPicker({
   placeholderTextColor,
 }: ObjetivoPickerProps) {
   const c = useTheme();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [customText, setCustomText] = useState('');
+
+  const OBJETIVOS = [
+    t('treinos.list.objetivoPicker.options.hipertrofia'),
+    t('treinos.list.objetivoPicker.options.forca'),
+    t('treinos.list.objetivoPicker.options.resistencia'),
+    t('treinos.list.objetivoPicker.options.emagrecimento'),
+    t('treinos.list.objetivoPicker.options.mobilidade'),
+    t('treinos.list.objetivoPicker.options.reabilitacao'),
+    t('treinos.list.objetivoPicker.options.condicionamento'),
+  ];
 
   const isCustom =
     value !== '' && value !== '__outro__' && !OBJETIVOS.includes(value);
@@ -272,9 +275,9 @@ function ObjetivoPicker({
   return (
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>
-        Objetivo{' '}
+        {t('treinos.list.objetivoPicker.label')}{' '}
         <Text style={{ color: c.textSecondary, fontWeight: '400' }}>
-          (opcional)
+          {t('treinos.list.objetivoPicker.opcional')}
         </Text>
       </Text>
       <Pressable
@@ -287,7 +290,7 @@ function ObjetivoPicker({
             !displayValue ? styles.selectPlaceholder : null,
           ]}
         >
-          {displayValue ?? 'Selecionar objetivo'}
+          {displayValue ?? t('treinos.list.objetivoPicker.selecionar')}
         </Text>
         <Text style={styles.selectChevron}>▼</Text>
       </Pressable>
@@ -301,7 +304,7 @@ function ObjetivoPicker({
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
         <View style={styles.sheet}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.sheetTitle}>Objetivo</Text>
+          <Text style={styles.sheetTitle}>{t('treinos.list.objetivoPicker.sheetTitle')}</Text>
           <ScrollView showsVerticalScrollIndicator={false}>
             {OBJETIVOS.map((opt) => {
               const active = value === opt;
@@ -327,7 +330,7 @@ function ObjetivoPicker({
               );
             })}
             <View style={styles.sheetDivider} />
-            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+            <Text style={styles.sheetSectionLabel}>{t('treinos.objetivo.outroPersonalizado')}</Text>
             {isCustom ? (
               <View style={styles.sheetRow}>
                 <Text style={[styles.sheetRowText, styles.sheetRowActive]}>
@@ -339,7 +342,7 @@ function ObjetivoPicker({
             <View style={styles.customInputRow}>
               <TextInput
                 style={styles.customInput}
-                placeholder="Digite o objetivo..."
+                placeholder={t('treinos.objetivo.digitePlaceholder')}
                 placeholderTextColor={placeholderTextColor}
                 value={customText}
                 onChangeText={setCustomText}
@@ -347,7 +350,7 @@ function ObjetivoPicker({
                 returnKeyType="done"
               />
               <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
-                <Text style={styles.addCustomBtnText}>OK</Text>
+                <Text style={styles.addCustomBtnText}>{t('common.ok')}</Text>
               </Pressable>
             </View>
           </ScrollView>
