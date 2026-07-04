@@ -1,4 +1,6 @@
 import type { RegistroPesoPrimitives } from '../../../domain/peso/entities/RegistroPeso';
+import type { AppLocale } from '../../shared/i18n';
+import { formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
 
 export interface RegistroPesoCardViewModel {
   id: string;
@@ -23,7 +25,7 @@ export interface PesoViewModel {
 
 const CHART_MAX_POINTS = 14;
 
-export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoViewModel {
+export function buildPesoViewModel(registros: RegistroPesoPrimitives[], locale: AppLocale = 'pt-BR'): PesoViewModel {
   if (registros.length === 0) {
     return { cards: [], emptyStateMessage: 'Nenhum registro ainda. Comece pesando-se hoje.', pesoAtual: null, chartPoints: [] };
   }
@@ -35,7 +37,7 @@ export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoVie
     return {
       id: registro.id,
       peso: `${registro.pesoKg} kg`,
-      data: formatDate(registro.dataRegistro),
+      data: formatFullDate(registro.dataRegistro, locale),
       observacao: registro.observacao,
       delta: delta !== null ? formatDelta(delta) : null,
       pesoAumentou: delta !== null ? delta > 0 : false,
@@ -48,7 +50,7 @@ export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoVie
     .reverse()
     .map((r) => ({
       pesoKg: r.pesoKg,
-      label: formatShortDate(r.dataRegistro),
+      label: formatShortDate(r.dataRegistro, locale),
     }));
 
   return {
@@ -57,21 +59,6 @@ export function buildPesoViewModel(registros: RegistroPesoPrimitives[]): PesoVie
     pesoAtual: `${registros[0].pesoKg} kg`,
     chartPoints,
   };
-}
-
-function formatDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
-function formatShortDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-  });
 }
 
 function formatDelta(delta: number): string {

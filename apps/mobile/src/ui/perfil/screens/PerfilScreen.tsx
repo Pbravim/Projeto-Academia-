@@ -19,7 +19,8 @@ import { AderenciaCard } from '../../shared/components/AderenciaCard';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { LineChart, type LineChartPoint } from '../../shared/LineChart';
 import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
-import { useLocalePreference, type LocalePreference } from '../../shared/i18n';
+import { useLocale, useLocalePreference, type LocalePreference } from '../../shared/i18n';
+import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
 
 // ─── Metric abstraction ──────────────────────────────────────────────────────
 // To add a new metric (arm, height, body fat…), push a MetricSeries into the
@@ -130,6 +131,7 @@ export function PerfilScreen({
   backupSection,
 }: PerfilScreenProps) {
   const c = useTheme();
+  const locale = useLocale();
   const { preference, setPreference } = useThemePreference();
   const { preference: localePref, setPreference: setLocalePref } = useLocalePreference();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -173,11 +175,11 @@ export function PerfilScreen({
   // ── Date helpers ─────────────────────────────────────────────────────────
   const now = new Date();
   const isToday = now.toDateString() === peso.selectedDate.toDateString();
-  const timeStr = peso.selectedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const timeStr = formatTime(peso.selectedDate, locale);
   const dateLabel =
     (isToday
       ? 'Hoje'
-      : peso.selectedDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })) +
+      : formatFullDate(peso.selectedDate, locale)) +
     ', ' + timeStr;
 
   const startEditingName = () => {

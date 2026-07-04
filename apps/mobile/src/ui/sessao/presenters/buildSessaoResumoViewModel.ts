@@ -1,4 +1,6 @@
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { AppLocale } from '../../shared/i18n';
+import { formatNumber } from '../../shared/i18n/formatters';
 
 export interface SerieResumoItem {
   label: string;
@@ -22,7 +24,7 @@ export interface SessaoResumoViewModel {
   exercicios: ExercicioResumoItem[];
 }
 
-export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumoViewModel {
+export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe, locale: AppLocale = 'pt-BR'): SessaoResumoViewModel {
   const { sessao, exercicios } = detalhe;
 
   const duracao = calcularDuracao(sessao.dataHoraInicio, sessao.dataHoraFim);
@@ -69,7 +71,7 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe): SessaoResumo
       series.some((s) => s.tipoSerie === 'valida')
     ).length,
     totalSeriesValidas,
-    volumeTotal: formatVolume(volumeTotalKg),
+    volumeTotal: formatVolume(volumeTotalKg, locale),
     exercicios: exerciciosVM,
   };
 }
@@ -84,7 +86,7 @@ function calcularDuracao(inicio: string, fim: string | null): string {
   return `${totalMinutos}min`;
 }
 
-function formatVolume(kg: number): string {
+function formatVolume(kg: number, locale: AppLocale): string {
   if (kg >= 1000) return `${(kg / 1000).toFixed(1).replace('.', ',')} t`;
-  return `${kg.toLocaleString('pt-BR')} kg`;
+  return `${formatNumber(kg, locale)} kg`;
 }

@@ -9,6 +9,8 @@ import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/da
 import { LineChart } from '../../shared/LineChart';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useTheme } from '../../shared/theme';
+import { useLocale } from '../../shared/i18n';
+import { formatShortDate, formatCompactDate, formatNumber } from '../../shared/i18n/formatters';
 
 export function DashboardScreen({
   stats,
@@ -195,6 +197,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
   onGerenciar: () => void;
 }) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [expanded, setExpanded] = useState(false);
@@ -210,14 +213,14 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
       ? asc
           .map((s) => ({
             value: s.melhorOrm,
-            label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            label: formatShortDate(s.dataHoraInicio, locale),
           }))
           .filter((p) => p.value > 0)
       : [];
     const vol = hasVolume
       ? asc.map((s) => ({
           value: s.volumeTotal,
-          label: new Date(s.dataHoraInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          label: formatShortDate(s.dataHoraInicio, locale),
         }))
       : [];
     const trendVal =
@@ -229,7 +232,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
             : 'equal'
         : null;
     return { temOrm: hasOrm, temVolume: hasVolume, sessaoesAsc: asc, ormChartPoints: orm, volumeChartPoints: vol, trend: trendVal };
-  }, [sessoes]);
+  }, [sessoes, locale]);
 
   const activePoints = chartMode === 'orm' ? ormChartPoints : volumeChartPoints;
   const activeColor = chartMode === 'orm' ? undefined : c.success;
@@ -314,7 +317,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
             ) : null}
             {sessoes[0].volumeTotal > 0 ? (
               <View style={styles.statPill}>
-                <Text style={styles.statPillValue}>{sessoes[0].volumeTotal.toLocaleString('pt-BR')} kg</Text>
+                <Text style={styles.statPillValue}>{formatNumber(sessoes[0].volumeTotal, locale)} kg</Text>
                 <Text style={styles.statPillLabel}>Volume</Text>
               </View>
             ) : null}
@@ -374,10 +377,10 @@ function SessaoRow({
   isFirst: boolean;
 }) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
 
-  const data = new Date(sessao.dataHoraInicio);
-  const dataStr = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  const dataStr = formatCompactDate(sessao.dataHoraInicio, locale);
 
   const durStr =
     sessao.duracaoMin != null
@@ -397,7 +400,7 @@ function SessaoRow({
         {temVolume ? (
           <View style={[styles.volCell, { flex: 2 }]}>
             <Text style={[styles.sessaoVolText, sessao.arquivado ? styles.sessaoTextArquivada : null]}>
-              {sessao.volumeTotal > 0 ? `${sessao.volumeTotal.toLocaleString('pt-BR')}kg` : '—'}
+              {sessao.volumeTotal > 0 ? `${formatNumber(sessao.volumeTotal, locale)}kg` : '—'}
             </Text>
             {volDiff != null ? (
               <Text style={[styles.volDiff, volDiff > 0 ? styles.volDiffUp : volDiff < 0 ? styles.volDiffDown : styles.volDiffEqual]}>

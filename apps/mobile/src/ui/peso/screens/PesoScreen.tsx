@@ -6,6 +6,8 @@ import type { PesoControllerState } from '../hooks/usePesoController';
 import type { PesoChartPoint } from '../presenters/buildPesoViewModel';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
+import { useLocale } from '../../shared/i18n';
+import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
 
 export function PesoScreen({
   viewModel,
@@ -24,13 +26,14 @@ export function PesoScreen({
   onDelete,
 }: PesoControllerState) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [pickerStep, setPickerStep] = useState<'date' | 'time' | null>(null);
 
   const now = new Date();
   const isToday = now.toDateString() === selectedDate.toDateString();
-  const timeStr = selectedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  const dateLabel = (isToday ? 'Hoje' : selectedDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })) + ', ' + timeStr;
+  const timeStr = formatTime(selectedDate, locale);
+  const dateLabel = (isToday ? 'Hoje' : formatFullDate(selectedDate, locale)) + ', ' + timeStr;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

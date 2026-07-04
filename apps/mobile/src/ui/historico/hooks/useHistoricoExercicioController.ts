@@ -7,6 +7,7 @@ import {
   buildHistoricoExercicioViewModel,
   type HistoricoExercicioViewModel,
 } from '../presenters/buildHistoricoExercicioViewModel';
+import { useLocale } from '../../shared/i18n';
 
 export interface HistoricoExercicioControllerDependencies {
   getHistoricoExercicio: GetHistoricoExercicioUseCase;
@@ -25,6 +26,7 @@ export function useHistoricoExercicioController(
   dependencies: HistoricoExercicioControllerDependencies,
   onBack: () => void
 ): HistoricoExercicioControllerState {
+  const locale = useLocale();
   const [execucoes, setExecucoes] = useState<ExecucaoExercicio[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,7 +46,7 @@ export function useHistoricoExercicioController(
     }
   };
 
-  const viewModel = buildHistoricoExercicioViewModel(exercicioNome, execucoes);
+  const viewModel = buildHistoricoExercicioViewModel(exercicioNome, execucoes, locale);
 
   return { viewModel, isLoading, onBack };
 }

@@ -22,6 +22,8 @@ import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
 import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
 import { useTheme } from '../../shared/theme';
+import { useLocale } from '../../shared/i18n';
+import { formatNumber } from '../../shared/i18n/formatters';
 
 interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;
@@ -110,6 +112,7 @@ export function ExercicioDetalheScreen({
   onBack,
 }: Props) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -664,7 +667,7 @@ export function ExercicioDetalheScreen({
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statPill}>
-                <Text style={styles.statValue}>{totalVolume.toLocaleString('pt-BR')}kg</Text>
+                <Text style={styles.statValue}>{formatNumber(totalVolume, locale)}kg</Text>
                 <Text style={styles.statLabel}>Volume</Text>
               </View>
             </View>
@@ -1110,7 +1113,7 @@ export function ExercicioDetalheScreen({
             <View style={styles.seriesSummaryChip}>
               <Text style={styles.seriesSummaryText}>
                 {series.length} serie{series.length !== 1 ? 's' : ''}
-                {totalVolume > 0 ? ` · ${Math.round(totalVolume).toLocaleString('pt-BR')} kg` : ''}
+                {totalVolume > 0 ? ` · ${formatNumber(Math.round(totalVolume), locale)} kg` : ''}
               </Text>
             </View>
           </View>

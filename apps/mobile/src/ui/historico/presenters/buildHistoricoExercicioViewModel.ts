@@ -5,6 +5,8 @@ import {
   buildSessionTableRows,
   type SessionTableRowVM,
 } from '../../shared/components/sessionSeriesTableModel';
+import type { AppLocale } from '../../shared/i18n';
+import { formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
 
 export interface PlateauInfo {
   sessoes: number;
@@ -25,7 +27,8 @@ const MELHORA_MINIMA_KG = 1.0;
 
 export function buildHistoricoExercicioViewModel(
   exercicioNome: string,
-  execucoes: ExecucaoExercicio[]
+  execucoes: ExecucaoExercicio[],
+  locale: AppLocale = 'pt-BR'
 ): HistoricoExercicioViewModel {
   if (execucoes.length === 0) {
     return {
@@ -42,14 +45,14 @@ export function buildHistoricoExercicioViewModel(
     .reverse()
     .map((ex) => ({
       value: parseFloat(melhorRm1Valido(ex).toFixed(1)),
-      label: formatShortDate(ex.dataExecucao),
+      label: formatShortDate(ex.dataExecucao, locale),
     }))
     .filter((p) => p.value > 0);
 
   const sessionRows = buildSessionTableRows(
     execucoes.map((ex, i) => ({
       id: `${ex.sessaoTreinoId}-${i}`,
-      dateLabel: formatDate(ex.dataExecucao),
+      dateLabel: formatFullDate(ex.dataExecucao, locale),
       subLabel: buildSubstituiuLabel(ex),
       sets: [...ex.series]
         .sort((a, b) => a.ordem - b.ordem)
@@ -109,16 +112,4 @@ function buildSubstituiuLabel(execucao: ExecucaoExercicio): string | null {
   const { nomeOriginal, motivo } = execucao.substituiuExercicio;
   const motivoTexto = motivo ? ` · ${MOTIVO_LABEL[motivo] ?? motivo}` : '';
   return `Substituiu: ${nomeOriginal}${motivoTexto}`;
-}
-
-function formatDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
-function formatShortDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }

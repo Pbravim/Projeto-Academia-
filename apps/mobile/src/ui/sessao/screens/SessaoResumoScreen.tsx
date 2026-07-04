@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { buildSessaoResumoViewModel } from '../presenters/buildSessaoResumoViewModel';
 import { useTheme } from '../../shared/theme';
+import { useLocale } from '../../shared/i18n';
 
 interface Props {
   detalhe: SessaoDetalhe;
@@ -12,8 +13,9 @@ interface Props {
 
 export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const vm = buildSessaoResumoViewModel(detalhe);
+  const vm = buildSessaoResumoViewModel(detalhe, locale);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

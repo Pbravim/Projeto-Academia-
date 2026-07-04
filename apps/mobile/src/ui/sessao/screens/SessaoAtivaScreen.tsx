@@ -15,6 +15,8 @@ import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { METODO_CONFIG } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
+import { useLocale } from '../../shared/i18n';
+import { formatTime } from '../../shared/i18n/formatters';
 
 function grupoLabelFor(metodo: string, count: number): string {
   if (count === 2) return 'Bi-set';
@@ -83,6 +85,7 @@ export function SessaoAtivaScreen({
   onAtualizarMetodo,
 }: SessaoAtivaControllerState) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [selectedExercicioId, setSelectedExercicioId] = useState<string | null>(null);
@@ -233,8 +236,7 @@ export function SessaoAtivaScreen({
     }
   }
 
-  const inicio = new Date(detalhe.sessao.dataHoraInicio);
-  const horaInicio = inicio.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const horaInicio = formatTime(detalhe.sessao.dataHoraInicio, locale);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>

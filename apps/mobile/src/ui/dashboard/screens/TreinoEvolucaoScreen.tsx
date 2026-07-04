@@ -12,6 +12,8 @@ import {
 } from '../../shared/components/sessionSeriesTableModel';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
+import { useLocale } from '../../shared/i18n';
+import { formatShortDate } from '../../shared/i18n/formatters';
 
 interface Props {
   treinoNome: string;
@@ -19,10 +21,6 @@ interface Props {
   isLoading: boolean;
   errorMessage: string | null;
   onBack: () => void;
-}
-
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 }
 
 export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorMessage, onBack }: Props) {
@@ -72,6 +70,7 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
 
 function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(false);
 
@@ -83,12 +82,12 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
 
   const ormChartPoints = sessoesAsc
     .filter((s) => s.melhorOrm > 0)
-    .map((s) => ({ value: s.melhorOrm, label: formatShortDate(s.dataHoraInicio) }));
+    .map((s) => ({ value: s.melhorOrm, label: formatShortDate(s.dataHoraInicio, locale) }));
 
   const volumeChartPoints = sessoesAsc
     .map((s) => ({
       value: s.series.reduce((sum, sr) => sum + (sr.cargaKg ?? 0) * (sr.repeticoes ?? 0), 0),
-      label: formatShortDate(s.dataHoraInicio),
+      label: formatShortDate(s.dataHoraInicio, locale),
     }))
     .filter((p) => p.value > 0);
 
@@ -112,11 +111,11 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
       buildSessionTableRows(
         sessoes.map((s) => ({
           id: s.sessaoId,
-          dateLabel: formatShortDate(s.dataHoraInicio),
+          dateLabel: formatShortDate(s.dataHoraInicio, locale),
           sets: s.series.map((sr) => ({ cargaKg: sr.cargaKg, repeticoes: sr.repeticoes })),
         })),
       ),
-    [sessoes],
+    [sessoes, locale],
   );
 
   const plural = sessoes.length === 1 ? 'sessão' : 'sessões';

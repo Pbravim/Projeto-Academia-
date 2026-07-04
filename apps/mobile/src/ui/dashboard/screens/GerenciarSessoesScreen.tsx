@@ -5,6 +5,8 @@ import type { SessaoComVolume } from '../../../application/dashboard/use-cases/G
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
+import { useLocale, type AppLocale } from '../../shared/i18n';
+import { formatMediumDate, formatNumber } from '../../shared/i18n/formatters';
 
 interface Props {
   treinoNome: string;
@@ -26,8 +28,8 @@ interface PendingConfirm {
   action: () => void;
 }
 
-function formatSessaoData(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+function formatSessaoData(iso: string, locale: AppLocale): string {
+  return formatMediumDate(iso, locale);
 }
 
 function formatDuracao(duracaoMin: number | null): string {
@@ -51,6 +53,7 @@ export function GerenciarSessoesScreen({
   onBack,
 }: Props) {
   const c = useTheme();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -61,7 +64,7 @@ export function GerenciarSessoesScreen({
   const confirmDeletar = (sessao: SessaoComVolume) => {
     setPending({
       title: 'Excluir sessão',
-      message: `A sessão de ${formatSessaoData(sessao.dataHoraInicio)} e todas as séries registradas nela serão apagadas permanentemente. Essa ação não pode ser desfeita.`,
+      message: `A sessão de ${formatSessaoData(sessao.dataHoraInicio, locale)} e todas as séries registradas nela serão apagadas permanentemente. Essa ação não pode ser desfeita.`,
       confirmLabel: 'Excluir',
       destructive: true,
       action: () => onDeletar(sessao.id),
@@ -134,9 +137,9 @@ export function GerenciarSessoesScreen({
             {sessoes.map((s) => (
               <View key={s.id} style={styles.sessaoRow}>
                 <View style={styles.sessaoInfo}>
-                  <Text style={styles.sessaoData}>{formatSessaoData(s.dataHoraInicio)}</Text>
+                  <Text style={styles.sessaoData}>{formatSessaoData(s.dataHoraInicio, locale)}</Text>
                   <Text style={styles.sessaoMeta}>
-                    {s.volumeTotal > 0 ? `${s.volumeTotal.toLocaleString('pt-BR')} kg · ` : ''}
+                    {s.volumeTotal > 0 ? `${formatNumber(s.volumeTotal, locale)} kg · ` : ''}
                     {formatDuracao(s.duracaoMin)}
                   </Text>
                 </View>
@@ -166,9 +169,9 @@ export function GerenciarSessoesScreen({
             {sessoesArquivadas.map((s) => (
               <View key={s.id} style={[styles.sessaoRow, styles.sessaoRowArquivada]}>
                 <View style={styles.sessaoInfo}>
-                  <Text style={styles.sessaoData}>{formatSessaoData(s.dataHoraInicio)}</Text>
+                  <Text style={styles.sessaoData}>{formatSessaoData(s.dataHoraInicio, locale)}</Text>
                   <Text style={styles.sessaoMeta}>
-                    {s.volumeTotal > 0 ? `${s.volumeTotal.toLocaleString('pt-BR')} kg · ` : ''}
+                    {s.volumeTotal > 0 ? `${formatNumber(s.volumeTotal, locale)} kg · ` : ''}
                     {formatDuracao(s.duracaoMin)}
                   </Text>
                 </View>

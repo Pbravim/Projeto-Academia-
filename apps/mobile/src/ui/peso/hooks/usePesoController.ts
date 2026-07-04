@@ -8,6 +8,7 @@ import { PesoValidationError } from '../../../domain/peso/errors/PesoValidationE
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { buildPesoViewModel, type PesoViewModel } from '../presenters/buildPesoViewModel';
+import { useLocale } from '../../shared/i18n';
 
 export interface PesoControllerDependencies {
   registrarPeso: RegistrarPesoUseCase;
@@ -38,6 +39,7 @@ export function parsePesoInput(input: string): number {
 }
 
 export function usePesoController(dependencies: PesoControllerDependencies): PesoControllerState {
+  const locale = useLocale();
   const [registros, setRegistros] = useState<RegistroPesoPrimitives[]>([]);
   const [pesoKgInput, setPesoKgInput] = useState('');
   const [observacaoInput, setObservacaoInput] = useState('');
@@ -117,7 +119,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
     }
   };
 
-  const viewModel = buildPesoViewModel(registros);
+  const viewModel = buildPesoViewModel(registros, locale);
 
   return {
     viewModel,
