@@ -10,13 +10,10 @@ import { RestTimerBanner } from '../components/RestTimerBanner';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
+import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-
-const TECNICA_CONFIG: Record<string, { label: string; color: string }> = {
-  drop_set:   { label: 'Drop-set',   color: '#9333ea' },
-  piramide:   { label: 'Piramide',   color: '#d97706' },
-  rest_pause: { label: 'Rest-pause', color: '#e11d48' },
-};
+import { useLocale, useT } from '../../shared/i18n';
+import { translate, type AppLocale } from '../../shared/i18n/core';
 
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
 
@@ -34,10 +31,10 @@ function kgIndexFor(kg: number): number {
   return Math.max(0, Math.min(Math.round(kg / 2.5), KG_VALUES.length - 1));
 }
 
-function grupoLabel(count: number): string {
-  if (count === 2) return 'Bi-set';
-  if (count === 3) return 'Tri-set';
-  return 'Circuito';
+function grupoLabel(count: number, locale: AppLocale): string {
+  if (count === 2) return translate(locale, 'sessao.grupo.biSet');
+  if (count === 3) return translate(locale, 'sessao.grupo.triSet');
+  return translate(locale, 'sessao.grupo.circuito');
 }
 
 interface TimerState { total: number; restante: number }
@@ -74,6 +71,8 @@ export function BiSetDetalheScreen({
   onBack,
 }: Props) {
   const c = useTheme();
+  const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -267,7 +266,7 @@ export function BiSetDetalheScreen({
     if (toToggle.length > 0) await onToggleRealizadoGrupo(toToggle);
   };
 
-  const label = grupoLabel(grupoItens.length);
+  const label = grupoLabel(grupoItens.length, locale);
   const isCustomDescanso = descanso !== null && !DESCANSO_PRESETS.some((p) => p.value === descanso);
 
   const formatKgItem = useCallback((idx: number) => String(KG_VALUES[idx]), []);
@@ -306,7 +305,7 @@ export function BiSetDetalheScreen({
             style={[styles.finalizadoToggle, allRealizado ? styles.finalizadoToggleOn : styles.finalizadoToggleOff]}
           >
             <Text style={[styles.finalizadoToggleText, allRealizado ? styles.finalizadoToggleTextOn : styles.finalizadoToggleTextOff]}>
-              {allRealizado ? 'Retomar' : 'Finalizar'}
+              {allRealizado ? t('sessao.common.retomar') : t('sessao.common.finalizar')}
             </Text>
           </Pressable>
         </View>
@@ -333,7 +332,7 @@ export function BiSetDetalheScreen({
                 ))}
               </View>
               <Text style={[styles.seriesProgressLabel, allDone ? styles.seriesProgressLabelDone : null]}>
-                {filled}/{total} {label}s
+                {t('sessao.grupo.progressLabel', { filled, total, label })}
               </Text>
             </View>
           );
@@ -350,8 +349,8 @@ export function BiSetDetalheScreen({
                     <View style={styles.exercicioMetaRow}>
                       <Text style={styles.exercicioMuscle} numberOfLines={1}>{item.sessaoExercicio.grupoMuscularSnapshot}</Text>
                       {item.sessaoExercicio.metodo !== 'normal' ? (
-                        <View style={[styles.tecnicaBadge, { backgroundColor: TECNICA_CONFIG[item.sessaoExercicio.metodo]?.color ?? '#666' }]}>
-                          <Text style={styles.tecnicaBadgeText}>{TECNICA_CONFIG[item.sessaoExercicio.metodo]?.label ?? item.sessaoExercicio.metodo}</Text>
+                        <View style={[styles.tecnicaBadge, { backgroundColor: METODO_CONFIG[item.sessaoExercicio.metodo]?.color ?? '#666' }]}>
+                          <Text style={styles.tecnicaBadgeText}>{metodoLabel(item.sessaoExercicio.metodo, locale)}</Text>
                         </View>
                       ) : null}
                     </View>
@@ -361,7 +360,7 @@ export function BiSetDetalheScreen({
                       onPress={() => { void onAbrirSubstituicao(item.sessaoExercicio.id); }}
                       style={({ pressed }) => [styles.substituirBtn, pressed ? { opacity: 0.7 } : null]}
                     >
-                      <Text style={styles.substituirBtnText}>Trocar exercicio</Text>
+                      <Text style={styles.substituirBtnText}>{t('sessao.common.trocarExercicio')}</Text>
                     </Pressable>
                   ) : null}
                 </View>
@@ -391,9 +390,9 @@ export function BiSetDetalheScreen({
                   {cargaModes[i] === 'carousel' ? (
                     <View style={styles.pickerCol}>
                       <View style={styles.pickerLabelRow}>
-                        <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                        <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
                         <Pressable onPress={() => switchCargaToText(i)}>
-                          <Text style={styles.modeToggleText}>Digitar</Text>
+                          <Text style={styles.modeToggleText}>{t('sessao.common.digitar')}</Text>
                         </Pressable>
                       </View>
                       <PickerCarousel
@@ -406,9 +405,9 @@ export function BiSetDetalheScreen({
                   ) : (
                     <View style={styles.pickerCol}>
                       <View style={styles.pickerLabelRow}>
-                        <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                        <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
                         <Pressable onPress={() => switchCargaToCarousel(i)}>
-                          <Text style={styles.modeToggleText}>Rolar</Text>
+                          <Text style={styles.modeToggleText}>{t('sessao.common.rolar')}</Text>
                         </Pressable>
                       </View>
                       <TextInput
@@ -440,9 +439,9 @@ export function BiSetDetalheScreen({
                   {repsModes[i] === 'carousel' ? (
                     <View style={styles.pickerCol}>
                       <View style={styles.pickerLabelRow}>
-                        <Text style={styles.pickerLabel}>Reps</Text>
+                        <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
                         <Pressable onPress={() => switchRepsToText(i)}>
-                          <Text style={styles.modeToggleText}>Digitar</Text>
+                          <Text style={styles.modeToggleText}>{t('sessao.common.digitar')}</Text>
                         </Pressable>
                       </View>
                       <PickerCarousel
@@ -455,9 +454,9 @@ export function BiSetDetalheScreen({
                   ) : (
                     <View style={styles.pickerCol}>
                       <View style={styles.pickerLabelRow}>
-                        <Text style={styles.pickerLabel}>Reps</Text>
+                        <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
                         <Pressable onPress={() => switchRepsToCarousel(i)}>
-                          <Text style={styles.modeToggleText}>Rolar</Text>
+                          <Text style={styles.modeToggleText}>{t('sessao.common.rolar')}</Text>
                         </Pressable>
                       </View>
                       <TextInput
@@ -477,17 +476,17 @@ export function BiSetDetalheScreen({
 
                 {/* Per-exercise technique selector */}
                 <View style={styles.tecnicaRow}>
-                  {(['normal', 'drop_set', 'piramide', 'rest_pause'] as const).map((t) => {
-                    const active = item.sessaoExercicio.metodo === t;
-                    const cfg = TECNICA_CONFIG[t];
+                  {(['normal', 'drop_set', 'piramide', 'rest_pause'] as const).map((metodoValue) => {
+                    const active = item.sessaoExercicio.metodo === metodoValue;
+                    const cfg = metodoValue !== 'normal' ? METODO_CONFIG[metodoValue] : null;
                     return (
                       <Pressable
-                        key={t}
-                        onPress={() => { void onAtualizarMetodo(item.sessaoExercicio.id, t); }}
+                        key={metodoValue}
+                        onPress={() => { void onAtualizarMetodo(item.sessaoExercicio.id, metodoValue); }}
                         style={[styles.tecnicaChip, active ? (cfg ? { backgroundColor: cfg.color, borderColor: cfg.color } : styles.tecnicaChipNormal) : null]}
                       >
                         <Text style={[styles.tecnicaChipText, active ? styles.tecnicaChipTextActive : null]}>
-                          {cfg?.label ?? 'Normal'}
+                          {metodoLabel(metodoValue, locale)}
                         </Text>
                       </Pressable>
                     );
@@ -498,7 +497,7 @@ export function BiSetDetalheScreen({
 
             {/* Shared rest */}
             <View style={styles.descansoSection}>
-              <Text style={styles.pickerLabel}>Descanso</Text>
+              <Text style={styles.pickerLabel}>{t('sessao.common.descanso')}</Text>
               <View style={styles.chipsRow}>
                 {DESCANSO_PRESETS.map((preset) => {
                   const active = descanso === preset.value && !isCustomDescanso;
@@ -518,7 +517,7 @@ export function BiSetDetalheScreen({
             {/* Shared observation */}
             <TextInput
               style={styles.obsInput}
-              placeholder="Observacao (opcional)"
+              placeholder={t('sessao.common.observacaoPlaceholder')}
               placeholderTextColor={c.inputPlaceholder}
               value={obs}
               onChangeText={setObs}
@@ -537,7 +536,7 @@ export function BiSetDetalheScreen({
               ]}
             >
               <Text style={styles.addBtnText}>
-                {isSubmitting ? 'Registrando...' : `+ Registrar ${label.toLowerCase()}`}
+                {isSubmitting ? t('sessao.common.registrando') : t('sessao.biset.registrarBtn', { label: label.toLowerCase() })}
               </Text>
             </Pressable>
 
@@ -545,7 +544,7 @@ export function BiSetDetalheScreen({
               onPress={handleConcluirComAutoFill}
               style={({ pressed }) => [styles.concluirBtn, pressed ? { opacity: 0.75 } : null]}
             >
-              <Text style={styles.concluirBtnText}>✓ Concluir exercicio</Text>
+              <Text style={styles.concluirBtnText}>{t('sessao.common.concluirExercicioBtn')}</Text>
             </Pressable>
 
             <Pressable
@@ -564,7 +563,7 @@ export function BiSetDetalheScreen({
               ]}
             >
               <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
-                {isLastExercicio ? 'Finalizar sessao' : 'Proximo exercicio →'}
+                {isLastExercicio ? t('sessao.common.finalizarSessao') : t('sessao.common.proximoExercicio')}
               </Text>
             </Pressable>
           </View>
@@ -581,7 +580,7 @@ export function BiSetDetalheScreen({
               ]}
             >
               <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
-                {isLastExercicio ? 'Finalizar sessao' : 'Proximo exercicio →'}
+                {isLastExercicio ? t('sessao.common.finalizarSessao') : t('sessao.common.proximoExercicio')}
               </Text>
             </Pressable>
           </View>
@@ -590,7 +589,7 @@ export function BiSetDetalheScreen({
         {/* Paired series list */}
         {seriesCount > 0 ? (
           <View style={styles.seriesCard}>
-            <Text style={styles.seriesTitle}>Sets registrados</Text>
+            <Text style={styles.seriesTitle}>{t('sessao.biset.setsRegistrados')}</Text>
             <View style={styles.seriesList}>
               {Array.from({ length: seriesCount }).map((_, setIdx) => {
                 const isDeleting = deletingSetIndexes.has(setIdx);
@@ -629,10 +628,10 @@ export function BiSetDetalheScreen({
 
       <ConfirmDialog
         visible={confirmConcluirVisible}
-        title={`Concluir ${label}`}
-        message="Auto-completar series faltando e marcar como concluido?"
-        confirmLabel="Concluir"
-        cancelLabel="Cancelar"
+        title={t('sessao.grupo.concluirTitle', { label })}
+        message={t('sessao.biset.autoFillMessage')}
+        confirmLabel={t('sessao.common.concluir')}
+        cancelLabel={t('common.cancel')}
         onConfirm={() => {
           setConfirmConcluirVisible(false);
           void concluirComAutoFill();

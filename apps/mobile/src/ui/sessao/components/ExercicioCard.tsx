@@ -7,8 +7,9 @@ import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { gifAssets } from '../../exercises/components/gifAssets';
-import { METODO_CONFIG } from '../../shared/metodoPresentation';
+import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
+import { useLocale, useT } from '../../shared/i18n';
 
 interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;
@@ -24,12 +25,15 @@ const MAX_DOTS = 8;
 
 export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline, onPress, onToggleRealizado, hideProgress }: Props) {
   const c = useTheme();
+  const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const finalizado = sessaoExercicio.realizado;
   const validCount = series.length;
   const total = sessaoExercicio.seriesRecomendadas;
   const metodoConfig = sessaoExercicio.metodo !== 'normal' ? METODO_CONFIG[sessaoExercicio.metodo] : null;
+  const metodoConfigLabel = sessaoExercicio.metodo !== 'normal' ? metodoLabel(sessaoExercicio.metodo, locale) : null;
 
   const allDone = total != null && validCount >= total;
   const dotCount = total != null ? Math.min(total, MAX_DOTS) : 0;
@@ -66,7 +70,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
         </Text>
         {metodoConfig ? (
           <View style={[styles.metodoBadge, { backgroundColor: metodoConfig.color }]}>
-            <Text style={styles.metodoBadgeText}>{metodoConfig.label}</Text>
+            <Text style={styles.metodoBadgeText}>{metodoConfigLabel}</Text>
           </View>
         ) : null}
         {sessaoExercicio.nomeOriginalSnapshot ? (
@@ -92,12 +96,12 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
                 ) : null}
               </View>
               <Text style={[styles.seriesLabel, allDone ? styles.seriesLabelDone : null]}>
-                {validCount}/{total} séries
+                {validCount}/{total} {t('sessao.card.seriesSuffix')}
               </Text>
             </View>
           ) : (
             <Text style={[styles.seriesCount, validCount > 0 ? styles.seriesCountDone : null]}>
-              {validCount > 0 ? `${validCount} série${validCount !== 1 ? 's' : ''}` : 'Sem séries'}
+              {validCount > 0 ? t('common.seriesCount', { count: validCount }) : t('sessao.card.semSeries')}
             </Text>
           )
         ) : null}
@@ -130,10 +134,10 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
       {onToggleRealizado ? (
         <ConfirmDialog
           visible={confirmConcluirVisible}
-          title="Concluir exercício"
-          message={`Marcar "${sessaoExercicio.nomeSnapshot}" como concluído?`}
-          confirmLabel="Concluir"
-          cancelLabel="Cancelar"
+          title={t('sessao.card.concluirTitle')}
+          message={t('sessao.card.concluirMessage', { nome: sessaoExercicio.nomeSnapshot })}
+          confirmLabel={t('sessao.common.concluir')}
+          cancelLabel={t('common.cancel')}
           onConfirm={() => {
             setConfirmConcluirVisible(false);
             onToggleRealizado();

@@ -7,6 +7,7 @@ import {
   formatCompactDate,
   formatTime,
   formatNumber,
+  formatFixedDecimal,
 } from './formatters';
 
 const ISO = '2026-07-04T10:00:00.000Z';
@@ -60,5 +61,19 @@ describe('formatNumber', () => {
 
   it('usa virgula como separador de milhar em en-US', () => {
     expect(formatNumber(1240, 'en-US')).toBe('1,240');
+  });
+});
+
+describe('formatFixedDecimal', () => {
+  it('usa virgula em pt-BR, preservando o arredondamento de toFixed', () => {
+    expect(formatFixedDecimal(1.15, 'pt-BR', 1)).toBe(`${(1.15).toFixed(1).replace('.', ',')}`);
+  });
+
+  it('usa ponto em en-US', () => {
+    expect(formatFixedDecimal(1.15, 'en-US', 1)).toBe((1.15).toFixed(1));
+  });
+
+  it('mantem duas casas quando solicitado', () => {
+    expect(formatFixedDecimal(2.5, 'pt-BR', 2)).toBe('2,50');
   });
 });

@@ -1,6 +1,6 @@
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { AppLocale } from '../../shared/i18n';
-import { formatNumber } from '../../shared/i18n/formatters';
+import { formatNumber, formatFixedDecimal } from '../../shared/i18n/formatters';
 
 export interface SerieResumoItem {
   label: string;
@@ -87,6 +87,6 @@ function calcularDuracao(inicio: string, fim: string | null): string {
 }
 
 function formatVolume(kg: number, locale: AppLocale): string {
-  if (kg >= 1000) return `${(kg / 1000).toFixed(1).replace('.', ',')} t`;
+  if (kg >= 1000) return `${formatFixedDecimal(kg / 1000, locale, 1)} t`;
   return `${formatNumber(kg, locale)} kg`;
 }

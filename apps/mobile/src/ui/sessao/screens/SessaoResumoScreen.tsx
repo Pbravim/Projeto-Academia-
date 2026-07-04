@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { buildSessaoResumoViewModel } from '../presenters/buildSessaoResumoViewModel';
 import { useTheme } from '../../shared/theme';
-import { useLocale } from '../../shared/i18n';
+import { useLocale, useT } from '../../shared/i18n';
 
 interface Props {
   detalhe: SessaoDetalhe;
@@ -14,25 +14,26 @@ interface Props {
 export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const vm = buildSessaoResumoViewModel(detalhe, locale);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Sessao finalizada</Text>
+        <Text style={styles.eyebrow}>{t('sessao.resumo.eyebrow')}</Text>
         <Text style={styles.title}>{vm.treinoNome}</Text>
         <Text style={styles.duracao}>{vm.duracao}</Text>
       </View>
 
       <View style={styles.statsRow}>
-        <StatBox label="Exercícios" value={`${vm.exerciciosRealizados}/${vm.totalExercicios}`} styles={styles} />
-        <StatBox label="Séries válidas" value={String(vm.totalSeriesValidas)} styles={styles} />
-        <StatBox label="Volume" value={vm.volumeTotal} styles={styles} />
+        <StatBox label={t('sessao.resumo.statExercicios')} value={`${vm.exerciciosRealizados}/${vm.totalExercicios}`} styles={styles} />
+        <StatBox label={t('sessao.resumo.statSeriesValidas')} value={String(vm.totalSeriesValidas)} styles={styles} />
+        <StatBox label={t('sessao.common.volume')} value={vm.volumeTotal} styles={styles} />
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Detalhes por exercício</Text>
+        <Text style={styles.sectionTitle}>{t('sessao.resumo.sectionTitle')}</Text>
 
         {vm.exercicios.map((item, index) => (
           <View key={index} style={[styles.exercicioRow, !item.realizado ? styles.exercicioRowNaoRealizado : null]}>
@@ -41,14 +42,14 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
               {item.realizado ? (
                 <>
                   <Text style={styles.exercicioStats}>
-                    {item.totalSeriesValidas} série{item.totalSeriesValidas !== 1 ? 's' : ''} válida{item.totalSeriesValidas !== 1 ? 's' : ''} · {item.volume} kg
+                    {t('sessao.resumo.seriesValidasCount', { count: item.totalSeriesValidas, volume: item.volume })}
                   </Text>
                   {item.melhorSerie ? (
-                    <Text style={styles.exercicioMelhor}>Melhor: {item.melhorSerie}</Text>
+                    <Text style={styles.exercicioMelhor}>{t('sessao.resumo.melhorSerie', { serie: item.melhorSerie })}</Text>
                   ) : null}
                 </>
               ) : (
-                <Text style={styles.naoRealizadoLabel}>Nao realizado</Text>
+                <Text style={styles.naoRealizadoLabel}>{t('sessao.resumo.naoRealizado')}</Text>
               )}
             </View>
           </View>
@@ -59,7 +60,7 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
         onPress={onFechar}
         style={({ pressed }) => [styles.fecharButton, pressed ? styles.fecharButtonPressed : null]}
       >
-        <Text style={styles.fecharButtonText}>Fechar</Text>
+        <Text style={styles.fecharButtonText}>{t('sessao.common.fechar')}</Text>
       </Pressable>
     </ScrollView>
   );

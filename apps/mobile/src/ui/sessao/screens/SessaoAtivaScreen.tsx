@@ -13,16 +13,17 @@ import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { gifAssets } from '../../exercises/components/gifAssets';
-import { METODO_CONFIG } from '../../shared/metodoPresentation';
+import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-import { useLocale } from '../../shared/i18n';
+import { useLocale, useT } from '../../shared/i18n';
+import { translate, type AppLocale } from '../../shared/i18n/core';
 import { formatTime } from '../../shared/i18n/formatters';
 
-function grupoLabelFor(metodo: string, count: number): string {
-  if (count === 2) return 'Bi-set';
-  if (count === 3) return 'Tri-set';
-  if (count > 3) return 'Circuito';
-  return METODO_CONFIG[metodo as keyof typeof METODO_CONFIG]?.label ?? metodo;
+function grupoLabelFor(metodo: string, count: number, locale: AppLocale): string {
+  if (count === 2) return translate(locale, 'sessao.grupo.biSet');
+  if (count === 3) return translate(locale, 'sessao.grupo.triSet');
+  if (count > 3) return translate(locale, 'sessao.grupo.circuito');
+  return metodo in METODO_CONFIG ? metodoLabel(metodo as keyof typeof METODO_CONFIG, locale) : metodo;
 }
 
 function grupoColorFor(metodo: string, count: number): string {
@@ -86,6 +87,7 @@ export function SessaoAtivaScreen({
 }: SessaoAtivaControllerState) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [selectedExercicioId, setSelectedExercicioId] = useState<string | null>(null);
@@ -141,7 +143,7 @@ export function SessaoAtivaScreen({
   if (!detalhe) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Carregando sessão...</Text>
+        <Text style={styles.loadingText}>{t('sessao.ativa.carregando')}</Text>
       </View>
     );
   }
@@ -241,9 +243,9 @@ export function SessaoAtivaScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Sessão em andamento</Text>
+        <Text style={styles.eyebrow}>{t('sessao.ativa.emAndamento')}</Text>
         <Text style={styles.title}>{detalhe.sessao.treinoNomeSnapshot}</Text>
-        <Text style={styles.description}>Inicio: {horaInicio}</Text>
+        <Text style={styles.description}>{t('sessao.ativa.inicio', { hora: horaInicio })}</Text>
       </View>
 
       {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
@@ -264,7 +266,7 @@ export function SessaoAtivaScreen({
         }
 
         const color = grupoColorFor(grupo.metodo, grupo.itens.length);
-        const label = grupoLabelFor(grupo.metodo, grupo.itens.length);
+        const label = grupoLabelFor(grupo.metodo, grupo.itens.length, locale);
         const allRealizado = grupo.itens.every((i) => i.sessaoExercicio.realizado);
         const recSeries = grupo.itens[0]?.sessaoExercicio.seriesRecomendadas ?? null;
         const minValidSeries = recSeries != null
@@ -306,7 +308,7 @@ export function SessaoAtivaScreen({
                           <Text style={styles.grupoItemNome}>{item.sessaoExercicio.nomeSnapshot}</Text>
                           {item.sessaoExercicio.metodo !== 'normal' ? (
                             <View style={[styles.grupoItemTecnicaBadge, { backgroundColor: METODO_CONFIG[item.sessaoExercicio.metodo].color }]}>
-                              <Text style={styles.grupoItemTecnicaBadgeText}>{METODO_CONFIG[item.sessaoExercicio.metodo].label}</Text>
+                              <Text style={styles.grupoItemTecnicaBadgeText}>{metodoLabel(item.sessaoExercicio.metodo, locale)}</Text>
                             </View>
                           ) : null}
                         </View>
@@ -327,7 +329,7 @@ export function SessaoAtivaScreen({
                     ))}
                   </View>
                   <Text style={[styles.grupoProgressLabel, grupoAllDone ? styles.grupoProgressLabelDone : null]}>
-                    {minValidSeries}/{recSeries} sets
+                    {t('sessao.ativa.gruposProgressLabel', { filled: minValidSeries, total: recSeries })}
                   </Text>
                 </View>
               ) : null}
@@ -364,7 +366,7 @@ export function SessaoAtivaScreen({
           style={({ pressed }) => [styles.secondaryButton, pressed ? styles.secondaryButtonPressed : null]}
         >
           <Text style={styles.secondaryButtonText}>
-            {showAddExercise ? 'Cancelar' : '+ Adicionar exercício a esta sessão'}
+            {showAddExercise ? t('common.cancel') : t('sessao.ativa.adicionarExercicio')}
           </Text>
         </Pressable>
 
@@ -385,7 +387,7 @@ export function SessaoAtivaScreen({
           ]}
         >
           <Text style={styles.finalizarButtonText}>
-            {isFinalizing ? 'Finalizando...' : 'Finalizar sessão'}
+            {isFinalizing ? t('sessao.ativa.finalizando') : t('sessao.ativa.finalizarSessaoBtn')}
           </Text>
         </Pressable>
 
@@ -399,17 +401,17 @@ export function SessaoAtivaScreen({
           ]}
         >
           <Text style={styles.cancelarButtonText}>
-            {isCanceling ? 'Cancelando...' : 'Cancelar sessão'}
+            {isCanceling ? t('sessao.ativa.cancelando') : t('sessao.ativa.cancelarSessaoBtn')}
           </Text>
         </Pressable>
       </View>
 
       <ConfirmDialog
         visible={confirmConcluirGrupo !== null}
-        title={confirmConcluirGrupo ? `Concluir ${grupoLabelFor(confirmConcluirGrupo.metodo, confirmConcluirGrupo.itens.length)}` : ''}
-        message="Marcar todos os exercícios como concluídos?"
-        confirmLabel="Concluir"
-        cancelLabel="Cancelar"
+        title={confirmConcluirGrupo ? t('sessao.grupo.concluirTitle', { label: grupoLabelFor(confirmConcluirGrupo.metodo, confirmConcluirGrupo.itens.length, locale) }) : ''}
+        message={t('sessao.ativa.concluirGrupoMessage')}
+        confirmLabel={t('sessao.common.concluir')}
+        cancelLabel={t('common.cancel')}
         onConfirm={() => {
           const grupo = confirmConcluirGrupo;
           setConfirmConcluirGrupo(null);
@@ -420,10 +422,10 @@ export function SessaoAtivaScreen({
 
       <ConfirmDialog
         visible={confirmCancelarVisible}
-        title="Cancelar sessão"
-        message="Tem certeza? Todo o progresso desta sessão será perdido."
-        confirmLabel="Cancelar sessão"
-        cancelLabel="Voltar"
+        title={t('sessao.ativa.cancelarSessaoBtn')}
+        message={t('sessao.ativa.cancelarSessaoMessage')}
+        confirmLabel={t('sessao.ativa.cancelarSessaoBtn')}
+        cancelLabel={t('common.back')}
         destructive
         onConfirm={() => {
           setConfirmCancelarVisible(false);

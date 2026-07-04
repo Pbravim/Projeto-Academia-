@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   nome: string;
@@ -14,6 +15,7 @@ interface Props {
 
 export function RestTimerBanner({ nome, restante, total, minimized, onToggleMinimized, onSkip }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const mins = Math.floor(restante / 60);
@@ -33,7 +35,7 @@ export function RestTimerBanner({ nome, restante, total, minimized, onToggleMini
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View>
-          <Text style={styles.eyebrow}>Descanso</Text>
+          <Text style={styles.eyebrow}>{t('sessao.common.descanso')}</Text>
           <Text style={styles.exercicioLabel} numberOfLines={1}>{nome}</Text>
         </View>
         <Pressable onPress={onToggleMinimized} style={({ pressed }) => [styles.iconBtn, pressed ? { opacity: 0.6 } : null]}>
@@ -48,7 +50,7 @@ export function RestTimerBanner({ nome, restante, total, minimized, onToggleMini
       </View>
 
       <Pressable onPress={onSkip} style={({ pressed }) => [styles.skipBtn, pressed ? { opacity: 0.8 } : null]}>
-        <Text style={styles.skipBtnText}>Pular descanso</Text>
+        <Text style={styles.skipBtnText}>{t('sessao.timer.pular')}</Text>
       </Pressable>
     </View>
   );

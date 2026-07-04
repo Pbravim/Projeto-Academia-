@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   treinos: TreinoPrimitives[];
@@ -15,25 +16,26 @@ interface Props {
   onGoToTreinos?: () => void;
 }
 
-function labelUltimaSessao(ultimaSessao: string | null): string {
-  if (!ultimaSessao) return 'Nunca feito';
+function labelUltimaSessao(ultimaSessao: string | null, t: ReturnType<typeof useT>): string {
+  if (!ultimaSessao) return t('sessao.inicio.nuncaFeito');
   const dias = Math.floor((Date.now() - new Date(ultimaSessao).getTime()) / 86_400_000);
-  if (dias === 0) return 'Hoje';
-  if (dias === 1) return 'Ontem';
-  return `Há ${dias} dias`;
+  if (dias === 0) return t('sessao.inicio.hoje');
+  if (dias === 1) return t('sessao.inicio.ontem');
+  return t('sessao.inicio.haDias', { count: dias });
 }
 
 export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar, onGoToTreinos }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Treinar agora</Text>
-        <Text style={styles.title}>Começar treino</Text>
+        <Text style={styles.eyebrow}>{t('sessao.inicio.eyebrow')}</Text>
+        <Text style={styles.title}>{t('sessao.inicio.title')}</Text>
         <Text style={styles.description}>
-          Escolha um treino para começar. Todas as séries serão registradas e salvas no histórico.
+          {t('sessao.inicio.description')}
         </Text>
       </View>
 
@@ -41,13 +43,13 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
         <View style={styles.sugestaoCard}>
           <View style={styles.sugestaoInfo}>
             <Text style={styles.sugestaoLabel}>
-              {sugestao.fonte === 'plano' ? 'Planejado para hoje' : 'Sugerido para hoje'}
+              {sugestao.fonte === 'plano' ? t('sessao.inicio.planejadoParaHoje') : t('sessao.inicio.sugeridoParaHoje')}
             </Text>
             <Text style={styles.sugestaoNome} numberOfLines={1}>{sugestao.treino.name}</Text>
             {sugestao.treino.objetivo ? (
               <Text style={styles.sugestaoObjetivo} numberOfLines={1}>{sugestao.treino.objetivo}</Text>
             ) : null}
-            <Text style={styles.sugestaoUltimo}>{labelUltimaSessao(sugestao.ultimaSessao)}</Text>
+            <Text style={styles.sugestaoUltimo}>{labelUltimaSessao(sugestao.ultimaSessao, t)}</Text>
           </View>
           <Pressable
             onPress={() => { void onIniciar(sugestao.treino.id); }}
@@ -58,7 +60,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
               !treinosComExercicios.has(sugestao.treino.id) ? { opacity: 0.45 } : null,
             ]}
           >
-            <Text style={styles.sugestaoBtnText}>Começar</Text>
+            <Text style={styles.sugestaoBtnText}>{t('sessao.inicio.comecar')}</Text>
           </Pressable>
         </View>
       ) : null}
@@ -67,9 +69,9 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
 
       {treinos.length === 0 ? (
         <View style={styles.emptyCard}>
-          <Text style={styles.emptyTitle}>Nenhum treino cadastrado</Text>
+          <Text style={styles.emptyTitle}>{t('sessao.inicio.nenhumTreino')}</Text>
           <Text style={styles.emptyText}>
-            Crie um treino primeiro para poder iniciar uma sessão.
+            {t('sessao.inicio.nenhumTreinoDesc')}
           </Text>
           {onGoToTreinos ? (
             <Pressable
@@ -77,13 +79,13 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
               onPress={onGoToTreinos}
               style={({ pressed }) => [styles.emptyCta, pressed ? { opacity: 0.85 } : null]}
             >
-              <Text style={styles.emptyCtaText}>Ir para Treinos</Text>
+              <Text style={styles.emptyCtaText}>{t('sessao.inicio.irParaTreinos')}</Text>
             </Pressable>
           ) : null}
         </View>
       ) : (
         <View style={styles.listCard}>
-          <Text style={styles.sectionTitle}>Escolha o treino</Text>
+          <Text style={styles.sectionTitle}>{t('sessao.inicio.escolhaTreino')}</Text>
           {treinos.map((treino) => {
             const semExercicios = !treinosComExercicios.has(treino.id);
             const buttonDisabled = isIniciando || semExercicios;
@@ -95,7 +97,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
                     <Text style={styles.treinoObjetivo}>{treino.objetivo}</Text>
                   ) : null}
                   {semExercicios ? (
-                    <Text style={styles.treinoSemExercicios}>Sem exercícios</Text>
+                    <Text style={styles.treinoSemExercicios}>{t('sessao.inicio.semExercicios')}</Text>
                   ) : null}
                 </View>
                 <Pressable
@@ -108,7 +110,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
                   ]}
                 >
                   <Text style={styles.iniciarButtonText}>
-                    {isIniciando ? 'Iniciando...' : 'Começar'}
+                    {isIniciando ? t('sessao.inicio.iniciando') : t('sessao.inicio.comecar')}
                   </Text>
                 </Pressable>
               </View>

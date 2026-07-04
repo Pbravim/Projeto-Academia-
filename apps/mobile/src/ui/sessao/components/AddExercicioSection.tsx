@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 const GROUP_ORDER = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
@@ -44,10 +45,11 @@ interface Props {
 
 export function AddExercicioSection({ availableExercises, onAdd }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   if (availableExercises.length === 0) {
-    return <Text style={styles.emptyAddText}>Todos os exercicios ja estao nesta sessao.</Text>;
+    return <Text style={styles.emptyAddText}>{t('sessao.addExercicio.empty')}</Text>;
   }
 
   return (

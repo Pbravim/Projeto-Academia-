@@ -6,6 +6,7 @@ import type { CandidatoSubstituto } from '../../../application/sessoes/use-cases
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   visible: boolean;
@@ -16,6 +17,7 @@ interface Props {
 
 export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onFechar }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [selecionado, setSelecionado] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
       <View style={styles.overlay}>
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.title}>Substituir exercício</Text>
+            <Text style={styles.title}>{t('sessao.substituir.title')}</Text>
             <Pressable onPress={fechar} style={({ pressed }) => [styles.closeBtn, pressed ? { opacity: 0.6 } : null]}>
               <Text style={styles.closeBtnText}>✕</Text>
             </Pressable>
@@ -52,7 +54,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
             {predefinidos.length > 0 ? (
               <>
-                <Text style={[styles.sectionLabel, styles.sectionLabelPredefinido]}>⭐ Substitutos predefinidos</Text>
+                <Text style={[styles.sectionLabel, styles.sectionLabelPredefinido]}>{t('sessao.substituir.predefinidos')}</Text>
                 {predefinidos.map((cand) => (
                   <CandidatoRow
                     key={cand.exercicio.id}
@@ -68,7 +70,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
 
             {quaseIguais.length > 0 ? (
               <>
-                <Text style={styles.sectionLabel}>Quase igual</Text>
+                <Text style={styles.sectionLabel}>{t('sessao.substituir.quaseIgual')}</Text>
                 {quaseIguais.map((cand) => (
                   <CandidatoRow
                     key={cand.exercicio.id}
@@ -84,7 +86,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
 
             {similares.length > 0 ? (
               <>
-                <Text style={styles.sectionLabel}>Similar</Text>
+                <Text style={styles.sectionLabel}>{t('sessao.substituir.similar')}</Text>
                 {similares.map((cand) => (
                   <CandidatoRow
                     key={cand.exercicio.id}
@@ -100,7 +102,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
 
             {mesmoGrupo.length > 0 ? (
               <>
-                <Text style={styles.sectionLabel}>Mesmo grupo muscular</Text>
+                <Text style={styles.sectionLabel}>{t('sessao.substituir.mesmoGrupo')}</Text>
                 {mesmoGrupo.map((cand) => (
                   <CandidatoRow
                     key={cand.exercicio.id}
@@ -115,32 +117,32 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
             ) : null}
 
             {candidatos.length === 0 ? (
-              <Text style={styles.emptyText}>Nenhum substituto encontrado para este exercício.</Text>
+              <Text style={styles.emptyText}>{t('sessao.substituir.vazio')}</Text>
             ) : null}
           </ScrollView>
 
           {selecionado ? (
             <View style={styles.motivoSection}>
-              <Text style={styles.motivoLabel}>Motivo da substituição</Text>
+              <Text style={styles.motivoLabel}>{t('sessao.substituir.motivoLabel')}</Text>
               <View style={styles.motivoRow}>
                 <Pressable
                   onPress={() => confirmar('equipamento_indisponivel')}
                   style={({ pressed }) => [styles.motivoBtn, pressed ? { opacity: 0.8 } : null]}
                 >
-                  <Text style={styles.motivoBtnText}>Equipamento ocupado</Text>
+                  <Text style={styles.motivoBtnText}>{t('sessao.substituir.motivoEquipamento')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => confirmar('variacao')}
                   style={({ pressed }) => [styles.motivoBtn, pressed ? { opacity: 0.8 } : null]}
                 >
-                  <Text style={styles.motivoBtnText}>Variar estímulo</Text>
+                  <Text style={styles.motivoBtnText}>{t('sessao.substituir.motivoVariar')}</Text>
                 </Pressable>
               </View>
               <Pressable
                 onPress={() => confirmar(null)}
                 style={({ pressed }) => [styles.confirmarBtn, pressed ? { opacity: 0.85 } : null]}
               >
-                <Text style={styles.confirmarBtnText}>Substituir</Text>
+                <Text style={styles.confirmarBtnText}>{t('sessao.substituir.confirmar')}</Text>
               </Pressable>
             </View>
           ) : null}
@@ -163,6 +165,7 @@ function CandidatoRow({
   styles: ReturnType<typeof makeStyles>;
   theme: ReturnType<typeof useTheme>;
 }) {
+  const t = useT();
   const ex = candidato.exercicio;
   const gifSource = ex.mediaLocal ? (gifAssets[ex.mediaLocal] ?? null) : null;
   const [playing, setPlaying] = useState(false);
@@ -190,7 +193,7 @@ function CandidatoRow({
         </Text>
         {candidato.ultimaExecucao ? (
           <Text style={styles.candidatoUltimo}>
-            Último: {candidato.ultimaExecucao.cargaKg}kg × {candidato.ultimaExecucao.repeticoes}
+            {t('sessao.substituir.ultimo', { carga: candidato.ultimaExecucao.cargaKg, reps: candidato.ultimaExecucao.repeticoes })}
           </Text>
         ) : null}
       </View>

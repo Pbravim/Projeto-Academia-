@@ -8,10 +8,10 @@ import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities
 
 type MetodoSessao = SessaoExercicioPrimitives['metodo'];
 
-const TECNICAS: { value: Exclude<MetodoSessao, 'normal'>; label: string; color: string; descricao: string }[] = [
-  { value: 'drop_set',   label: 'Drop-set',   color: '#9333ea', descricao: 'Reduza a carga a cada serie sem descanso' },
-  { value: 'piramide',   label: 'Piramide',   color: '#d97706', descricao: 'Aumente a carga progressivamente' },
-  { value: 'rest_pause', label: 'Rest-pause', color: '#e11d48', descricao: 'Breve pausa entre reps para mais volume' },
+const TECNICAS: { value: Exclude<MetodoSessao, 'normal'>; color: string }[] = [
+  { value: 'drop_set',   color: '#9333ea' },
+  { value: 'piramide',   color: '#d97706' },
+  { value: 'rest_pause', color: '#e11d48' },
 ];
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
@@ -21,8 +21,9 @@ import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
 import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
+import { metodoLabel, metodoDescricao } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-import { useLocale } from '../../shared/i18n';
+import { useLocale, useT } from '../../shared/i18n';
 import { formatNumber } from '../../shared/i18n/formatters';
 
 interface Props {
@@ -113,6 +114,7 @@ export function ExercicioDetalheScreen({
 }: Props) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -315,7 +317,7 @@ export function ExercicioDetalheScreen({
         const sec = parseInt(duracaoSecText, 10) || 0;
         const totalSegundos = min * 60 + sec;
         if (!Number.isInteger(totalSegundos) || totalSegundos < 1) {
-          setFormError('Duracao invalida. Informe minutos e/ou segundos maior que 0.');
+          setFormError(t('sessao.detalhe.duracaoInvalidaCardio'));
           return;
         }
 
@@ -323,7 +325,7 @@ export function ExercicioDetalheScreen({
         if (intensidadeText.trim() !== '') {
           const intNum = parseDecimalInput(intensidadeText);
           if (!Number.isFinite(intNum) || intNum < 0) {
-            setFormError('Intensidade invalida. Use um numero igual ou maior que 0.');
+            setFormError(t('sessao.detalhe.intensidadeInvalida'));
             return;
           }
           intensidade = intNum;
@@ -333,7 +335,7 @@ export function ExercicioDetalheScreen({
         if (distanciaText.trim() !== '') {
           const distNum = parseDecimalInput(distanciaText);
           if (!Number.isFinite(distNum) || distNum < 0) {
-            setFormError('Distancia invalida. Use um numero igual ou maior que 0.');
+            setFormError(t('sessao.detalhe.distanciaInvalida'));
             return;
           }
           distanciaMetros = distNum;
@@ -355,7 +357,7 @@ export function ExercicioDetalheScreen({
       if (trackingType === 'hold') {
         const segundos = parseInt(holdSecText, 10);
         if (!Number.isInteger(segundos) || segundos < 1) {
-          setFormError('Duracao invalida. Use um numero inteiro de segundos maior que 0.');
+          setFormError(t('sessao.detalhe.duracaoInvalidaHold'));
           return;
         }
 
@@ -373,7 +375,7 @@ export function ExercicioDetalheScreen({
       if (trackingType === 'reps_only') {
         const repsNum = parseInt(repsOnlyText, 10);
         if (!Number.isInteger(repsNum) || repsNum < 1) {
-          setFormError('Reps invalidas. Use um numero inteiro maior que 0.');
+          setFormError(t('sessao.detalhe.repsInvalidas'));
           return;
         }
 
@@ -394,7 +396,7 @@ export function ExercicioDetalheScreen({
         : parseDecimalInput(cargaText);
 
       if (!Number.isFinite(cargaNum) || cargaNum < 0) {
-        setFormError('Carga invalida. Use um numero como 80 ou 102,5.');
+        setFormError(t('sessao.detalhe.cargaInvalida'));
         return;
       }
 
@@ -403,7 +405,7 @@ export function ExercicioDetalheScreen({
         : parseInt(repsText, 10);
 
       if (!Number.isInteger(repsNum) || repsNum < 1) {
-        setFormError('Reps invalidas. Use um numero inteiro maior que 0.');
+        setFormError(t('sessao.detalhe.repsInvalidas'));
         return;
       }
 
@@ -526,7 +528,7 @@ export function ExercicioDetalheScreen({
             onPress={() => { void onAbrirSubstituicao(sessaoExercicio.id); }}
             style={({ pressed }) => [styles.substituirBtn, pressed ? { opacity: 0.7 } : null]}
           >
-            <Text style={styles.substituirBtnText}>Trocar exercicio</Text>
+            <Text style={styles.substituirBtnText}>{t('sessao.common.trocarExercicio')}</Text>
           </Pressable>
         ) : null}
         <Pressable
@@ -534,7 +536,7 @@ export function ExercicioDetalheScreen({
           style={[styles.finalizadoToggle, sessaoExercicio.realizado ? styles.finalizadoToggleOn : styles.finalizadoToggleOff]}
         >
           <Text style={[styles.finalizadoToggleText, sessaoExercicio.realizado ? styles.finalizadoToggleTextOn : styles.finalizadoToggleTextOff]}>
-            {sessaoExercicio.realizado ? 'Retomar' : 'Finalizar'}
+            {sessaoExercicio.realizado ? t('sessao.common.retomar') : t('sessao.common.finalizar')}
           </Text>
         </Pressable>
       </View>
@@ -563,42 +565,42 @@ export function ExercicioDetalheScreen({
 
         const objetivoBlock = hasMeta ? (
           <>
-            <Text style={styles.statsSectionLabel}>Objetivo</Text>
+            <Text style={styles.statsSectionLabel}>{t('sessao.detalhe.objetivo')}</Text>
             <View style={styles.statsPillsMuted}>
               {sessaoExercicio.seriesRecomendadas != null ? (
                 <View style={styles.statPill}>
                   <Text style={styles.statValueMuted}>{sessaoExercicio.seriesRecomendadas}</Text>
-                  <Text style={styles.statLabel}>Series</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.seriesLabel')}</Text>
                 </View>
               ) : null}
               {sessaoExercicio.execucoesRecomendadas != null ? (
                 <View style={styles.statPill}>
                   <Text style={styles.statValueMuted}>{sessaoExercicio.execucoesRecomendadas}</Text>
-                  <Text style={styles.statLabel}>Reps/serie</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.repsPorSerie')}</Text>
                 </View>
               ) : null}
               {sessaoExercicio.cargaPadrao != null ? (
                 <View style={styles.statPill}>
                   <Text style={styles.statValueMuted}>{sessaoExercicio.cargaPadrao}kg</Text>
-                  <Text style={styles.statLabel}>Carga</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.cargaLabel')}</Text>
                 </View>
               ) : null}
               {sessaoExercicio.duracaoRecomendadaSegundos != null ? (
                 <View style={styles.statPill}>
                   <Text style={styles.statValueMuted}>{formatDuracao(sessaoExercicio.duracaoRecomendadaSegundos)}</Text>
-                  <Text style={styles.statLabel}>Duracao</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.duracaoLabel')}</Text>
                 </View>
               ) : null}
               {sessaoExercicio.intensidadeRecomendada != null ? (
                 <View style={styles.statPill}>
                   <Text style={styles.statValueMuted}>{sessaoExercicio.intensidadeRecomendada}</Text>
-                  <Text style={styles.statLabel}>Intensidade</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.intensidadeLabel')}</Text>
                 </View>
               ) : null}
               {sessaoExercicio.distanciaRecomendadaMetros != null ? (
                 <View style={styles.statPill}>
                   <Text style={styles.statValueMuted}>{sessaoExercicio.distanciaRecomendadaMetros}m</Text>
-                  <Text style={styles.statLabel}>Distancia</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.distanciaLabel')}</Text>
                 </View>
               ) : null}
             </View>
@@ -612,16 +614,16 @@ export function ExercicioDetalheScreen({
             <View style={styles.statsCard}>
               {objetivoBlock}
 
-              <Text style={styles.statsSectionLabel}>Realizado</Text>
+              <Text style={styles.statsSectionLabel}>{t('sessao.detalhe.realizado')}</Text>
               <View style={styles.statsPills}>
                 <View style={styles.statPill}>
                   <Text style={styles.statValue}>{validSeries.length}</Text>
-                  <Text style={styles.statLabel}>Series</Text>
+                  <Text style={styles.statLabel}>{t('sessao.detalhe.seriesLabel')}</Text>
                 </View>
               </View>
 
               <View style={styles.statsSeparator} />
-              <Text style={styles.statsSectionLabel}>Series</Text>
+              <Text style={styles.statsSectionLabel}>{t('sessao.detalhe.seriesLabel')}</Text>
               <View style={styles.barLabelRow}>
                 {validSeries.map((serie, i) => (
                   <View key={serie.id} style={styles.barLabelCol}>
@@ -649,33 +651,33 @@ export function ExercicioDetalheScreen({
             {objetivoBlock}
 
             {/* Realizado */}
-            <Text style={styles.statsSectionLabel}>Realizado</Text>
+            <Text style={styles.statsSectionLabel}>{t('sessao.detalhe.realizado')}</Text>
             <View style={styles.statsPills}>
               <View style={styles.statPill}>
                 <Text style={styles.statValue}>{validSeries.length}</Text>
-                <Text style={styles.statLabel}>Series</Text>
+                <Text style={styles.statLabel}>{t('sessao.detalhe.seriesLabel')}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statPill}>
                 <Text style={styles.statValue}>{avgReps}</Text>
-                <Text style={styles.statLabel}>Reps/serie</Text>
+                <Text style={styles.statLabel}>{t('sessao.detalhe.repsPorSerie')}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statPill}>
                 <Text style={styles.statValue}>{maxCarga}kg</Text>
-                <Text style={styles.statLabel}>Max</Text>
+                <Text style={styles.statLabel}>{t('sessao.detalhe.maxLabel')}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statPill}>
                 <Text style={styles.statValue}>{formatNumber(totalVolume, locale)}kg</Text>
-                <Text style={styles.statLabel}>Volume</Text>
+                <Text style={styles.statLabel}>{t('sessao.common.volume')}</Text>
               </View>
             </View>
 
             <View style={styles.statsSeparator} />
 
             {/* Volume bar chart */}
-            <Text style={styles.statsSectionLabel}>Volume por serie</Text>
+            <Text style={styles.statsSectionLabel}>{t('sessao.detalhe.volumePorSerie')}</Text>
             <View style={styles.barsContainer}>
               {validSeries.map((serie) => {
                 const vol = (serie.cargaKg ?? 0) * (serie.repeticoes ?? 0);
@@ -721,7 +723,7 @@ export function ExercicioDetalheScreen({
             ]}
           >
             <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
-              {isLastExercicio ? 'Finalizar sessao' : 'Proximo exercicio →'}
+              {isLastExercicio ? t('sessao.common.finalizarSessao') : t('sessao.common.proximoExercicio')}
             </Text>
           </Pressable>
         </View>
@@ -752,12 +754,12 @@ export function ExercicioDetalheScreen({
                         {overflow > 0 ? <Text style={styles.seriesProgressOverflow}>+{overflow}</Text> : null}
                       </View>
                       <Text style={[styles.seriesProgressLabel, allDone ? styles.seriesProgressLabelDone : null]}>
-                        {validCount}/{total} series
+                        {validCount}/{total} {t('sessao.detalhe.seriesSuffix')}
                       </Text>
                     </View>
                   ) : (
                     <Text style={[styles.seriesProgressLabel, { marginLeft: 0 }]}>
-                      {validCount} serie{validCount !== 1 ? 's' : ''} registrada{validCount !== 1 ? 's' : ''}
+                      {t('sessao.detalhe.seriesRegistradasCount', { count: validCount })}
                     </Text>
                   )}
                   <Pressable
@@ -765,7 +767,7 @@ export function ExercicioDetalheScreen({
                     style={({ pressed }) => [styles.mediaInlineBtn, pressed ? { opacity: 0.7 } : null]}
                   >
                     <Text style={styles.mediaInlineBtnIcon}>{mediaVisible ? '✕' : '▶'}</Text>
-                    <Text style={styles.mediaInlineBtnText}>{mediaVisible ? 'Fechar' : 'Ver execucao'}</Text>
+                    <Text style={styles.mediaInlineBtnText}>{mediaVisible ? t('sessao.common.fechar') : t('sessao.detalhe.verExecucao')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -783,14 +785,14 @@ export function ExercicioDetalheScreen({
           {trackingType === 'cardio' ? (
             <View style={styles.textModeRow}>
               <View style={styles.textModeCol}>
-                <Text style={styles.pickerLabel}>Duracao</Text>
+                <Text style={styles.pickerLabel}>{t('sessao.detalhe.duracaoLabel')}</Text>
                 <View style={styles.adjustRow}>
                   <TextInput
                     style={styles.cargaInput}
                     value={duracaoMinText}
                     onChangeText={setDuracaoMinText}
                     keyboardType="number-pad"
-                    placeholder="min"
+                    placeholder={t('sessao.detalhe.minPlaceholder')}
                     placeholderTextColor={c.inputPlaceholder}
                     textAlign="center"
                     editable={!isSubmittingSerie}
@@ -800,7 +802,7 @@ export function ExercicioDetalheScreen({
                     value={duracaoSecText}
                     onChangeText={setDuracaoSecText}
                     keyboardType="number-pad"
-                    placeholder="seg"
+                    placeholder={t('sessao.detalhe.segPlaceholder')}
                     placeholderTextColor={c.inputPlaceholder}
                     textAlign="center"
                     editable={!isSubmittingSerie}
@@ -808,26 +810,26 @@ export function ExercicioDetalheScreen({
                 </View>
               </View>
               <View style={styles.textModeCol}>
-                <Text style={styles.pickerLabel}>Intensidade</Text>
+                <Text style={styles.pickerLabel}>{t('sessao.detalhe.intensidadeLabel')}</Text>
                 <TextInput
                   style={styles.cargaInput}
                   value={intensidadeText}
                   onChangeText={setIntensidadeText}
                   keyboardType="decimal-pad"
-                  placeholder="opcional"
+                  placeholder={t('sessao.detalhe.opcionalPlaceholder')}
                   placeholderTextColor={c.inputPlaceholder}
                   textAlign="center"
                   editable={!isSubmittingSerie}
                 />
               </View>
               <View style={styles.textModeCol}>
-                <Text style={styles.pickerLabel}>Distancia (m)</Text>
+                <Text style={styles.pickerLabel}>{t('sessao.detalhe.distanciaMLabel')}</Text>
                 <TextInput
                   style={styles.cargaInput}
                   value={distanciaText}
                   onChangeText={setDistanciaText}
                   keyboardType="decimal-pad"
-                  placeholder="opcional"
+                  placeholder={t('sessao.detalhe.opcionalPlaceholder')}
                   placeholderTextColor={c.inputPlaceholder}
                   textAlign="center"
                   editable={!isSubmittingSerie}
@@ -840,7 +842,7 @@ export function ExercicioDetalheScreen({
           {trackingType === 'hold' ? (
             <View style={styles.textModeRow}>
               <View style={styles.textModeCol}>
-                <Text style={styles.pickerLabel}>Duracao (segundos)</Text>
+                <Text style={styles.pickerLabel}>{t('sessao.detalhe.duracaoSegundosLabel')}</Text>
                 <TextInput
                   style={styles.cargaInput}
                   value={holdSecText}
@@ -860,7 +862,7 @@ export function ExercicioDetalheScreen({
           {trackingType === 'reps_only' ? (
             <View style={styles.textModeRow}>
               <View style={styles.textModeCol}>
-                <Text style={styles.pickerLabel}>Reps</Text>
+                <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
                 <TextInput
                   style={styles.cargaInput}
                   value={repsOnlyText}
@@ -883,9 +885,9 @@ export function ExercicioDetalheScreen({
             {cargaMode === 'carousel' ? (
               <View style={styles.pickerCol}>
                 <View style={styles.pickerLabelRow}>
-                  <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                  <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
                   <Pressable onPress={switchToText}>
-                    <Text style={styles.modeToggleText}>Digitar</Text>
+                    <Text style={styles.modeToggleText}>{t('sessao.common.digitar')}</Text>
                   </Pressable>
                 </View>
                 <PickerCarousel
@@ -898,9 +900,9 @@ export function ExercicioDetalheScreen({
             ) : (
               <View style={styles.textModeCol}>
                 <View style={styles.pickerLabelRow}>
-                  <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                  <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
                   <Pressable onPress={switchToCarousel}>
-                    <Text style={styles.modeToggleText}>Rolar</Text>
+                    <Text style={styles.modeToggleText}>{t('sessao.common.rolar')}</Text>
                   </Pressable>
                 </View>
                 <TextInput
@@ -933,9 +935,9 @@ export function ExercicioDetalheScreen({
             {repsMode === 'carousel' ? (
               <View style={styles.pickerCol}>
                 <View style={styles.pickerLabelRow}>
-                  <Text style={styles.pickerLabel}>Reps</Text>
+                  <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
                   <Pressable onPress={switchRepsToText}>
-                    <Text style={styles.modeToggleText}>Digitar</Text>
+                    <Text style={styles.modeToggleText}>{t('sessao.common.digitar')}</Text>
                   </Pressable>
                 </View>
                 <PickerCarousel
@@ -948,9 +950,9 @@ export function ExercicioDetalheScreen({
             ) : (
               <View style={styles.textModeCol}>
                 <View style={styles.pickerLabelRow}>
-                  <Text style={styles.pickerLabel}>Reps</Text>
+                  <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
                   <Pressable onPress={switchRepsToCarousel}>
-                    <Text style={styles.modeToggleText}>Rolar</Text>
+                    <Text style={styles.modeToggleText}>{t('sessao.common.rolar')}</Text>
                   </Pressable>
                 </View>
                 <TextInput
@@ -971,7 +973,7 @@ export function ExercicioDetalheScreen({
 
           {/* Rest options */}
           <View style={styles.descansoSection}>
-            <Text style={styles.pickerLabel}>Descanso</Text>
+            <Text style={styles.pickerLabel}>{t('sessao.common.descanso')}</Text>
             <View style={styles.chipsRow}>
               {DESCANSO_PRESETS.map((preset) => {
                 const active = descanso === preset.value && !isCustomDescanso;
@@ -990,7 +992,7 @@ export function ExercicioDetalheScreen({
                 style={[styles.chip, (customDescansoOpen || isCustomDescanso) ? styles.chipActive : null]}
               >
                 <Text style={[styles.chipText, (customDescansoOpen || isCustomDescanso) ? styles.chipTextActive : null]}>
-                  {isCustomDescanso ? `${descanso}s` : '+ Custom'}
+                  {isCustomDescanso ? `${descanso}s` : t('sessao.detalhe.descansoCustomChip')}
                 </Text>
               </Pressable>
             </View>
@@ -1002,12 +1004,12 @@ export function ExercicioDetalheScreen({
                   value={customDescansoText}
                   onChangeText={setCustomDescansoText}
                   keyboardType="number-pad"
-                  placeholder="Segundos"
+                  placeholder={t('sessao.detalhe.segundosPlaceholder')}
                   placeholderTextColor={c.inputPlaceholder}
                   autoFocus
                 />
                 <Pressable onPress={handleConfirmCustomDescanso} style={styles.customDescansoOk}>
-                  <Text style={styles.customDescansoOkText}>OK</Text>
+                  <Text style={styles.customDescansoOkText}>{t('common.ok')}</Text>
                 </Pressable>
               </View>
             ) : null}
@@ -1016,7 +1018,7 @@ export function ExercicioDetalheScreen({
           {/* Observation */}
           <TextInput
             style={styles.obsInput}
-            placeholder="Observacao (opcional)"
+            placeholder={t('sessao.common.observacaoPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             value={obs}
             onChangeText={setObs}
@@ -1025,31 +1027,30 @@ export function ExercicioDetalheScreen({
 
           {/* Technique selector */}
           <View style={styles.tecnicaSection}>
-            <Text style={styles.pickerLabel}>Tecnica</Text>
+            <Text style={styles.pickerLabel}>{t('sessao.detalhe.tecnicaLabel')}</Text>
             <View style={styles.tecnicaChipsRow}>
               <Pressable
                 onPress={() => { setMetodo('normal'); void onAtualizarMetodo(sessaoExercicio.id, 'normal'); }}
                 style={[styles.tecnicaChip, metodo === 'normal' ? styles.tecnicaChipNormal : null]}
               >
-                <Text style={[styles.tecnicaChipText, metodo === 'normal' ? styles.tecnicaChipTextNormal : null]}>Normal</Text>
+                <Text style={[styles.tecnicaChipText, metodo === 'normal' ? styles.tecnicaChipTextNormal : null]}>{t('sessao.metodo.normal')}</Text>
               </Pressable>
-              {TECNICAS.map((t) => {
-                const active = metodo === t.value;
+              {TECNICAS.map((tecnica) => {
+                const active = metodo === tecnica.value;
                 return (
                   <Pressable
-                    key={t.value}
-                    onPress={() => { setMetodo(t.value); void onAtualizarMetodo(sessaoExercicio.id, t.value); }}
-                    style={[styles.tecnicaChip, active ? { backgroundColor: t.color, borderColor: t.color } : null]}
+                    key={tecnica.value}
+                    onPress={() => { setMetodo(tecnica.value); void onAtualizarMetodo(sessaoExercicio.id, tecnica.value); }}
+                    style={[styles.tecnicaChip, active ? { backgroundColor: tecnica.color, borderColor: tecnica.color } : null]}
                   >
-                    <Text style={[styles.tecnicaChipText, active ? styles.tecnicaChipTextActive : null]}>{t.label}</Text>
+                    <Text style={[styles.tecnicaChipText, active ? styles.tecnicaChipTextActive : null]}>{metodoLabel(tecnica.value, locale)}</Text>
                   </Pressable>
                 );
               })}
             </View>
-            {metodo !== 'normal' ? (() => {
-              const t = TECNICAS.find((x) => x.value === metodo);
-              return t ? <Text style={styles.tecnicaDescricao}>{t.descricao}</Text> : null;
-            })() : null}
+            {metodo !== 'normal' ? (
+              <Text style={styles.tecnicaDescricao}>{metodoDescricao(metodo, locale)}</Text>
+            ) : null}
           </View>
 
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
@@ -1064,7 +1065,7 @@ export function ExercicioDetalheScreen({
             ]}
           >
             <Text style={styles.addSerieBtnText}>
-              {isSubmittingSerie ? 'Registrando...' : '+ Registrar serie'}
+              {isSubmittingSerie ? t('sessao.common.registrando') : t('sessao.detalhe.registrarSerieBtn')}
             </Text>
           </Pressable>
 
@@ -1072,7 +1073,7 @@ export function ExercicioDetalheScreen({
             onPress={() => setConfirmConcluirVisible(true)}
             style={({ pressed }) => [styles.concluirBtn, pressed ? { opacity: 0.75 } : null]}
           >
-            <Text style={styles.concluirBtnText}>✓ Concluir exercicio</Text>
+            <Text style={styles.concluirBtnText}>{t('sessao.common.concluirExercicioBtn')}</Text>
           </Pressable>
 
           <Pressable
@@ -1095,7 +1096,7 @@ export function ExercicioDetalheScreen({
             ]}
           >
             <Text style={[styles.navegacaoBtnText, isLastExercicio ? styles.navegacaoBtnTextFinalizar : styles.navegacaoBtnTextProximo]}>
-              {isLastExercicio ? 'Finalizar sessao' : 'Proximo exercicio →'}
+              {isLastExercicio ? t('sessao.common.finalizarSessao') : t('sessao.common.proximoExercicio')}
             </Text>
           </Pressable>
         </View>
@@ -1109,10 +1110,10 @@ export function ExercicioDetalheScreen({
         return (
         <View style={styles.seriesCard}>
           <View style={styles.seriesHeader}>
-            <Text style={styles.seriesTitle}>Series registradas</Text>
+            <Text style={styles.seriesTitle}>{t('sessao.detalhe.seriesRegistradasTitle')}</Text>
             <View style={styles.seriesSummaryChip}>
               <Text style={styles.seriesSummaryText}>
-                {series.length} serie{series.length !== 1 ? 's' : ''}
+                {t('sessao.detalhe.seriesCount', { count: series.length })}
                 {totalVolume > 0 ? ` · ${formatNumber(Math.round(totalVolume), locale)} kg` : ''}
               </Text>
             </View>
@@ -1123,10 +1124,10 @@ export function ExercicioDetalheScreen({
               if (isEditing) {
                 return (
                   <View key={serie.id} style={[styles.serieRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
-                    <Text style={styles.serieLabel}>Editando serie</Text>
+                    <Text style={styles.serieLabel}>{t('sessao.detalhe.editandoSerie')}</Text>
                     <View style={styles.textModeRow}>
                       <View style={styles.pickerCol}>
-                        <Text style={styles.pickerLabel}>Carga (kg)</Text>
+                        <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
                         <PickerCarousel
                           count={KG_VALUES.length}
                           selectedIndex={kgIndexFor(editKg)}
@@ -1135,7 +1136,7 @@ export function ExercicioDetalheScreen({
                         />
                       </View>
                       <View style={styles.pickerCol}>
-                        <Text style={styles.pickerLabel}>Reps</Text>
+                        <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
                         <PickerCarousel
                           count={30}
                           selectedIndex={Math.max(0, Math.min(editReps - 1, 29))}
@@ -1154,13 +1155,13 @@ export function ExercicioDetalheScreen({
                         }}
                         style={({ pressed }) => [styles.addSerieBtn, { flex: 1 }, pressed ? { opacity: 0.85 } : null]}
                       >
-                        <Text style={styles.addSerieBtnText}>Salvar</Text>
+                        <Text style={styles.addSerieBtnText}>{t('common.save')}</Text>
                       </Pressable>
                       <Pressable
                         onPress={() => setEditingSerieId(null)}
                         style={({ pressed }) => [styles.concluirBtn, { flex: 1 }, pressed ? { opacity: 0.75 } : null]}
                       >
-                        <Text style={styles.concluirBtnText}>Cancelar</Text>
+                        <Text style={styles.concluirBtnText}>{t('common.cancel')}</Text>
                       </Pressable>
                     </View>
                   </View>
@@ -1241,10 +1242,10 @@ export function ExercicioDetalheScreen({
     </ScrollView>
     <ConfirmDialog
       visible={confirmConcluirVisible}
-      title="Concluir exercicio"
-      message={`Marcar "${sessaoExercicio.nomeSnapshot}" como concluido?`}
-      confirmLabel="Concluir"
-      cancelLabel="Cancelar"
+      title={t('sessao.detalhe.concluirTitle')}
+      message={t('sessao.detalhe.concluirMessage', { nome: sessaoExercicio.nomeSnapshot })}
+      confirmLabel={t('sessao.common.concluir')}
+      cancelLabel={t('common.cancel')}
       onConfirm={() => {
         setConfirmConcluirVisible(false);
         void concluirExercicio();

@@ -33,3 +33,14 @@ export function formatTime(value: Date | string, locale: AppLocale): string {
 export function formatNumber(n: number, locale: AppLocale): string {
   return n.toLocaleString(locale);
 }
+
+/**
+ * Fixed-decimal number (via `toFixed`, not `Intl` rounding) with the locale's decimal
+ * separator swapped in — comma for pt-BR, dot for en-US. Using `toFixed` (rather than
+ * `toLocaleString` with fraction-digit options) keeps pt-BR rounding byte-for-byte
+ * identical to the pre-i18n behavior.
+ */
+export function formatFixedDecimal(n: number, locale: AppLocale, fractionDigits: number): string {
+  const fixed = n.toFixed(fractionDigits);
+  return locale === 'pt-BR' ? fixed.replace('.', ',') : fixed;
+}
