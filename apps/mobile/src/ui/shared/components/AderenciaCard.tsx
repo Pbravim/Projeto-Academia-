@@ -84,13 +84,13 @@ export function AderenciaCard({ semanal, mensal, anual }: AderenciaCardProps) {
 
   const MAX_BAR_H = 56;
   const MIN_BAR_H = 3;
-  const subtitle = mode === 'semanal' ? 'Semana atual' : mode === 'mensal' ? 'Mes atual' : 'Ano atual';
+  const subtitle = mode === 'semanal' ? 'Semana atual' : mode === 'mensal' ? 'Mês atual' : 'Ano atual';
   const footerUnit = mode === 'anual' ? 'meses ativos' : 'dias ativos';
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Aderencia</Text>
+        <Text style={styles.title}>Aderência</Text>
         <View style={styles.modeToggle}>
           {(['semanal', 'mensal', 'anual'] as AderenciaMode[]).map((m) => (
             <Pressable

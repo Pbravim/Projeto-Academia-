@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
@@ -7,6 +7,7 @@ import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { useTheme } from '../../shared/theme';
@@ -108,6 +109,7 @@ export function BiSetDetalheScreen({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingSetIndexes, setDeletingSetIndexes] = useState<Set<number>>(new Set());
+  const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
 
   const [timer, setTimer] = useState<TimerState | null>(null);
   const [timerMinimized, setTimerMinimized] = useState(false);
@@ -235,43 +237,34 @@ export function BiSetDetalheScreen({
   };
 
   const handleConcluirComAutoFill = () => {
-    Alert.alert(
-      `Concluir ${label}`,
-      'Auto-completar series faltando e marcar como concluido?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Concluir',
-          onPress: () => {
-            void (async () => {
-              const allInputs = grupoItens.flatMap((item, i) => {
-                if (item.sessaoExercicio.realizado) return [];
-                const validCount = item.series.length;
-                const recomendadas = item.sessaoExercicio.seriesRecomendadas ?? 0;
-                const missing = Math.max(0, recomendadas - validCount);
-                const cargaNum = cargaModes[i] === 'carousel'
-                  ? KG_VALUES[cargaIndexes[i]]
-                  : parseDecimalInput(cargaTexts[i]);
-                const repsNum = repsModes[i] === 'carousel'
-                  ? repsIndexes[i] + 1
-                  : parseInt(repsTexts[i], 10);
-                const cargaFinal = Number.isFinite(cargaNum) && cargaNum >= 0 ? cargaNum : (item.sessaoExercicio.cargaPadrao ?? 0);
-                const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (item.sessaoExercicio.execucoesRecomendadas ?? 1);
-                return Array.from({ length: missing }, () => ({
-                  sessaoExercicioId: item.sessaoExercicio.id,
-                  cargaKg: cargaFinal,
-                  repeticoes: repsFinal,
-                  observacao: '',
-                }));
-              });
-              if (allInputs.length > 0) await onRegistrarSeriesEmLote(allInputs);
-              const toToggle = grupoItens.filter((i) => !i.sessaoExercicio.realizado).map((i) => i.sessaoExercicio.id);
-              if (toToggle.length > 0) await onToggleRealizadoGrupo(toToggle);
-            })();
-          },
-        },
-      ]
-    );
+    setConfirmConcluirVisible(true);
+  };
+
+  // Auto-completa as series faltando (com os valores atuais do formulario) e marca o grupo como concluido.
+  const concluirComAutoFill = async () => {
+    const allInputs = grupoItens.flatMap((item, i) => {
+      if (item.sessaoExercicio.realizado) return [];
+      const validCount = item.series.length;
+      const recomendadas = item.sessaoExercicio.seriesRecomendadas ?? 0;
+      const missing = Math.max(0, recomendadas - validCount);
+      const cargaNum = cargaModes[i] === 'carousel'
+        ? KG_VALUES[cargaIndexes[i]]
+        : parseDecimalInput(cargaTexts[i]);
+      const repsNum = repsModes[i] === 'carousel'
+        ? repsIndexes[i] + 1
+        : parseInt(repsTexts[i], 10);
+      const cargaFinal = Number.isFinite(cargaNum) && cargaNum >= 0 ? cargaNum : (item.sessaoExercicio.cargaPadrao ?? 0);
+      const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (item.sessaoExercicio.execucoesRecomendadas ?? 1);
+      return Array.from({ length: missing }, () => ({
+        sessaoExercicioId: item.sessaoExercicio.id,
+        cargaKg: cargaFinal,
+        repeticoes: repsFinal,
+        observacao: '',
+      }));
+    });
+    if (allInputs.length > 0) await onRegistrarSeriesEmLote(allInputs);
+    const toToggle = grupoItens.filter((i) => !i.sessaoExercicio.realizado).map((i) => i.sessaoExercicio.id);
+    if (toToggle.length > 0) await onToggleRealizadoGrupo(toToggle);
   };
 
   const label = grupoLabel(grupoItens.length);
@@ -610,10 +603,10 @@ export function BiSetDetalheScreen({
                         if (!serie) return null;
                         const firstName = item.sessaoExercicio.nomeSnapshot.split(' ')[0];
                         return (
-                          <Text key={item.sessaoExercicio.id} style={styles.setLine} numberOfLines={1}>
-                            <Text style={styles.setExercicioNome}>{firstName}</Text>
-                            {`  ${serie.cargaKg}kg × ${serie.repeticoes}`}
-                          </Text>
+                          <View key={item.sessaoExercicio.id} style={styles.setLine}>
+                            <Text style={styles.setExercicioNome} numberOfLines={1}>{firstName}</Text>
+                            <Text style={styles.setMetric}>{`${serie.cargaKg}kg × ${serie.repeticoes}`}</Text>
+                          </View>
                         );
                       })}
                     </View>
@@ -633,6 +626,19 @@ export function BiSetDetalheScreen({
           </View>
         ) : null}
       </ScrollView>
+
+      <ConfirmDialog
+        visible={confirmConcluirVisible}
+        title={`Concluir ${label}`}
+        message="Auto-completar series faltando e marcar como concluido?"
+        confirmLabel="Concluir"
+        cancelLabel="Cancelar"
+        onConfirm={() => {
+          setConfirmConcluirVisible(false);
+          void concluirComAutoFill();
+        }}
+        onCancel={() => setConfirmConcluirVisible(false)}
+      />
 
       {timer ? (
         <RestTimerBanner
@@ -733,8 +739,9 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     setRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.cardAlt, borderRadius: 10, padding: 10 },
     setNumber: { color: c.textSecondary, fontSize: 11, fontWeight: '800', textTransform: 'uppercase', width: 24, textAlign: 'center' },
     setExercicios: { flex: 1, gap: 3 },
-    setLine: { color: c.textPrimary, fontSize: 13 },
-    setExercicioNome: { fontWeight: '700' },
+    setLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    setExercicioNome: { color: c.textPrimary, fontSize: 13, fontWeight: '700', width: 92 },
+    setMetric: { color: c.textPrimary, fontSize: 13, fontVariant: ['tabular-nums'] },
     deleteBtn: { padding: 4 },
     deleteBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
   });

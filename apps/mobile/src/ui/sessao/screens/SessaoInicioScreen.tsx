@@ -20,7 +20,7 @@ function labelUltimaSessao(ultimaSessao: string | null): string {
   const dias = Math.floor((Date.now() - new Date(ultimaSessao).getTime()) / 86_400_000);
   if (dias === 0) return 'Hoje';
   if (dias === 1) return 'Ontem';
-  return `Ha ${dias} dias`;
+  return `Há ${dias} dias`;
 }
 
 export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar, onGoToTreinos }: Props) {
@@ -31,9 +31,9 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
         <Text style={styles.eyebrow}>Treinar agora</Text>
-        <Text style={styles.title}>Comecar treino</Text>
+        <Text style={styles.title}>Começar treino</Text>
         <Text style={styles.description}>
-          Escolha um treino para comecar. Todas as series serao registradas e salvas no historico.
+          Escolha um treino para começar. Todas as séries serão registradas e salvas no histórico.
         </Text>
       </View>
 
@@ -58,7 +58,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
               !treinosComExercicios.has(sugestao.treino.id) ? { opacity: 0.45 } : null,
             ]}
           >
-            <Text style={styles.sugestaoBtnText}>Comecar</Text>
+            <Text style={styles.sugestaoBtnText}>Começar</Text>
           </Pressable>
         </View>
       ) : null}
@@ -69,7 +69,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
         <View style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>Nenhum treino cadastrado</Text>
           <Text style={styles.emptyText}>
-            Crie um treino primeiro para poder iniciar uma sessao.
+            Crie um treino primeiro para poder iniciar uma sessão.
           </Text>
           {onGoToTreinos ? (
             <Pressable
@@ -95,7 +95,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
                     <Text style={styles.treinoObjetivo}>{treino.objetivo}</Text>
                   ) : null}
                   {semExercicios ? (
-                    <Text style={styles.treinoSemExercicios}>Sem exercicios</Text>
+                    <Text style={styles.treinoSemExercicios}>Sem exercícios</Text>
                   ) : null}
                 </View>
                 <Pressable
@@ -108,7 +108,7 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
                   ]}
                 >
                   <Text style={styles.iniciarButtonText}>
-                    {isIniciando ? 'Iniciando...' : 'Comecar'}
+                    {isIniciando ? 'Iniciando...' : 'Começar'}
                   </Text>
                 </Pressable>
               </View>

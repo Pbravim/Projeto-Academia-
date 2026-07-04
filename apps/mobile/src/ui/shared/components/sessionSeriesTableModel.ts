@@ -15,7 +15,10 @@ export interface SessionTableInputSession {
 }
 
 export interface SessionTableSetVM {
-  label: string;
+  /** Carga formatada, sem unidade (ex.: "82,5"). */
+  cargaLabel: string;
+  /** Repeticoes (ex.: "8"). */
+  repsLabel: string;
   isBest: boolean;
   muted: boolean;
 }
@@ -25,6 +28,7 @@ export interface SessionTableRowVM {
   dateLabel: string;
   subLabel: string | null;
   sets: SessionTableSetVM[];
+  setsCountLabel: string | null;
   ormLabel: string | null;
   volumeLabel: string | null;
   trend: 'up' | 'down' | null;
@@ -73,7 +77,8 @@ export function buildSessionTableRows(sessions: SessionTableInputSession[]): Ses
         calcularEstimativa1rm(x.cargaKg, x.repeticoes) === best;
       if (isBest) bestMarked = true;
       return {
-        label: `${formatCarga(x.cargaKg)}×${x.repeticoes}`,
+        cargaLabel: formatCarga(x.cargaKg),
+        repsLabel: String(x.repeticoes),
         isBest,
         muted: x.muted ?? false,
       };
@@ -91,6 +96,7 @@ export function buildSessionTableRows(sessions: SessionTableInputSession[]): Ses
       dateLabel: s.dateLabel,
       subLabel: s.subLabel ?? null,
       sets,
+      setsCountLabel: valid.length > 0 ? `${valid.length} série${valid.length !== 1 ? 's' : ''}` : null,
       ormLabel: best > 0 ? `1RM ~${formatCarga(Math.round(best * 10) / 10)}` : null,
       volumeLabel: valid.length > 0 ? formatVolume(volume) : null,
       trend,

@@ -47,11 +47,22 @@ describe('formatKgDelta', () => {
 });
 
 describe('buildSessionTableRows', () => {
-  it('formata cada set individualmente como carga×reps', () => {
+  it('formata cada set individualmente com carga e reps separados', () => {
     const rows = buildSessionTableRows([
       sessao('s1', [{ cargaKg: 80, repeticoes: 10 }, { cargaKg: 82.5, repeticoes: 8 }]),
     ]);
-    expect(rows[0].sets.map((s) => s.label)).toEqual(['80×10', '82,5×8']);
+    expect(rows[0].sets.map((s) => `${s.cargaLabel}×${s.repsLabel}`)).toEqual(['80×10', '82,5×8']);
+  });
+
+  it('expoe a contagem de series validas da sessao', () => {
+    const rows = buildSessionTableRows([
+      sessao('s1', [{ cargaKg: 80, repeticoes: 10 }, { cargaKg: 82.5, repeticoes: 8 }]),
+      sessao('s2', [{ cargaKg: 80, repeticoes: 10 }]),
+      sessao('s3', [{ cargaKg: 40, repeticoes: 15, muted: true }]),
+    ]);
+    expect(rows[0].setsCountLabel).toBe('2 séries');
+    expect(rows[1].setsCountLabel).toBe('1 série');
+    expect(rows[2].setsCountLabel).toBeNull();
   });
 
   it('marca como melhor apenas o set de maior 1RM estimado (uma unica marcacao)', () => {

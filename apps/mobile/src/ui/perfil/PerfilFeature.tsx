@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { ConfirmDialog } from '../shared/components/ConfirmDialog';
 import type { PesoControllerDependencies } from '../peso/hooks/usePesoController';
 import { usePesoController } from '../peso/hooks/usePesoController';
 import { usePerfilController } from './hooks/usePerfilController';
@@ -40,6 +40,8 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
   const [isResetting, setIsResetting] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [confirmImportVisible, setConfirmImportVisible] = useState(false);
+  const [infoDialog, setInfoDialog] = useState<{ title: string; message: string } | null>(null);
 
   const onExportar = async () => {
     setIsExporting(true);
@@ -47,7 +49,7 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       await dependencies.exportarHistorico.execute();
     } catch (e) {
       dependencies.logger.error('perfil.exportar', e);
-      Alert.alert('Erro', e instanceof Error ? e.message : 'Falha ao exportar.');
+      setInfoDialog({ title: 'Erro', message: e instanceof Error ? e.message : 'Falha ao exportar.' });
     } finally {
       setIsExporting(false);
     }
@@ -70,7 +72,7 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       await dependencies.exportarBanco.execute();
     } catch (e) {
       dependencies.logger.error('perfil.backup', e);
-      Alert.alert('Erro', e instanceof Error ? e.message : 'Falha ao gerar backup.');
+      setInfoDialog({ title: 'Erro', message: e instanceof Error ? e.message : 'Falha ao gerar backup.' });
     } finally {
       setIsBackingUp(false);
     }
@@ -81,44 +83,59 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
     try {
       const result = await dependencies.importarBanco.execute();
       if (result.status === 'imported') {
-        Alert.alert(
-          'Backup restaurado',
-          'Feche e reabra o app para carregar os dados importados.',
-        );
+        setInfoDialog({
+          title: 'Backup restaurado',
+          message: 'Feche e reabra o app para carregar os dados importados.',
+        });
       }
     } catch (e) {
       dependencies.logger.error('perfil.importar', e);
-      Alert.alert('Erro', e instanceof Error ? e.message : 'Falha ao importar backup.');
+      setInfoDialog({ title: 'Erro', message: e instanceof Error ? e.message : 'Falha ao importar backup.' });
     } finally {
       setIsImporting(false);
     }
   };
 
-  const onImportConfirm = () => {
-    Alert.alert(
-      'Importar backup',
-      'O banco de dados atual sera substituido pelo arquivo escolhido. Essa acao nao pode ser desfeita. Deseja continuar?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Importar', style: 'destructive', onPress: () => { void onImport(); } },
-      ],
-    );
-  };
-
   return (
-    <PerfilScreen
-      perfil={perfil}
-      peso={peso}
-      statsState={statsState}
-      isExporting={isExporting}
-      isResetting={isResetting}
-      isBackingUp={isBackingUp}
-      isImporting={isImporting}
-      onExportar={onExportar}
-      onReset={onReset}
-      onBackup={onBackup}
-      onImport={onImportConfirm}
-      backupSection={<BackupSyncSection backup={dependencies.backup} />}
-    />
+    <>
+      <PerfilScreen
+        perfil={perfil}
+        peso={peso}
+        statsState={statsState}
+        isExporting={isExporting}
+        isResetting={isResetting}
+        isBackingUp={isBackingUp}
+        isImporting={isImporting}
+        onExportar={onExportar}
+        onReset={onReset}
+        onBackup={onBackup}
+        onImport={() => setConfirmImportVisible(true)}
+        backupSection={<BackupSyncSection backup={dependencies.backup} />}
+      />
+
+      <ConfirmDialog
+        visible={confirmImportVisible}
+        title="Importar backup"
+        message="O banco de dados atual será substituído pelo arquivo escolhido. Essa ação não pode ser desfeita. Deseja continuar?"
+        confirmLabel="Importar"
+        cancelLabel="Cancelar"
+        destructive
+        onConfirm={() => {
+          setConfirmImportVisible(false);
+          void onImport();
+        }}
+        onCancel={() => setConfirmImportVisible(false)}
+      />
+
+      <ConfirmDialog
+        visible={infoDialog !== null}
+        title={infoDialog?.title ?? ''}
+        message={infoDialog?.message ?? ''}
+        confirmLabel="OK"
+        hideCancel
+        onConfirm={() => setInfoDialog(null)}
+        onCancel={() => setInfoDialog(null)}
+      />
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
@@ -8,6 +8,7 @@ import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
 import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
@@ -144,29 +145,15 @@ export function TreinoDetailScreen({
     onBack();
   };
 
+  const [sessaoConflito, setSessaoConflito] = useState<{ id: string; nome: string } | null>(null);
+
   const handleSaveAll = async () => {
     if (isSaving) return;
     if (treinoExercicios.length === 0) { onBack(); return; }
 
     const sessaoAtiva = await getSessaoAtiva();
     if (sessaoAtiva) {
-      Alert.alert(
-        'Sessao em andamento',
-        `Ha uma sessao de "${sessaoAtiva.treinoNomeSnapshot}" em andamento. Salvar o treino agora vai cancelar essa sessao e perder todo o progresso.`,
-        [
-          { text: 'Continuar sessao', style: 'cancel', onPress: onGoToSessao },
-          {
-            text: 'Salvar treino e cancelar sessao',
-            style: 'destructive',
-            onPress: () => {
-              void (async () => {
-                await cancelarSessao(sessaoAtiva.id);
-                await performSave();
-              })();
-            },
-          },
-        ]
-      );
+      setSessaoConflito({ id: sessaoAtiva.id, nome: sessaoAtiva.treinoNomeSnapshot });
       return;
     }
 
@@ -311,7 +298,7 @@ export function TreinoDetailScreen({
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Exercicios do treino</Text>
+        <Text style={styles.sectionTitle}>Exercícios do treino</Text>
 
         {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
         {feedbackMessage ? <Text style={styles.successMessage}>{feedbackMessage}</Text> : null}
@@ -514,7 +501,7 @@ export function TreinoDetailScreen({
 
       {notAddedExercises.length > 0 ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Adicionar exercicios</Text>
+          <Text style={styles.sectionTitle}>Adicionar exercícios</Text>
 
           <TextInput
             style={styles.searchInput}
@@ -537,7 +524,7 @@ export function TreinoDetailScreen({
 
           {filteredExercises.length === 0 ? (
             <Text style={styles.emptyState}>
-              {search ? 'Nenhum exercicio encontrado.' : 'Todos os exercicios ja estao no treino.'}
+              {search ? 'Nenhum exercício encontrado.' : 'Todos os exercícios já estão no treino.'}
             </Text>
           ) : (
             groupedExercises.map(({ group, items }) => (
@@ -567,6 +554,29 @@ export function TreinoDetailScreen({
           onClose={() => setSubstitutoPickerFor(null)}
         />
       ) : null}
+
+      <ConfirmDialog
+        visible={sessaoConflito !== null}
+        title="Sessão em andamento"
+        message={`Há uma sessão de "${sessaoConflito?.nome ?? ''}" em andamento. Salvar o treino agora vai cancelar essa sessão e perder todo o progresso.`}
+        confirmLabel="Salvar e cancelar sessão"
+        cancelLabel="Continuar sessão"
+        destructive
+        onConfirm={() => {
+          const conflito = sessaoConflito;
+          setSessaoConflito(null);
+          if (conflito) {
+            void (async () => {
+              await cancelarSessao(conflito.id);
+              await performSave();
+            })();
+          }
+        }}
+        onCancel={() => {
+          setSessaoConflito(null);
+          onGoToSessao();
+        }}
+      />
     </ScrollView>
     </KeyboardAvoidingView>
     {mediaViewerInfo ? (

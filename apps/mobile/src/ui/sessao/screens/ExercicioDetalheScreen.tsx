@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
@@ -16,6 +16,7 @@ const TECNICAS: { value: Exclude<MetodoSessao, 'normal'>; label: string; color: 
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
@@ -163,6 +164,7 @@ export function ExercicioDetalheScreen({
   const [isSubmittingSerie, setIsSubmittingSerie] = useState(false);
   const [deletingSerieIds, setDeletingSerieIds] = useState<Set<string>>(new Set());
   const [editingSerieId, setEditingSerieId] = useState<string | null>(null);
+  const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
   const [editKg, setEditKg] = useState(0);
   const [editReps, setEditReps] = useState(0);
 
@@ -419,6 +421,73 @@ export function ExercicioDetalheScreen({
   const formatKgItem = useCallback((i: number) => String(KG_VALUES[i]), []);
   const formatRepsItem = useCallback((i: number) => String(i + 1), []);
 
+  // Completa as series que faltam (com os valores atuais do formulario) e marca o exercicio como realizado.
+  const concluirExercicio = async () => {
+    const validCount = series.length;
+    const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
+    const missing = Math.max(0, recomendadas - validCount);
+
+    if (missing > 0) {
+      let baseInput: RegistrarSerieInput;
+
+      if (trackingType === 'cardio') {
+        const min = parseInt(duracaoMinText, 10) || 0;
+        const sec = parseInt(duracaoSecText, 10) || 0;
+        const totalSegundos = min * 60 + sec;
+        const duracaoFinal = Number.isInteger(totalSegundos) && totalSegundos >= 1
+          ? totalSegundos
+          : (sessaoExercicio.duracaoRecomendadaSegundos ?? 60);
+        const intensidadeNum = parseDecimalInput(intensidadeText);
+        const distanciaNum = parseDecimalInput(distanciaText);
+        baseInput = {
+          sessaoExercicioId: sessaoExercicio.id,
+          duracaoSegundos: duracaoFinal,
+          intensidade: Number.isFinite(intensidadeNum) && intensidadeNum >= 0 ? intensidadeNum : (sessaoExercicio.intensidadeRecomendada ?? undefined),
+          distanciaMetros: Number.isFinite(distanciaNum) && distanciaNum >= 0 ? distanciaNum : (sessaoExercicio.distanciaRecomendadaMetros ?? undefined),
+          observacao: '',
+        };
+      } else if (trackingType === 'hold') {
+        const segundos = parseInt(holdSecText, 10);
+        const duracaoFinal = Number.isInteger(segundos) && segundos >= 1
+          ? segundos
+          : (sessaoExercicio.duracaoRecomendadaSegundos ?? 30);
+        baseInput = {
+          sessaoExercicioId: sessaoExercicio.id,
+          duracaoSegundos: duracaoFinal,
+          observacao: '',
+        };
+      } else if (trackingType === 'reps_only') {
+        const repsNum = parseInt(repsOnlyText, 10);
+        const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
+        baseInput = {
+          sessaoExercicioId: sessaoExercicio.id,
+          repeticoes: repsFinal,
+          observacao: '',
+        };
+      } else {
+        const cargaNum = cargaMode === 'carousel'
+          ? KG_VALUES[cargaIndex]
+          : parseDecimalInput(cargaText);
+        const repsNum = repsMode === 'carousel'
+          ? repsIndex + 1
+          : parseInt(repsText, 10);
+
+        const cargaFinal = Number.isFinite(cargaNum) && cargaNum >= 0 ? cargaNum : (sessaoExercicio.cargaPadrao ?? 0);
+        const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
+        baseInput = {
+          sessaoExercicioId: sessaoExercicio.id,
+          cargaKg: cargaFinal,
+          repeticoes: repsFinal,
+          observacao: '',
+        };
+      }
+
+      const inputs = Array.from({ length: missing }, () => ({ ...baseInput }));
+      await onRegistrarSeriesEmLote(inputs);
+    }
+    await onToggleRealizado(sessaoExercicio.id);
+  };
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
@@ -658,30 +727,36 @@ export function ExercicioDetalheScreen({
       {/* Registration form */}
       {!sessaoExercicio.realizado ? (
         <View style={styles.formCard}>
-          {/* Series progress */}
-          {sessaoExercicio.seriesRecomendadas != null ? (() => {
-            const total = sessaoExercicio.seriesRecomendadas!;
+          {/* Series progress + media toggle (button must not depend on seriesRecomendadas) */}
+          {(() => {
+            const total = sessaoExercicio.seriesRecomendadas;
             const validCount = series.length;
-            const allDone = validCount >= total;
-            const dotCount = Math.min(total, 12);
-            const overflow = total > 12 ? total - 12 : 0;
+            const allDone = total != null && validCount >= total;
+            const dotCount = total != null ? Math.min(total, 12) : 0;
+            const overflow = total != null && total > 12 ? total - 12 : 0;
             return (
               <View style={styles.seriesProgressSection}>
                 <View style={styles.seriesProgressRow}>
-                  <View style={styles.seriesProgressLeft}>
-                    <View style={styles.seriesProgressDots}>
-                      {Array.from({ length: dotCount }).map((_, i) => (
-                        <View
-                          key={i}
-                          style={[styles.seriesProgressDot, i < validCount ? (allDone ? styles.seriesProgressDotDone : styles.seriesProgressDotFilled) : styles.seriesProgressDotEmpty]}
-                        />
-                      ))}
-                      {overflow > 0 ? <Text style={styles.seriesProgressOverflow}>+{overflow}</Text> : null}
+                  {total != null ? (
+                    <View style={styles.seriesProgressLeft}>
+                      <View style={styles.seriesProgressDots}>
+                        {Array.from({ length: dotCount }).map((_, i) => (
+                          <View
+                            key={i}
+                            style={[styles.seriesProgressDot, i < validCount ? (allDone ? styles.seriesProgressDotDone : styles.seriesProgressDotFilled) : styles.seriesProgressDotEmpty]}
+                          />
+                        ))}
+                        {overflow > 0 ? <Text style={styles.seriesProgressOverflow}>+{overflow}</Text> : null}
+                      </View>
+                      <Text style={[styles.seriesProgressLabel, allDone ? styles.seriesProgressLabelDone : null]}>
+                        {validCount}/{total} series
+                      </Text>
                     </View>
-                    <Text style={[styles.seriesProgressLabel, allDone ? styles.seriesProgressLabelDone : null]}>
-                      {validCount}/{total} series
+                  ) : (
+                    <Text style={[styles.seriesProgressLabel, { marginLeft: 0 }]}>
+                      {validCount} serie{validCount !== 1 ? 's' : ''} registrada{validCount !== 1 ? 's' : ''}
                     </Text>
-                  </View>
+                  )}
                   <Pressable
                     onPress={() => setMediaVisible((v) => !v)}
                     style={({ pressed }) => [styles.mediaInlineBtn, pressed ? { opacity: 0.7 } : null]}
@@ -692,7 +767,7 @@ export function ExercicioDetalheScreen({
                 </View>
               </View>
             );
-          })() : null}
+          })()}
 
           {/* Suggestion — full-width above both carousels so alignment is unaffected */}
           {sugestao ? (
@@ -991,85 +1066,7 @@ export function ExercicioDetalheScreen({
           </Pressable>
 
           <Pressable
-            onPress={() => {
-              Alert.alert(
-                'Concluir exercicio',
-                `Marcar "${sessaoExercicio.nomeSnapshot}" como concluido?`,
-                [
-                  { text: 'Cancelar', style: 'cancel' },
-                  {
-                    text: 'Concluir',
-                    onPress: () => {
-                      void (async () => {
-                        const validCount = series.length;
-                        const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
-                        const missing = Math.max(0, recomendadas - validCount);
-
-                        if (missing > 0) {
-                          let baseInput: RegistrarSerieInput;
-
-                          if (trackingType === 'cardio') {
-                            const min = parseInt(duracaoMinText, 10) || 0;
-                            const sec = parseInt(duracaoSecText, 10) || 0;
-                            const totalSegundos = min * 60 + sec;
-                            const duracaoFinal = Number.isInteger(totalSegundos) && totalSegundos >= 1
-                              ? totalSegundos
-                              : (sessaoExercicio.duracaoRecomendadaSegundos ?? 60);
-                            const intensidadeNum = parseDecimalInput(intensidadeText);
-                            const distanciaNum = parseDecimalInput(distanciaText);
-                            baseInput = {
-                              sessaoExercicioId: sessaoExercicio.id,
-                              duracaoSegundos: duracaoFinal,
-                              intensidade: Number.isFinite(intensidadeNum) && intensidadeNum >= 0 ? intensidadeNum : (sessaoExercicio.intensidadeRecomendada ?? undefined),
-                              distanciaMetros: Number.isFinite(distanciaNum) && distanciaNum >= 0 ? distanciaNum : (sessaoExercicio.distanciaRecomendadaMetros ?? undefined),
-                              observacao: '',
-                            };
-                          } else if (trackingType === 'hold') {
-                            const segundos = parseInt(holdSecText, 10);
-                            const duracaoFinal = Number.isInteger(segundos) && segundos >= 1
-                              ? segundos
-                              : (sessaoExercicio.duracaoRecomendadaSegundos ?? 30);
-                            baseInput = {
-                              sessaoExercicioId: sessaoExercicio.id,
-                              duracaoSegundos: duracaoFinal,
-                              observacao: '',
-                            };
-                          } else if (trackingType === 'reps_only') {
-                            const repsNum = parseInt(repsOnlyText, 10);
-                            const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
-                            baseInput = {
-                              sessaoExercicioId: sessaoExercicio.id,
-                              repeticoes: repsFinal,
-                              observacao: '',
-                            };
-                          } else {
-                            const cargaNum = cargaMode === 'carousel'
-                              ? KG_VALUES[cargaIndex]
-                              : parseDecimalInput(cargaText);
-                            const repsNum = repsMode === 'carousel'
-                              ? repsIndex + 1
-                              : parseInt(repsText, 10);
-
-                            const cargaFinal = Number.isFinite(cargaNum) && cargaNum >= 0 ? cargaNum : (sessaoExercicio.cargaPadrao ?? 0);
-                            const repsFinal = Number.isInteger(repsNum) && repsNum >= 1 ? repsNum : (sessaoExercicio.execucoesRecomendadas ?? 1);
-                            baseInput = {
-                              sessaoExercicioId: sessaoExercicio.id,
-                              cargaKg: cargaFinal,
-                              repeticoes: repsFinal,
-                              observacao: '',
-                            };
-                          }
-
-                          const inputs = Array.from({ length: missing }, () => ({ ...baseInput }));
-                          await onRegistrarSeriesEmLote(inputs);
-                        }
-                        await onToggleRealizado(sessaoExercicio.id);
-                      })();
-                    },
-                  },
-                ]
-              );
-            }}
+            onPress={() => setConfirmConcluirVisible(true)}
             style={({ pressed }) => [styles.concluirBtn, pressed ? { opacity: 0.75 } : null]}
           >
             <Text style={styles.concluirBtnText}>✓ Concluir exercicio</Text>
@@ -1102,9 +1099,21 @@ export function ExercicioDetalheScreen({
       ) : null}
 
       {/* Series list */}
-      {series.length > 0 ? (
+      {series.length > 0 ? (() => {
+        const totalVolume = trackingType === 'reps_load'
+          ? series.reduce((sum, s) => sum + (s.cargaKg ?? 0) * (s.repeticoes ?? 0), 0)
+          : 0;
+        return (
         <View style={styles.seriesCard}>
-          <Text style={styles.seriesTitle}>Series registradas</Text>
+          <View style={styles.seriesHeader}>
+            <Text style={styles.seriesTitle}>Series registradas</Text>
+            <View style={styles.seriesSummaryChip}>
+              <Text style={styles.seriesSummaryText}>
+                {series.length} serie{series.length !== 1 ? 's' : ''}
+                {totalVolume > 0 ? ` · ${Math.round(totalVolume).toLocaleString('pt-BR')} kg` : ''}
+              </Text>
+            </View>
+          </View>
           <View style={styles.seriesList}>
             {series.map((serie, i) => {
               const isEditing = editingSerieId === serie.id;
@@ -1157,7 +1166,9 @@ export function ExercicioDetalheScreen({
               const isBest = serie.id === bestSerieId;
               return (
                 <View key={serie.id} style={[styles.serieRow, isBest ? styles.serieRowBest : null]}>
-                  <Text style={styles.serieIndex}>S{i + 1}</Text>
+                  <View style={[styles.serieBadge, isBest ? styles.serieBadgeBest : null]}>
+                    <Text style={[styles.serieBadgeText, isBest ? styles.serieBadgeTextBest : null]}>{i + 1}</Text>
+                  </View>
                   <Pressable
                     style={{ flex: 1 }}
                     onLongPress={() => {
@@ -1168,11 +1179,30 @@ export function ExercicioDetalheScreen({
                       }
                     }}
                   >
-                    <Text style={[styles.serieLabel, isBest ? styles.serieLabelBest : null]}>
-                      {formatSerieMetric(serie, trackingType)}
-                    </Text>
+                    {trackingType === 'reps_load' && serie.cargaKg != null && serie.repeticoes != null ? (
+                      <View style={styles.serieMetricRow}>
+                        <View style={styles.serieMetricCellRight}>
+                          <Text style={[styles.serieValue, isBest ? styles.serieValueBest : null]}>
+                            {formatCarga(serie.cargaKg)}
+                          </Text>
+                          <Text style={styles.serieUnit}> kg</Text>
+                        </View>
+                        <Text style={styles.serieTimes}>×</Text>
+                        <View style={styles.serieMetricCellLeft}>
+                          <Text style={[styles.serieValue, isBest ? styles.serieValueBest : null]}>
+                            {serie.repeticoes}
+                          </Text>
+                          <Text style={styles.serieUnit}> reps</Text>
+                        </View>
+                      </View>
+                    ) : (
+                      <Text style={[styles.serieLabel, isBest ? styles.serieLabelBest : null]}>
+                        {formatSerieMetric(serie, trackingType)}
+                      </Text>
+                    )}
                     {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
                   </Pressable>
+                  {isBest ? <Text style={styles.serieBestStar}>★</Text> : null}
                   {!sessaoExercicio.realizado ? (
                     <Pressable
                       disabled={deletingSerieIds.has(serie.id)}
@@ -1203,8 +1233,21 @@ export function ExercicioDetalheScreen({
             })}
           </View>
         </View>
-      ) : null}
+        );
+      })() : null}
     </ScrollView>
+    <ConfirmDialog
+      visible={confirmConcluirVisible}
+      title="Concluir exercicio"
+      message={`Marcar "${sessaoExercicio.nomeSnapshot}" como concluido?`}
+      confirmLabel="Concluir"
+      cancelLabel="Cancelar"
+      onConfirm={() => {
+        setConfirmConcluirVisible(false);
+        void concluirExercicio();
+      }}
+      onCancel={() => setConfirmConcluirVisible(false)}
+    />
     {timer ? (
       <RestTimerBanner
         nome={sessaoExercicio.nomeSnapshot}
@@ -1272,17 +1315,47 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     barLabelCol: { flex: 1, alignItems: 'center', gap: 2 },
 
     seriesCard: { backgroundColor: c.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: c.cardBorder },
+    seriesHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
     seriesTitle: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
+    seriesSummaryChip: {
+      backgroundColor: c.cardAlt,
+      borderRadius: 8,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    seriesSummaryText: { color: c.textSecondary, fontSize: 11, fontWeight: '700', fontVariant: ['tabular-nums'] },
     seriesList: { gap: 8 },
-    serieRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: c.cardAlt, borderRadius: 10, padding: 10 },
+    serieRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: c.cardAlt, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 },
+    serieBadge: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.card,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    serieBadgeBest: { backgroundColor: c.accent, borderColor: c.accent },
+    serieBadgeText: { color: c.textSecondary, fontSize: 12, fontWeight: '800', fontVariant: ['tabular-nums'] },
+    serieBadgeTextBest: { color: c.accentText },
+    serieMetricCellRight: { width: 76, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'flex-end' },
+    serieMetricCellLeft: { flexDirection: 'row', alignItems: 'baseline' },
+    serieValue: { color: c.textPrimary, fontSize: 16, fontWeight: '800', fontVariant: ['tabular-nums'] },
+    serieValueBest: { color: c.accent },
+    serieUnit: { color: c.textSecondary, fontSize: 11, fontWeight: '600' },
+    serieBestStar: { color: c.accent, fontSize: 14, fontWeight: '800' },
     tipoBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
     tipoBadgeAquec: { backgroundColor: '#d4e8fc' },
     tipoBadgeValida: { backgroundColor: c.accentLight },
     tipoBadgeText: { fontSize: 11, fontWeight: '700', color: c.inputText },
     serieLabel: { flex: 1, color: c.textPrimary, fontSize: 15, fontWeight: '600', fontVariant: ['tabular-nums'] },
+    serieMetricRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
+    serieTimes: { color: c.textSecondary, fontSize: 13, fontWeight: '600' },
     serieLabelBest: { color: c.accent, fontWeight: '800' },
     serieRowBest: { borderWidth: 1, borderColor: c.accent },
-    serieIndex: { color: c.textSecondary, fontSize: 11, fontWeight: '800', width: 24 },
     serieObs: { color: c.textSecondary, fontSize: 12, flexShrink: 1 },
     deleteSerieBtn: { padding: 4 },
     deleteSerieBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },

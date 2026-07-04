@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
 import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
@@ -11,6 +11,7 @@ import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
 import { BiSetDetalheScreen } from './BiSetDetalheScreen';
 import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { METODO_CONFIG } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
@@ -86,6 +87,8 @@ export function SessaoAtivaScreen({
 
   const [selectedExercicioId, setSelectedExercicioId] = useState<string | null>(null);
   const [mediaViewerItem, setMediaViewerItem] = useState<{ nome: string; mediaLocal: string | null } | null>(null);
+  const [confirmCancelarVisible, setConfirmCancelarVisible] = useState(false);
+  const [confirmConcluirGrupo, setConfirmConcluirGrupo] = useState<Grupo | null>(null);
 
   const handleConcluirExercicio = async (item: SessaoExercicioComSeries) => {
     const { sessaoExercicio, series } = item;
@@ -129,20 +132,13 @@ export function SessaoAtivaScreen({
   };
 
   const handleCancelar = () => {
-    Alert.alert(
-      'Cancelar sessao',
-      'Tem certeza? Todo o progresso desta sessao sera perdido.',
-      [
-        { text: 'Voltar', style: 'cancel' },
-        { text: 'Cancelar sessao', style: 'destructive', onPress: () => { void onCancelar(); } },
-      ]
-    );
+    setConfirmCancelarVisible(true);
   };
 
   if (!detalhe) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Carregando sessao...</Text>
+        <Text style={styles.loadingText}>Carregando sessão...</Text>
       </View>
     );
   }
@@ -243,7 +239,7 @@ export function SessaoAtivaScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Sessao em andamento</Text>
+        <Text style={styles.eyebrow}>Sessão em andamento</Text>
         <Text style={styles.title}>{detalhe.sessao.treinoNomeSnapshot}</Text>
         <Text style={styles.description}>Inicio: {horaInicio}</Text>
       </View>
@@ -336,14 +332,7 @@ export function SessaoAtivaScreen({
               <Pressable
                 onPress={() => {
                   if (!allRealizado) {
-                    Alert.alert(
-                      `Concluir ${label}`,
-                      'Marcar todos os exercicios como concluidos?',
-                      [
-                        { text: 'Cancelar', style: 'cancel' },
-                        { text: 'Concluir', onPress: () => { void handleConcluirGrupo(grupo); } },
-                      ]
-                    );
+                    setConfirmConcluirGrupo(grupo);
                   } else {
                     void handleConcluirGrupo(grupo);
                   }
@@ -373,7 +362,7 @@ export function SessaoAtivaScreen({
           style={({ pressed }) => [styles.secondaryButton, pressed ? styles.secondaryButtonPressed : null]}
         >
           <Text style={styles.secondaryButtonText}>
-            {showAddExercise ? 'Cancelar' : '+ Adicionar exercicio a esta sessao'}
+            {showAddExercise ? 'Cancelar' : '+ Adicionar exercício a esta sessão'}
           </Text>
         </Pressable>
 
@@ -394,7 +383,7 @@ export function SessaoAtivaScreen({
           ]}
         >
           <Text style={styles.finalizarButtonText}>
-            {isFinalizing ? 'Finalizando...' : 'Finalizar sessao'}
+            {isFinalizing ? 'Finalizando...' : 'Finalizar sessão'}
           </Text>
         </Pressable>
 
@@ -408,10 +397,38 @@ export function SessaoAtivaScreen({
           ]}
         >
           <Text style={styles.cancelarButtonText}>
-            {isCanceling ? 'Cancelando...' : 'Cancelar sessao'}
+            {isCanceling ? 'Cancelando...' : 'Cancelar sessão'}
           </Text>
         </Pressable>
       </View>
+
+      <ConfirmDialog
+        visible={confirmConcluirGrupo !== null}
+        title={confirmConcluirGrupo ? `Concluir ${grupoLabelFor(confirmConcluirGrupo.metodo, confirmConcluirGrupo.itens.length)}` : ''}
+        message="Marcar todos os exercícios como concluídos?"
+        confirmLabel="Concluir"
+        cancelLabel="Cancelar"
+        onConfirm={() => {
+          const grupo = confirmConcluirGrupo;
+          setConfirmConcluirGrupo(null);
+          if (grupo) void handleConcluirGrupo(grupo);
+        }}
+        onCancel={() => setConfirmConcluirGrupo(null)}
+      />
+
+      <ConfirmDialog
+        visible={confirmCancelarVisible}
+        title="Cancelar sessão"
+        message="Tem certeza? Todo o progresso desta sessão será perdido."
+        confirmLabel="Cancelar sessão"
+        cancelLabel="Voltar"
+        destructive
+        onConfirm={() => {
+          setConfirmCancelarVisible(false);
+          void onCancelar();
+        }}
+        onCancel={() => setConfirmCancelarVisible(false)}
+      />
     </ScrollView>
   );
 }

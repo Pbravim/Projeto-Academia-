@@ -19,7 +19,10 @@ export function SessionSeriesTable({ rows, showVolume = false }: Props) {
       {rows.map((row) => (
         <View key={row.id} style={[styles.row, row.isLatest ? styles.rowLatest : null]}>
           <View style={styles.topLine}>
-            <Text style={styles.date}>{row.dateLabel}</Text>
+            <View style={styles.leftCol}>
+              <Text style={styles.date}>{row.dateLabel}</Text>
+              {row.setsCountLabel ? <Text style={styles.setsCount}>{row.setsCountLabel}</Text> : null}
+            </View>
             <View style={styles.rightCol}>
               {showVolume && row.volumeLabel ? <Text style={styles.volume}>{row.volumeLabel}</Text> : null}
               {row.ormLabel ? (
@@ -35,12 +38,17 @@ export function SessionSeriesTable({ rows, showVolume = false }: Props) {
           {row.sets.length > 0 ? (
             <View style={styles.setsRow}>
               {row.sets.map((s, i) => (
-                <Text
+                <View
                   key={i}
-                  style={[styles.set, s.muted ? styles.setMuted : null, s.isBest ? styles.setBest : null]}
+                  style={[styles.setChip, s.isBest ? styles.setChipBest : null]}
                 >
-                  {s.label}
-                </Text>
+                  <Text style={[styles.set, s.muted ? styles.setMuted : null, s.isBest ? styles.setBest : null]}>
+                    {s.cargaLabel}
+                    <Text style={styles.setUnit}>kg</Text>
+                    <Text style={styles.setTimes}> × </Text>
+                    {s.repsLabel}
+                  </Text>
+                </View>
               ))}
             </View>
           ) : (
@@ -58,15 +66,28 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     row: { backgroundColor: c.cardAlt, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12, gap: 6 },
     rowLatest: { borderLeftWidth: 3, borderLeftColor: c.accent },
     topLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+    leftCol: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
     date: { color: c.textLabel, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] },
+    setsCount: { color: c.textSecondary, fontSize: 11, fontWeight: '600' },
     rightCol: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     volume: { color: c.textSecondary, fontSize: 12, fontWeight: '600', fontVariant: ['tabular-nums'] },
     orm: { color: c.accent, fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] },
     trendUp: { color: c.success, fontSize: 12, fontWeight: '800' },
     trendDown: { color: c.error, fontSize: 12, fontWeight: '800' },
     subLabel: { color: c.accent, fontSize: 11, fontWeight: '600' },
-    setsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, rowGap: 4 },
-    set: { color: c.textPrimary, fontSize: 14, fontWeight: '600', fontVariant: ['tabular-nums'], minWidth: 52 },
+    setsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    setChip: {
+      backgroundColor: c.card,
+      borderRadius: 8,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    setChipBest: { borderColor: c.accent },
+    set: { color: c.textPrimary, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] },
+    setUnit: { color: c.textSecondary, fontSize: 10, fontWeight: '600' },
+    setTimes: { color: c.textSecondary, fontSize: 11, fontWeight: '600' },
     setMuted: { color: c.textSecondary, fontWeight: '500' },
     setBest: { color: c.accent, fontWeight: '800' },
     semSeries: { color: c.textSecondary, fontSize: 12 },

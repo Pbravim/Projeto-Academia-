@@ -61,7 +61,7 @@ export function TreinoListScreen({
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateTitle}>Nenhum treino ainda</Text>
           <Text style={styles.emptyStateBody}>
-            Crie seu primeiro treino para comecar a registrar sessoes.
+            Crie seu primeiro treino para começar a registrar sessões.
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -77,8 +77,8 @@ export function TreinoListScreen({
         <Text style={styles.eyebrow}>Modulo de treinos</Text>
         <Text style={styles.title}>Meus treinos</Text>
         <Text style={styles.description}>
-          Monte seus treinos A, B, C com os exercicios do catalogo. Cada treino
-          vira uma sessao.
+          Monte seus treinos A, B, C com os exercícios do catálogo. Cada treino
+          vira uma sessão.
         </Text>
       </View>
 
@@ -224,11 +224,11 @@ export function TreinoListScreen({
 
 const OBJETIVOS = [
   'Hipertrofia',
-  'Forca',
-  'Resistencia',
+  'Força',
+  'Resistência',
   'Emagrecimento',
   'Mobilidade',
-  'Reabilitacao',
+  'Reabilitação',
   'Condicionamento',
 ];
 

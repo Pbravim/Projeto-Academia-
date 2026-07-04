@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { gifAssets } from '../../exercises/components/gifAssets';
 import { METODO_CONFIG } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
@@ -36,6 +37,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
 
   const gifSource = mediaLocal ? (gifAssets[mediaLocal] ?? null) : null;
   const [mediaVisible, setMediaVisible] = useState(false);
+  const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
 
   return (
     <Pressable
@@ -90,12 +92,12 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
                 ) : null}
               </View>
               <Text style={[styles.seriesLabel, allDone ? styles.seriesLabelDone : null]}>
-                {validCount}/{total} series
+                {validCount}/{total} séries
               </Text>
             </View>
           ) : (
             <Text style={[styles.seriesCount, validCount > 0 ? styles.seriesCountDone : null]}>
-              {validCount > 0 ? `${validCount} serie${validCount !== 1 ? 's' : ''}` : 'Sem series'}
+              {validCount > 0 ? `${validCount} série${validCount !== 1 ? 's' : ''}` : 'Sem séries'}
             </Text>
           )
         ) : null}
@@ -105,14 +107,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
               if (finalizado) {
                 onToggleRealizado();
               } else {
-                Alert.alert(
-                  'Concluir exercicio',
-                  `Marcar "${sessaoExercicio.nomeSnapshot}" como concluido?`,
-                  [
-                    { text: 'Cancelar', style: 'cancel' },
-                    { text: 'Concluir', onPress: onToggleRealizado },
-                  ]
-                );
+                setConfirmConcluirVisible(true);
               }
             }}
             style={({ pressed }) => [
@@ -131,6 +126,21 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
         )}
         <Text style={styles.arrow}>›</Text>
       </View>
+
+      {onToggleRealizado ? (
+        <ConfirmDialog
+          visible={confirmConcluirVisible}
+          title="Concluir exercício"
+          message={`Marcar "${sessaoExercicio.nomeSnapshot}" como concluído?`}
+          confirmLabel="Concluir"
+          cancelLabel="Cancelar"
+          onConfirm={() => {
+            setConfirmConcluirVisible(false);
+            onToggleRealizado();
+          }}
+          onCancel={() => setConfirmConcluirVisible(false)}
+        />
+      ) : null}
     </Pressable>
   );
 }

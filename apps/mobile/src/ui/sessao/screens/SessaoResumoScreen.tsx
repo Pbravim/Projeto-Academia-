@@ -24,13 +24,13 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
       </View>
 
       <View style={styles.statsRow}>
-        <StatBox label="Exercicios" value={`${vm.exerciciosRealizados}/${vm.totalExercicios}`} styles={styles} />
-        <StatBox label="Series validas" value={String(vm.totalSeriesValidas)} styles={styles} />
+        <StatBox label="Exercícios" value={`${vm.exerciciosRealizados}/${vm.totalExercicios}`} styles={styles} />
+        <StatBox label="Séries válidas" value={String(vm.totalSeriesValidas)} styles={styles} />
         <StatBox label="Volume" value={vm.volumeTotal} styles={styles} />
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Detalhes por exercicio</Text>
+        <Text style={styles.sectionTitle}>Detalhes por exercício</Text>
 
         {vm.exercicios.map((item, index) => (
           <View key={index} style={[styles.exercicioRow, !item.realizado ? styles.exercicioRowNaoRealizado : null]}>
@@ -39,7 +39,7 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
               {item.realizado ? (
                 <>
                   <Text style={styles.exercicioStats}>
-                    {item.totalSeriesValidas} serie{item.totalSeriesValidas !== 1 ? 's' : ''} valida{item.totalSeriesValidas !== 1 ? 's' : ''} · {item.volume} kg
+                    {item.totalSeriesValidas} série{item.totalSeriesValidas !== 1 ? 's' : ''} válida{item.totalSeriesValidas !== 1 ? 's' : ''} · {item.volume} kg
                   </Text>
                   {item.melhorSerie ? (
                     <Text style={styles.exercicioMelhor}>Melhor: {item.melhorSerie}</Text>

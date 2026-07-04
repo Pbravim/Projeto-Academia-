@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Storage } from 'expo-sqlite/kv-store';
+import { Ionicons } from '@expo/vector-icons';
 
 import { mobileDependencies } from '../bootstrap/mobileDependencies';
 import { registerGlobalErrorHandler } from '../infrastructure/logging/registerGlobalErrorHandler';
@@ -107,7 +108,7 @@ function AppContent() {
       {/* ── Top bar ── */}
       <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
         <View style={styles.greetingBlock}>
-          <Text style={styles.greetingLabel}>Bem vindo{displayName ? ',' : ''}</Text>
+          <Text style={styles.greetingLabel}>Bem-vindo{displayName ? ',' : ''}</Text>
           {displayName ? (
             <Text style={styles.greetingName} numberOfLines={1}>{displayName}</Text>
           ) : null}
@@ -167,10 +168,10 @@ function AppContent() {
 
       {/* ── Bottom tab bar ── */}
       <View style={[styles.tabBar, { paddingBottom: insets.bottom + 4 }]}>
-        <TabButton label="Sessao"     active={activeModule === 'sessao'}     onPress={() => handleTabPress('sessao')} />
-        <TabButton label="Treinos"    active={activeModule === 'treinos'}    onPress={() => handleTabPress('treinos')} />
-        <TabButton label="Exercicios" active={activeModule === 'exercicios'} onPress={() => handleTabPress('exercicios')} />
-        <TabButton label="Evolucao"   active={activeModule === 'evolucao'}   onPress={() => handleTabPress('evolucao')} />
+        <TabButton label="Sessão"     icon="barbell"   active={activeModule === 'sessao'}     onPress={() => handleTabPress('sessao')} />
+        <TabButton label="Treinos"    icon="clipboard" active={activeModule === 'treinos'}    onPress={() => handleTabPress('treinos')} />
+        <TabButton label="Exercícios" icon="fitness"   active={activeModule === 'exercicios'} onPress={() => handleTabPress('exercicios')} />
+        <TabButton label="Evolução"   icon="stats-chart" active={activeModule === 'evolucao'} onPress={() => handleTabPress('evolucao')} />
       </View>
     </View>
   );
@@ -180,21 +181,28 @@ function AppContent() {
 
 interface TabButtonProps {
   label: string;
+  icon: keyof typeof Ionicons.glyphMap;
   active: boolean;
   onPress: () => void;
 }
 
-function TabButton({ label, active, onPress }: TabButtonProps) {
+function TabButton({ label, icon, active, onPress }: TabButtonProps) {
   const c = useTheme();
+  const color = active ? c.tabTextActive : c.tabText;
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={label}
+      android_ripple={{ color: 'rgba(255,255,255,0.12)', borderless: false }}
       style={[
-        { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
+        { flex: 1, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 3 },
         active ? { backgroundColor: c.tabActive } : null,
       ]}
     >
-      <Text style={{ color: active ? c.tabTextActive : c.tabText, fontSize: 13, fontWeight: '700' }}>
+      <Ionicons name={active ? icon : (`${icon}-outline` as keyof typeof Ionicons.glyphMap)} size={22} color={color} />
+      <Text style={{ color, fontSize: 11, fontWeight: '700', letterSpacing: 0.2 }}>
         {label}
       </Text>
     </Pressable>

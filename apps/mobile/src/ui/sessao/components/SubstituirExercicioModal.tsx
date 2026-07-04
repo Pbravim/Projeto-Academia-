@@ -43,7 +43,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
       <View style={styles.overlay}>
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.title}>Substituir exercicio</Text>
+            <Text style={styles.title}>Substituir exercício</Text>
             <Pressable onPress={fechar} style={({ pressed }) => [styles.closeBtn, pressed ? { opacity: 0.6 } : null]}>
               <Text style={styles.closeBtnText}>✕</Text>
             </Pressable>
@@ -115,7 +115,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
             ) : null}
 
             {candidatos.length === 0 ? (
-              <Text style={styles.emptyText}>Nenhum substituto encontrado para este exercicio.</Text>
+              <Text style={styles.emptyText}>Nenhum substituto encontrado para este exercício.</Text>
             ) : null}
           </ScrollView>
 

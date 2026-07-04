@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Platform,
   Pressable,
@@ -17,6 +16,7 @@ import type { PerfilControllerState } from '../hooks/usePerfilController';
 import type { PesoControllerState } from '../../peso/hooks/usePesoController';
 import type { StatsControllerState } from '../hooks/useStatsController';
 import { AderenciaCard } from '../../shared/components/AderenciaCard';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { LineChart, type LineChartPoint } from '../../shared/LineChart';
 import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
 
@@ -183,15 +183,10 @@ export function PerfilScreen({
     void perfil.onSaveName(nameInput);
   };
 
+  const [confirmResetVisible, setConfirmResetVisible] = useState(false);
+
   const handleReset = () => {
-    Alert.alert(
-      'Apagar historico',
-      'Isso vai apagar todas as sessoes, series e registros de progresso. Os treinos e exercicios serao mantidos. Essa acao nao pode ser desfeita.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Apagar', style: 'destructive', onPress: () => { void onReset(); } },
-      ],
-    );
+    setConfirmResetVisible(true);
   };
 
   return (
@@ -330,7 +325,7 @@ export function PerfilScreen({
                     ]}
                   >
                     <Text style={[styles.configActionBtnText, styles.configActionBtnTextDanger]}>
-                      {isResetting ? 'Apagando...' : 'Apagar historico'}
+                      {isResetting ? 'Apagando...' : 'Apagar histórico'}
                     </Text>
                   </Pressable>
                 </View>
@@ -380,7 +375,7 @@ export function PerfilScreen({
       {/* ── Estatisticas ── */}
       {statsState.isLoading ? null : stats ? (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Estatisticas</Text>
+          <Text style={styles.cardTitle}>Estatísticas</Text>
 
           <View style={styles.statsPills}>
             <View style={styles.statPill}>
@@ -564,7 +559,7 @@ export function PerfilScreen({
             {!peso.isLoading && !peso.viewModel.emptyStateMessage && peso.viewModel.cards.length > 0 ? (
               <>
                 <View style={styles.medicaoDivider} />
-                <Text style={styles.subSectionTitle}>Historico</Text>
+                <Text style={styles.subSectionTitle}>Histórico</Text>
                 {peso.viewModel.cards.map((card) => (
                   <View key={card.id} style={styles.registroCard}>
                     <View style={styles.registroMain}>
@@ -607,6 +602,19 @@ export function PerfilScreen({
         ) : null}
       </View>
 
+      <ConfirmDialog
+        visible={confirmResetVisible}
+        title="Apagar histórico"
+        message="Isso vai apagar todas as sessões, séries e registros de progresso. Os treinos e exercícios serão mantidos. Essa ação não pode ser desfeita."
+        confirmLabel="Apagar"
+        cancelLabel="Cancelar"
+        destructive
+        onConfirm={() => {
+          setConfirmResetVisible(false);
+          void onReset();
+        }}
+        onCancel={() => setConfirmResetVisible(false)}
+      />
     </ScrollView>
   );
 }

@@ -33,11 +33,12 @@ describe('buildHistoricoExercicioViewModel', () => {
   });
 
   describe('sessionRows', () => {
-    it('formata cada set como carga×reps', () => {
+    it('formata cada set com carga e reps separados', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
         execucao('s1', [serie('sr1', 'valida', 80, 8)]),
       ]);
-      expect(vm.sessionRows[0].sets[0].label).toBe('80×8');
+      expect(vm.sessionRows[0].sets[0].cargaLabel).toBe('80');
+      expect(vm.sessionRows[0].sets[0].repsLabel).toBe('8');
     });
 
     it('calcula ormLabel do melhor set valido (Epley)', () => {
@@ -68,7 +69,7 @@ describe('buildHistoricoExercicioViewModel', () => {
           serie('sr1', 'valida', 80, 8, 1),
         ]),
       ]);
-      expect(vm.sessionRows[0].sets.map((s) => s.label)).toEqual(['80×8', '85×6']);
+      expect(vm.sessionRows[0].sets.map((s) => `${s.cargaLabel}×${s.repsLabel}`)).toEqual(['80×8', '85×6']);
     });
 
     it('ormLabel nulo quando so ha aquecimento', () => {

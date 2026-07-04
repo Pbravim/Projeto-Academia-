@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Directory, File, Paths } from 'expo-file-system';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useTheme } from '../../shared/theme';
 
 function isImageMediaUri(uri: string): boolean {
@@ -460,6 +461,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
   const c = useTheme();
   const styles = useMemo(() => makeMediaStyles(c), [c]);
   const [picking, setPicking] = useState(false);
+  const [permDialogVisible, setPermDialogVisible] = useState(false);
 
   const currentLocalRef = React.useRef(mediaLocal);
   React.useEffect(() => { currentLocalRef.current = mediaLocal; }, [mediaLocal]);
@@ -480,7 +482,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
   const handlePickFile = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permissao necessaria', 'Permita o acesso a galeria nas configuracoes do dispositivo.');
+      setPermDialogVisible(true);
       return;
     }
     setPicking(true);
@@ -564,6 +566,16 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
           </Pressable>
         )}
       </View>
+
+      <ConfirmDialog
+        visible={permDialogVisible}
+        title="Permissao necessaria"
+        message="Permita o acesso a galeria nas configuracoes do dispositivo."
+        confirmLabel="OK"
+        hideCancel
+        onConfirm={() => setPermDialogVisible(false)}
+        onCancel={() => setPermDialogVisible(false)}
+      />
     </View>
   );
 }

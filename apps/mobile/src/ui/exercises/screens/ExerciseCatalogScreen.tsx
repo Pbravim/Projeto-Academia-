@@ -115,8 +115,8 @@ export function ExerciseCatalogScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Catalogo de exercicios</Text>
-        <Text style={styles.title}>Exercicios</Text>
+        <Text style={styles.eyebrow}>Catálogo de exercícios</Text>
+        <Text style={styles.title}>Exercícios</Text>
         <Text style={styles.description}>
           Organizados por grupo muscular. Toque no grupo para expandir.
         </Text>
@@ -125,7 +125,7 @@ export function ExerciseCatalogScreen({
       <View style={styles.formCard}>
         <View style={styles.formHeader}>
           <Text style={styles.sectionTitle}>
-            {isEditing ? 'Editar exercicio' : 'Novo exercicio'}
+            {isEditing ? 'Editar exercício' : 'Novo exercício'}
           </Text>
           {isEditing ? (
             <Pressable onPress={onCancelEdit} hitSlop={8}>
@@ -154,10 +154,10 @@ export function ExerciseCatalogScreen({
           <View style={styles.suggestionsBlock}>
             {exactMatch ? (
               <Text style={styles.exactMatchWarning}>
-                ⚠ Exercicio ja existe — toque para editar
+                ⚠ Exercício já existe — toque para editar
               </Text>
             ) : (
-              <Text style={styles.suggestionsLabel}>Exercicios com nome similar:</Text>
+              <Text style={styles.suggestionsLabel}>Exercícios com nome similar:</Text>
             )}
             {nameSuggestions.map((ex) => (
               <Pressable
@@ -337,7 +337,7 @@ export function ExerciseCatalogScreen({
           disabled={!canSubmit}
         >
           <Text style={styles.primaryButtonText}>
-            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alteracoes' : 'Salvar exercicio'}
+            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Salvar exercício'}
           </Text>
         </Pressable>
       </View>
@@ -353,7 +353,7 @@ export function ExerciseCatalogScreen({
           {/* Barra de busca no catálogo */}
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar exercicio ou grupo muscular..."
+            placeholder="Buscar exercício ou grupo muscular..."
             placeholderTextColor={c.inputPlaceholder}
             value={search}
             onChangeText={setSearch}
@@ -429,7 +429,7 @@ export function ExerciseCatalogScreen({
 
           {filteredSections.length === 0 ? (
             <View style={styles.listCard}>
-              <Text style={styles.emptyState}>Nenhum exercicio encontrado.</Text>
+              <Text style={styles.emptyState}>Nenhum exercício encontrado.</Text>
             </View>
           ) : (
             filteredSections.map((section) => (
