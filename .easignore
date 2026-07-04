@@ -1,7 +1,10 @@
 # .easignore SUBSTITUI o .gitignore no upload do EAS Build.
 # Portanto: uniao do .gitignore + extras que o build mobile nao precisa.
-# Atencao: apps/api e packages/* sao workspaces npm — o `npm ci` do EAS
-# falha se as pastas sumirem do lockfile; NAO exclua os fontes deles.
+# Atencao 1: apps/api e packages/* sao workspaces npm — o `npm ci` do EAS
+#   falha se as pastas sumirem do lockfile; NAO exclua os fontes deles.
+# Atencao 2: o matcher do EAS e case-INsensitive — padroes de pastas da raiz
+#   levam "/" inicial para nao engolir caminhos aninhados (ex.: GIFS/ sem
+#   ancora excluia apps/mobile/assets/gifs/ e quebrava o bundle).
 
 # ── espelho do .gitignore ──
 **/node_modules
@@ -9,7 +12,7 @@
 **/.expo-shared
 **/coverage
 **/dist
-.code-review-graph/
+/.code-review-graph/
 apps/*/package-lock.json
 packages/*/package-lock.json
 yarn.lock
@@ -18,22 +21,22 @@ packages/*/yarn.lock
 apps/api/.env
 .env
 !.env.example
-NUL
+/NUL
 apps/api/NUL
 apps/mobile/NUL
-Tomorrow
-GIFS/
+/Tomorrow
+/GIFS/
 
 # ── extras: irrelevantes para o build do app ──
-.git/
-.claude/
-.superpowers/
-.github/
-.mcp.json
-.opencode.json
-.python-version
-docs/
-AUDIT.md
-MISSING_FOR_MVP.md
-GIF_MAPPING.md
-docker-compose.yml
+/.git/
+/.claude/
+/.superpowers/
+/.github/
+/.mcp.json
+/.opencode.json
+/.python-version
+/docs/
+/AUDIT.md
+/MISSING_FOR_MVP.md
+/GIF_MAPPING.md
+/docker-compose.yml
