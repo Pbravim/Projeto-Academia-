@@ -1,0 +1,39 @@
+# .easignore SUBSTITUI o .gitignore no upload do EAS Build.
+# Portanto: uniao do .gitignore + extras que o build mobile nao precisa.
+# Atencao: apps/api e packages/* sao workspaces npm — o `npm ci` do EAS
+# falha se as pastas sumirem do lockfile; NAO exclua os fontes deles.
+
+# ── espelho do .gitignore ──
+**/node_modules
+**/.expo
+**/.expo-shared
+**/coverage
+**/dist
+.code-review-graph/
+apps/*/package-lock.json
+packages/*/package-lock.json
+yarn.lock
+apps/*/yarn.lock
+packages/*/yarn.lock
+apps/api/.env
+.env
+!.env.example
+NUL
+apps/api/NUL
+apps/mobile/NUL
+Tomorrow
+GIFS/
+
+# ── extras: irrelevantes para o build do app ──
+.git/
+.claude/
+.superpowers/
+.github/
+.mcp.json
+.opencode.json
+.python-version
+docs/
+AUDIT.md
+MISSING_FOR_MVP.md
+GIF_MAPPING.md
+docker-compose.yml
