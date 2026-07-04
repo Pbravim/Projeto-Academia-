@@ -14,6 +14,7 @@ import { TreinoFeature } from '../ui/treinos/TreinoFeature';
 import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 import { DashboardFeature } from '../ui/dashboard/DashboardFeature';
 import { ThemeContext, useTheme, useThemeProvider } from '../ui/shared/theme';
+import { LocaleProvider } from '../ui/shared/i18n';
 
 type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'evolucao' | 'perfil';
 type TabModule = Exclude<ActiveModule, 'perfil'>;
@@ -40,9 +41,11 @@ export function MobileApp() {
   const themeValue = useThemeProvider();
   return (
     <ThemeContext.Provider value={themeValue}>
-      <SafeAreaProvider>
-        <AppContent />
-      </SafeAreaProvider>
+      <LocaleProvider>
+        <SafeAreaProvider>
+          <AppContent />
+        </SafeAreaProvider>
+      </LocaleProvider>
     </ThemeContext.Provider>
   );
 }
