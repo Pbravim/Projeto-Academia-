@@ -9,6 +9,7 @@ import {
   CATEGORIES, EQUIPMENTS, MOVEMENT_PATTERNS, EXECUTION_TYPES, PRIMARY_EQUIPMENTS,
 } from '../components/ExerciseFormFields';
 import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
+import { metadataLabel } from '../exerciseMetadataLabels';
 import { useTheme } from '../../shared/theme';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
@@ -208,6 +209,7 @@ export function ExerciseCatalogScreen({
           customPlaceholder="Digite o padrão de movimento"
           value={draft.movementPattern}
           onChange={(value) => onChangeField('movementPattern', value)}
+          formatOption={(v) => metadataLabel('movementPattern', v)}
         />
         <ChipPicker
           label="Tipo de execução"
@@ -215,6 +217,7 @@ export function ExerciseCatalogScreen({
           allowCustom={false}
           value={draft.executionType}
           onChange={(value) => onChangeField('executionType', value)}
+          formatOption={(v) => metadataLabel('executionType', v)}
         />
         <ChipPicker
           label="Equipamento principal"
@@ -222,6 +225,7 @@ export function ExerciseCatalogScreen({
           customPlaceholder="Digite o equipamento principal"
           value={draft.primaryEquipment}
           onChange={(value) => onChangeField('primaryEquipment', value)}
+          formatOption={(v) => metadataLabel('primaryEquipment', v)}
         />
         <ChipPicker
           label="Equipamento secundário"
@@ -229,6 +233,7 @@ export function ExerciseCatalogScreen({
           customPlaceholder="Digite o equipamento secundário"
           value={draft.secondaryEquipment}
           onChange={(value) => onChangeField('secondaryEquipment', value)}
+          formatOption={(v) => metadataLabel('secondaryEquipment', v)}
         />
         <MultiChipPicker
           label="Músculos alvo"

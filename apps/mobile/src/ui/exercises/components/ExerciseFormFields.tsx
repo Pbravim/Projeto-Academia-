@@ -213,9 +213,10 @@ interface ChipPickerProps {
   allowCustom?: boolean;
   value: string;
   onChange: (value: string) => void;
+  formatOption?: (value: string) => string;
 }
 
-export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, allowCustom = true, value, onChange }: ChipPickerProps) {
+export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, allowCustom = true, value, onChange, formatOption }: ChipPickerProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [open, setOpen] = useState(false);
@@ -245,7 +246,7 @@ export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, all
         style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
       >
         <Text style={[styles.selectValue, !displayValue && styles.selectPlaceholder]}>
-          {displayValue ?? `Selecionar ${label.toLowerCase()}`}
+          {displayValue != null ? (formatOption?.(displayValue) ?? displayValue) : `Selecionar ${label.toLowerCase()}`}
         </Text>
         <Text style={styles.selectChevron}>▼</Text>
       </Pressable>
@@ -264,7 +265,7 @@ export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, all
                   onPress={() => select(opt)}
                   style={({ pressed }) => [styles.sheetRow, pressed ? styles.sheetRowPressed : null]}
                 >
-                  <Text style={[styles.sheetRowText, active ? styles.sheetRowTextActive : null]}>{opt}</Text>
+                  <Text style={[styles.sheetRowText, active ? styles.sheetRowTextActive : null]}>{formatOption?.(opt) ?? opt}</Text>
                   {active ? <Text style={styles.radioCheck}>✓</Text> : null}
                 </Pressable>
               );
