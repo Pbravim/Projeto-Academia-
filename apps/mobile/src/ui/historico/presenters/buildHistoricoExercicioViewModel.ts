@@ -92,7 +92,7 @@ function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   if (maxNaJanela - rm1MaisAntigo < MELHORA_MINIMA_KG) {
     return {
       sessoes: SESSOES_PLATEAU,
-      mensagem: `Sem melhora no 1RM estimado nas ultimas ${SESSOES_PLATEAU} sessoes. Considere aumentar volume, mudar a ordem dos exercicios ou trocar o estimulo.`,
+      mensagem: `Sem melhora no 1RM estimado nas últimas ${SESSOES_PLATEAU} sessões. Considere aumentar volume, mudar a ordem dos exercícios ou trocar o estímulo.`,
     };
   }
 

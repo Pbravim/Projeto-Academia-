@@ -104,7 +104,8 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
       : null;
 
   const windowBest = Math.max(0, ...sessoes.map((s) => s.melhorOrm));
-  const isPr = sessoes.length >= 2 && ultima != null && ultima.melhorOrm > 0 && ultima.melhorOrm >= windowBest;
+  const priorBest = Math.max(0, ...sessoes.slice(1).map((s) => s.melhorOrm));
+  const isPr = sessoes.length >= 2 && ultima != null && ultima.melhorOrm > 0 && ultima.melhorOrm > priorBest;
 
   const tableRows = useMemo(
     () =>
@@ -185,7 +186,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
                       ormDiff > 0 ? styles.diffUp : ormDiff < 0 ? styles.diffDown : styles.diffEqual,
                     ]}
                   >
-                    {ormDiff > 0 ? `+${formatCarga(ormDiff)}` : formatCarga(ormDiff)} kg
+                    {ormDiff > 0 ? `+${formatCarga(ormDiff)}` : ormDiff < 0 ? `−${formatCarga(Math.abs(ormDiff))}` : formatCarga(0)} kg
                   </Text>
                 </View>
               ) : null}

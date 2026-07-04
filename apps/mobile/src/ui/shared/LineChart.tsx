@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
@@ -37,6 +37,9 @@ export function LineChart({
   const c = useTheme();
   const { width } = useWindowDimensions();
   const [selected, setSelected] = useState<number | null>(null);
+  useEffect(() => {
+    setSelected(null);
+  }, [points]);
   const rawId = useId();
   const gradId = useMemo(() => `lcgrad${rawId.replace(/[^a-zA-Z0-9]/g, '')}`, [rawId]);
 

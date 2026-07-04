@@ -20,6 +20,9 @@ describe('formatCarga', () => {
   it('decimal com virgula pt-BR', () => {
     expect(formatCarga(82.5)).toBe('82,5');
   });
+  it('preserva duas casas decimais quando necessario', () => {
+    expect(formatCarga(81.25)).toBe('81,25');
+  });
 });
 
 describe('formatVolume', () => {

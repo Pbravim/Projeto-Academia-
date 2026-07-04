@@ -32,7 +32,9 @@ export interface SessionTableRowVM {
 }
 
 export function formatCarga(kg: number): string {
-  return (kg % 1 === 0 ? String(kg) : kg.toFixed(1)).replace('.', ',');
+  if (kg % 1 === 0) return String(kg);
+  const oneDecimal = Math.round(kg * 10) / 10;
+  return (oneDecimal === kg ? kg.toFixed(1) : kg.toFixed(2)).replace('.', ',');
 }
 
 export function formatVolume(kg: number): string {
