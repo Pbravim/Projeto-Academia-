@@ -1,13 +1,18 @@
 export const enUS = {
   common: {
-    cancel: 'Cancel', back: 'Back', confirm: 'Confirm', save: 'Save',
+    cancel: 'Cancel', back: 'Back', backArrow: '← Back', confirm: 'Confirm', save: 'Save',
     delete: 'Delete', archive: 'Archive', restore: 'Restore', ok: 'OK',
     error: 'Error', loading: 'Loading...',
     seriesCount: { one: '%{count} set', other: '%{count} sets' },
   },
   tabs: { sessao: 'Session', treinos: 'Workouts', exercicios: 'Exercises', evolucao: 'Progress' },
   shell: { greeting: 'Welcome', profileLabel: 'Profile' },
-  sessionSeriesTable: { emptyState: 'No valid sets' },
+  sessionSeriesTable: {
+    emptyState: 'No valid sets',
+    deltaUp: '↑ +%{value} kg',
+    deltaDown: '↓ −%{value} kg',
+    deltaFlat: '→ steady',
+  },
   aderencia: {
     title: 'Adherence',
     subtitle: { semanal: 'Current week', mensal: 'Current month', anual: 'Current year' },
@@ -161,5 +166,116 @@ export const enUS = {
     timer: {
       pular: 'Skip rest',
     },
+  },
+  dashboard: {
+    common: {
+      dashboardLabel: 'Dashboard',
+      iniciarTreino: 'Start workout',
+      ormEstimado: 'Estimated 1RM',
+      sessoesCount: { one: '%{count} session', other: '%{count} sessions' },
+    },
+    home: {
+      description: 'Real progress per workout, last 10 sessions each.',
+      exportando: 'Exporting...',
+      exportarCsv: 'Export CSV',
+      resetando: 'Resetting...',
+      resetarHistorico: 'Reset history',
+      tentarNovamente: 'Try again',
+      recordesTitle: 'Personal records',
+      recordesHelper: 'Best 1RM — load × (1 + reps / 30)',
+      verTodos: 'View all',
+      maisExercicios: '+%{count} exercises →',
+      evolucaoPorTreinoTitle: 'Progress by workout',
+      semDadosTitle: 'No data yet',
+      semDadosText: 'Finish a session to see records and progress by workout here.',
+      semHistoricoTitle: 'No history yet',
+      semHistoricoText: 'Complete your first session and progress will show up here.',
+      confirmResetMessage:
+        'This will delete all sessions, sets, and progress records. Workouts and exercises will be kept. This action cannot be undone.',
+      confirmResetLabel: 'Reset',
+    },
+    treinoCard: {
+      gerenciarSessoesDe: 'Manage sessions for %{treino}',
+      chartPlaceholderText: 'The progress chart appears from the 2nd finished session onward.',
+      sessoesArquivadasToggle: {
+        one: '%{count} archived session — manage →',
+        other: '%{count} archived sessions — manage →',
+      },
+      verEvolucaoPorExercicio: 'View progress by exercise →',
+    },
+    evolucao: {
+      eyebrow: 'Progress by exercise',
+      description: 'Tap an exercise to see charts and sets from the last 10 sessions.',
+      emptyText: 'No finished session found for this workout.',
+      collapsedHintComDados: {
+        one: '1RM: %{orm} kg · %{count} session',
+        other: '1RM: %{orm} kg · %{count} sessions',
+      },
+      melhor1rm: 'Best 1RM',
+      vsAnterior: 'vs previous',
+      seriesUlt: 'Sets (last)',
+      volumeTotal: 'Total volume',
+    },
+    gerenciarSessoes: {
+      eyebrow: 'Manage sessions',
+      description:
+        'Archiving removes the session from the dashboard while keeping the data — you can restore it later. Deleting permanently erases the session and its sets.',
+      emptyText: 'No session recorded for this workout.',
+      sessoesAtivasTitle: 'Active sessions (%{count})',
+      arquivadasTitle: 'Archived (%{count})',
+      arquivadasHelper: 'Off the dashboard, but the data is preserved.',
+      acoesEmMassaTitle: 'Bulk actions',
+      arquivarTodasAtivasTitle: 'Archive all active (%{count})',
+      arquivarTodasAtivasDesc: 'They leave the dashboard, but can be restored.',
+      excluirArquivadasTitle: 'Delete archived (%{count})',
+      excluirArquivadasDesc: 'Permanently deletes only the archived sessions.',
+      excluirTudoTitle: 'Delete entire history (%{count})',
+      excluirTudoDesc: 'Permanently deletes all sessions of this workout, including archived ones.',
+      confirmDeletar: {
+        title: 'Delete session',
+        message:
+          'The session from %{data} and all sets recorded in it will be permanently deleted. This action cannot be undone.',
+      },
+      confirmArquivarTodas: {
+        title: 'Archive all active',
+        message: {
+          one: '%{count} session of "%{treino}" leaves the dashboard, but the data is kept and can be restored anytime.',
+          other: '%{count} sessions of "%{treino}" leave the dashboard, but the data is kept and can be restored anytime.',
+        },
+      },
+      confirmDeletarArquivadas: {
+        title: 'Delete archived',
+        message: {
+          one: '%{count} archived session of "%{treino}" will be permanently deleted. This action cannot be undone.',
+          other: '%{count} archived sessions of "%{treino}" will be permanently deleted. This action cannot be undone.',
+        },
+      },
+      confirmDeletarTudo: {
+        title: 'Delete entire history',
+        message:
+          'All %{count} sessions of "%{treino}" (including archived) will be permanently deleted. This action cannot be undone.',
+        confirmLabel: 'Delete all',
+      },
+    },
+    recordes: {
+      description: 'Best estimated 1RM per exercise — load × (1 + reps / 30).',
+      exerciciosCount: { one: '%{count} exercise', other: '%{count} exercises' },
+    },
+  },
+  historico: {
+    exercicio: {
+      eyebrow: 'History',
+      plateauTitle: '⚠ Plateau detected',
+      chartTitle: 'Estimated 1RM progress',
+      execucoesTitle: 'Executions',
+    },
+    emptyStateMessage: 'No execution recorded yet.',
+    plateauMensagem:
+      'No improvement in estimated 1RM over the last %{count} sessions. Consider increasing volume, changing exercise order, or varying the stimulus.',
+    motivoLabel: {
+      equipamentoIndisponivel: 'equipment unavailable',
+      variacao: 'variation',
+    },
+    substituiuLabel: 'Replaced: %{nome}%{motivo}',
   },
 };

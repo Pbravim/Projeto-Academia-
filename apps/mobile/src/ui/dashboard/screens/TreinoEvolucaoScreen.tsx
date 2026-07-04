@@ -12,7 +12,7 @@ import {
 } from '../../shared/components/sessionSeriesTableModel';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
-import { useLocale } from '../../shared/i18n';
+import { useLocale, useT } from '../../shared/i18n';
 import { formatShortDate } from '../../shared/i18n/formatters';
 
 interface Props {
@@ -25,6 +25,7 @@ interface Props {
 
 export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorMessage, onBack }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -35,15 +36,15 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
           onPress={onBack}
           style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
         >
-          <Text style={styles.backButtonText}>← Voltar</Text>
+          <Text style={styles.backButtonText}>{t('common.backArrow')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Evolução por exercício</Text>
+        <Text style={styles.eyebrow}>{t('dashboard.evolucao.eyebrow')}</Text>
         <Text style={styles.title}>{treinoNome}</Text>
         <Text style={styles.description}>
-          Toque em um exercício para ver gráficos e séries das últimas 10 sessões.
+          {t('dashboard.evolucao.description')}
         </Text>
       </View>
 
@@ -56,7 +57,7 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
       ) : exercicios.length === 0 ? (
         <View style={styles.card}>
           <Text style={styles.emptyText}>
-            Nenhuma sessão finalizada encontrada para este treino.
+            {t('dashboard.evolucao.emptyText')}
           </Text>
         </View>
       ) : (
@@ -71,6 +72,7 @@ export function TreinoEvolucaoScreen({ treinoNome, exercicios, isLoading, errorM
 function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [expanded, setExpanded] = useState(false);
 
@@ -92,7 +94,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
     .filter((p) => p.value > 0);
 
   const delta = ormValues.length >= 2
-    ? formatKgDelta(ormValues[0], ormValues[ormValues.length - 1])
+    ? formatKgDelta(ormValues[0], ormValues[ormValues.length - 1], locale)
     : null;
 
   const ultima = sessoes[0];
@@ -119,8 +121,6 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
     [sessoes, locale],
   );
 
-  const plural = sessoes.length === 1 ? 'sessão' : 'sessões';
-
   return (
     <View style={styles.card}>
       <Pressable
@@ -133,8 +133,8 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
           {!expanded && !(temDados && ormValues.length >= 2) ? (
             <Text style={styles.collapsedHint}>
               {temDados && ultima
-                ? `1RM: ${formatCarga(ultima.melhorOrm)} kg · ${sessoes.length} ${plural}`
-                : `${sessoes.length} ${plural}`}
+                ? t('dashboard.evolucao.collapsedHintComDados', { orm: formatCarga(ultima.melhorOrm), count: sessoes.length })
+                : t('dashboard.common.sessoesCount', { count: sessoes.length })}
             </Text>
           ) : null}
         </View>
@@ -168,7 +168,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
                 <View style={styles.summaryLabelRow}>
-                  <Text style={styles.summaryLabel}>Melhor 1RM</Text>
+                  <Text style={styles.summaryLabel}>{t('dashboard.evolucao.melhor1rm')}</Text>
                   {isPr ? (
                     <View style={styles.prTag}>
                       <Text style={styles.prTagText}>PR</Text>
@@ -179,7 +179,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
               </View>
               {ormDiff !== null ? (
                 <View style={styles.summaryItem}>
-                  <Text style={styles.summaryLabel}>vs anterior</Text>
+                  <Text style={styles.summaryLabel}>{t('dashboard.evolucao.vsAnterior')}</Text>
                   <Text
                     style={[
                       styles.summaryDiff,
@@ -191,7 +191,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
                 </View>
               ) : null}
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Séries (últ.)</Text>
+                <Text style={styles.summaryLabel}>{t('dashboard.evolucao.seriesUlt')}</Text>
                 <Text style={styles.summaryValue}>{ultima.series.length}</Text>
               </View>
             </View>
@@ -215,6 +215,7 @@ interface ChartToggleProps {
 
 function ChartToggle({ ormPoints, volumePoints }: ChartToggleProps) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const hasOrm = ormPoints.length >= 1;
@@ -238,7 +239,7 @@ function ChartToggle({ ormPoints, volumePoints }: ChartToggleProps) {
             style={[styles.segment, mode === 'orm' ? styles.segmentActive : null]}
           >
             <Text style={[styles.segmentText, mode === 'orm' ? styles.segmentTextActive : null]}>
-              1RM estimado
+              {t('dashboard.common.ormEstimado')}
             </Text>
           </Pressable>
           <Pressable
@@ -246,7 +247,7 @@ function ChartToggle({ ormPoints, volumePoints }: ChartToggleProps) {
             style={[styles.segment, mode === 'volume' ? styles.segmentActive : null]}
           >
             <Text style={[styles.segmentText, mode === 'volume' ? styles.segmentTextActive : null]}>
-              Volume total
+              {t('dashboard.evolucao.volumeTotal')}
             </Text>
           </Pressable>
         </View>

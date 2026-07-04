@@ -1,6 +1,6 @@
 export const ptBR = {
   common: {
-    cancel: 'Cancelar', back: 'Voltar', confirm: 'Confirmar', save: 'Salvar',
+    cancel: 'Cancelar', back: 'Voltar', backArrow: '← Voltar', confirm: 'Confirmar', save: 'Salvar',
     delete: 'Excluir', archive: 'Arquivar', restore: 'Restaurar', ok: 'OK',
     error: 'Erro', loading: 'Carregando...',
     seriesCount: { one: '%{count} série', other: '%{count} séries' },
@@ -8,7 +8,12 @@ export const ptBR = {
   },
   tabs: { sessao: 'Sessão', treinos: 'Treinos', exercicios: 'Exercícios', evolucao: 'Evolução' },
   shell: { greeting: 'Bem-vindo', profileLabel: 'Perfil' },
-  sessionSeriesTable: { emptyState: 'Sem séries válidas' },
+  sessionSeriesTable: {
+    emptyState: 'Sem séries válidas',
+    deltaUp: '↑ +%{value} kg',
+    deltaDown: '↓ −%{value} kg',
+    deltaFlat: '→ estável',
+  },
   aderencia: {
     title: 'Aderência',
     subtitle: { semanal: 'Semana atual', mensal: 'Mês atual', anual: 'Ano atual' },
@@ -162,5 +167,116 @@ export const ptBR = {
     timer: {
       pular: 'Pular descanso',
     },
+  },
+  dashboard: {
+    common: {
+      dashboardLabel: 'Dashboard',
+      iniciarTreino: 'Iniciar treino',
+      ormEstimado: '1RM estimado',
+      sessoesCount: { one: '%{count} sessão', other: '%{count} sessões' },
+    },
+    home: {
+      description: 'Progresso real por treino, últimas 10 sessões de cada.',
+      exportando: 'Exportando...',
+      exportarCsv: 'Exportar CSV',
+      resetando: 'Resetando...',
+      resetarHistorico: 'Resetar histórico',
+      tentarNovamente: 'Tentar novamente',
+      recordesTitle: 'Recordes pessoais',
+      recordesHelper: 'Melhor 1RM — carga × (1 + reps / 30)',
+      verTodos: 'Ver todos',
+      maisExercicios: '+%{count} exercícios →',
+      evolucaoPorTreinoTitle: 'Evolução por treino',
+      semDadosTitle: 'Sem dados ainda',
+      semDadosText: 'Finalize uma sessão para ver recordes e evolução por treino aqui.',
+      semHistoricoTitle: 'Sem histórico ainda',
+      semHistoricoText: 'Complete sua primeira sessão e o progresso aparecerá aqui.',
+      confirmResetMessage:
+        'Isso vai apagar todas as sessões, séries e registros de progresso. Os treinos e exercícios serão mantidos. Essa ação não pode ser desfeita.',
+      confirmResetLabel: 'Resetar',
+    },
+    treinoCard: {
+      gerenciarSessoesDe: 'Gerenciar sessões de %{treino}',
+      chartPlaceholderText: 'O gráfico de evolução aparece a partir da 2ª sessão finalizada.',
+      sessoesArquivadasToggle: {
+        one: '%{count} sessão arquivada — gerenciar →',
+        other: '%{count} sessões arquivadas — gerenciar →',
+      },
+      verEvolucaoPorExercicio: 'Ver evolução por exercício →',
+    },
+    evolucao: {
+      eyebrow: 'Evolução por exercício',
+      description: 'Toque em um exercício para ver gráficos e séries das últimas 10 sessões.',
+      emptyText: 'Nenhuma sessão finalizada encontrada para este treino.',
+      collapsedHintComDados: {
+        one: '1RM: %{orm} kg · %{count} sessão',
+        other: '1RM: %{orm} kg · %{count} sessões',
+      },
+      melhor1rm: 'Melhor 1RM',
+      vsAnterior: 'vs anterior',
+      seriesUlt: 'Séries (últ.)',
+      volumeTotal: 'Volume total',
+    },
+    gerenciarSessoes: {
+      eyebrow: 'Gerenciar sessões',
+      description:
+        'Arquivar tira a sessão do dashboard mantendo os dados — dá para restaurar depois. Excluir apaga a sessão e as séries de forma permanente.',
+      emptyText: 'Nenhuma sessão registrada para este treino.',
+      sessoesAtivasTitle: 'Sessões ativas (%{count})',
+      arquivadasTitle: 'Arquivadas (%{count})',
+      arquivadasHelper: 'Fora do dashboard, mas com os dados preservados.',
+      acoesEmMassaTitle: 'Ações em massa',
+      arquivarTodasAtivasTitle: 'Arquivar todas as ativas (%{count})',
+      arquivarTodasAtivasDesc: 'Saem do dashboard, mas podem ser restauradas.',
+      excluirArquivadasTitle: 'Excluir arquivadas (%{count})',
+      excluirArquivadasDesc: 'Apaga permanentemente só as sessões arquivadas.',
+      excluirTudoTitle: 'Excluir todo o histórico (%{count})',
+      excluirTudoDesc: 'Apaga permanentemente todas as sessões deste treino, incluindo arquivadas.',
+      confirmDeletar: {
+        title: 'Excluir sessão',
+        message:
+          'A sessão de %{data} e todas as séries registradas nela serão apagadas permanentemente. Essa ação não pode ser desfeita.',
+      },
+      confirmArquivarTodas: {
+        title: 'Arquivar todas as ativas',
+        message: {
+          one: '%{count} sessão de "%{treino}" sai do dashboard, mas os dados são mantidos e podem ser restaurados a qualquer momento.',
+          other: '%{count} sessões de "%{treino}" saem do dashboard, mas os dados são mantidos e podem ser restaurados a qualquer momento.',
+        },
+      },
+      confirmDeletarArquivadas: {
+        title: 'Excluir arquivadas',
+        message: {
+          one: '%{count} sessão arquivada de "%{treino}" será apagada permanentemente. Essa ação não pode ser desfeita.',
+          other: '%{count} sessões arquivadas de "%{treino}" serão apagadas permanentemente. Essa ação não pode ser desfeita.',
+        },
+      },
+      confirmDeletarTudo: {
+        title: 'Excluir todo o histórico',
+        message:
+          'Todas as %{count} sessões de "%{treino}" (incluindo arquivadas) serão apagadas permanentemente. Essa ação não pode ser desfeita.',
+        confirmLabel: 'Excluir tudo',
+      },
+    },
+    recordes: {
+      description: 'Melhor 1RM estimado por exercício — carga × (1 + reps / 30).',
+      exerciciosCount: { one: '%{count} exercício', other: '%{count} exercícios' },
+    },
+  },
+  historico: {
+    exercicio: {
+      eyebrow: 'Histórico',
+      plateauTitle: '⚠ Plateau detectado',
+      chartTitle: 'Evolução do 1RM estimado',
+      execucoesTitle: 'Execuções',
+    },
+    emptyStateMessage: 'Nenhuma execução registrada ainda.',
+    plateauMensagem:
+      'Sem melhora no 1RM estimado nas últimas %{count} sessões. Considere aumentar volume, mudar a ordem dos exercícios ou trocar o estímulo.',
+    motivoLabel: {
+      equipamentoIndisponivel: 'equipamento indisponível',
+      variacao: 'variação',
+    },
+    substituiuLabel: 'Substituiu: %{nome}%{motivo}',
   },
 } as const;

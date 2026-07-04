@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { RecordeItem } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   recordes: RecordeItem[];
@@ -14,6 +15,7 @@ const MEDAL_COLORS = ['#d4a017', '#9e9e9e', '#a0522d'];
 
 export function RecordesPessoaisScreen({ recordes, onBack }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -23,20 +25,20 @@ export function RecordesPessoaisScreen({ recordes, onBack }: Props) {
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable onPress={onBack} hitSlop={12} style={({ pressed }) => [pressed ? styles.backPressed : null]}>
-          <Text style={styles.backText}>← Voltar</Text>
+          <Text style={styles.backText}>{t('common.backArrow')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Dashboard</Text>
-        <Text style={styles.title}>Recordes pessoais</Text>
+        <Text style={styles.eyebrow}>{t('dashboard.common.dashboardLabel')}</Text>
+        <Text style={styles.title}>{t('dashboard.home.recordesTitle')}</Text>
         <Text style={styles.description}>
-          Melhor 1RM estimado por exercício — carga × (1 + reps / 30).
+          {t('dashboard.recordes.description')}
         </Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.count}>{sorted.length} exercício{sorted.length !== 1 ? 's' : ''}</Text>
+        <Text style={styles.count}>{t('dashboard.recordes.exerciciosCount', { count: sorted.length })}</Text>
         {sorted.map((r, i) => (
           <View key={r.exercicioNome} style={styles.recordeRow}>
             <Text style={[styles.rank, { color: i < 3 ? MEDAL_COLORS[i] : c.textSecondary }]}>

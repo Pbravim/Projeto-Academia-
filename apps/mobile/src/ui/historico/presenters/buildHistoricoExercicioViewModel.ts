@@ -6,6 +6,7 @@ import {
   type SessionTableRowVM,
 } from '../../shared/components/sessionSeriesTableModel';
 import type { AppLocale } from '../../shared/i18n';
+import { translate } from '../../shared/i18n/core';
 import { formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
 
 export interface PlateauInfo {
@@ -34,7 +35,7 @@ export function buildHistoricoExercicioViewModel(
     return {
       exercicioNome,
       sessionRows: [],
-      emptyStateMessage: 'Nenhuma execução registrada ainda.',
+      emptyStateMessage: translate(locale, 'historico.emptyStateMessage'),
       rm1ChartPoints: [],
       plateau: null,
     };
@@ -53,7 +54,7 @@ export function buildHistoricoExercicioViewModel(
     execucoes.map((ex, i) => ({
       id: `${ex.sessaoTreinoId}-${i}`,
       dateLabel: formatFullDate(ex.dataExecucao, locale),
-      subLabel: buildSubstituiuLabel(ex),
+      subLabel: buildSubstituiuLabel(ex, locale),
       sets: [...ex.series]
         .sort((a, b) => a.ordem - b.ordem)
         .map((s) => ({
@@ -70,7 +71,7 @@ export function buildHistoricoExercicioViewModel(
     sessionRows,
     emptyStateMessage: null,
     rm1ChartPoints,
-    plateau: detectarPlateau(execucoes),
+    plateau: detectarPlateau(execucoes, locale),
   };
 }
 
@@ -80,7 +81,7 @@ function melhorRm1Valido(ex: ExecucaoExercicio): number {
     .reduce((max, s) => Math.max(max, calcularEstimativa1rm(s.cargaKg, s.repeticoes)), 0);
 }
 
-function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
+function detectarPlateau(execucoes: ExecucaoExercicio[], locale: AppLocale): PlateauInfo | null {
   const comValidas = execucoes.filter((ex) =>
     ex.series.some((s) => s.tipoSerie === 'valida')
   );
@@ -96,21 +97,23 @@ function detectarPlateau(execucoes: ExecucaoExercicio[]): PlateauInfo | null {
   if (maxNaJanela - rm1MaisAntigo < MELHORA_MINIMA_KG) {
     return {
       sessoes: SESSOES_PLATEAU,
-      mensagem: `Sem melhora no 1RM estimado nas últimas ${SESSOES_PLATEAU} sessões. Considere aumentar volume, mudar a ordem dos exercícios ou trocar o estímulo.`,
+      mensagem: translate(locale, 'historico.plateauMensagem', { count: SESSOES_PLATEAU }),
     };
   }
 
   return null;
 }
 
-const MOTIVO_LABEL: Record<string, string> = {
-  equipamento_indisponivel: 'equipamento indisponível',
-  variacao: 'variação',
+const MOTIVO_KEYS: Record<string, string> = {
+  equipamento_indisponivel: 'historico.motivoLabel.equipamentoIndisponivel',
+  variacao: 'historico.motivoLabel.variacao',
 };
 
-function buildSubstituiuLabel(execucao: ExecucaoExercicio): string | null {
+function buildSubstituiuLabel(execucao: ExecucaoExercicio, locale: AppLocale): string | null {
   if (!execucao.substituiuExercicio) return null;
   const { nomeOriginal, motivo } = execucao.substituiuExercicio;
-  const motivoTexto = motivo ? ` · ${MOTIVO_LABEL[motivo] ?? motivo}` : '';
-  return `Substituiu: ${nomeOriginal}${motivoTexto}`;
+  const motivoKey = motivo ? MOTIVO_KEYS[motivo] : undefined;
+  const motivoLabel = motivoKey ? translate(locale, motivoKey) : motivo;
+  const motivoTexto = motivo ? ` · ${motivoLabel}` : '';
+  return translate(locale, 'historico.substituiuLabel', { nome: nomeOriginal, motivo: motivoTexto });
 }

@@ -50,11 +50,12 @@ export function formatVolume(kg: number): string {
 export function formatKgDelta(
   first: number,
   last: number,
+  locale: AppLocale = 'pt-BR',
 ): { direction: 'up' | 'down' | 'flat'; label: string } {
   const diff = Math.round((last - first) * 10) / 10;
-  if (diff > 0) return { direction: 'up', label: `↑ +${formatCarga(diff)} kg` };
-  if (diff < 0) return { direction: 'down', label: `↓ −${formatCarga(Math.abs(diff))} kg` };
-  return { direction: 'flat', label: '→ estável' };
+  if (diff > 0) return { direction: 'up', label: translate(locale, 'sessionSeriesTable.deltaUp', { value: formatCarga(diff) }) };
+  if (diff < 0) return { direction: 'down', label: translate(locale, 'sessionSeriesTable.deltaDown', { value: formatCarga(Math.abs(diff)) }) };
+  return { direction: 'flat', label: translate(locale, 'sessionSeriesTable.deltaFlat') };
 }
 
 /** Sessoes em ordem: mais recente primeiro. `trend` compara com a proxima da lista (mais antiga). */

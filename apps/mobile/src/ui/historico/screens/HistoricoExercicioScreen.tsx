@@ -6,6 +6,7 @@ import { LineChart } from '../../shared/LineChart';
 import { SessionSeriesTable } from '../../shared/components/SessionSeriesTable';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 export function HistoricoExercicioScreen({
   viewModel,
@@ -13,6 +14,7 @@ export function HistoricoExercicioScreen({
   onBack,
 }: HistoricoExercicioControllerState) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -20,25 +22,25 @@ export function HistoricoExercicioScreen({
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable onPress={onBack} hitSlop={12} style={({ pressed }) => [pressed ? styles.backPressed : null]}>
-          <Text style={styles.backText}>← Voltar</Text>
+          <Text style={styles.backText}>{t('common.backArrow')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Histórico</Text>
+        <Text style={styles.eyebrow}>{t('historico.exercicio.eyebrow')}</Text>
         <Text style={styles.title}>{viewModel.exercicioNome}</Text>
       </View>
 
       {!isLoading && viewModel.plateau ? (
         <View style={styles.plateauBanner}>
-          <Text style={styles.plateauTitle}>⚠ Plateau detectado</Text>
+          <Text style={styles.plateauTitle}>{t('historico.exercicio.plateauTitle')}</Text>
           <Text style={styles.plateauText}>{viewModel.plateau.mensagem}</Text>
         </View>
       ) : null}
 
       {!isLoading && viewModel.rm1ChartPoints.length >= 1 ? (
         <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Evolução do 1RM estimado</Text>
+          <Text style={styles.chartTitle}>{t('historico.exercicio.chartTitle')}</Text>
           <LineChart
             points={viewModel.rm1ChartPoints}
             formatValue={(v) => `${v} kg`}
@@ -55,7 +57,7 @@ export function HistoricoExercicioScreen({
         </View>
       ) : (
         <View style={styles.card}>
-          <Text style={styles.execucoesTitle}>Execuções</Text>
+          <Text style={styles.execucoesTitle}>{t('historico.exercicio.execucoesTitle')}</Text>
           <SessionSeriesTable rows={viewModel.sessionRows} showVolume />
         </View>
       )}

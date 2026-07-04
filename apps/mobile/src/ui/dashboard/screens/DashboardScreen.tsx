@@ -9,7 +9,7 @@ import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/da
 import { LineChart } from '../../shared/LineChart';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useTheme } from '../../shared/theme';
-import { useLocale } from '../../shared/i18n';
+import { useLocale, useT } from '../../shared/i18n';
 import { formatShortDate, formatCompactDate, formatNumber } from '../../shared/i18n/formatters';
 
 export function DashboardScreen({
@@ -30,6 +30,7 @@ export function DashboardScreen({
   onGoToSessao?: () => void;
 }) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [confirmResetVisible, setConfirmResetVisible] = useState(false);
@@ -38,7 +39,7 @@ export function DashboardScreen({
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
         <View style={styles.heroTopRow}>
-          <Text style={styles.eyebrow}>Evolução</Text>
+          <Text style={styles.eyebrow}>{t('tabs.evolucao')}</Text>
           <Pressable
             onPress={onRefresh}
             disabled={isLoading || isResetting}
@@ -47,8 +48,8 @@ export function DashboardScreen({
             <Text style={[styles.refreshIconText, (isLoading || isResetting) ? styles.refreshIconLoading : null]}>↺</Text>
           </Pressable>
         </View>
-        <Text style={styles.title}>Dashboard</Text>
-        <Text style={styles.description}>Progresso real por treino, últimas 10 sessões de cada.</Text>
+        <Text style={styles.title}>{t('dashboard.common.dashboardLabel')}</Text>
+        <Text style={styles.description}>{t('dashboard.home.description')}</Text>
       </View>
 
       <View style={styles.actionRow}>
@@ -57,14 +58,14 @@ export function DashboardScreen({
           disabled={isExporting || isLoading || isResetting}
           style={({ pressed }) => [styles.exportBtn, pressed ? { opacity: 0.8 } : null, (isExporting || isLoading || isResetting) ? styles.exportBtnDisabled : null]}
         >
-          <Text style={styles.exportBtnText}>{isExporting ? 'Exportando...' : 'Exportar CSV'}</Text>
+          <Text style={styles.exportBtnText}>{isExporting ? t('dashboard.home.exportando') : t('dashboard.home.exportarCsv')}</Text>
         </Pressable>
         <Pressable
           onPress={() => setConfirmResetVisible(true)}
           disabled={isResetting || isLoading || isExporting}
           style={({ pressed }) => [styles.resetBtn, pressed ? { opacity: 0.8 } : null, (isResetting || isLoading || isExporting) ? styles.resetBtnDisabled : null]}
         >
-          <Text style={styles.resetBtnText}>{isResetting ? 'Resetando...' : 'Resetar histórico'}</Text>
+          <Text style={styles.resetBtnText}>{isResetting ? t('dashboard.home.resetando') : t('dashboard.home.resetarHistorico')}</Text>
         </Pressable>
       </View>
 
@@ -72,7 +73,7 @@ export function DashboardScreen({
         <View style={styles.card}>
           <Text style={styles.errorText}>{errorMessage}</Text>
           <Pressable onPress={onRefresh} style={({ pressed }) => [styles.refreshBtn, pressed ? { opacity: 0.8 } : null]}>
-            <Text style={styles.refreshBtnText}>Tentar novamente</Text>
+            <Text style={styles.refreshBtnText}>{t('dashboard.home.tentarNovamente')}</Text>
           </Pressable>
         </View>
       ) : isLoading ? (
@@ -83,15 +84,15 @@ export function DashboardScreen({
             <View style={styles.card}>
               <View style={styles.recordesHeader}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.sectionTitle}>Recordes pessoais</Text>
-                  <Text style={styles.helperText}>Melhor 1RM — carga × (1 + reps / 30)</Text>
+                  <Text style={styles.sectionTitle}>{t('dashboard.home.recordesTitle')}</Text>
+                  <Text style={styles.helperText}>{t('dashboard.home.recordesHelper')}</Text>
                 </View>
                 {stats.recordesPessoais.length > 3 ? (
                   <Pressable
                     onPress={onVerRecordes}
                     style={({ pressed }) => [styles.verTodosBtn, pressed ? { opacity: 0.7 } : null]}
                   >
-                    <Text style={styles.verTodosBtnText}>Ver todos</Text>
+                    <Text style={styles.verTodosBtnText}>{t('dashboard.home.verTodos')}</Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -109,7 +110,7 @@ export function DashboardScreen({
                   onPress={onVerRecordes}
                   style={({ pressed }) => [styles.verTodosRow, pressed ? { opacity: 0.7 } : null]}
                 >
-                  <Text style={styles.verTodosRowText}>+{stats.recordesPessoais.length - 3} exercícios →</Text>
+                  <Text style={styles.verTodosRowText}>{t('dashboard.home.maisExercicios', { count: stats.recordesPessoais.length - 3 })}</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -117,7 +118,7 @@ export function DashboardScreen({
 
           {stats.evolucaoPorTreino.length > 0 ? (
             <>
-              <Text style={styles.groupLabel}>Evolução por treino</Text>
+              <Text style={styles.groupLabel}>{t('dashboard.home.evolucaoPorTreinoTitle')}</Text>
               <FlatList
                 data={stats.evolucaoPorTreino}
                 keyExtractor={(item) => item.treinoNome}
@@ -136,9 +137,9 @@ export function DashboardScreen({
             </>
           ) : (
             <View style={[styles.card, styles.emptyDashboardCard]}>
-              <Text style={styles.emptyDashboardTitle}>Sem dados ainda</Text>
+              <Text style={styles.emptyDashboardTitle}>{t('dashboard.home.semDadosTitle')}</Text>
               <Text style={styles.emptyDashboardText}>
-                Finalize uma sessão para ver recordes e evolução por treino aqui.
+                {t('dashboard.home.semDadosText')}
               </Text>
               {onGoToSessao ? (
                 <Pressable
@@ -146,7 +147,7 @@ export function DashboardScreen({
                   onPress={onGoToSessao}
                   style={({ pressed }) => [styles.emptyDashboardCta, pressed ? { opacity: 0.85 } : null]}
                 >
-                  <Text style={styles.emptyDashboardCtaText}>Iniciar treino</Text>
+                  <Text style={styles.emptyDashboardCtaText}>{t('dashboard.common.iniciarTreino')}</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -154,9 +155,9 @@ export function DashboardScreen({
         </>
       ) : !isLoading && !errorMessage && !stats ? (
         <View style={[styles.card, styles.emptyDashboardCard]}>
-          <Text style={styles.emptyDashboardTitle}>Sem histórico ainda</Text>
+          <Text style={styles.emptyDashboardTitle}>{t('dashboard.home.semHistoricoTitle')}</Text>
           <Text style={styles.emptyDashboardText}>
-            Complete sua primeira sessão e o progresso aparecerá aqui.
+            {t('dashboard.home.semHistoricoText')}
           </Text>
           {onGoToSessao ? (
             <Pressable
@@ -164,7 +165,7 @@ export function DashboardScreen({
               onPress={onGoToSessao}
               style={({ pressed }) => [styles.emptyDashboardCta, pressed ? { opacity: 0.85 } : null]}
             >
-              <Text style={styles.emptyDashboardCtaText}>Iniciar treino</Text>
+              <Text style={styles.emptyDashboardCtaText}>{t('dashboard.common.iniciarTreino')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -172,10 +173,10 @@ export function DashboardScreen({
 
       <ConfirmDialog
         visible={confirmResetVisible}
-        title="Resetar histórico"
-        message="Isso vai apagar todas as sessões, séries e registros de progresso. Os treinos e exercícios serão mantidos. Essa ação não pode ser desfeita."
-        confirmLabel="Resetar"
-        cancelLabel="Cancelar"
+        title={t('dashboard.home.resetarHistorico')}
+        message={t('dashboard.home.confirmResetMessage')}
+        confirmLabel={t('dashboard.home.confirmResetLabel')}
+        cancelLabel={t('common.cancel')}
         destructive
         onConfirm={() => {
           setConfirmResetVisible(false);
@@ -198,6 +199,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
 }) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [expanded, setExpanded] = useState(false);
@@ -249,7 +251,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
           style={({ pressed }) => [styles.treinoHeaderMain, pressed ? { opacity: 0.7 } : null]}
         >
           <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
-          <Text style={styles.treinoMeta}>{sessoes.length} sessão{sessoes.length !== 1 ? 'ões' : ''}</Text>
+          <Text style={styles.treinoMeta}>{t('dashboard.common.sessoesCount', { count: sessoes.length })}</Text>
         </Pressable>
         <View style={styles.treinoHeaderRight}>
           {trend === 'up' ? <Text style={styles.trendUp}>↑</Text> : null}
@@ -259,7 +261,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
             onPress={onGerenciar}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel={`Gerenciar sessões de ${grupo.treinoNome}`}
+            accessibilityLabel={t('dashboard.treinoCard.gerenciarSessoesDe', { treino: grupo.treinoNome })}
             style={({ pressed }) => [styles.treinoMenuBtn, pressed ? { opacity: 0.7 } : null]}
           >
             <Ionicons name="archive-outline" size={15} color={c.textSecondary} />
@@ -282,7 +284,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
                 style={[styles.chartToggleBtn, chartMode === 'orm' ? styles.chartToggleBtnActive : null]}
               >
                 <Text style={[styles.chartToggleBtnText, chartMode === 'orm' ? styles.chartToggleBtnTextActive : null]}>
-                  1RM estimado
+                  {t('dashboard.common.ormEstimado')}
                 </Text>
               </Pressable>
             ) : null}
@@ -292,7 +294,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
                 style={[styles.chartToggleBtn, chartMode === 'volume' ? styles.chartToggleBtnActiveVolume : null]}
               >
                 <Text style={[styles.chartToggleBtnText, chartMode === 'volume' ? styles.chartToggleBtnTextActive : null]}>
-                  Volume
+                  {t('sessao.common.volume')}
                 </Text>
               </Pressable>
             ) : null}
@@ -312,18 +314,18 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
             {sessoes[0].melhorOrm > 0 ? (
               <View style={styles.statPill}>
                 <Text style={styles.statPillValue}>{sessoes[0].melhorOrm} kg</Text>
-                <Text style={styles.statPillLabel}>1RM estimado</Text>
+                <Text style={styles.statPillLabel}>{t('dashboard.common.ormEstimado')}</Text>
               </View>
             ) : null}
             {sessoes[0].volumeTotal > 0 ? (
               <View style={styles.statPill}>
                 <Text style={styles.statPillValue}>{formatNumber(sessoes[0].volumeTotal, locale)} kg</Text>
-                <Text style={styles.statPillLabel}>Volume</Text>
+                <Text style={styles.statPillLabel}>{t('sessao.common.volume')}</Text>
               </View>
             ) : null}
           </View>
           <Text style={styles.chartPlaceholderText}>
-            O gráfico de evolução aparece a partir da 2ª sessão finalizada.
+            {t('dashboard.treinoCard.chartPlaceholderText')}
           </Text>
         </View>
       ) : null}
@@ -349,7 +351,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
           style={({ pressed }) => [styles.arqToggle, pressed ? { opacity: 0.7 } : null]}
         >
           <Text style={styles.arqToggleText}>
-            {grupo.sessoesArquivadas.length} sessão{grupo.sessoesArquivadas.length !== 1 ? 'ões' : ''} arquivada{grupo.sessoesArquivadas.length !== 1 ? 's' : ''} — gerenciar →
+            {t('dashboard.treinoCard.sessoesArquivadasToggle', { count: grupo.sessoesArquivadas.length })}
           </Text>
         </Pressable>
       ) : null}
@@ -359,7 +361,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
         onPress={onVerEvolucao}
         style={({ pressed }) => [styles.verEvolucaoBtn, pressed ? styles.verEvolucaoBtnPressed : null]}
       >
-        <Text style={styles.verEvolucaoBtnText}>Ver evolução por exercício →</Text>
+        <Text style={styles.verEvolucaoBtnText}>{t('dashboard.treinoCard.verEvolucaoPorExercicio')}</Text>
       </Pressable>
     </View>
   );

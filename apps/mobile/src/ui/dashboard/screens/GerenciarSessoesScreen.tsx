@@ -5,7 +5,7 @@ import type { SessaoComVolume } from '../../../application/dashboard/use-cases/G
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useTheme } from '../../shared/theme';
-import { useLocale, type AppLocale } from '../../shared/i18n';
+import { useLocale, useT, type AppLocale } from '../../shared/i18n';
 import { formatMediumDate, formatNumber } from '../../shared/i18n/formatters';
 
 interface Props {
@@ -54,6 +54,7 @@ export function GerenciarSessoesScreen({
 }: Props) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
 
@@ -63,9 +64,9 @@ export function GerenciarSessoesScreen({
 
   const confirmDeletar = (sessao: SessaoComVolume) => {
     setPending({
-      title: 'Excluir sessão',
-      message: `A sessão de ${formatSessaoData(sessao.dataHoraInicio, locale)} e todas as séries registradas nela serão apagadas permanentemente. Essa ação não pode ser desfeita.`,
-      confirmLabel: 'Excluir',
+      title: t('dashboard.gerenciarSessoes.confirmDeletar.title'),
+      message: t('dashboard.gerenciarSessoes.confirmDeletar.message', { data: formatSessaoData(sessao.dataHoraInicio, locale) }),
+      confirmLabel: t('common.delete'),
       destructive: true,
       action: () => onDeletar(sessao.id),
     });
@@ -74,9 +75,9 @@ export function GerenciarSessoesScreen({
   const confirmArquivarTodas = () => {
     const ids = sessoes.map((s) => s.id);
     setPending({
-      title: 'Arquivar todas as ativas',
-      message: `${ids.length} sess${ids.length !== 1 ? 'ões' : 'ão'} de "${treinoNome}" ${ids.length !== 1 ? 'saem' : 'sai'} do dashboard, mas os dados são mantidos e podem ser restaurados a qualquer momento.`,
-      confirmLabel: 'Arquivar',
+      title: t('dashboard.gerenciarSessoes.confirmArquivarTodas.title'),
+      message: t('dashboard.gerenciarSessoes.confirmArquivarTodas.message', { count: ids.length, treino: treinoNome }),
+      confirmLabel: t('common.archive'),
       destructive: false,
       action: () => onArquivarTodas(ids),
     });
@@ -85,9 +86,9 @@ export function GerenciarSessoesScreen({
   const confirmDeletarArquivadas = () => {
     const ids = sessoesArquivadas.map((s) => s.id);
     setPending({
-      title: 'Excluir arquivadas',
-      message: `${ids.length} sess${ids.length !== 1 ? 'ões' : 'ão'} arquivada${ids.length !== 1 ? 's' : ''} de "${treinoNome}" será${ids.length !== 1 ? 'ão' : ''} apagada${ids.length !== 1 ? 's' : ''} permanentemente. Essa ação não pode ser desfeita.`,
-      confirmLabel: 'Excluir',
+      title: t('dashboard.gerenciarSessoes.confirmDeletarArquivadas.title'),
+      message: t('dashboard.gerenciarSessoes.confirmDeletarArquivadas.message', { count: ids.length, treino: treinoNome }),
+      confirmLabel: t('common.delete'),
       destructive: true,
       action: () => onDeletarTodas(ids),
     });
@@ -96,9 +97,9 @@ export function GerenciarSessoesScreen({
   const confirmDeletarTudo = () => {
     const ids = [...sessoes.map((s) => s.id), ...sessoesArquivadas.map((s) => s.id)];
     setPending({
-      title: 'Excluir todo o histórico',
-      message: `Todas as ${ids.length} sessões de "${treinoNome}" (incluindo arquivadas) serão apagadas permanentemente. Essa ação não pode ser desfeita.`,
-      confirmLabel: 'Excluir tudo',
+      title: t('dashboard.gerenciarSessoes.confirmDeletarTudo.title'),
+      message: t('dashboard.gerenciarSessoes.confirmDeletarTudo.message', { count: ids.length, treino: treinoNome }),
+      confirmLabel: t('dashboard.gerenciarSessoes.confirmDeletarTudo.confirmLabel'),
       destructive: true,
       action: () => onDeletarTodas(ids),
     });
@@ -111,28 +112,27 @@ export function GerenciarSessoesScreen({
           onPress={onBack}
           style={({ pressed }) => [styles.backButton, pressed ? { opacity: 0.7 } : null]}
         >
-          <Text style={styles.backButtonText}>← Voltar</Text>
+          <Text style={styles.backButtonText}>{t('common.backArrow')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Gerenciar sessões</Text>
+        <Text style={styles.eyebrow}>{t('dashboard.gerenciarSessoes.eyebrow')}</Text>
         <Text style={styles.title}>{treinoNome}</Text>
         <Text style={styles.description}>
-          Arquivar tira a sessão do dashboard mantendo os dados — dá para restaurar depois.
-          Excluir apaga a sessão e as séries de forma permanente.
+          {t('dashboard.gerenciarSessoes.description')}
         </Text>
       </View>
 
       {total === 0 ? (
         <View style={styles.card}>
-          <Text style={styles.emptyText}>Nenhuma sessão registrada para este treino.</Text>
+          <Text style={styles.emptyText}>{t('dashboard.gerenciarSessoes.emptyText')}</Text>
         </View>
       ) : null}
 
       {sessoes.length > 0 ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Sessões ativas ({sessoes.length})</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.gerenciarSessoes.sessoesAtivasTitle', { count: sessoes.length })}</Text>
           <View style={styles.sessaoList}>
             {sessoes.map((s) => (
               <View key={s.id} style={styles.sessaoRow}>
@@ -147,13 +147,13 @@ export function GerenciarSessoesScreen({
                   onPress={() => onArquivar(s.id)}
                   style={({ pressed }) => [styles.rowBtn, pressed ? { opacity: 0.7 } : null]}
                 >
-                  <Text style={styles.rowBtnText}>Arquivar</Text>
+                  <Text style={styles.rowBtnText}>{t('common.archive')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => confirmDeletar(s)}
                   style={({ pressed }) => [styles.rowBtn, styles.rowBtnDanger, pressed ? { opacity: 0.7 } : null]}
                 >
-                  <Text style={[styles.rowBtnText, styles.rowBtnTextDanger]}>Excluir</Text>
+                  <Text style={[styles.rowBtnText, styles.rowBtnTextDanger]}>{t('common.delete')}</Text>
                 </Pressable>
               </View>
             ))}
@@ -163,8 +163,8 @@ export function GerenciarSessoesScreen({
 
       {sessoesArquivadas.length > 0 ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Arquivadas ({sessoesArquivadas.length})</Text>
-          <Text style={styles.helperText}>Fora do dashboard, mas com os dados preservados.</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.gerenciarSessoes.arquivadasTitle', { count: sessoesArquivadas.length })}</Text>
+          <Text style={styles.helperText}>{t('dashboard.gerenciarSessoes.arquivadasHelper')}</Text>
           <View style={styles.sessaoList}>
             {sessoesArquivadas.map((s) => (
               <View key={s.id} style={[styles.sessaoRow, styles.sessaoRowArquivada]}>
@@ -179,13 +179,13 @@ export function GerenciarSessoesScreen({
                   onPress={() => onDesarquivar(s.id)}
                   style={({ pressed }) => [styles.rowBtn, styles.rowBtnRestore, pressed ? { opacity: 0.7 } : null]}
                 >
-                  <Text style={[styles.rowBtnText, styles.rowBtnTextRestore]}>Restaurar</Text>
+                  <Text style={[styles.rowBtnText, styles.rowBtnTextRestore]}>{t('common.restore')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => confirmDeletar(s)}
                   style={({ pressed }) => [styles.rowBtn, styles.rowBtnDanger, pressed ? { opacity: 0.7 } : null]}
                 >
-                  <Text style={[styles.rowBtnText, styles.rowBtnTextDanger]}>Excluir</Text>
+                  <Text style={[styles.rowBtnText, styles.rowBtnTextDanger]}>{t('common.delete')}</Text>
                 </Pressable>
               </View>
             ))}
@@ -195,14 +195,14 @@ export function GerenciarSessoesScreen({
 
       {total > 0 ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Ações em massa</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.gerenciarSessoes.acoesEmMassaTitle')}</Text>
           {sessoes.length > 0 ? (
             <Pressable
               onPress={confirmArquivarTodas}
               style={({ pressed }) => [styles.bulkItem, pressed ? { opacity: 0.7 } : null]}
             >
-              <Text style={styles.bulkItemTitle}>Arquivar todas as ativas ({sessoes.length})</Text>
-              <Text style={styles.bulkItemDesc}>Saem do dashboard, mas podem ser restauradas.</Text>
+              <Text style={styles.bulkItemTitle}>{t('dashboard.gerenciarSessoes.arquivarTodasAtivasTitle', { count: sessoes.length })}</Text>
+              <Text style={styles.bulkItemDesc}>{t('dashboard.gerenciarSessoes.arquivarTodasAtivasDesc')}</Text>
             </Pressable>
           ) : null}
           {sessoesArquivadas.length > 0 ? (
@@ -211,9 +211,9 @@ export function GerenciarSessoesScreen({
               style={({ pressed }) => [styles.bulkItem, styles.bulkItemDanger, pressed ? { opacity: 0.7 } : null]}
             >
               <Text style={[styles.bulkItemTitle, styles.bulkItemTitleDanger]}>
-                Excluir arquivadas ({sessoesArquivadas.length})
+                {t('dashboard.gerenciarSessoes.excluirArquivadasTitle', { count: sessoesArquivadas.length })}
               </Text>
-              <Text style={styles.bulkItemDesc}>Apaga permanentemente só as sessões arquivadas.</Text>
+              <Text style={styles.bulkItemDesc}>{t('dashboard.gerenciarSessoes.excluirArquivadasDesc')}</Text>
             </Pressable>
           ) : null}
           <Pressable
@@ -221,10 +221,10 @@ export function GerenciarSessoesScreen({
             style={({ pressed }) => [styles.bulkItem, styles.bulkItemDanger, pressed ? { opacity: 0.7 } : null]}
           >
             <Text style={[styles.bulkItemTitle, styles.bulkItemTitleDanger]}>
-              Excluir todo o histórico ({total})
+              {t('dashboard.gerenciarSessoes.excluirTudoTitle', { count: total })}
             </Text>
             <Text style={styles.bulkItemDesc}>
-              Apaga permanentemente todas as sessões deste treino, incluindo arquivadas.
+              {t('dashboard.gerenciarSessoes.excluirTudoDesc')}
             </Text>
           </Pressable>
         </View>
@@ -235,7 +235,7 @@ export function GerenciarSessoesScreen({
         title={pending?.title ?? ''}
         message={pending?.message ?? ''}
         confirmLabel={pending?.confirmLabel ?? ''}
-        cancelLabel="Cancelar"
+        cancelLabel={t('common.cancel')}
         destructive={pending?.destructive ?? false}
         onConfirm={() => {
           pending?.action();
