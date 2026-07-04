@@ -3,8 +3,8 @@ import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text,
 
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { DiaSemana } from '../../../domain/plano/entities/DiaSemana';
-import { DIA_LABEL } from '../../../domain/plano/entities/DiaSemana';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   dia: DiaSemana | null;
@@ -17,6 +17,7 @@ interface Props {
 
 export function PlanoPickerModal({ dia, treinos, treinosVazios, treinoAtualId, onSelect, onClose }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const onCloseRef = useRef(onClose);
@@ -56,7 +57,7 @@ export function PlanoPickerModal({ dia, treinos, treinosVazios, treinoAtualId, o
         <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
           <Pressable style={styles.dragArea} onPress={onClose} {...panResponder.panHandlers}>
             <View style={styles.handle} />
-            <Text style={styles.title}>{DIA_LABEL[dia]}</Text>
+            <Text style={styles.title}>{t(`treinos.plano.dia.${dia}`)}</Text>
           </Pressable>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
@@ -65,26 +66,26 @@ export function PlanoPickerModal({ dia, treinos, treinosVazios, treinoAtualId, o
               style={({ pressed }) => [styles.row, pressed ? styles.rowPressed : null]}
             >
               <Text style={[styles.rowText, treinoAtualId === null ? styles.rowTextActive : null]}>
-                Descanso
+                {t('treinos.plano.descanso')}
               </Text>
               {treinoAtualId === null ? <Text style={styles.check}>✓</Text> : null}
             </Pressable>
 
-            {treinos.map((t) => {
-              const active = treinoAtualId === t.id;
-              const vazio = treinosVazios.has(t.id);
+            {treinos.map((treino) => {
+              const active = treinoAtualId === treino.id;
+              const vazio = treinosVazios.has(treino.id);
               return (
                 <Pressable
-                  key={t.id}
-                  onPress={() => { if (!vazio) void onSelect(t.id); }}
+                  key={treino.id}
+                  onPress={() => { if (!vazio) void onSelect(treino.id); }}
                   style={({ pressed }) => [styles.row, !vazio && pressed ? styles.rowPressed : null, vazio ? styles.rowDisabled : null]}
                 >
                   <View style={styles.rowInfo}>
                     <Text style={[styles.rowText, active ? styles.rowTextActive : null, vazio ? styles.rowTextDisabled : null]} numberOfLines={1}>
-                      {t.name}
+                      {treino.name}
                     </Text>
                     <Text style={styles.rowMeta} numberOfLines={1}>
-                      {vazio ? 'Adicione exercicios primeiro' : (t.objetivo ?? '')}
+                      {vazio ? t('treinos.plano.adicioneExerciciosPrimeiro') : (treino.objetivo ?? '')}
                     </Text>
                   </View>
                   {active ? <Text style={styles.check}>✓</Text> : null}

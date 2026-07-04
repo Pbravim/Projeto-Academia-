@@ -4,8 +4,9 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { PlanoSemanal } from '../../../domain/plano/repositories/PlanoSemanalRepository';
 import type { DiaSemana } from '../../../domain/plano/entities/DiaSemana';
-import { DIAS_SEMANA, DIA_LABEL, diaSemanaHoje } from '../../../domain/plano/entities/DiaSemana';
+import { DIAS_SEMANA, diaSemanaHoje } from '../../../domain/plano/entities/DiaSemana';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface Props {
   plano: PlanoSemanal;
@@ -16,13 +17,14 @@ interface Props {
 
 export function PlanoSemanalCard({ plano, treinos, isLoading, onSelectDia }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const hoje = diaSemanaHoje();
-  const treinoMap = useMemo(() => new Map(treinos.map((t) => [t.id, t])), [treinos]);
+  const treinoMap = useMemo(() => new Map(treinos.map((tr) => [tr.id, tr])), [treinos]);
 
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>Plano da Semana</Text>
+      <Text style={styles.cardTitle}>{t('treinos.plano.title')}</Text>
       {isLoading ? (
         <ActivityIndicator size="small" color={c.accent} style={styles.loader} />
       ) : (
@@ -43,7 +45,7 @@ export function PlanoSemanalCard({ plano, treinos, isLoading, onSelectDia }: Pro
               ]}
             >
               <Text style={[styles.dayLabel, isHoje ? styles.dayLabelHoje : null]}>
-                {DIA_LABEL[dia]}
+                {t(`treinos.plano.dia.${dia}`)}
               </Text>
               <View style={[styles.badge, treino ? styles.badgeFilled : styles.badgeEmpty]}>
                 <Text
@@ -54,7 +56,7 @@ export function PlanoSemanalCard({ plano, treinos, isLoading, onSelectDia }: Pro
                 </Text>
               </View>
               <Text style={[styles.treinoName, !treino ? styles.treinoNameEmpty : null]} numberOfLines={1}>
-                {treino ? treino.name : 'Desc.'}
+                {treino ? treino.name : t('treinos.plano.descansoAbrev')}
               </Text>
             </Pressable>
           );

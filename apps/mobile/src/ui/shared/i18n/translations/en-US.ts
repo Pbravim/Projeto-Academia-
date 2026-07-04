@@ -381,5 +381,12 @@ export const enUS = {
       buscarPlaceholder: 'Search by name or muscle group...',
       nenhumEncontrado: 'No exercise found',
     },
+    plano: {
+      title: 'Weekly Plan',
+      descanso: 'Rest',
+      descansoAbrev: 'Rest',
+      adicioneExerciciosPrimeiro: 'Add exercises first',
+      dia: { seg: 'MON', ter: 'TUE', qua: 'WED', qui: 'THU', sex: 'FRI', sab: 'SAT', dom: 'SUN' },
+    },
   },
 };

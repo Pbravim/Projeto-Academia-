@@ -382,5 +382,12 @@ export const ptBR = {
       buscarPlaceholder: 'Buscar por nome ou grupo muscular...',
       nenhumEncontrado: 'Nenhum exercício encontrado',
     },
+    plano: {
+      title: 'Plano da Semana',
+      descanso: 'Descanso',
+      descansoAbrev: 'Desc.',
+      adicioneExerciciosPrimeiro: 'Adicione exercicios primeiro',
+      dia: { seg: 'SEG', ter: 'TER', qua: 'QUA', qui: 'QUI', sex: 'SEX', sab: 'SAB', dom: 'DOM' },
+    },
   },
 } as const;
