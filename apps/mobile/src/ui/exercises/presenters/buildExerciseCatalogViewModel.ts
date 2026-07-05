@@ -1,5 +1,6 @@
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
+import { translate, type AppLocale } from '../../shared/i18n/core';
 
 export interface ExerciseCardViewModel {
   id: string;
@@ -50,13 +51,14 @@ export type CatalogSortMode = 'nome' | 'ultimo_uso';
 export function buildExerciseCatalogViewModel(
   exercises: ExercisePrimitives[],
   ultimosPesos: Map<string, UltimaExecucaoValida> = new Map(),
-  sortMode: CatalogSortMode = 'nome'
+  sortMode: CatalogSortMode = 'nome',
+  locale: AppLocale = 'pt-BR'
 ): ExerciseCatalogViewModel {
   if (exercises.length === 0) {
     return {
       sections: [],
       cards: [],
-      emptyStateMessage: 'Nenhum exercicio cadastrado ainda. Comece criando o primeiro.',
+      emptyStateMessage: translate(locale, 'exercises.catalog.emptyStateMessage'),
     };
   }
 
@@ -70,8 +72,12 @@ export function buildExerciseCatalogViewModel(
       id: exercise.id,
       title: exercise.name,
       subtitle: exercise.category ? `${groupLabel} · ${exercise.category}` : groupLabel,
-      meta: exercise.equipment ? `Equipamento: ${exercise.equipment}` : 'Equipamento livre',
-      ultimoPeso: ultima ? `Ultimo: ${ultima.cargaKg} kg × ${ultima.repeticoes} rep` : null,
+      meta: exercise.equipment
+        ? translate(locale, 'exercises.catalog.equipamentoLabel', { equipamento: exercise.equipment })
+        : translate(locale, 'exercises.catalog.equipamentoLivre'),
+      ultimoPeso: ultima
+        ? translate(locale, 'exercises.catalog.ultimoLabel', { carga: ultima.cargaKg, reps: ultima.repeticoes })
+        : null,
       nameVariations: exercise.nameVariations,
     };
     for (const group of groups) {

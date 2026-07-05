@@ -11,6 +11,7 @@ import {
 import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
 import { metadataLabel } from '../exerciseMetadataLabels';
 import { useTheme } from '../../shared/theme';
+import { useLocale, useT } from '../../shared/i18n';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 
@@ -36,6 +37,8 @@ export function ExerciseCatalogScreen({
   onViewHistorico,
 }: ExerciseCatalogControllerState) {
   const c = useTheme();
+  const t = useT();
+  const locale = useLocale();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [search, setSearch] = useState('');
   const [showSubstPicker, setShowSubstPicker] = useState(false);
@@ -80,8 +83,8 @@ export function ExerciseCatalogScreen({
   );
 
   const viewModel = useMemo(
-    () => buildExerciseCatalogViewModel(preFilteredExercises, ultimosPesos, sortMode),
-    [preFilteredExercises, ultimosPesos, sortMode]
+    () => buildExerciseCatalogViewModel(preFilteredExercises, ultimosPesos, sortMode, locale),
+    [preFilteredExercises, ultimosPesos, sortMode, locale]
   );
 
   // O(1) lookup por id — evita exercises.find() por card a cada render (era O(n) por card).
@@ -116,21 +119,21 @@ export function ExerciseCatalogScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Catálogo de exercícios</Text>
-        <Text style={styles.title}>Exercícios</Text>
+        <Text style={styles.eyebrow}>{t('exercises.catalog.eyebrow')}</Text>
+        <Text style={styles.title}>{t('exercises.catalog.title')}</Text>
         <Text style={styles.description}>
-          Organizados por grupo muscular. Toque no grupo para expandir.
+          {t('exercises.catalog.description')}
         </Text>
       </View>
 
       <View style={styles.formCard}>
         <View style={styles.formHeader}>
           <Text style={styles.sectionTitle}>
-            {isEditing ? 'Editar exercício' : 'Novo exercício'}
+            {isEditing ? t('exercises.catalog.editingFormTitle') : t('exercises.catalog.newFormTitle')}
           </Text>
           {isEditing ? (
             <Pressable onPress={onCancelEdit} hitSlop={8}>
-              <Text style={styles.cancelLink}>Cancelar</Text>
+              <Text style={styles.cancelLink}>{t('common.cancel')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -142,8 +145,8 @@ export function ExerciseCatalogScreen({
         ) : null}
 
         <Field
-          label="Nome"
-          placeholder="Ex.: Supino reto"
+          label={t('exercises.form.nome')}
+          placeholder={t('exercises.form.nomePlaceholder')}
           value={draft.name}
           onChangeText={(value) => onChangeField('name', value)}
           editable={!isSubmitting}
@@ -155,10 +158,10 @@ export function ExerciseCatalogScreen({
           <View style={styles.suggestionsBlock}>
             {exactMatch ? (
               <Text style={styles.exactMatchWarning}>
-                ⚠ Exercício já existe — toque para editar
+                {t('exercises.catalog.exactMatchWarning')}
               </Text>
             ) : (
-              <Text style={styles.suggestionsLabel}>Exercícios com nome similar:</Text>
+              <Text style={styles.suggestionsLabel}>{t('exercises.catalog.suggestionsLabel')}</Text>
             )}
             {nameSuggestions.map((ex) => (
               <Pressable
@@ -174,7 +177,7 @@ export function ExerciseCatalogScreen({
                   <Text style={styles.suggestionName}>{ex.name}</Text>
                   <Text style={styles.suggestionMeta}>{ex.category ? `${ex.groupMuscles.join(', ')} · ${ex.category}` : ex.groupMuscles.join(', ')}</Text>
                 </View>
-                <Text style={styles.suggestionEditHint}>Editar →</Text>
+                <Text style={styles.suggestionEditHint}>{t('exercises.catalog.editArrow')}</Text>
               </Pressable>
             ))}
           </View>
@@ -185,61 +188,61 @@ export function ExerciseCatalogScreen({
           onChange={(value) => onChangeField('groupMuscle', value)}
         />
         <ChipPicker
-          label="Categoria"
+          label={t('exercises.form.categoria')}
           options={CATEGORIES}
-          customPlaceholder="Digite a categoria"
+          customPlaceholder={t('exercises.form.categoriaPlaceholder')}
           value={draft.category}
           onChange={(value) => onChangeField('category', value)}
         />
         <ChipPicker
-          label="Equipamento"
+          label={t('exercises.form.equipamento')}
           options={EQUIPMENTS}
-          customPlaceholder="Digite o equipamento"
+          customPlaceholder={t('exercises.form.equipamentoPlaceholder')}
           value={draft.equipment}
           onChange={(value) => onChangeField('equipment', value)}
         />
 
         <Text style={styles.helperText}>
-          Campos biomecânicos — usados pelo motor de sugestão de substitutos. Escolha "Outro" para registrar um valor não listado.
+          {t('exercises.form.biomecanicoHelper')}
         </Text>
 
         <ChipPicker
-          label="Padrão de movimento"
+          label={t('exercises.form.padraoMovimento')}
           options={MOVEMENT_PATTERNS}
-          customPlaceholder="Digite o padrão de movimento"
+          customPlaceholder={t('exercises.form.padraoMovimentoPlaceholder')}
           value={draft.movementPattern}
           onChange={(value) => onChangeField('movementPattern', value)}
-          formatOption={(v) => metadataLabel('movementPattern', v)}
+          formatOption={(v) => metadataLabel('movementPattern', v, locale)}
         />
         <ChipPicker
-          label="Tipo de execução"
+          label={t('exercises.form.tipoExecucao')}
           options={EXECUTION_TYPES}
           allowCustom={false}
           value={draft.executionType}
           onChange={(value) => onChangeField('executionType', value)}
-          formatOption={(v) => metadataLabel('executionType', v)}
+          formatOption={(v) => metadataLabel('executionType', v, locale)}
         />
         <ChipPicker
-          label="Equipamento principal"
+          label={t('exercises.form.equipamentoPrincipal')}
           options={PRIMARY_EQUIPMENTS}
-          customPlaceholder="Digite o equipamento principal"
+          customPlaceholder={t('exercises.form.equipamentoPrincipalPlaceholder')}
           value={draft.primaryEquipment}
           onChange={(value) => onChangeField('primaryEquipment', value)}
-          formatOption={(v) => metadataLabel('primaryEquipment', v)}
+          formatOption={(v) => metadataLabel('primaryEquipment', v, locale)}
         />
         <ChipPicker
-          label="Equipamento secundário"
+          label={t('exercises.form.equipamentoSecundario')}
           options={PRIMARY_EQUIPMENTS}
-          customPlaceholder="Digite o equipamento secundário"
+          customPlaceholder={t('exercises.form.equipamentoSecundarioPlaceholder')}
           value={draft.secondaryEquipment}
           onChange={(value) => onChangeField('secondaryEquipment', value)}
-          formatOption={(v) => metadataLabel('secondaryEquipment', v)}
+          formatOption={(v) => metadataLabel('secondaryEquipment', v, locale)}
         />
         <MultiChipPicker
-          label="Músculos alvo"
+          label={t('exercises.form.musculosAlvo')}
           options={musculoAlvoOptions}
-          placeholder="Selecionar músculos"
-          customPlaceholder="Nome do músculo..."
+          placeholder={t('exercises.form.musculosAlvoPlaceholder')}
+          customPlaceholder={t('exercises.form.musculoNomePlaceholder')}
           required={false}
           value={draft.musculoAlvo}
           onChange={(value) => onChangeField('musculoAlvo', value)}
@@ -253,14 +256,14 @@ export function ExerciseCatalogScreen({
           onChangeLocal={onChangeMediaLocal}
         />
 
-        <Text style={styles.helperText}>Carga sempre registrada em kg com valores decimais.</Text>
+        <Text style={styles.helperText}>{t('exercises.form.cargaHelper')}</Text>
 
         {/* ── Exercícios substitutos (only when editing) ── */}
         {isEditing ? (
           <View style={styles.substSection}>
-            <Text style={styles.substTitle}>Substitutos predefinidos</Text>
+            <Text style={styles.substTitle}>{t('exercises.catalog.substTitle')}</Text>
             <Text style={styles.substHint}>
-              Aparecem em destaque ao trocar exercício durante a sessão.
+              {t('exercises.catalog.substHint')}
             </Text>
 
             {alternativas.length > 0 ? (
@@ -285,20 +288,20 @@ export function ExerciseCatalogScreen({
                 onPress={() => { setShowSubstPicker(true); setSubstSearch(''); }}
                 style={({ pressed }) => [styles.addSubstBtn, pressed ? { opacity: 0.75 } : null]}
               >
-                <Text style={styles.addSubstBtnText}>+ Adicionar substituto</Text>
+                <Text style={styles.addSubstBtnText}>{t('exercises.catalog.addSubstBtn')}</Text>
               </Pressable>
             ) : (
               <View style={styles.substPicker}>
                 <TextInput
                   style={styles.substSearch}
-                  placeholder="Buscar exercício..."
+                  placeholder={t('exercises.catalog.substSearchPlaceholder')}
                   placeholderTextColor={c.inputPlaceholder}
                   value={substSearch}
                   onChangeText={setSubstSearch}
                   autoFocus
                 />
                 <Pressable onPress={() => setShowSubstPicker(false)} style={styles.substCancelBtn}>
-                  <Text style={styles.substCancelText}>Cancelar</Text>
+                  <Text style={styles.substCancelText}>{t('common.cancel')}</Text>
                 </Pressable>
                 {exercises
                   .filter((ex) =>
@@ -342,7 +345,11 @@ export function ExerciseCatalogScreen({
           disabled={!canSubmit}
         >
           <Text style={styles.primaryButtonText}>
-            {isSubmitting ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Salvar exercício'}
+            {isSubmitting
+              ? t('exercises.catalog.saving')
+              : isEditing
+                ? t('exercises.catalog.saveEdit')
+                : t('exercises.catalog.saveNew')}
           </Text>
         </Pressable>
       </View>
@@ -358,7 +365,7 @@ export function ExerciseCatalogScreen({
           {/* Barra de busca no catálogo */}
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar exercício ou grupo muscular..."
+            placeholder={t('exercises.catalog.searchPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             value={search}
             onChangeText={setSearch}
@@ -367,13 +374,13 @@ export function ExerciseCatalogScreen({
 
           {/* Toggle de ordenação */}
           <View style={styles.sortRow}>
-            <Text style={styles.filterLabel}>Ordem:</Text>
+            <Text style={styles.filterLabel}>{t('exercises.catalog.ordemLabel')}</Text>
             <Pressable
               onPress={() => setSortMode('nome')}
               style={[styles.filterChip, sortMode === 'nome' ? styles.filterChipActive : null]}
             >
               <Text style={[styles.filterChipText, sortMode === 'nome' ? styles.filterChipTextActive : null]}>
-                A–Z
+                {t('exercises.catalog.sortAZ')}
               </Text>
             </Pressable>
             <Pressable
@@ -381,7 +388,7 @@ export function ExerciseCatalogScreen({
               style={[styles.filterChip, sortMode === 'ultimo_uso' ? styles.filterChipActive : null]}
             >
               <Text style={[styles.filterChipText, sortMode === 'ultimo_uso' ? styles.filterChipTextActive : null]}>
-                Último uso
+                {t('exercises.catalog.sortUltimoUso')}
               </Text>
             </Pressable>
           </View>
@@ -389,7 +396,7 @@ export function ExerciseCatalogScreen({
           {/* Chips de filtro — categoria */}
           {availableCategories.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-              <Text style={styles.filterLabel}>Cat:</Text>
+              <Text style={styles.filterLabel}>{t('exercises.catalog.catLabel')}</Text>
               {availableCategories.map((cat) => (
                 <Pressable
                   key={cat}
@@ -407,7 +414,7 @@ export function ExerciseCatalogScreen({
           {/* Chips de filtro — equipamento */}
           {availableEquipments.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-              <Text style={styles.filterLabel}>Equip:</Text>
+              <Text style={styles.filterLabel}>{t('exercises.catalog.equipLabel')}</Text>
               {availableEquipments.map((eq) => (
                 <Pressable
                   key={eq}
@@ -428,13 +435,13 @@ export function ExerciseCatalogScreen({
               onPress={() => { setFilterCategory(''); setFilterEquipment(''); }}
               style={({ pressed }) => [styles.clearFiltersBtn, pressed ? { opacity: 0.7 } : null]}
             >
-              <Text style={styles.clearFiltersBtnText}>✕ Limpar filtros</Text>
+              <Text style={styles.clearFiltersBtnText}>{t('exercises.catalog.clearFilters')}</Text>
             </Pressable>
           ) : null}
 
           {filteredSections.length === 0 ? (
             <View style={styles.listCard}>
-              <Text style={styles.emptyState}>Nenhum exercício encontrado.</Text>
+              <Text style={styles.emptyState}>{t('exercises.catalog.noneFound')}</Text>
             </View>
           ) : (
             filteredSections.map((section) => (

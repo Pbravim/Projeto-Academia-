@@ -5,6 +5,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 import { gifAssets } from './gifAssets';
 
 interface Props {
@@ -34,6 +35,7 @@ function VideoPlayer({ uri }: { uri: string }) {
 
 export function ExerciseMediaViewer({ visible, exercicioNome, mediaOnline, mediaLocal, onClose }: Props) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   if (!visible) return null;
@@ -74,27 +76,27 @@ export function ExerciseMediaViewer({ visible, exercicioNome, mediaOnline, media
             )
           ) : isYT ? (
             <View style={styles.youtubeBlock}>
-              <Text style={styles.youtubeText}>Vídeo no YouTube</Text>
+              <Text style={styles.youtubeText}>{t('exercises.mediaViewer.youtubeText')}</Text>
               <Pressable
                 onPress={handleOpenYouTube}
                 style={({ pressed }) => [styles.youtubeBtn, pressed ? { opacity: 0.8 } : null]}
               >
-                <Text style={styles.youtubeBtnText}>▶ Abrir no YouTube</Text>
+                <Text style={styles.youtubeBtnText}>{t('exercises.mediaViewer.abrirYoutube')}</Text>
               </Pressable>
             </View>
           ) : (
             <View style={styles.emptyBlock}>
-              <Text style={styles.emptyText}>Nenhuma mídia configurada.</Text>
+              <Text style={styles.emptyText}>{t('exercises.mediaViewer.emptyText')}</Text>
             </View>
           )}
 
           {mediaLocal ? (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>📱 Salvo offline</Text>
+              <Text style={styles.badgeText}>{t('exercises.mediaViewer.savedOffline')}</Text>
             </View>
           ) : mediaOnline && !isYT ? (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>🌐 Online</Text>
+              <Text style={styles.badgeText}>{t('exercises.mediaViewer.online')}</Text>
             </View>
           ) : null}
         </View>

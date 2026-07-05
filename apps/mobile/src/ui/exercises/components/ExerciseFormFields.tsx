@@ -7,6 +7,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 function isImageMediaUri(uri: string): boolean {
   const lower = uri.split('?')[0]!.toLowerCase();
@@ -89,18 +90,22 @@ interface MultiChipPickerProps {
 }
 
 export function MultiChipPicker({
-  label = 'Grupo muscular',
+  label,
   options = MUSCLE_GROUPS,
-  placeholder = 'Selecionar grupos',
-  customPlaceholder = 'Nome do grupo...',
+  placeholder,
+  customPlaceholder,
   required = true,
   value,
   onChange,
 }: MultiChipPickerProps) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [open, setOpen] = useState(false);
   const [customText, setCustomText] = useState('');
+  const resolvedLabel = label ?? t('exercises.form.grupoMuscular');
+  const resolvedPlaceholder = placeholder ?? t('exercises.form.selecionarGrupos');
+  const resolvedCustomPlaceholder = customPlaceholder ?? t('exercises.form.nomeGrupoPlaceholder');
 
   const toArray = (v: string) => v.split(',').map((s) => s.trim()).filter(Boolean);
   const selected = toArray(value);
@@ -137,13 +142,13 @@ export function MultiChipPicker({
 
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>{label}{required ? <Text style={styles.requiredMark}> *</Text> : null}</Text>
+      <Text style={styles.fieldLabel}>{resolvedLabel}{required ? <Text style={styles.requiredMark}> *</Text> : null}</Text>
       <Pressable
         onPress={() => setOpen(true)}
         style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
       >
         <Text style={[styles.selectValue, !displayValue && styles.selectPlaceholder]}>
-          {displayValue ?? placeholder}
+          {displayValue ?? resolvedPlaceholder}
         </Text>
         <Text style={styles.selectChevron}>▼</Text>
       </Pressable>
@@ -152,7 +157,7 @@ export function MultiChipPicker({
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
         <View style={styles.sheet}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.sheetTitle}>{label}</Text>
+          <Text style={styles.sheetTitle}>{resolvedLabel}</Text>
           <ScrollView style={styles.sheetScroll} showsVerticalScrollIndicator={false}>
             {options.map((group) => {
               const active = predefined.includes(group);
@@ -171,7 +176,7 @@ export function MultiChipPicker({
             })}
 
             <View style={styles.sheetDivider} />
-            <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+            <Text style={styles.sheetSectionLabel}>{t('exercises.form.outroPersonalizado')}</Text>
             {custom.map((item) => (
               <View key={item} style={styles.sheetRow}>
                 <Text style={styles.sheetRowText}>{item}</Text>
@@ -183,7 +188,7 @@ export function MultiChipPicker({
             <View style={styles.customInputRow}>
               <TextInput
                 style={styles.customInput}
-                placeholder={customPlaceholder}
+                placeholder={resolvedCustomPlaceholder}
                 placeholderTextColor={c.inputPlaceholder}
                 value={customText}
                 onChangeText={setCustomText}
@@ -191,12 +196,12 @@ export function MultiChipPicker({
                 returnKeyType="done"
               />
               <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
-                <Text style={styles.addCustomBtnText}>Adicionar</Text>
+                <Text style={styles.addCustomBtnText}>{t('exercises.form.adicionar')}</Text>
               </Pressable>
             </View>
           </ScrollView>
           <Pressable onPress={() => setOpen(false)} style={styles.sheetConfirmBtn}>
-            <Text style={styles.sheetConfirmText}>Confirmar</Text>
+            <Text style={styles.sheetConfirmText}>{t('common.confirm')}</Text>
           </Pressable>
         </View>
       </Modal>
@@ -218,6 +223,7 @@ interface ChipPickerProps {
 
 export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, allowCustom = true, value, onChange, formatOption }: ChipPickerProps) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [open, setOpen] = useState(false);
   const [customText, setCustomText] = useState('');
@@ -246,7 +252,7 @@ export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, all
         style={({ pressed }) => [styles.selectTrigger, pressed ? styles.selectTriggerPressed : null]}
       >
         <Text style={[styles.selectValue, !displayValue && styles.selectPlaceholder]}>
-          {displayValue != null ? (formatOption?.(displayValue) ?? displayValue) : `Selecionar ${label.toLowerCase()}`}
+          {displayValue != null ? (formatOption?.(displayValue) ?? displayValue) : t('exercises.form.selecionarPrefix', { label: label.toLowerCase() })}
         </Text>
         <Text style={styles.selectChevron}>▼</Text>
       </Pressable>
@@ -274,7 +280,7 @@ export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, all
             {allowCustom ? (
               <>
                 <View style={styles.sheetDivider} />
-                <Text style={styles.sheetSectionLabel}>Outro (personalizado)</Text>
+                <Text style={styles.sheetSectionLabel}>{t('exercises.form.outroPersonalizado')}</Text>
                 {isCustom ? (
                   <View style={styles.sheetRow}>
                     <Text style={[styles.sheetRowText, styles.sheetRowTextActive]}>{value}</Text>
@@ -292,7 +298,7 @@ export function ChipPicker({ label, options = CATEGORIES, customPlaceholder, all
                     returnKeyType="done"
                   />
                   <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
-                    <Text style={styles.addCustomBtnText}>OK</Text>
+                    <Text style={styles.addCustomBtnText}>{t('common.ok')}</Text>
                   </Pressable>
                 </View>
               </>
@@ -460,6 +466,7 @@ interface MediaFieldsProps {
 
 export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnline, onChangeLocal }: MediaFieldsProps) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeMediaStyles(c), [c]);
   const [picking, setPicking] = useState(false);
   const [permDialogVisible, setPermDialogVisible] = useState(false);
@@ -478,7 +485,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
     }
   };
 
-  const localFileName = mediaLocal ? mediaLocal.split('/').pop() ?? 'arquivo' : null;
+  const localFileName = mediaLocal ? mediaLocal.split('/').pop() ?? t('exercises.media.arquivoFallback') : null;
 
   const handlePickFile = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -518,27 +525,27 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionLabel}>Mídia de referência</Text>
+      <Text style={styles.sectionLabel}>{t('exercises.media.sectionLabel')}</Text>
 
       {showImagePreview ? (
         <Image source={{ uri: previewUri! }} style={styles.preview} contentFit="contain" transition={150} />
       ) : showVideoPlaceholder ? (
         <View style={styles.previewPlaceholder}>
           <Text style={styles.previewPlaceholderIcon}>🎞</Text>
-          <Text style={styles.previewPlaceholderText}>Video selecionado</Text>
+          <Text style={styles.previewPlaceholderText}>{t('exercises.media.videoSelecionado')}</Text>
         </View>
       ) : showYouTubeBadge ? (
         <View style={styles.previewPlaceholder}>
           <Text style={styles.previewPlaceholderIcon}>▶</Text>
-          <Text style={styles.previewPlaceholderText}>Video do YouTube</Text>
+          <Text style={styles.previewPlaceholderText}>{t('exercises.media.videoYoutube')}</Text>
         </View>
       ) : null}
 
       <View style={styles.field}>
-        <Text style={styles.label}>URL online <Text style={styles.hint}>(YouTube, GIF, MP4…)</Text></Text>
+        <Text style={styles.label}>{t('exercises.media.urlOnlineLabel')} <Text style={styles.hint}>{t('exercises.media.urlOnlineHint')}</Text></Text>
         <TextInput
           style={styles.input}
-          placeholder="https://..."
+          placeholder={t('exercises.media.urlPlaceholder')}
           placeholderTextColor={c.inputPlaceholder}
           value={mediaOnline}
           onChangeText={onChangeOnline}
@@ -549,12 +556,12 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.label}>Arquivo offline <Text style={styles.hint}>(da galeria, comprimido)</Text></Text>
+        <Text style={styles.label}>{t('exercises.media.arquivoOfflineLabel')} <Text style={styles.hint}>{t('exercises.media.arquivoOfflineHint')}</Text></Text>
         {localFileName ? (
           <View style={styles.localRow}>
             <Text style={styles.localFile} numberOfLines={1}>📁 {localFileName}</Text>
             <Pressable onPress={() => { deleteFileIfLocal(currentLocalRef.current); onChangeLocal(null); }} style={styles.removeBtn}>
-              <Text style={styles.removeBtnText}>Remover</Text>
+              <Text style={styles.removeBtnText}>{t('exercises.media.remover')}</Text>
             </Pressable>
           </View>
         ) : (
@@ -563,16 +570,16 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
             disabled={picking}
             style={({ pressed }) => [styles.pickBtn, pressed ? { opacity: 0.8 } : null, picking ? { opacity: 0.5 } : null]}
           >
-            <Text style={styles.pickBtnText}>{picking ? 'Selecionando...' : '📂 Selecionar da galeria'}</Text>
+            <Text style={styles.pickBtnText}>{picking ? t('exercises.media.selecionando') : t('exercises.media.selecionarGaleria')}</Text>
           </Pressable>
         )}
       </View>
 
       <ConfirmDialog
         visible={permDialogVisible}
-        title="Permissao necessaria"
-        message="Permita o acesso a galeria nas configuracoes do dispositivo."
-        confirmLabel="OK"
+        title={t('exercises.media.permTitle')}
+        message={t('exercises.media.permMessage')}
+        confirmLabel={t('common.ok')}
         hideCancel
         onConfirm={() => setPermDialogVisible(false)}
         onCancel={() => setPermDialogVisible(false)}

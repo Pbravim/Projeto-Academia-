@@ -6,6 +6,7 @@ import type { ExerciseSectionViewModel, ExerciseCardViewModel } from '../present
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { gifAssets } from './gifAssets';
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 
 interface SectionProps {
   section: ExerciseSectionViewModel;
@@ -76,6 +77,7 @@ interface CardProps {
 
 const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: CardProps) {
   const c = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
@@ -107,7 +109,7 @@ const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, a
           onPress={() => onSelectEdit(exercise)}
           style={({ pressed }) => [styles.actionButton, pressed ? styles.actionButtonPressed : null]}
         >
-          <Text style={styles.editButtonText}>Editar</Text>
+          <Text style={styles.editButtonText}>{t('exercises.card.editar')}</Text>
         </Pressable>
 
         <Pressable
@@ -115,7 +117,7 @@ const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, a
           onPress={() => onViewHistorico(card.id, card.title)}
           style={({ pressed }) => [styles.actionButton, styles.historicoButton, pressed ? styles.actionButtonPressed : null]}
         >
-          <Text style={styles.historicoButtonText}>Historico</Text>
+          <Text style={styles.historicoButtonText}>{t('exercises.card.historico')}</Text>
         </Pressable>
 
         <Pressable
@@ -129,7 +131,7 @@ const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, a
             isDeleting ? styles.deleteButtonLoading : null,
           ]}
         >
-          <Text style={styles.deleteButtonText}>{isDeleting ? 'Excluindo...' : 'Excluir'}</Text>
+          <Text style={styles.deleteButtonText}>{isDeleting ? t('exercises.card.excluindo') : t('common.delete')}</Text>
         </Pressable>
       </View>
     </View>
