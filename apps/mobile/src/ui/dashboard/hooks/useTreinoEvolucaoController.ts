@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { GetTreinoEvolucaoUseCase, ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface TreinoEvolucaoControllerDeps {
   getTreinoEvolucao: GetTreinoEvolucaoUseCase;
@@ -18,6 +19,7 @@ export function useTreinoEvolucaoController(
   treinoId: string,
   deps: TreinoEvolucaoControllerDeps
 ): TreinoEvolucaoControllerState {
+  const locale = useLocale();
   const [exercicios, setExercicios] = useState<ExercicioEvolucao[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -34,12 +36,12 @@ export function useTreinoEvolucaoController(
     }).catch((error) => {
       if (!cancelled) {
         deps.logger.error('treino_evolucao.load_failed', error);
-        setErrorMessage('Nao foi possivel carregar a evolucao do treino.');
+        setErrorMessage(translate(locale, 'dashboard.evolucao.errorLoad'));
         setIsLoading(false);
       }
     });
     return () => { cancelled = true; };
-  }, [treinoId]);
+  }, [treinoId, locale]);
 
   return { exercicios, isLoading, errorMessage };
 }

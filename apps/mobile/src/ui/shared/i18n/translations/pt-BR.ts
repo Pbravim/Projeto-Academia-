@@ -133,6 +133,8 @@ export const ptBR = {
     },
     biset: {
       setsRegistrados: 'Sets registrados',
+      cargaInvalidaPara: 'Carga invalida para %{nome}.',
+      repsInvalidasPara: 'Reps invalidas para %{nome}.',
       autoFillMessage: 'Auto-completar series faltando e marcar como concluido?',
       registrarBtn: '+ Registrar %{label}',
     },
@@ -167,6 +169,23 @@ export const ptBR = {
     timer: {
       pular: 'Pular descanso',
     },
+    errors: {
+      load: 'Nao foi possivel carregar a sessao.',
+      iniciar: 'Nao foi possivel iniciar a sessao.',
+      registrarSerie: 'Nao foi possivel registrar a serie.',
+      registrarSeries: 'Nao foi possivel registrar as series.',
+      removerSerie: 'Nao foi possivel remover a serie.',
+      removerSeries: 'Nao foi possivel remover as series.',
+      atualizarSerie: 'Nao foi possivel atualizar a serie.',
+      atualizarExercicio: 'Nao foi possivel atualizar o exercicio.',
+      atualizarExercicios: 'Nao foi possivel atualizar os exercicios.',
+      adicionarExercicio: 'Nao foi possivel adicionar o exercicio.',
+      finalizar: 'Nao foi possivel finalizar a sessao.',
+      cancelar: 'Nao foi possivel cancelar a sessao.',
+      carregarSubstitutos: 'Nao foi possivel carregar substitutos.',
+      substituir: 'Nao foi possivel substituir o exercicio.',
+      atualizarTecnica: 'Nao foi possivel atualizar a tecnica.',
+    },
   },
   dashboard: {
     common: {
@@ -174,6 +193,11 @@ export const ptBR = {
       iniciarTreino: 'Iniciar treino',
       ormEstimado: '1RM estimado',
       sessoesCount: { one: '%{count} sessão', other: '%{count} sessões' },
+    },
+    errors: {
+      loadStats: 'Nao foi possivel carregar as estatisticas.',
+      reset: 'Nao foi possivel resetar o historico.',
+      export: 'Nao foi possivel exportar o historico.',
     },
     home: {
       description: 'Progresso real por treino, últimas 10 sessões de cada.',
@@ -216,6 +240,7 @@ export const ptBR = {
       vsAnterior: 'vs anterior',
       seriesUlt: 'Séries (últ.)',
       volumeTotal: 'Volume total',
+      errorLoad: 'Nao foi possivel carregar a evolucao do treino.',
     },
     gerenciarSessoes: {
       eyebrow: 'Gerenciar sessões',
@@ -415,6 +440,16 @@ export const ptBR = {
     },
   },
   exercises: {
+    errors: {
+      load: 'Nao foi possivel carregar os exercicios.',
+      save: 'Nao foi possivel salvar o exercicio.',
+      delete: 'Nao foi possivel excluir o exercicio.',
+    },
+    feedback: {
+      updated: '"%{nome}" atualizado com sucesso.',
+      created: '"%{nome}" salvo com sucesso.',
+      deleted: 'Exercicio excluido com sucesso.',
+    },
     catalog: {
       eyebrow: 'Catálogo de exercícios',
       title: 'Exercícios',

@@ -18,6 +18,7 @@ import type { SubstituicaoMotivo, SessaoExercicioPrimitives } from '../../../dom
 import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface SessaoAtivaControllerDependencies {
   getSessaoDetalhe: GetSessaoDetalheUseCase;
@@ -71,6 +72,7 @@ export function useSessaoAtivaController(
   onFinalizado: (detalhe: SessaoDetalhe) => void,
   onCancelado: () => void
 ): SessaoAtivaControllerState {
+  const locale = useLocale();
   const [detalhe, setDetalhe] = useState<SessaoDetalhe | null>(null);
   const [sugestoes, setSugestoes] = useState<Record<string, SugestaoProgressao | null>>({});
   const [allExercises, setAllExercises] = useState<ExercisePrimitives[]>([]);
@@ -104,9 +106,9 @@ export function useSessaoAtivaController(
       setSugestoes(Object.fromEntries(sugestoesEntries));
     } catch (error) {
       dependencies.logger.error('sessao_ativa.load_failed', error);
-      setErrorMessage('Nao foi possivel carregar a sessao.');
+      setErrorMessage(translate(locale, 'sessao.errors.load'));
     }
-  }, [sessao.id]);
+  }, [sessao.id, locale]);
 
   useEffect(() => {
     void loadDetalhe();
@@ -133,7 +135,7 @@ export function useSessaoAtivaController(
       if (error instanceof SessaoValidationError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel registrar a serie.');
+        setErrorMessage(translate(locale, 'sessao.errors.registrarSerie'));
       }
     }
   };
@@ -145,7 +147,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.registrar_series_lote_failed', error);
-      setErrorMessage('Nao foi possivel registrar as series.');
+      setErrorMessage(translate(locale, 'sessao.errors.registrarSeries'));
     }
   };
 
@@ -156,7 +158,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.delete_serie_failed', error);
-      setErrorMessage('Nao foi possivel remover a serie.');
+      setErrorMessage(translate(locale, 'sessao.errors.removerSerie'));
     }
   };
 
@@ -167,7 +169,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.delete_series_failed', error);
-      setErrorMessage('Nao foi possivel remover as series.');
+      setErrorMessage(translate(locale, 'sessao.errors.removerSeries'));
     }
   };
 
@@ -178,7 +180,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.toggle_realizado_failed', error);
-      setErrorMessage('Nao foi possivel atualizar o exercicio.');
+      setErrorMessage(translate(locale, 'sessao.errors.atualizarExercicio'));
     }
   };
 
@@ -189,7 +191,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.toggle_realizado_grupo_failed', error);
-      setErrorMessage('Nao foi possivel atualizar os exercicios.');
+      setErrorMessage(translate(locale, 'sessao.errors.atualizarExercicios'));
     }
   };
 
@@ -204,7 +206,7 @@ export function useSessaoAtivaController(
       if (error instanceof ExercicioJaNaSessaoError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel adicionar o exercicio.');
+        setErrorMessage(translate(locale, 'sessao.errors.adicionarExercicio'));
       }
     }
   };
@@ -218,7 +220,7 @@ export function useSessaoAtivaController(
       onFinalizado(detalheCompleto);
     } catch (error) {
       dependencies.logger.error('sessao_ativa.finalizar_failed', error);
-      setErrorMessage('Nao foi possivel finalizar a sessao.');
+      setErrorMessage(translate(locale, 'sessao.errors.finalizar'));
       setIsFinalizing(false);
     }
   };
@@ -231,7 +233,7 @@ export function useSessaoAtivaController(
       onCancelado();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.cancelar_failed', error);
-      setErrorMessage('Nao foi possivel cancelar a sessao.');
+      setErrorMessage(translate(locale, 'sessao.errors.cancelar'));
     } finally {
       setIsCanceling(false);
     }
@@ -245,7 +247,7 @@ export function useSessaoAtivaController(
       setCandidatosSubstituicao(candidatos);
     } catch (error) {
       dependencies.logger.error('sessao_ativa.sugerir_substitutos_failed', error);
-      setErrorMessage('Nao foi possivel carregar substitutos.');
+      setErrorMessage(translate(locale, 'sessao.errors.carregarSubstitutos'));
     }
   };
 
@@ -263,7 +265,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.substituir_exercicio_failed', error);
-      setErrorMessage('Nao foi possivel substituir o exercicio.');
+      setErrorMessage(translate(locale, 'sessao.errors.substituir'));
     }
   };
 
@@ -279,7 +281,7 @@ export function useSessaoAtivaController(
       await loadDetalhe();
     } catch (error) {
       dependencies.logger.error('sessao_ativa.atualizar_metodo_failed', error);
-      setErrorMessage('Nao foi possivel atualizar a tecnica.');
+      setErrorMessage(translate(locale, 'sessao.errors.atualizarTecnica'));
     }
   };
 
@@ -293,7 +295,7 @@ export function useSessaoAtivaController(
       if (error instanceof SessaoValidationError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel atualizar a serie.');
+        setErrorMessage(translate(locale, 'sessao.errors.atualizarSerie'));
       }
     }
   };

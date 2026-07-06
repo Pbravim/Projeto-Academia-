@@ -132,6 +132,8 @@ export const enUS = {
     },
     biset: {
       setsRegistrados: 'Sets recorded',
+      cargaInvalidaPara: 'Invalid load for %{nome}.',
+      repsInvalidasPara: 'Invalid reps for %{nome}.',
       autoFillMessage: 'Auto-fill missing sets and mark as complete?',
       registrarBtn: '+ Record %{label}',
     },
@@ -166,6 +168,23 @@ export const enUS = {
     timer: {
       pular: 'Skip rest',
     },
+    errors: {
+      load: 'Could not load the session.',
+      iniciar: 'Could not start the session.',
+      registrarSerie: 'Could not record the set.',
+      registrarSeries: 'Could not record the sets.',
+      removerSerie: 'Could not remove the set.',
+      removerSeries: 'Could not remove the sets.',
+      atualizarSerie: 'Could not update the set.',
+      atualizarExercicio: 'Could not update the exercise.',
+      atualizarExercicios: 'Could not update the exercises.',
+      adicionarExercicio: 'Could not add the exercise.',
+      finalizar: 'Could not finish the session.',
+      cancelar: 'Could not cancel the session.',
+      carregarSubstitutos: 'Could not load substitutes.',
+      substituir: 'Could not swap the exercise.',
+      atualizarTecnica: 'Could not update the technique.',
+    },
   },
   dashboard: {
     common: {
@@ -173,6 +192,11 @@ export const enUS = {
       iniciarTreino: 'Start workout',
       ormEstimado: 'Estimated 1RM',
       sessoesCount: { one: '%{count} session', other: '%{count} sessions' },
+    },
+    errors: {
+      loadStats: 'Could not load the statistics.',
+      reset: 'Could not reset the history.',
+      export: 'Could not export the history.',
     },
     home: {
       description: 'Real progress per workout, last 10 sessions each.',
@@ -215,6 +239,7 @@ export const enUS = {
       vsAnterior: 'vs previous',
       seriesUlt: 'Sets (last)',
       volumeTotal: 'Total volume',
+      errorLoad: 'Could not load the workout progression.',
     },
     gerenciarSessoes: {
       eyebrow: 'Manage sessions',
@@ -414,6 +439,16 @@ export const enUS = {
     },
   },
   exercises: {
+    errors: {
+      load: 'Could not load the exercises.',
+      save: 'Could not save the exercise.',
+      delete: 'Could not delete the exercise.',
+    },
+    feedback: {
+      updated: '"%{nome}" updated successfully.',
+      created: '"%{nome}" saved successfully.',
+      deleted: 'Exercise deleted successfully.',
+    },
     catalog: {
       eyebrow: 'Exercise catalog',
       title: 'Exercises',

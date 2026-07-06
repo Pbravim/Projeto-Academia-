@@ -19,6 +19,10 @@ vi.mock('expo-file-system', () => {
   };
 });
 
+// The i18n module pulls expo-localization and the SQLite database client
+vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
+vi.mock('expo-sqlite', () => ({}));
+
 const exA: ExercisePrimitives = {
   id: 'e1',
   name: 'Supino',

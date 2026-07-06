@@ -7,6 +7,7 @@ import type { ArquivarSessaoUseCase } from '../../../application/dashboard/use-c
 import type { DesarquivarSessaoUseCase } from '../../../application/dashboard/use-cases/DesarquivarSessaoUseCase';
 import type { DeletarSessaoUseCase } from '../../../application/dashboard/use-cases/DeletarSessaoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface DashboardControllerDependencies {
   getDashboardStats: GetDashboardStatsUseCase;
@@ -37,6 +38,7 @@ export interface DashboardControllerState {
 }
 
 export function useDashboardController(dependencies: DashboardControllerDependencies): DashboardControllerState {
+  const locale = useLocale();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
@@ -51,11 +53,11 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       setStats(result);
     } catch (error) {
       dependencies.logger.error('dashboard.load_failed', error);
-      setErrorMessage('Nao foi possivel carregar as estatisticas.');
+      setErrorMessage(translate(locale, 'dashboard.errors.loadStats'));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     void load();
@@ -69,7 +71,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       await load();
     } catch (error) {
       dependencies.logger.error('dashboard.reset_failed', error);
-      setErrorMessage('Nao foi possivel resetar o historico.');
+      setErrorMessage(translate(locale, 'dashboard.errors.reset'));
     } finally {
       setIsResetting(false);
     }
@@ -82,7 +84,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       await dependencies.exportarHistorico.execute();
     } catch (error) {
       dependencies.logger.error('dashboard.export_failed', error);
-      const msg = error instanceof Error ? error.message : 'Nao foi possivel exportar o historico.';
+      const msg = error instanceof Error ? error.message : translate(locale, 'dashboard.errors.export');
       setErrorMessage(msg);
     } finally {
       setIsExporting(false);

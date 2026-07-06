@@ -183,7 +183,7 @@ export function BiSetDetalheScreen({
           ? KG_VALUES[cargaIndexes[i]]
           : parseDecimalInput(cargaTexts[i]);
         if (!Number.isFinite(cargaNum) || cargaNum < 0) {
-          setFormError(`Carga invalida para ${item.sessaoExercicio.nomeSnapshot}.`);
+          setFormError(t('sessao.biset.cargaInvalidaPara', { nome: item.sessaoExercicio.nomeSnapshot }));
           setIsSubmitting(false);
           return;
         }
@@ -191,7 +191,7 @@ export function BiSetDetalheScreen({
           ? repsIndexes[i] + 1
           : parseInt(repsTexts[i], 10);
         if (!Number.isInteger(repsNum) || repsNum < 1) {
-          setFormError(`Reps invalidas para ${item.sessaoExercicio.nomeSnapshot}.`);
+          setFormError(t('sessao.biset.repsInvalidasPara', { nome: item.sessaoExercicio.nomeSnapshot }));
           setIsSubmitting(false);
           return;
         }

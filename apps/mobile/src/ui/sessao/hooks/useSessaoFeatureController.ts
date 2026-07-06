@@ -11,6 +11,7 @@ import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJaAtivaError';
 import { TreinoSemExerciciosError } from '../../../application/sessoes/errors/TreinoSemExerciciosError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 type SessaoView = 'loading' | 'inicio' | 'ativa' | 'resumo';
 
@@ -41,6 +42,7 @@ export interface SessaoFeatureControllerState {
 export function useSessaoFeatureController(
   dependencies: SessaoFeatureControllerDependencies
 ): SessaoFeatureControllerState {
+  const locale = useLocale();
   const [view, setView] = useState<SessaoView>('loading');
   const [sessaoAtiva, setSessaoAtiva] = useState<SessaoTreinoPrimitives | null>(null);
   const [sessaoResumo, setSessaoResumo] = useState<SessaoDetalhe | null>(null);
@@ -98,7 +100,7 @@ export function useSessaoFeatureController(
       if (error instanceof SessaoJaAtivaError || error instanceof TreinoSemExerciciosError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel iniciar a sessao.');
+        setErrorMessage(translate(locale, 'sessao.errors.iniciar'));
       }
     } finally {
       setIsIniciando(false);

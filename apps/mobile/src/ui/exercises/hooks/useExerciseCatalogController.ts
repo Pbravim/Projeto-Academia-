@@ -13,6 +13,7 @@ import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exer
 import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface ExerciseDraft {
   name: string;
@@ -78,6 +79,7 @@ export function useExerciseCatalogController(
   dependencies: ExerciseCatalogControllerDependencies,
   onViewHistorico: (exerciseId: string, exerciseName: string) => void
 ): ExerciseCatalogControllerState {
+  const locale = useLocale();
   const [draft, setDraft] = useState<ExerciseDraft>(initialDraft);
   const [exercises, setExercises] = useState<ExercisePrimitives[]>([]);
   const [ultimosPesos, setUltimosPesos] = useState<Map<string, UltimaExecucaoValida>>(new Map());
@@ -116,7 +118,7 @@ export function useExerciseCatalogController(
       });
     } catch (error) {
       dependencies.logger.error('exercise_catalog.load_failed', error);
-      setErrorMessage('Nao foi possivel carregar os exercicios.');
+      setErrorMessage(translate(locale, 'exercises.errors.load'));
     } finally {
       setIsLoading(false);
     }
@@ -218,7 +220,7 @@ export function useExerciseCatalogController(
         });
         setEditingExerciseId(null);
         setDraft(initialDraft);
-        showFeedback(`"${updated.name}" atualizado com sucesso.`);
+        showFeedback(translate(locale, 'exercises.feedback.updated', { nome: updated.name }));
       } else {
         const created = await dependencies.createExercise.execute(cleanDraft);
 
@@ -241,7 +243,7 @@ export function useExerciseCatalogController(
           setExercises((prev) => [created, ...prev]);
         });
         setDraft(initialDraft);
-        showFeedback(`"${created.name}" salvo com sucesso.`);
+        showFeedback(translate(locale, 'exercises.feedback.created', { nome: created.name }));
       }
     } catch (error) {
       dependencies.logger.error('exercise_catalog.submit_failed', error, { draft });
@@ -253,7 +255,7 @@ export function useExerciseCatalogController(
       ) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel salvar o exercicio.');
+        setErrorMessage(translate(locale, 'exercises.errors.save'));
       }
     } finally {
       setIsSubmitting(false);
@@ -268,7 +270,7 @@ export function useExerciseCatalogController(
 
     try {
       await dependencies.deleteExercise.execute(id);
-      showFeedback('Exercicio excluido com sucesso.');
+      showFeedback(translate(locale, 'exercises.feedback.deleted'));
 
       startTransition(() => {
         setExercises((prev) => prev.filter((e) => e.id !== id));
@@ -280,7 +282,7 @@ export function useExerciseCatalogController(
       }
     } catch (error) {
       dependencies.logger.error('exercise_catalog.delete_failed', error, { id });
-      setErrorMessage('Nao foi possivel excluir o exercicio.');
+      setErrorMessage(translate(locale, 'exercises.errors.delete'));
     } finally {
       setDeletingId(null);
     }

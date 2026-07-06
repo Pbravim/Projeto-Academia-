@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 
+// The i18n module pulls expo-localization and the SQLite database client
+vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
+vi.mock('expo-sqlite', () => ({}));
+
 import { renderHook, act } from '../../../test/renderHook';
 import {
   useSessaoAtivaController,
