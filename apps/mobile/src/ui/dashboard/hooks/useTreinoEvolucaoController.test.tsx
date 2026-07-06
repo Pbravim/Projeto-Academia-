@@ -63,7 +63,7 @@ describe('useTreinoEvolucaoController', () => {
     await flush();
 
     expect(result.current.exercicios).toEqual([]);
-    expect(result.current.errorMessage).toBe('Nao foi possivel carregar a evolucao do treino.');
+    expect(result.current.errorMessage).toBe('Não foi possível carregar a evolução do treino.');
     expect(result.current.isLoading).toBe(false);
   });
 });

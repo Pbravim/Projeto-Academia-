@@ -147,7 +147,7 @@ describe('useSessaoAtivaController', () => {
         observacao: null,
       } as never);
     });
-    expect(result.current.errorMessage).toBe('Nao foi possivel registrar a serie.');
+    expect(result.current.errorMessage).toBe('Não foi possível registrar a série.');
   });
 
   it('onFinalizar calls onFinalizado with the latest detalhe', async () => {
@@ -178,7 +178,7 @@ describe('useSessaoAtivaController', () => {
     await flush();
     await act(async () => { await result.current.onFinalizar(); });
     expect(onFinalizado).not.toHaveBeenCalled();
-    expect(result.current.errorMessage).toBe('Nao foi possivel finalizar a sessao.');
+    expect(result.current.errorMessage).toBe('Não foi possível finalizar a sessão.');
     expect(result.current.isFinalizing).toBe(false);
   });
 

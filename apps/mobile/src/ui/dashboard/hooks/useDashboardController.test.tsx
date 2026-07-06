@@ -61,7 +61,7 @@ describe('useDashboardController', () => {
     await flush();
 
     expect(result.current.stats).toBeNull();
-    expect(result.current.errorMessage).toBe('Nao foi possivel carregar as estatisticas.');
+    expect(result.current.errorMessage).toBe('Não foi possível carregar as estatísticas.');
     expect(result.current.isLoading).toBe(false);
   });
 

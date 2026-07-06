@@ -104,7 +104,7 @@ describe('useSessaoFeatureController', () => {
     const { result } = await renderHook(() => useSessaoFeatureController(deps));
     await flush();
     await act(async () => { await result.current.onIniciarSessao('t1'); });
-    expect(result.current.errorMessage).toBe('Nao foi possivel iniciar a sessao.');
+    expect(result.current.errorMessage).toBe('Não foi possível iniciar a sessão.');
   });
 
   it('onSessaoFinalizada moves to resumo and clears sessao ativa', async () => {

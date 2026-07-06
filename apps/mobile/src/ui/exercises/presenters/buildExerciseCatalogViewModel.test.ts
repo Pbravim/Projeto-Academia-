@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 
 import { buildExerciseCatalogViewModel } from './buildExerciseCatalogViewModel';
 
@@ -7,7 +7,7 @@ describe('buildExerciseCatalogViewModel', () => {
     const viewModel = buildExerciseCatalogViewModel([]);
 
     expect(viewModel.cards).toEqual([]);
-    expect(viewModel.emptyStateMessage).toContain('Nenhum exercicio cadastrado');
+    expect(viewModel.emptyStateMessage).toContain('Nenhum exercício cadastrado');
   });
 
   it('maps exercises into cards ready for the screen', () => {

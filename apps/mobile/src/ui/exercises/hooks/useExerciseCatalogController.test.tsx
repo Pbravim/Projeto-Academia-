@@ -271,6 +271,6 @@ describe('useExerciseCatalogController', () => {
     });
 
     expect(result.current.errorMessage).toBeDefined();
-    expect(result.current.errorMessage).toBe('Nao foi possivel excluir o exercicio.');
+    expect(result.current.errorMessage).toBe('Não foi possível excluir o exercício.');
   });
 });
