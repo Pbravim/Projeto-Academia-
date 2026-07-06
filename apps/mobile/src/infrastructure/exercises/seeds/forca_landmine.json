@@ -1,0 +1,181 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-313",
+      "name": "Press de Peito Landmine",
+      "name_variations": [
+        "Landmine Chest Press",
+        "Landmine Hex Press",
+        "Landmine Squeeze Press",
+        "Kneeling Landmine Chest Press",
+        "Press de Peito na Barra Ancorada"
+      ],
+      "group_muscles": ["Peito", "Ombros", "Triceps"],
+      "category": "Composto",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["peitoral_superior", "peitoral_clavicular"],
+      "stabilizers": ["serratus_anterior", "core", "rotador_externo"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-002", "gif-ex-005", "seed-ex-051"],
+      "muscle_group_alternatives": ["gif-ex-009", "gif-ex-027"],
+      "review_flags": [
+        {
+          "field": "movement_pattern",
+          "concern": "Trajetoria em arco ~45 graus fica entre Horizontal Push e Vertical Push; classificado como Horizontal Push pelo analogo do supino inclinado (enfase clavicular, seed-ex-002), mas 2 bases o listam como exercicio de ombro.",
+          "revisit_when": "Substituicao rankear o press landmine de peito como 'quase igual' de desenvolvimentos overhead, ou usuarios o buscarem na secao de ombros.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    },
+    {
+      "id": "seed-ex-314",
+      "name": "Desenvolvimento Landmine Unilateral",
+      "name_variations": [
+        "Landmine Press",
+        "Single-Arm Landmine Press",
+        "Half-Kneeling Landmine Press",
+        "Landmine Shoulder Press",
+        "Press Landmine"
+      ],
+      "group_muscles": ["Ombros", "Triceps", "Peito"],
+      "category": "Composto",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Push",
+      "musculo_alvo": ["deltoide_anterior", "deltoide_lateral"],
+      "stabilizers": ["core", "obliquos", "serratus_anterior", "trapezio"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-084", "seed-ex-086", "seed-ex-083"],
+      "muscle_group_alternatives": ["seed-ex-017", "seed-ex-091", "seed-ex-018"]
+    },
+    {
+      "id": "seed-ex-315",
+      "name": "Agachamento Landmine",
+      "name_variations": [
+        "Landmine Squat",
+        "Landmine Goblet Squat",
+        "Landmine Front Squat",
+        "Agachamento na Barra Ancorada"
+      ],
+      "group_muscles": ["Quadriceps", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Squat",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["gluteos", "isquiotibiais", "core", "lombar"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-128", "seed-ex-115", "gif-ex-146"],
+      "muscle_group_alternatives": ["seed-ex-035", "seed-ex-114"]
+    },
+    {
+      "id": "seed-ex-316",
+      "name": "Afundo Reverso Landmine",
+      "name_variations": [
+        "Landmine Reverse Lunge",
+        "Angled Landmine Reverse Lunge",
+        "Afundo Reverso na Barra Ancorada"
+      ],
+      "group_muscles": ["Quadriceps", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Lunge",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["gluteos", "isquiotibiais", "core"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-036", "seed-ex-114"],
+      "muscle_group_alternatives": ["seed-ex-034", "seed-ex-035"]
+    },
+    {
+      "id": "seed-ex-317",
+      "name": "Stiff Landmine",
+      "name_variations": [
+        "Landmine RDL",
+        "Landmine Romanian Deadlift",
+        "RDL Landmine",
+        "Stiff na Barra Ancorada"
+      ],
+      "group_muscles": ["Posterior", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Hinge",
+      "musculo_alvo": ["isquiotibiais", "gluteos"],
+      "stabilizers": ["lombar", "core", "dorsal"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-039", "seed-ex-014"],
+      "muscle_group_alternatives": ["seed-ex-118", "seed-ex-040"]
+    },
+    {
+      "id": "seed-ex-318",
+      "name": "Rotacao Landmine 180",
+      "name_variations": [
+        "Landmine Twist",
+        "Landmine Rotation",
+        "Landmine 180",
+        "Landmine Rainbow",
+        "Full Contact Twist"
+      ],
+      "group_muscles": ["Abdomen", "Core"],
+      "category": "Isolado",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Rotation",
+      "musculo_alvo": ["obliquo"],
+      "stabilizers": ["abdomen", "core", "gluteos"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-126", "seed-ex-128"],
+      "muscle_group_alternatives": ["seed-ex-124", "seed-ex-033"]
+    },
+    {
+      "id": "seed-ex-319",
+      "name": "Remada Meadows",
+      "name_variations": [
+        "Meadows Row",
+        "Landmine Meadows Row",
+        "Remada Meadows no Landmine"
+      ],
+      "group_muscles": ["Costas", "Biceps"],
+      "category": "Composto",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Pull",
+      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio"],
+      "stabilizers": ["biceps_braquial", "braquial", "core", "obliquo"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["gif-ex-066", "seed-ex-012", "gif-ex-045"],
+      "muscle_group_alternatives": ["seed-ex-010", "seed-ex-009"]
+    },
+    {
+      "id": "seed-ex-320",
+      "name": "Elevacao Lateral Landmine",
+      "name_variations": [
+        "Landmine Lateral Raise",
+        "Landmine Side Raise",
+        "Elevacao Lateral na Barra Ancorada"
+      ],
+      "group_muscles": ["Ombros"],
+      "category": "Isolado",
+      "equipment": "Landmine",
+      "primary_equipment": "Landmine",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": ["deltoide_lateral"],
+      "stabilizers": ["trapezio", "rotador_externo", "serratus_anterior", "core"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-017", "seed-ex-091"],
+      "muscle_group_alternatives": ["seed-ex-015", "seed-ex-084"]
+    }
+  ]
+}

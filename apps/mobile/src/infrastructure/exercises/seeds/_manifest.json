@@ -2054,6 +2054,102 @@
         "seed-ex-311",
         "seed-ex-312"
       ]
+    },
+    "forca_landmine": {
+      "status": "complete",
+      "exercise_count": 8,
+      "researched_at": "2026-07-06",
+      "completed_at": "2026-07-06",
+      "catalog_version": 1,
+      "research_notes": "Sessão de expansão Landmine sob a regra de ≥10 bases e a régua do precedente forca_kettlebell: registro novo só quando o implemento muda o ESTÍMULO (trajetória em arco / plano híbrido), não apenas o implemento. Os 8 movimentos roteados pelas sessões completas foram avaliados: 7 viraram registros; o Z-Press com Landmine foi excluído (≈ seed-ex-090 Z press + press landmine — nenhuma das 12 bases o listou como movimento canônico de landmine). T-bar rows/cavalinho (gif-ex-046/061/066) permanecem em costas_pull_horizontal — esta sessão não os recobre. Notas brutas em docs/exercises/research-forca_landmine.md.",
+      "completion_notes": "Universo landmine auditado contra 12 bases. Curva de retornos decrescentes: rodada 1 (SetForSet, BreakingMuscle, GarageGymReviews, DrJohnRusin) → 14 candidatos brutos; rodada 2 (BarBend ×2, Muscle&Strength DB) → +4 brutos, 0 distintos novos; rodada 3 (TomPeto, fitliferegime 20, Gymshark, PureGym, T-Nation) → +4 brutos (hack squat, deadlift, lateral lunge, rear-delt raise — todos variantes), 0 distintos novos → fechamento. 8 registros (seed-ex-313..320): press de peito landmine, desenvolvimento landmine unilateral, agachamento, afundo reverso, stiff/RDL, rotação 180, remada Meadows, elevação lateral. gif_path null (mídia é assunto separado).",
+      "conventions": {
+        "regua_kettlebell": "Aplicada a mesma régua de forca_kettlebell: landmine floor press / push press / Z press / deadlift / SL-RDL / SL-hip thrust / curl / fly / upright row / rear-delt raise / single-arm row são variantes de implemento de registros existentes — excluídos, não recriados.",
+        "chest_press_pattern": "Press de peito landmine (seed-ex-313) classificado Horizontal Push com ênfase clavicular (análogo do supino inclinado seed-ex-002) + review_flag — o arco ~45° fica entre os planos.",
+        "press_unilateral": "Desenvolvimento landmine (seed-ex-314) dobra standing/half-kneeling numa ficha só (variante de base, precedente ombros_press standing vs seated).",
+        "meadows_vs_cavalinho": "Remada Meadows (seed-ex-319) é distinta da remada unilateral cavalinho fechada (gif-ex-066): perpendicular à barra, pegada pronada na luva, cotovelo alto — ênfase upper back/posterior; gif-ex-066 entra como equivalent_alternative.",
+        "equipment_legacy": "Campo legado equipment = 'Landmine' (precedente 'Kettlebell' em forca_kettlebell)."
+      },
+      "review_flags_open": "1 flag aberto: seed-ex-313 (press de peito landmine — movement_pattern Horizontal Push vs arco 45°). Ver --list-flags.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo landmine — informativo, NÃO lido pelo app. Notas por fonte em docs/exercises/research-forca_landmine.md.",
+        "databases_consulted": [
+          "https://www.setforset.com/blogs/news/best-landmine-exercises-workouts",
+          "https://breakingmuscle.com/best-landmine-exercises/",
+          "https://www.garagegymreviews.com/landmine-exercises",
+          "https://drjohnrusin.com/top-10-unconventional-landmine-exercises/",
+          "https://barbend.com/landmine-exercises/",
+          "https://barbend.com/landmine-shoulder-exercises/",
+          "https://www.muscleandstrength.com/exercises/landmine",
+          "https://www.tompetotraining.com/home-gym-blog/best-landmine-exercises-functional-strength",
+          "https://fitliferegime.com/landmine-exercises-for-building-muscle-and-strength/",
+          "https://row.gymshark.com/blog/article/how-to-landmine-press",
+          "https://www.puregym.com/exercises/chest/bench-press/landmine-chest-press/",
+          "https://t-nation.com/t/18-landmine-exercises-for-a-full-body-workout/278007"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos landmine deliberadamente fora — para auditorias futuras não os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "costas_pull_horizontal": [
+            "T-Bar Row / Remada Cavalinho (gif-ex-046/061/066 — registros existentes ficam lá)"
+          ],
+          "forca_elastico_funcional": [
+            "Band-Resisted Landmine Press (resistência acomodativa com elástico)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "implement_variant_of_existing": [
+            "Landmine Floor Press (≈ seed-ex-052/053)",
+            "Landmine Push Press single-arm (≈ seed-ex-088 + seed-ex-314)",
+            "Landmine Z-Press (≈ seed-ex-090 + seed-ex-314; roteado por ombros_press mas nenhuma das 12 bases o lista como canônico)",
+            "Landmine Deadlift (≈ seed-ex-014 + seed-ex-317)",
+            "Landmine Single-Leg RDL (≈ gif-ex-133 + seed-ex-317; precedente kettlebell)",
+            "Landmine Single-Leg Hip Thrust (≈ gif-ex-139 + seed-ex-040)",
+            "Landmine Curl (≈ roscas existentes; precedente KB Curl)",
+            "Landmine Chest Fly deitado (≈ seed-ex-069/070)",
+            "Landmine Upright Row (≈ gif-ex-078/172/173/174 + seed-ex-095)",
+            "Landmine Rear-Delt Raise (≈ seed-ex-093/094)",
+            "Landmine Single-Arm Row (≈ Remada Meadows seed-ex-319 + gif-ex-066)"
+          ],
+          "olympic_fullbody_compounds": [
+            "Landmine Thruster / Squat-to-Press (precedente ombros/kettlebell)",
+            "Landmine Clean and Press / Single-Arm Clean to Press (≈ clean + press; precedente kettlebell)"
+          ],
+          "athletic_hybrid_variants": [
+            "Rotational Press / Press com Rotação (híbrido press+rotação)",
+            "Sotts Press alternado",
+            "Overhead Curtsy Lunge",
+            "Squat with Side Step / Squat to Tall Kneel",
+            "Quadruped Walkout / Rollout-to-Push-Up",
+            "Landmine Hot Potato (pliométrico)",
+            "Reverse 45 Row / Rotational Pull (variantes atléticas Rusin)",
+            "Landmine Hip Rotation (mobilidade híbrida)",
+            "Lunge to Press (combo)"
+          ],
+          "position_grip_load_variants": [
+            "Landmine Zercher Squat (pegada do agachamento seed-ex-315)",
+            "Landmine Hack Squat atrás do corpo (posição do seed-ex-315)",
+            "Goblet vs Front vs Sumo Squat landmine (dobrados em seed-ex-315)",
+            "Hex/Squeeze vs Collar grip chest press (dobrados em seed-ex-313)",
+            "Tall-Kneeling / Kneeling Rotation (posição da rotação seed-ex-318)",
+            "Side-to-Side / Shoulder-to-Shoulder Press (técnica do press seed-ex-313/314)",
+            "Front-Load / Side-Load Reverse Lunge e Lunge-to-Knee-Drive (dobrados em seed-ex-316)",
+            "Landmine Lateral Lunge / Cossack Squat (variante de stance; cossack existe como mobilidade — precedente Plie/Frog em quadriceps)",
+            "Landmine Belt Squat (exige dip belt — lacuna de vocabulário; nicho de 1 base)"
+          ]
+        }
+      },
+      "covers": [
+        "seed-ex-313",
+        "seed-ex-314",
+        "seed-ex-315",
+        "seed-ex-316",
+        "seed-ex-317",
+        "seed-ex-318",
+        "seed-ex-319",
+        "seed-ex-320"
+      ]
     }
   },
   "pending_sessions": [],
@@ -2104,10 +2200,10 @@
         "notes": "Exercícios de força com group_muscles musculares normais e primary_equipment já no vocabulário controlado. Agrupam corretamente no catálogo/picker e registram em SerieRegistrada (kg×reps). movement_pattern reutiliza padrões existentes (Hinge/Squat/Vertical Push/Horizontal Pull/Carry...); levantamentos olímpicos (clean/snatch) seguem o precedente do clean (Hinge + review_flag, sem category de potência no enum)."
       },
       "completed": [
-        "forca_kettlebell"
+        "forca_kettlebell",
+        "forca_landmine"
       ],
       "sessions": [
-        "forca_landmine",
         "forca_suspension_trainer",
         "forca_maquinas_especializadas",
         "forca_elastico_funcional"

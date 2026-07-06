@@ -67,6 +67,7 @@ import posteriorGluteosJson from '../infrastructure/exercises/seeds/posterior_gl
 import abdomeJson from '../infrastructure/exercises/seeds/abdome.json';
 import panturrilhaJson from '../infrastructure/exercises/seeds/panturrilha.json';
 import forcaKettlebellJson from '../infrastructure/exercises/seeds/forca_kettlebell.json';
+import forcaLandmineJson from '../infrastructure/exercises/seeds/forca_landmine.json';
 import cardioSteadyStateJson from '../infrastructure/exercises/seeds/cardio_steady_state.json';
 import cardioHiitFuncionalJson from '../infrastructure/exercises/seeds/cardio_hiit_funcional.json';
 import alongamentoEstaticoJson from '../infrastructure/exercises/seeds/alongamento_estatico.json';
@@ -90,6 +91,7 @@ const posteriorGluteos = posteriorGluteosJson as SeedFile;
 const abdome = abdomeJson as SeedFile;
 const panturrilha = panturrilhaJson as SeedFile;
 const forcaKettlebell = forcaKettlebellJson as SeedFile;
+const forcaLandmine = forcaLandmineJson as SeedFile;
 const cardioSteadyState = cardioSteadyStateJson as SeedFile;
 const cardioHiitFuncional = cardioHiitFuncionalJson as SeedFile;
 const alongamentoEstatico = alongamentoEstaticoJson as SeedFile;
@@ -123,7 +125,7 @@ const exerciseRepository = new SQLiteExerciseRepository(databaseClient);
 const seedFiles: SeedFile[] = [
   peitoPress, peitoFly, costasPullVertical, costasPullHorizontal,
   ombrosPress, ombrosLateral, biceps, tricepsPushDown, tricepsOverhead,
-  quadriceps, posteriorGluteos, abdome, panturrilha, forcaKettlebell,
+  quadriceps, posteriorGluteos, abdome, panturrilha, forcaKettlebell, forcaLandmine,
   cardioSteadyState, cardioHiitFuncional, alongamentoEstatico,
   aquecimentoDinamico, mobilidadeInferior, mobilidadeSuperiorColuna,
   reabilitacaoOmbroCotovelo,
