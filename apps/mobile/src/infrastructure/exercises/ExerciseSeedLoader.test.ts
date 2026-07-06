@@ -1,6 +1,34 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ExerciseSeedLoader, type SeedExerciseEntry } from './ExerciseSeedLoader';
 import { InMemoryExerciseRepository } from './InMemoryExerciseRepository';
+import { Exercise } from '../../domain/exercises/entities/Exercise';
+import { normalizeText } from '../../shared/utils/normalizeText';
+
+function legacyExercise(id: string, name: string, isCustom = false): Exercise {
+  return Exercise.restore({
+    id,
+    name,
+    normalizedName: normalizeText(name),
+    groupMuscles: ['Peito'],
+    category: 'Composto',
+    equipment: null,
+    loadUnit: 'kg',
+    isCustom,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+    mediaOnline: null,
+    mediaLocal: null,
+    musculoAlvo: [],
+    movementPattern: null,
+    stabilizers: [],
+    executionType: null,
+    nameVariations: [],
+    primaryEquipment: null,
+    secondaryEquipment: null,
+    catalogVersion: 0,
+    trackingType: 'reps_load',
+  });
+}
 
 const SEED_FILE_V1 = {
   catalog_version: 1,
@@ -36,7 +64,12 @@ function entry(id: string, overrides: Partial<SeedExerciseEntry> = {}): SeedExer
   };
 }
 
-/** Simula o FK do SQLite: alternativa só pode apontar para exercício já inserido. */
+/**
+ * Simula as constraints do SQLite de produção:
+ * - FK: alternativa só pode apontar para exercício já inserido;
+ * - UNIQUE(normalized_name) com upsert de duas cláusulas
+ *   (ON CONFLICT(id) / ON CONFLICT(normalized_name), ambas WHERE is_custom = 0).
+ */
 class FkEnforcingRepository extends InMemoryExerciseRepository {
   override async addEquivalentAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
     if (!(await this.findById(alternativaId))) throw new Error('FOREIGN KEY constraint failed');
@@ -45,6 +78,22 @@ class FkEnforcingRepository extends InMemoryExerciseRepository {
   override async addMuscleGroupAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
     if (!(await this.findById(alternativaId))) throw new Error('FOREIGN KEY constraint failed');
     await super.addMuscleGroupAlternativa(exercicioId, alternativaId);
+  }
+  override async upsertCatalogExercise(exercise: Exercise, equivalentIds: string[], muscleGroupIds: string[]): Promise<void> {
+    const p = exercise.toPrimitives();
+    const byId = await this.findById(p.id);
+    if (byId) {
+      if (byId.toPrimitives().isCustom) return; // ON CONFLICT(id) ... WHERE is_custom = 0
+    } else {
+      const byName = await this.findByNormalizedName(p.normalizedName);
+      if (byName && byName.toPrimitives().id !== p.id) {
+        // ON CONFLICT(normalized_name) DO UPDATE ... WHERE is_custom = 0
+        const bp = byName.toPrimitives();
+        if (!bp.isCustom) await this.save(Exercise.restore({ ...p, id: bp.id }));
+        return;
+      }
+    }
+    await super.upsertCatalogExercise(exercise, equivalentIds, muscleGroupIds);
   }
 }
 
@@ -186,6 +235,50 @@ describe('ExerciseSeedLoader', () => {
 
     const equivalentes = await fkRepo.listEquivalentAlternativas('test-ex-1');
     expect(equivalentes.map((e) => e.toPrimitives().id)).toEqual(['test-ex-2']);
+  });
+
+  it('reuses the existing row when the name already exists under another id (legacy catalog)', async () => {
+    const fkRepo = new FkEnforcingRepository();
+    const fkLoader = new ExerciseSeedLoader(fkRepo);
+    await fkRepo.save(legacyExercise('legacy-1', 'Exercicio test-ex-1'));
+
+    const file = {
+      catalog_version: 2,
+      exercises: [
+        entry('test-ex-1', { movement_pattern: 'Hinge' }),
+        entry('test-ex-2', { equivalent_alternatives: ['test-ex-1'] }),
+      ],
+    };
+    await fkLoader.loadSeedFiles([file]);
+
+    // não cria linha nova com o id do seed; atualiza a linha legada no lugar
+    expect(await fkRepo.findById('test-ex-1')).toBeNull();
+    expect((await fkRepo.findById('legacy-1'))!.toPrimitives().movementPattern).toBe('Hinge');
+    // referências ao id do seed são remapeadas para o id legado
+    const eq = await fkRepo.listEquivalentAlternativas('test-ex-2');
+    expect(eq.map((e) => e.toPrimitives().id)).toEqual(['legacy-1']);
+  });
+
+  it('does not overwrite a custom exercise that holds the same name; refs resolve to it', async () => {
+    const fkRepo = new FkEnforcingRepository();
+    const fkLoader = new ExerciseSeedLoader(fkRepo);
+    await fkRepo.save(legacyExercise('custom-1', 'Exercicio test-ex-1', true));
+
+    const file = {
+      catalog_version: 2,
+      exercises: [
+        entry('test-ex-1', { movement_pattern: 'Hinge' }),
+        entry('test-ex-2', { equivalent_alternatives: ['test-ex-1'] }),
+      ],
+    };
+    await fkLoader.loadSeedFiles([file]);
+
+    const custom = (await fkRepo.findById('custom-1'))!.toPrimitives();
+    expect(custom.isCustom).toBe(true);
+    expect(custom.movementPattern).toBeNull();
+    expect(await fkRepo.findById('test-ex-1')).toBeNull();
+    const eq = await fkRepo.listEquivalentAlternativas('test-ex-2');
+    expect(eq.map((e) => e.toPrimitives().id)).toEqual(['custom-1']);
   });
 
   it('defaults to reps_load when tracking_type is not specified', async () => {

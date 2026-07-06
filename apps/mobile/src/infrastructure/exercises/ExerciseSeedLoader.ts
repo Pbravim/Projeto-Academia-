@@ -39,24 +39,42 @@ export class ExerciseSeedLoader {
    * alternativas. As alternativas têm FK para exercises(id) e referenciam
    * exercícios adiante no mesmo arquivo e em outros arquivos — em fase única
    * a primeira referência "para frente" derruba o seeding inteiro.
+   *
+   * Instalações antigas podem ter o mesmo nome sob OUTRO id (catálogo legado
+   * ou exercício custom) — normalized_name é UNIQUE, então o seed reaproveita
+   * essa linha em vez de inserir, e as alternativas são remapeadas para ela.
    */
   async loadSeedFiles(seeds: SeedFile[]): Promise<void> {
-    const skipped = new Set<string>();
-    const seedIds = new Set<string>();
-    for (const seed of seeds) {
-      for (const entry of seed.exercises) seedIds.add(entry.id);
-    }
+    // id do seed -> id efetivo no banco (difere quando o nome já existe sob outro id)
+    const idMap = new Map<string, string>();
+    // entries cujo alvo é um exercício custom: não recebem alternativas do seed
+    const customBlocked = new Set<string>();
 
     for (const seed of seeds) {
       for (const entry of seed.exercises) {
         const existing = await this.repository.findById(entry.id);
         if (existing && existing.toPrimitives().isCustom) {
-          skipped.add(entry.id);
+          idMap.set(entry.id, entry.id);
+          customBlocked.add(entry.id);
           continue;
         }
 
+        let targetId = entry.id;
+        if (!existing) {
+          const byName = await this.repository.findByNormalizedName(normalizeText(entry.name));
+          if (byName) {
+            const bp = byName.toPrimitives();
+            idMap.set(entry.id, bp.id);
+            if (bp.isCustom) {
+              customBlocked.add(entry.id);
+              continue;
+            }
+            targetId = bp.id;
+          }
+        }
+
         const exercise = Exercise.restore({
-          id: entry.id,
+          id: targetId,
           name: entry.name,
           normalizedName: normalizeText(entry.name),
           groupMuscles: entry.group_muscles,
@@ -80,23 +98,35 @@ export class ExerciseSeedLoader {
         });
 
         await this.repository.upsertCatalogExercise(exercise, [], []);
+        idMap.set(entry.id, targetId);
       }
     }
 
     // Referência pendurada (id fora de todos os seeds e ausente no banco)
     // é ignorada em vez de derrubar o seeding — já houve exercícios removidos
     // do catálogo cujas referências ficaram para trás.
-    const refExists = async (id: string) =>
-      seedIds.has(id) || (await this.repository.findById(id)) !== null;
+    const resolveRef = async (id: string): Promise<string | null> => {
+      const mapped = idMap.get(id);
+      if (mapped) return mapped;
+      return (await this.repository.findById(id)) !== null ? id : null;
+    };
 
     for (const seed of seeds) {
       for (const entry of seed.exercises) {
-        if (skipped.has(entry.id)) continue;
+        if (customBlocked.has(entry.id)) continue;
+        const sourceId = idMap.get(entry.id);
+        if (!sourceId) continue;
         for (const altId of entry.equivalent_alternatives) {
-          if (await refExists(altId)) await this.repository.addEquivalentAlternativa(entry.id, altId);
+          const target = await resolveRef(altId);
+          if (target && target !== sourceId) {
+            await this.repository.addEquivalentAlternativa(sourceId, target);
+          }
         }
         for (const altId of entry.muscle_group_alternatives) {
-          if (await refExists(altId)) await this.repository.addMuscleGroupAlternativa(entry.id, altId);
+          const target = await resolveRef(altId);
+          if (target && target !== sourceId) {
+            await this.repository.addMuscleGroupAlternativa(sourceId, target);
+          }
         }
       }
     }

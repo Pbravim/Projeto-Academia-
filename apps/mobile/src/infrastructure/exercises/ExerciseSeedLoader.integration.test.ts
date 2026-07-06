@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { createTestDatabase } from '../../test/db-setup';
 import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
 import { ExerciseSeedLoader, type SeedFile } from './ExerciseSeedLoader';
+import { normalizeText } from '../../shared/utils/normalizeText';
 
 // Todos os seeds reais do catálogo — o mesmo conjunto carregado no boot.
 const seedModules = import.meta.glob('./seeds/*.json', { eager: true }) as Record<
@@ -15,9 +16,41 @@ const seedFiles = Object.values(seedModules)
   .map((m) => m.default)
   .filter((f) => Array.isArray(f.exercises));
 
+function setupDb() {
+  const db = createTestDatabase();
+  return db;
+}
+
 describe('ExerciseSeedLoader (integração com seeds reais + FK)', () => {
+  it('carrega os 22 seeds com um catálogo legado pré-existente (mesmo nome, outro id)', async () => {
+    const db = setupDb();
+    await db.run('PRAGMA foreign_keys = ON');
+
+    // Simula instalação antiga: uma linha com o nome de um exercício do seed
+    // mas id diferente (catálogo embutido nas migrações antigas).
+    const primeiro = seedFiles[0].exercises[0];
+    await db.run(
+      `INSERT INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at)
+       VALUES ('legacy-0001', ?, ?, 'Peito', 'Composto', NULL, 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z')`,
+      [primeiro.name, normalizeText(primeiro.name)]
+    );
+
+    const repository = new SQLiteExerciseRepository(db);
+    const loader = new ExerciseSeedLoader(repository);
+    await loader.loadSeedFiles(seedFiles);
+
+    const totalEsperado = seedFiles.reduce((n, f) => n + f.exercises.length, 0);
+    const exercicios = await db.getFirst<{ n: number }>('SELECT COUNT(*) as n FROM exercises');
+    // a linha legada absorve a entrada do seed — nenhuma duplicata
+    expect(exercicios?.n).toBeLessThanOrEqual(totalEsperado + 1);
+    const duplicados = await db.getFirst<{ n: number }>(
+      'SELECT COUNT(*) as n FROM (SELECT normalized_name FROM exercises GROUP BY normalized_name HAVING COUNT(*) > 1)'
+    );
+    expect(duplicados?.n).toBe(0);
+  });
+
   it('carrega os 22 seeds do catálogo com foreign_keys ON sem violar FK', async () => {
-    const db = createTestDatabase();
+    const db = setupDb();
 
     // O schema de teste omite os REFERENCES; recria as tabelas de alternativas
     // com a MESMA DDL de produção (ExpoSQLiteDatabaseClient) e liga o FK.

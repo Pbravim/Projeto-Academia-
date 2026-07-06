@@ -239,6 +239,23 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
          catalog_version    = excluded.catalog_version,
          tracking_type      = excluded.tracking_type,
          updated_at         = excluded.updated_at
+       WHERE exercises.is_custom = 0
+       ON CONFLICT(normalized_name) DO UPDATE SET
+         name               = excluded.name,
+         group_muscle       = excluded.group_muscle,
+         category           = excluded.category,
+         equipment          = excluded.equipment,
+         musculo_alvo       = excluded.musculo_alvo,
+         movement_pattern   = excluded.movement_pattern,
+         stabilizers        = excluded.stabilizers,
+         execution_type     = excluded.execution_type,
+         name_variations    = excluded.name_variations,
+         primary_equipment  = excluded.primary_equipment,
+         secondary_equipment = excluded.secondary_equipment,
+         catalog_version    = excluded.catalog_version,
+         tracking_type      = excluded.tracking_type,
+         updated_at         = excluded.updated_at,
+         deleted_at         = NULL
        WHERE exercises.is_custom = 0`,
       [
         p.id, p.name, p.normalizedName, serializeGroupMuscles(p.groupMuscles), p.category, p.equipment,
