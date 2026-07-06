@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ConfirmDialog } from '../shared/components/ConfirmDialog';
+import { useT } from '../shared/i18n';
 import type { PesoControllerDependencies } from '../peso/hooks/usePesoController';
 import { usePesoController } from '../peso/hooks/usePesoController';
 import { usePerfilController } from './hooks/usePerfilController';
@@ -32,6 +33,7 @@ interface PerfilFeatureProps {
 }
 
 export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: PerfilFeatureProps) {
+  const t = useT();
   const peso = usePesoController(dependencies.peso);
   const perfil = usePerfilController(onNameChange, onPhotoChange);
   const statsState = useStatsController(dependencies.getDashboardStats);
@@ -49,7 +51,7 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       await dependencies.exportarHistorico.execute();
     } catch (e) {
       dependencies.logger.error('perfil.exportar', e);
-      setInfoDialog({ title: 'Erro', message: e instanceof Error ? e.message : 'Falha ao exportar.' });
+      setInfoDialog({ title: t('common.error'), message: e instanceof Error ? e.message : t('perfil.dialogs.erroExportar') });
     } finally {
       setIsExporting(false);
     }
@@ -72,7 +74,7 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       await dependencies.exportarBanco.execute();
     } catch (e) {
       dependencies.logger.error('perfil.backup', e);
-      setInfoDialog({ title: 'Erro', message: e instanceof Error ? e.message : 'Falha ao gerar backup.' });
+      setInfoDialog({ title: t('common.error'), message: e instanceof Error ? e.message : t('perfil.dialogs.erroBackup') });
     } finally {
       setIsBackingUp(false);
     }
@@ -84,13 +86,13 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       const result = await dependencies.importarBanco.execute();
       if (result.status === 'imported') {
         setInfoDialog({
-          title: 'Backup restaurado',
-          message: 'Feche e reabra o app para carregar os dados importados.',
+          title: t('perfil.dialogs.backupRestauradoTitle'),
+          message: t('perfil.dialogs.backupRestauradoMessage'),
         });
       }
     } catch (e) {
       dependencies.logger.error('perfil.importar', e);
-      setInfoDialog({ title: 'Erro', message: e instanceof Error ? e.message : 'Falha ao importar backup.' });
+      setInfoDialog({ title: t('common.error'), message: e instanceof Error ? e.message : t('perfil.dialogs.erroImportar') });
     } finally {
       setIsImporting(false);
     }
@@ -115,10 +117,10 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
 
       <ConfirmDialog
         visible={confirmImportVisible}
-        title="Importar backup"
-        message="O banco de dados atual será substituído pelo arquivo escolhido. Essa ação não pode ser desfeita. Deseja continuar?"
-        confirmLabel="Importar"
-        cancelLabel="Cancelar"
+        title={t('perfil.dialogs.confirmImportTitle')}
+        message={t('perfil.dialogs.confirmImportMessage')}
+        confirmLabel={t('perfil.dialogs.confirmImportLabel')}
+        cancelLabel={t('common.cancel')}
         destructive
         onConfirm={() => {
           setConfirmImportVisible(false);
@@ -131,7 +133,7 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
         visible={infoDialog !== null}
         title={infoDialog?.title ?? ''}
         message={infoDialog?.message ?? ''}
-        confirmLabel="OK"
+        confirmLabel={t('common.ok')}
         hideCancel
         onConfirm={() => setInfoDialog(null)}
         onCancel={() => setInfoDialog(null)}

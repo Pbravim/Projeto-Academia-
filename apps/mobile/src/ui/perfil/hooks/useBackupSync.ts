@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 
 import type { AuthSession } from '../../../application/auth/AuthSession';
 import type { SyncResult } from '../../../application/sync/BackupSyncService';
+import { translate, useLocale, type AppLocale } from '../../shared/i18n';
 
 export interface BackupSyncDependencies {
   session: Pick<AuthSession, 'isAuthenticated' | 'email' | 'login' | 'register' | 'logout' | 'restore'>;
@@ -10,18 +11,18 @@ export interface BackupSyncDependencies {
   restore: () => Promise<void>;
 }
 
-function messageFor(result: SyncResult): string | null {
+function messageFor(result: SyncResult, locale: AppLocale): string | null {
   switch (result.status) {
-    case 'synced': return 'Sincronizado';
-    case 'error': return 'Falha ao sincronizar — tentaremos de novo mais tarde';
+    case 'synced': return translate(locale, 'perfil.backup.statusSincronizado');
+    case 'error': return translate(locale, 'perfil.backup.statusFalha');
     default: return null;
   }
 }
 
-function errorMessage(err: unknown): string {
-  if (err instanceof Error && /failed: 401/.test(err.message)) return 'Email ou senha incorretos';
-  if (err instanceof Error && err.name === 'AuthApiError') return 'Não foi possível conectar ao servidor';
-  return err instanceof Error ? err.message : 'Algo deu errado';
+function errorMessage(err: unknown, locale: AppLocale): string {
+  if (err instanceof Error && /failed: 401/.test(err.message)) return translate(locale, 'perfil.backup.erroCredenciais');
+  if (err instanceof Error && err.name === 'AuthApiError') return translate(locale, 'perfil.backup.erroServidor');
+  return err instanceof Error ? err.message : translate(locale, 'perfil.backup.erroGenerico');
 }
 
 /**
@@ -29,6 +30,7 @@ function errorMessage(err: unknown): string {
  * manual "sync now", and an automatic sync when the app returns to foreground.
  */
 export function useBackupSync(deps: BackupSyncDependencies) {
+  const locale = useLocale();
   const [authenticated, setAuthenticated] = useState(deps.session.isAuthenticated());
   const [email, setEmail] = useState<string | null>(deps.session.email);
   const [busy, setBusy] = useState(false);
@@ -43,12 +45,12 @@ export function useBackupSync(deps: BackupSyncDependencies) {
     setBusy(true);
     try {
       const result = await deps.syncNow();
-      setStatus(messageFor(result));
+      setStatus(messageFor(result, locale));
       refresh(); // a rejected refresh token may have logged us out
     } finally {
       setBusy(false);
     }
-  }, [deps, refresh]);
+  }, [deps, refresh, locale]);
 
   // Rehydrate a saved session at mount.
   useEffect(() => {
@@ -73,11 +75,11 @@ export function useBackupSync(deps: BackupSyncDependencies) {
       refresh();
       await sync();
     } catch (err) {
-      setStatus(errorMessage(err));
+      setStatus(errorMessage(err, locale));
     } finally {
       setBusy(false);
     }
-  }, [deps.session, refresh, sync]);
+  }, [deps.session, refresh, sync, locale]);
 
   const register = useCallback(async (e: string, password: string, name?: string) => {
     setBusy(true);
@@ -87,11 +89,11 @@ export function useBackupSync(deps: BackupSyncDependencies) {
       refresh();
       await sync();
     } catch (err) {
-      setStatus(errorMessage(err));
+      setStatus(errorMessage(err, locale));
     } finally {
       setBusy(false);
     }
-  }, [deps.session, refresh, sync]);
+  }, [deps.session, refresh, sync, locale]);
 
   const logout = useCallback(async () => {
     await deps.session.logout();

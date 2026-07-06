@@ -6,7 +6,7 @@ import type { PesoControllerState } from '../hooks/usePesoController';
 import type { PesoChartPoint } from '../presenters/buildPesoViewModel';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
-import { useLocale } from '../../shared/i18n';
+import { useLocale, useT } from '../../shared/i18n';
 import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
 
 export function PesoScreen({
@@ -27,39 +27,40 @@ export function PesoScreen({
 }: PesoControllerState) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [pickerStep, setPickerStep] = useState<'date' | 'time' | null>(null);
 
   const now = new Date();
   const isToday = now.toDateString() === selectedDate.toDateString();
   const timeStr = formatTime(selectedDate, locale);
-  const dateLabel = (isToday ? 'Hoje' : formatFullDate(selectedDate, locale)) + ', ' + timeStr;
+  const dateLabel = (isToday ? t('peso.form.hoje') : formatFullDate(selectedDate, locale)) + ', ' + timeStr;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>Acompanhamento</Text>
-        <Text style={styles.title}>Peso corporal</Text>
+        <Text style={styles.eyebrow}>{t('peso.eyebrow')}</Text>
+        <Text style={styles.title}>{t('peso.title')}</Text>
         {viewModel.pesoAtual ? (
-          <Text style={styles.pesoAtual}>{viewModel.pesoAtual} agora</Text>
+          <Text style={styles.pesoAtual}>{t('peso.pesoAtualAgora', { peso: viewModel.pesoAtual })}</Text>
         ) : null}
       </View>
 
       {viewModel.chartPoints.length >= 2 ? (
         <View style={styles.chartCard}>
-          <Text style={styles.sectionTitle}>Evolucao</Text>
+          <Text style={styles.sectionTitle}>{t('peso.evolucao')}</Text>
           <PesoLineChart points={viewModel.chartPoints} />
         </View>
       ) : null}
 
       <View style={styles.formCard}>
-        <Text style={styles.sectionTitle}>Registrar peso</Text>
+        <Text style={styles.sectionTitle}>{t('peso.registrarPeso')}</Text>
 
         <View style={styles.field}>
-          <Text style={styles.fieldLabel}>Peso (kg)</Text>
+          <Text style={styles.fieldLabel}>{t('peso.form.pesoKgLabel')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Ex.: 80.5"
+            placeholder={t('peso.form.pesoPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             value={pesoKgInput}
             onChangeText={onChangePesoKg}
@@ -69,10 +70,10 @@ export function PesoScreen({
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.fieldLabel}>Observacao (opcional)</Text>
+          <Text style={styles.fieldLabel}>{t('peso.form.observacaoLabel')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Ex.: Em jejum"
+            placeholder={t('peso.form.observacaoPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             value={observacaoInput}
             onChangeText={onChangeObservacao}
@@ -81,7 +82,7 @@ export function PesoScreen({
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.fieldLabel}>Data e hora</Text>
+          <Text style={styles.fieldLabel}>{t('peso.form.dataHoraLabel')}</Text>
           <Pressable
             onPress={() => setPickerStep('date')}
             style={styles.dateTrigger}
@@ -134,13 +135,13 @@ export function PesoScreen({
           disabled={isSubmitting}
         >
           <Text style={styles.primaryButtonText}>
-            {isSubmitting ? 'Salvando...' : 'Registrar'}
+            {isSubmitting ? t('peso.form.salvando') : t('peso.form.registrar')}
           </Text>
         </Pressable>
       </View>
 
       <View style={styles.listCard}>
-        <Text style={styles.sectionTitle}>Historico</Text>
+        <Text style={styles.sectionTitle}>{t('peso.historico')}</Text>
 
         {isLoading ? (
           <ActivityIndicator size="small" color={c.accent} style={styles.loading} />
@@ -176,7 +177,7 @@ export function PesoScreen({
                     ]}
                   >
                     <Text style={styles.deleteButtonText}>
-                      {deletingId === card.id ? 'Excluindo...' : 'Excluir'}
+                      {deletingId === card.id ? t('peso.excluindo') : t('common.delete')}
                     </Text>
                   </Pressable>
                 </View>

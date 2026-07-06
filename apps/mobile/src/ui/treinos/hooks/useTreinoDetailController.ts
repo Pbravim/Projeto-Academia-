@@ -12,6 +12,7 @@ import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface TreinoDetailControllerDependencies {
   listTreinoExercicios: ListTreinoExerciciosUseCase;
@@ -63,6 +64,7 @@ export function useTreinoDetailController(
   onBack: () => void,
   onGoToSessao: () => void
 ): TreinoDetailControllerState {
+  const locale = useLocale();
   const [localTreino, setLocalTreino] = useState<TreinoPrimitives>(treino);
   const [treinoExercicios, setTreinoExercicios] = useState<TreinoExercicioPrimitives[]>([]);
   const [availableExercises, setAvailableExercises] = useState<ExercisePrimitives[]>([]);
@@ -93,7 +95,7 @@ export function useTreinoDetailController(
       });
     } catch (error) {
       dependencies.logger.error('treino_detail.load_failed', error);
-      setErrorMessage('Nao foi possivel carregar os dados do treino.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.load'));
     }
   };
 
@@ -116,7 +118,7 @@ export function useTreinoDetailController(
       if (error instanceof ExercicioJaNoTreinoError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel adicionar o exercicio.');
+        setErrorMessage(translate(locale, 'treinos.detail.errors.addExercicio'));
       }
     }
   };
@@ -138,7 +140,7 @@ export function useTreinoDetailController(
         if (error instanceof ExercicioJaNoTreinoError) {
           setErrorMessage(error.message);
         } else {
-          setErrorMessage('Nao foi possivel adicionar alguns exercicios.');
+          setErrorMessage(translate(locale, 'treinos.detail.errors.addMultiplos'));
         }
       }
     }
@@ -170,7 +172,7 @@ export function useTreinoDetailController(
       await loadData();
     } catch (error) {
       dependencies.logger.error('treino_detail.remove_exercicio_failed', error, { treinoExercicioId });
-      setErrorMessage('Nao foi possivel remover o exercicio.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.remove'));
     }
   };
 
@@ -183,7 +185,7 @@ export function useTreinoDetailController(
       await loadData();
     } catch (error) {
       dependencies.logger.error('treino_detail.reorder_failed', error);
-      setErrorMessage('Nao foi possivel reordenar os exercicios.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.reorder'));
     }
   };
 
@@ -265,7 +267,7 @@ export function useTreinoDetailController(
       );
     } catch (error) {
       dependencies.logger.error('treino_detail.update_recomendacoes_failed', error);
-      setErrorMessage('Nao foi possivel atualizar as recomendacoes.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.updateRecomendacoes'));
     }
   };
 
@@ -277,7 +279,7 @@ export function useTreinoDetailController(
       );
     } catch (error) {
       dependencies.logger.error('treino_detail.update_metodo_grupo_failed', error);
-      setErrorMessage('Nao foi possivel atualizar o metodo.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.updateMetodo'));
     }
   };
 
@@ -292,7 +294,7 @@ export function useTreinoDetailController(
       setLocalTreino(updated);
     } catch (error) {
       dependencies.logger.error('treino_detail.update_nome_failed', error);
-      setErrorMessage('Nao foi possivel renomear o treino.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.rename'));
     }
   };
 
@@ -330,7 +332,7 @@ export function useTreinoDetailController(
       setLocalTreino(updated);
     } catch (error) {
       dependencies.logger.error('treino_detail.update_objetivo_failed', error);
-      setErrorMessage('Nao foi possivel atualizar o objetivo.');
+      setErrorMessage(translate(locale, 'treinos.detail.errors.updateObjetivo'));
     }
   };
 

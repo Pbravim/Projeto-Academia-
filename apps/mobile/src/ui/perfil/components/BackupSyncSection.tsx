@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useTheme } from '../../shared/theme';
+import { useT } from '../../shared/i18n';
 import { useBackupSync, type BackupSyncDependencies } from '../hooks/useBackupSync';
 
 export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }) {
   const c = useTheme();
+  const t = useT();
   const styles = makeStyles(c);
   const { authenticated, email: accountEmail, busy, status, login, register, logout, syncNow } =
     useBackupSync(backup);
@@ -25,11 +27,11 @@ export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }
 
   return (
     <View style={styles.section}>
-      <Text style={styles.label}>Backup na nuvem</Text>
+      <Text style={styles.label}>{t('perfil.backup.sectionLabel')}</Text>
 
       {authenticated ? (
         <View style={styles.card}>
-          <Text style={styles.connected}>Conectado como</Text>
+          <Text style={styles.connected}>{t('perfil.backup.conectadoComo')}</Text>
           <Text style={styles.email}>{accountEmail}</Text>
           {status ? <Text style={styles.status}>{status}</Text> : null}
           <Pressable
@@ -37,24 +39,21 @@ export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }
             onPress={() => { void syncNow(); }}
             style={({ pressed }) => [styles.primaryBtn, (pressed || busy) ? { opacity: 0.7 } : null]}
           >
-            {busy ? <ActivityIndicator size="small" color={c.accentText} /> : <Text style={styles.primaryBtnText}>Sincronizar agora</Text>}
+            {busy ? <ActivityIndicator size="small" color={c.accentText} /> : <Text style={styles.primaryBtnText}>{t('perfil.backup.sincronizarAgora')}</Text>}
           </Pressable>
           <Pressable onPress={() => { void logout(); }} style={styles.linkBtn}>
-            <Text style={styles.linkText}>Sair</Text>
+            <Text style={styles.linkText}>{t('perfil.backup.sair')}</Text>
           </Pressable>
         </View>
       ) : (
         <View style={styles.card}>
-          <Text style={styles.help}>
-            Entre para fazer backup e sincronizar seus treinos entre dispositivos. O app continua
-            funcionando offline.
-          </Text>
+          <Text style={styles.help}>{t('perfil.backup.help')}</Text>
           {mode === 'register' ? (
             <TextInput
               style={styles.input}
               value={name}
               onChangeText={setName}
-              placeholder="Nome (opcional)"
+              placeholder={t('perfil.backup.nomePlaceholder')}
               placeholderTextColor={c.inputPlaceholder}
               editable={!busy}
             />
@@ -63,7 +62,7 @@ export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="Email"
+            placeholder={t('perfil.backup.emailPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -74,7 +73,7 @@ export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }
             style={styles.input}
             value={password}
             onChangeText={setPassword}
-            placeholder="Senha"
+            placeholder={t('perfil.backup.senhaPlaceholder')}
             placeholderTextColor={c.inputPlaceholder}
             secureTextEntry
             editable={!busy}
@@ -88,12 +87,12 @@ export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }
             {busy ? (
               <ActivityIndicator size="small" color={c.accentText} />
             ) : (
-              <Text style={styles.primaryBtnText}>{mode === 'login' ? 'Entrar' : 'Criar conta'}</Text>
+              <Text style={styles.primaryBtnText}>{mode === 'login' ? t('perfil.backup.entrar') : t('perfil.backup.criarConta')}</Text>
             )}
           </Pressable>
           <Pressable onPress={() => setMode(mode === 'login' ? 'register' : 'login')} style={styles.linkBtn}>
             <Text style={styles.linkText}>
-              {mode === 'login' ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
+              {mode === 'login' ? t('perfil.backup.semConta') : t('perfil.backup.jaTemConta')}
             </Text>
           </Pressable>
         </View>

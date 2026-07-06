@@ -19,7 +19,7 @@ import { AderenciaCard } from '../../shared/components/AderenciaCard';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { LineChart, type LineChartPoint } from '../../shared/LineChart';
 import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
-import { useLocale, useLocalePreference, type LocalePreference } from '../../shared/i18n';
+import { useLocale, useLocalePreference, useT, type LocalePreference } from '../../shared/i18n';
 import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
 
 // ─── Metric abstraction ──────────────────────────────────────────────────────
@@ -55,16 +55,16 @@ interface PerfilScreenProps {
   backupSection?: ReactNode;
 }
 
-const THEME_OPTIONS: { value: ThemePreference; icon: string; label: string }[] = [
-  { value: 'system', icon: '⊙', label: 'Auto' },
-  { value: 'light',  icon: '☀', label: 'Claro' },
-  { value: 'dark',   icon: '🌙', label: 'Escuro' },
+const THEME_OPTIONS: { value: ThemePreference; icon: string; labelKey: string }[] = [
+  { value: 'system', icon: '⊙', labelKey: 'perfil.config.temaOptions.auto' },
+  { value: 'light',  icon: '☀', labelKey: 'perfil.config.temaOptions.claro' },
+  { value: 'dark',   icon: '🌙', labelKey: 'perfil.config.temaOptions.escuro' },
 ];
 
-const LOCALE_OPTIONS: { value: LocalePreference; icon: string; label: string }[] = [
-  { value: 'system', icon: '⊙', label: 'Sistema' },
-  { value: 'pt-BR',  icon: '🇧🇷', label: 'Português (BR)' },
-  { value: 'en-US',  icon: '🇺🇸', label: 'English (US)' },
+const LOCALE_OPTIONS: { value: LocalePreference; icon: string; labelKey: string }[] = [
+  { value: 'system', icon: '⊙', labelKey: 'perfil.config.idiomaOptions.sistema' },
+  { value: 'pt-BR',  icon: '🇧🇷', labelKey: 'perfil.config.idiomaOptions.ptBR' },
+  { value: 'en-US',  icon: '🇺🇸', labelKey: 'perfil.config.idiomaOptions.enUS' },
 ];
 
 function getInitials(name: string): string {
@@ -132,6 +132,7 @@ export function PerfilScreen({
 }: PerfilScreenProps) {
   const c = useTheme();
   const locale = useLocale();
+  const t = useT();
   const { preference, setPreference } = useThemePreference();
   const { preference: localePref, setPreference: setLocalePref } = useLocalePreference();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -152,7 +153,7 @@ export function PerfilScreen({
     if (peso.viewModel.chartPoints.length >= 2) {
       series.push({
         key: 'peso',
-        label: 'Peso',
+        label: t('perfil.medidas.peso'),
         icon: '⚖',
         points: peso.viewModel.chartPoints.map((p) => ({ value: p.pesoKg, label: p.label })),
         formatValue: (v) => `${v % 1 === 0 ? String(v) : v.toFixed(1)} kg`,
@@ -160,7 +161,7 @@ export function PerfilScreen({
     }
     // Future: push braco, altura, etc.
     return series;
-  }, [peso.viewModel.chartPoints]);
+  }, [peso.viewModel.chartPoints, t]);
 
   const activeSeries = metricSeries.find((s) => s.key === activeMetricKey) ?? metricSeries[0];
 
@@ -178,7 +179,7 @@ export function PerfilScreen({
   const timeStr = formatTime(peso.selectedDate, locale);
   const dateLabel =
     (isToday
-      ? 'Hoje'
+      ? t('peso.form.hoje')
       : formatFullDate(peso.selectedDate, locale)) +
     ', ' + timeStr;
 
@@ -210,7 +211,7 @@ export function PerfilScreen({
           <Pressable
             onPress={perfil.onPickPhoto}
             style={({ pressed }) => [styles.avatarWrapper, pressed ? { opacity: 0.8 } : null]}
-            accessibilityLabel="Alterar foto de perfil"
+            accessibilityLabel={t('perfil.hero.alterarFoto')}
           >
             {perfil.photoUri ? (
               <Image source={{ uri: perfil.photoUri }} style={styles.avatar} />
@@ -234,13 +235,13 @@ export function PerfilScreen({
                 onBlur={commitName}
                 onSubmitEditing={commitName}
                 returnKeyType="done"
-                placeholder="Seu nome"
+                placeholder={t('perfil.hero.seuNome')}
                 placeholderTextColor={c.heroSubtext}
                 autoFocus
               />
             ) : (
               <Pressable onPress={startEditingName} style={styles.nameRow}>
-                <Text style={styles.nameText}>{perfil.displayName || 'Seu nome'}</Text>
+                <Text style={styles.nameText}>{perfil.displayName || t('perfil.hero.seuNome')}</Text>
                 <Text style={styles.editIcon}>✏️</Text>
               </Pressable>
             )}
@@ -257,7 +258,7 @@ export function PerfilScreen({
               isConfigOpen ? styles.gearButtonActive : null,
               pressed ? styles.gearButtonPressed : null,
             ]}
-            accessibilityLabel="Configuracoes"
+            accessibilityLabel={t('perfil.config.title')}
           >
             <Text style={styles.gearIcon}>⚙️</Text>
           </Pressable>
@@ -268,13 +269,13 @@ export function PerfilScreen({
       {isConfigOpen ? (
         <View style={[styles.card, styles.configCard]}>
           <View style={styles.configTitleRow}>
-            <Text style={styles.cardTitle}>Configuracoes</Text>
+            <Text style={styles.cardTitle}>{t('perfil.config.title')}</Text>
             <View style={styles.configActiveDot} />
           </View>
 
           {/* Tema */}
           <View style={styles.configRow}>
-            <Text style={styles.configLabel}>Tema</Text>
+            <Text style={styles.configLabel}>{t('perfil.config.tema')}</Text>
             <View style={styles.themeTrack}>
               {THEME_OPTIONS.map((opt) => {
                 const active = preference === opt.value;
@@ -284,7 +285,7 @@ export function PerfilScreen({
                     onPress={() => setPreference(opt.value)}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: active }}
-                    accessibilityLabel={opt.label}
+                    accessibilityLabel={t(opt.labelKey)}
                     style={({ pressed }) => [
                       styles.themeOption,
                       active ? styles.themeOptionActive : null,
@@ -293,7 +294,7 @@ export function PerfilScreen({
                   >
                     <Text style={styles.themeIcon}>{opt.icon}</Text>
                     <Text style={[styles.themeOptionLabel, active ? styles.themeOptionLabelActive : null]}>
-                      {opt.label}
+                      {t(opt.labelKey)}
                     </Text>
                   </Pressable>
                 );
@@ -303,7 +304,7 @@ export function PerfilScreen({
 
           {/* Idioma */}
           <View style={styles.configRow}>
-            <Text style={styles.configLabel}>Idioma</Text>
+            <Text style={styles.configLabel}>{t('perfil.config.idioma')}</Text>
             <View style={styles.themeTrack}>
               {LOCALE_OPTIONS.map((opt) => {
                 const active = localePref === opt.value;
@@ -313,7 +314,7 @@ export function PerfilScreen({
                     onPress={() => setLocalePref(opt.value)}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: active }}
-                    accessibilityLabel={opt.label}
+                    accessibilityLabel={t(opt.labelKey)}
                     style={({ pressed }) => [
                       styles.themeOption,
                       active ? styles.themeOptionActive : null,
@@ -322,7 +323,7 @@ export function PerfilScreen({
                   >
                     <Text style={styles.themeIcon}>{opt.icon}</Text>
                     <Text style={[styles.themeOptionLabel, active ? styles.themeOptionLabelActive : null]}>
-                      {opt.label}
+                      {t(opt.labelKey)}
                     </Text>
                   </Pressable>
                 );
@@ -333,7 +334,7 @@ export function PerfilScreen({
           <View style={styles.configDivider} />
 
           {/* Acoes de dados */}
-          <Text style={styles.configSectionLabel}>Dados</Text>
+          <Text style={styles.configSectionLabel}>{t('perfil.config.dados')}</Text>
           {(() => {
             const busy = isExporting || isResetting || isBackingUp || isImporting;
             return (
@@ -349,7 +350,7 @@ export function PerfilScreen({
                     ]}
                   >
                     <Text style={styles.configActionBtnText}>
-                      {isExporting ? 'Exportando...' : 'Exportar CSV'}
+                      {isExporting ? t('dashboard.home.exportando') : t('dashboard.home.exportarCsv')}
                     </Text>
                   </Pressable>
 
@@ -364,7 +365,7 @@ export function PerfilScreen({
                     ]}
                   >
                     <Text style={[styles.configActionBtnText, styles.configActionBtnTextDanger]}>
-                      {isResetting ? 'Apagando...' : 'Apagar histórico'}
+                      {isResetting ? t('perfil.config.apagando') : t('perfil.config.apagarHistorico')}
                     </Text>
                   </Pressable>
                 </View>
@@ -380,7 +381,7 @@ export function PerfilScreen({
                     ]}
                   >
                     <Text style={styles.configActionBtnText}>
-                      {isBackingUp ? 'Gerando...' : 'Exportar backup (.db)'}
+                      {isBackingUp ? t('perfil.config.gerando') : t('perfil.config.exportarBackup')}
                     </Text>
                   </Pressable>
 
@@ -394,7 +395,7 @@ export function PerfilScreen({
                     ]}
                   >
                     <Text style={styles.configActionBtnText}>
-                      {isImporting ? 'Importando...' : 'Importar backup (.db)'}
+                      {isImporting ? t('perfil.config.importando') : t('perfil.config.importarBackup')}
                     </Text>
                   </Pressable>
                 </View>
@@ -414,17 +415,17 @@ export function PerfilScreen({
       {/* ── Estatisticas ── */}
       {statsState.isLoading ? null : stats ? (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Estatísticas</Text>
+          <Text style={styles.cardTitle}>{t('perfil.stats.title')}</Text>
 
           <View style={styles.statsPills}>
             <View style={styles.statPill}>
               <Text style={styles.statValue}>{stats.totalSessoes}</Text>
-              <Text style={styles.statLabel}>Sessoes</Text>
+              <Text style={styles.statLabel}>{t('perfil.stats.sessoes')}</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statPill}>
               <Text style={styles.statValue}>{stats.sessoesUltimoMes}</Text>
-              <Text style={styles.statLabel}>Este mes</Text>
+              <Text style={styles.statLabel}>{t('perfil.stats.esteMes')}</Text>
             </View>
           </View>
 
@@ -434,10 +435,10 @@ export function PerfilScreen({
             <View style={styles.statsRow}>
               <Text style={styles.statsRowIcon}>🏆</Text>
               <View style={styles.statsRowInfo}>
-                <Text style={styles.statsRowLabel}>Treino favorito</Text>
+                <Text style={styles.statsRowLabel}>{t('perfil.stats.treinoFavorito')}</Text>
                 <Text style={styles.statsRowValue} numberOfLines={1}>
                   {treinoFavorito.treinoNome}
-                  <Text style={styles.statsRowMeta}> · {treinoFavorito.sessoes.length} sessoes</Text>
+                  <Text style={styles.statsRowMeta}> · {t('dashboard.common.sessoesCount', { count: treinoFavorito.sessoes.length })}</Text>
                 </Text>
               </View>
             </View>
@@ -447,7 +448,7 @@ export function PerfilScreen({
             <View style={styles.statsRow}>
               <Text style={styles.statsRowIcon}>💪</Text>
               <View style={styles.statsRowInfo}>
-                <Text style={styles.statsRowLabel}>Melhor recorde</Text>
+                <Text style={styles.statsRowLabel}>{t('perfil.stats.melhorRecorde')}</Text>
                 <Text style={styles.statsRowValue} numberOfLines={1}>
                   {topRecord.exercicioNome}
                   <Text style={styles.statsRowMeta}> · {topRecord.melhorOrmKg}kg</Text>
@@ -470,7 +471,7 @@ export function PerfilScreen({
       {/* ── Evolucao ── */}
       {metricSeries.length > 0 ? (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Evolucao do Peso</Text>
+          <Text style={styles.cardTitle}>{t('perfil.evolucaoPeso')}</Text>
           {metricSeries.length > 1 ? (
             <MetricTabs
               series={metricSeries}
@@ -492,7 +493,7 @@ export function PerfilScreen({
 
       {/* ── Medidas ── */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Medidas</Text>
+        <Text style={styles.cardTitle}>{t('perfil.medidas.title')}</Text>
 
         <Pressable
           onPress={() => setIsPesoOpen((v) => !v)}
@@ -500,11 +501,11 @@ export function PerfilScreen({
         >
           <Text style={styles.medicaoIcon}>⚖</Text>
           <View style={styles.medicaoInfo}>
-            <Text style={styles.medicaoLabel}>Peso</Text>
+            <Text style={styles.medicaoLabel}>{t('perfil.medidas.peso')}</Text>
             {peso.viewModel.pesoAtual ? (
               <Text style={styles.medicaoValor}>{peso.viewModel.pesoAtual}</Text>
             ) : (
-              <Text style={styles.medicaoVazio}>Nenhum registro</Text>
+              <Text style={styles.medicaoVazio}>{t('perfil.medidas.nenhumRegistro')}</Text>
             )}
           </View>
           <Text style={styles.medicaoChevron}>{isPesoOpen ? '▼' : '▶'}</Text>
@@ -515,10 +516,10 @@ export function PerfilScreen({
             <View style={styles.medicaoDivider} />
 
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Peso (kg)</Text>
+              <Text style={styles.fieldLabel}>{t('peso.form.pesoKgLabel')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Ex.: 80.5"
+                placeholder={t('peso.form.pesoPlaceholder')}
                 placeholderTextColor={c.inputPlaceholder}
                 value={peso.pesoKgInput}
                 onChangeText={peso.onChangePesoKg}
@@ -528,10 +529,10 @@ export function PerfilScreen({
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Observacao (opcional)</Text>
+              <Text style={styles.fieldLabel}>{t('peso.form.observacaoLabel')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Ex.: Em jejum"
+                placeholder={t('peso.form.observacaoPlaceholder')}
                 placeholderTextColor={c.inputPlaceholder}
                 value={peso.observacaoInput}
                 onChangeText={peso.onChangeObservacao}
@@ -540,7 +541,7 @@ export function PerfilScreen({
             </View>
 
             <View style={styles.field}>
-              <Text style={styles.fieldLabel}>Data e hora</Text>
+              <Text style={styles.fieldLabel}>{t('peso.form.dataHoraLabel')}</Text>
               <Pressable
                 onPress={() => setPickerStep('date')}
                 style={styles.dateTrigger}
@@ -591,14 +592,14 @@ export function PerfilScreen({
               disabled={peso.isSubmitting}
             >
               <Text style={styles.primaryButtonText}>
-                {peso.isSubmitting ? 'Salvando...' : 'Registrar'}
+                {peso.isSubmitting ? t('peso.form.salvando') : t('peso.form.registrar')}
               </Text>
             </Pressable>
 
             {!peso.isLoading && !peso.viewModel.emptyStateMessage && peso.viewModel.cards.length > 0 ? (
               <>
                 <View style={styles.medicaoDivider} />
-                <Text style={styles.subSectionTitle}>Histórico</Text>
+                <Text style={styles.subSectionTitle}>{t('peso.historico')}</Text>
                 {peso.viewModel.cards.map((card) => (
                   <View key={card.id} style={styles.registroCard}>
                     <View style={styles.registroMain}>
@@ -626,7 +627,7 @@ export function PerfilScreen({
                           ]}
                         >
                           <Text style={styles.deleteButtonText}>
-                            {peso.deletingId === card.id ? 'Excluindo...' : 'Excluir'}
+                            {peso.deletingId === card.id ? t('peso.excluindo') : t('common.delete')}
                           </Text>
                         </Pressable>
                       </View>
@@ -643,10 +644,10 @@ export function PerfilScreen({
 
       <ConfirmDialog
         visible={confirmResetVisible}
-        title="Apagar histórico"
-        message="Isso vai apagar todas as sessões, séries e registros de progresso. Os treinos e exercícios serão mantidos. Essa ação não pode ser desfeita."
-        confirmLabel="Apagar"
-        cancelLabel="Cancelar"
+        title={t('perfil.config.apagarHistorico')}
+        message={t('dashboard.home.confirmResetMessage')}
+        confirmLabel={t('perfil.config.confirmApagarLabel')}
+        cancelLabel={t('common.cancel')}
         destructive
         onConfirm={() => {
           setConfirmResetVisible(false);

@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '../../../test/renderHook';
+
+// The i18n module pulls expo-localization and the SQLite database client
+vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
+vi.mock('expo-sqlite', () => ({}));
 import { useTreinoListController, type TreinoListControllerDependencies } from './useTreinoListController';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';

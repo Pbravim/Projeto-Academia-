@@ -30,6 +30,10 @@ vi.mock('react-native', () => ({
   Alert: { alert: vi.fn() },
 }));
 
+// The i18n module pulls expo-localization and the SQLite database client
+vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
+vi.mock('expo-sqlite', () => ({}));
+
 async function flush() {
   await act(async () => { await Promise.resolve(); });
   await act(async () => { await Promise.resolve(); });

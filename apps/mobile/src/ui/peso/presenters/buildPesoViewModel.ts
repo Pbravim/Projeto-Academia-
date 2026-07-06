@@ -1,5 +1,5 @@
 import type { RegistroPesoPrimitives } from '../../../domain/peso/entities/RegistroPeso';
-import type { AppLocale } from '../../shared/i18n';
+import { translate, type AppLocale } from '../../shared/i18n/core';
 import { formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
 
 export interface RegistroPesoCardViewModel {
@@ -27,7 +27,7 @@ const CHART_MAX_POINTS = 14;
 
 export function buildPesoViewModel(registros: RegistroPesoPrimitives[], locale: AppLocale = 'pt-BR'): PesoViewModel {
   if (registros.length === 0) {
-    return { cards: [], emptyStateMessage: 'Nenhum registro ainda. Comece pesando-se hoje.', pesoAtual: null, chartPoints: [] };
+    return { cards: [], emptyStateMessage: translate(locale, 'peso.emptyStateMessage'), pesoAtual: null, chartPoints: [] };
   }
 
   const cards: RegistroPesoCardViewModel[] = registros.map((registro, index) => {

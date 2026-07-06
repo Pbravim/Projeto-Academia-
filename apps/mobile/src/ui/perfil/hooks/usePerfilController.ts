@@ -3,6 +3,8 @@ import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Storage } from 'expo-sqlite/kv-store';
 
+import { translate, useLocale } from '../../shared/i18n';
+
 export const PERFIL_NOME_KEY = 'perfil_nome';
 export const PERFIL_FOTO_KEY = 'perfil_foto';
 
@@ -17,6 +19,7 @@ export function usePerfilController(
   onNameSaved?: (name: string) => void,
   onPhotoSaved?: (uri: string | null) => void,
 ): PerfilControllerState {
+  const locale = useLocale();
   const [displayName, setDisplayName] = useState('');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
 
@@ -68,10 +71,10 @@ export function usePerfilController(
   };
 
   const onPickPhoto = () => {
-    Alert.alert('Foto de perfil', undefined, [
-      { text: 'Camera',  onPress: () => { void pickFrom('camera'); } },
-      { text: 'Galeria', onPress: () => { void pickFrom('gallery'); } },
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(translate(locale, 'perfil.foto.title'), undefined, [
+      { text: translate(locale, 'perfil.foto.camera'),  onPress: () => { void pickFrom('camera'); } },
+      { text: translate(locale, 'perfil.foto.galeria'), onPress: () => { void pickFrom('gallery'); } },
+      { text: translate(locale, 'common.cancel'), style: 'cancel' },
     ]);
   };
 

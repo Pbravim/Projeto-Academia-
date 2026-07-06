@@ -8,7 +8,7 @@ import { PesoValidationError } from '../../../domain/peso/errors/PesoValidationE
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { buildPesoViewModel, type PesoViewModel } from '../presenters/buildPesoViewModel';
-import { useLocale } from '../../shared/i18n';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface PesoControllerDependencies {
   registrarPeso: RegistrarPesoUseCase;
@@ -56,7 +56,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
       startTransition(() => setRegistros(lista));
     } catch (error) {
       dependencies.logger.error('peso.load_failed', error);
-      setErrorMessage('Nao foi possivel carregar os registros.');
+      setErrorMessage(translate(locale, 'peso.feedback.loadFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -87,14 +87,14 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
       setPesoKgInput('');
       setObservacaoInput('');
       setSelectedDate(new Date());
-      setFeedbackMessage('Peso registrado com sucesso.');
+      setFeedbackMessage(translate(locale, 'peso.feedback.saved'));
       await loadRegistros();
     } catch (error) {
       dependencies.logger.error('peso.submit_failed', error);
       if (error instanceof PesoValidationError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel salvar o registro.');
+        setErrorMessage(translate(locale, 'peso.feedback.saveFailed'));
       }
     } finally {
       setIsSubmitting(false);
@@ -109,11 +109,11 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
 
     try {
       await dependencies.deleteRegistroPeso.execute(id);
-      setFeedbackMessage('Registro excluido.');
+      setFeedbackMessage(translate(locale, 'peso.feedback.deleted'));
       await loadRegistros();
     } catch (error) {
       dependencies.logger.error('peso.delete_failed', error, { id });
-      setErrorMessage('Nao foi possivel excluir o registro.');
+      setErrorMessage(translate(locale, 'peso.feedback.deleteFailed'));
     } finally {
       setDeletingId(null);
     }

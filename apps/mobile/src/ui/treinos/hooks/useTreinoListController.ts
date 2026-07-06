@@ -8,6 +8,7 @@ import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
 import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface TreinoDraft {
   name: string;
@@ -48,6 +49,7 @@ export function useTreinoListController(
   onSelectTreino: (treino: TreinoPrimitives) => void,
   onAfterMutation?: () => Promise<void>,
 ): TreinoListControllerState {
+  const locale = useLocale();
   const [draft, setDraft] = useState<TreinoDraft>(initialDraft);
   const [treinos, setTreinos] = useState<TreinoPrimitives[]>([]);
   const [treinosVazios, setTreinosVazios] = useState<Set<string>>(new Set());
@@ -70,7 +72,7 @@ export function useTreinoListController(
       });
     } catch (error) {
       dependencies.logger.error('treino_list.load_failed', error);
-      setErrorMessage('Nao foi possivel carregar os treinos.');
+      setErrorMessage(translate(locale, 'treinos.list.errors.load'));
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +107,7 @@ export function useTreinoListController(
       if (error instanceof TreinoValidationError || error instanceof DuplicateTreinoError) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Nao foi possivel criar o treino.');
+        setErrorMessage(translate(locale, 'treinos.list.errors.create'));
       }
     } finally {
       setIsSubmitting(false);
@@ -120,12 +122,12 @@ export function useTreinoListController(
 
     try {
       await dependencies.deleteTreino.execute(id);
-      setFeedbackMessage('Treino excluido com sucesso.');
+      setFeedbackMessage(translate(locale, 'treinos.list.feedback.excluido'));
       await loadTreinos();
       await onAfterMutation?.();
     } catch (error) {
       dependencies.logger.error('treino_list.delete_failed', error, { id });
-      setErrorMessage('Nao foi possivel excluir o treino.');
+      setErrorMessage(translate(locale, 'treinos.list.errors.delete'));
     } finally {
       setDeletingId(null);
     }
@@ -144,7 +146,7 @@ export function useTreinoListController(
       onSelectTreino(copia);
     } catch (error) {
       dependencies.logger.error('treino_list.duplicate_failed', error, { id });
-      setErrorMessage('Nao foi possivel duplicar o treino.');
+      setErrorMessage(translate(locale, 'treinos.list.errors.duplicate'));
     } finally {
       setDuplicandoId(null);
     }

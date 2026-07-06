@@ -5,6 +5,7 @@ import type { SetDiaPlanoUseCase } from '../../../application/plano/use-cases/Se
 import type { DiaSemana } from '../../../domain/plano/entities/DiaSemana';
 import { DIAS_SEMANA } from '../../../domain/plano/entities/DiaSemana';
 import type { PlanoSemanal } from '../../../domain/plano/repositories/PlanoSemanalRepository';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface PlanoControllerDependencies {
   getPlanoSemanal: GetPlanoSemanalUseCase;
@@ -25,6 +26,7 @@ export interface PlanoControllerState {
 const emptyPlano: PlanoSemanal = Object.fromEntries(DIAS_SEMANA.map((d) => [d, null])) as PlanoSemanal;
 
 export function usePlanoController(deps: PlanoControllerDependencies): PlanoControllerState {
+  const locale = useLocale();
   const [plano, setPlano] = useState<PlanoSemanal>(emptyPlano);
   const [diaSelecionado, setDiaSelecionado] = useState<DiaSemana | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +38,7 @@ export function usePlanoController(deps: PlanoControllerDependencies): PlanoCont
       const result = await deps.getPlanoSemanal.execute();
       setPlano(result);
     } catch {
-      setErrorMessage('Nao foi possivel carregar o plano semanal.');
+      setErrorMessage(translate(locale, 'treinos.plano.errors.load'));
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +57,7 @@ export function usePlanoController(deps: PlanoControllerDependencies): PlanoCont
       await deps.setDiaPlano.execute(diaSelecionado, treinoId);
     } catch {
       setPlano(prev);
-      setErrorMessage('Nao foi possivel salvar o plano. Tente novamente.');
+      setErrorMessage(translate(locale, 'treinos.plano.errors.save'));
     }
   };
 
