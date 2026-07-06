@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useColorScheme,
   View,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -19,7 +20,9 @@ import { AderenciaCard } from '../../shared/components/AderenciaCard';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { LineChart, type LineChartPoint } from '../../shared/LineChart';
 import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
-import { useLocale, useLocalePreference, useT, type LocalePreference } from '../../shared/i18n';
+import { useLocale, useLocalePreference, useT } from '../../shared/i18n';
+import { SUPPORTED_LANGUAGES } from '../../shared/i18n/languages';
+import { LanguagePickerModal } from '../../shared/components/LanguagePickerModal';
 import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
 
 // ─── Metric abstraction ──────────────────────────────────────────────────────
@@ -55,16 +58,9 @@ interface PerfilScreenProps {
   backupSection?: ReactNode;
 }
 
-const THEME_OPTIONS: { value: ThemePreference; icon: string; labelKey: string }[] = [
-  { value: 'system', icon: '⊙', labelKey: 'perfil.config.temaOptions.auto' },
-  { value: 'light',  icon: '☀', labelKey: 'perfil.config.temaOptions.claro' },
-  { value: 'dark',   icon: '🌙', labelKey: 'perfil.config.temaOptions.escuro' },
-];
-
-const LOCALE_OPTIONS: { value: LocalePreference; icon: string; labelKey: string }[] = [
-  { value: 'system', icon: '⊙', labelKey: 'perfil.config.idiomaOptions.sistema' },
-  { value: 'pt-BR',  icon: '🇧🇷', labelKey: 'perfil.config.idiomaOptions.ptBR' },
-  { value: 'en-US',  icon: '🇺🇸', labelKey: 'perfil.config.idiomaOptions.enUS' },
+const THEME_OPTIONS: { value: Exclude<ThemePreference, 'system'>; icon: string; labelKey: string }[] = [
+  { value: 'light', icon: '☀', labelKey: 'perfil.config.temaOptions.claro' },
+  { value: 'dark',  icon: '🌙', labelKey: 'perfil.config.temaOptions.escuro' },
 ];
 
 function getInitials(name: string): string {
@@ -134,12 +130,16 @@ export function PerfilScreen({
   const locale = useLocale();
   const t = useT();
   const { preference, setPreference } = useThemePreference();
-  const { preference: localePref, setPreference: setLocalePref } = useLocalePreference();
+  const { setPreference: setLocalePref } = useLocalePreference();
+  const systemScheme = useColorScheme();
+  const resolvedTheme = preference === 'system' ? (systemScheme ?? 'light') : preference;
+  const currentLanguage = SUPPORTED_LANGUAGES.find((l) => l.code === locale) ?? SUPPORTED_LANGUAGES[0];
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isLangPickerOpen, setIsLangPickerOpen] = useState(false);
   const [isPesoOpen, setIsPesoOpen] = useState(false);
   const [activeMetricKey, setActiveMetricKey] = useState('peso');
   const [pickerStep, setPickerStep] = useState<'date' | 'time' | null>(null);
@@ -278,7 +278,7 @@ export function PerfilScreen({
             <Text style={styles.configLabel}>{t('perfil.config.tema')}</Text>
             <View style={styles.themeTrack}>
               {THEME_OPTIONS.map((opt) => {
-                const active = preference === opt.value;
+                const active = resolvedTheme === opt.value;
                 return (
                   <Pressable
                     key={opt.value}
@@ -305,30 +305,16 @@ export function PerfilScreen({
           {/* Idioma */}
           <View style={styles.configRow}>
             <Text style={styles.configLabel}>{t('perfil.config.idioma')}</Text>
-            <View style={styles.themeTrack}>
-              {LOCALE_OPTIONS.map((opt) => {
-                const active = localePref === opt.value;
-                return (
-                  <Pressable
-                    key={opt.value}
-                    onPress={() => setLocalePref(opt.value)}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: active }}
-                    accessibilityLabel={t(opt.labelKey)}
-                    style={({ pressed }) => [
-                      styles.themeOption,
-                      active ? styles.themeOptionActive : null,
-                      pressed && !active ? styles.themeOptionPressed : null,
-                    ]}
-                  >
-                    <Text style={styles.themeIcon}>{opt.icon}</Text>
-                    <Text style={[styles.themeOptionLabel, active ? styles.themeOptionLabelActive : null]}>
-                      {t(opt.labelKey)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <Pressable
+              onPress={() => setIsLangPickerOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel={t('perfil.config.idioma')}
+              style={({ pressed }) => [styles.langTrigger, pressed ? styles.langTriggerPressed : null]}
+            >
+              <Text style={styles.langFlag}>{currentLanguage.flag}</Text>
+              <Text style={styles.langText}>{currentLanguage.endonym}</Text>
+              <Text style={styles.langChevron}>▾</Text>
+            </Pressable>
           </View>
 
           <View style={styles.configDivider} />
@@ -642,6 +628,16 @@ export function PerfilScreen({
         ) : null}
       </View>
 
+      <LanguagePickerModal
+        visible={isLangPickerOpen}
+        activeLocale={locale}
+        onSelect={(code) => {
+          setLocalePref(code);
+          setIsLangPickerOpen(false);
+        }}
+        onClose={() => setIsLangPickerOpen(false)}
+      />
+
       <ConfirmDialog
         visible={confirmResetVisible}
         title={t('perfil.config.apagarHistorico')}
@@ -755,6 +751,16 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     themeIcon: { fontSize: 13 },
     themeOptionLabel: { color: c.textSecondary, fontSize: 12, fontWeight: '600' },
     themeOptionLabelActive: { color: c.accentText },
+
+    langTrigger: {
+      flexDirection: 'row', alignItems: 'center', gap: 6,
+      backgroundColor: c.card, borderWidth: 1, borderColor: c.cardBorder,
+      borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7,
+    },
+    langTriggerPressed: { opacity: 0.6 },
+    langFlag: { fontSize: 14 },
+    langText: { color: c.textPrimary, fontSize: 13, fontWeight: '700' },
+    langChevron: { color: c.textSecondary, fontSize: 11, marginLeft: 2 },
 
     // ── Stats ──
     statsPills: { flexDirection: 'row', alignItems: 'center', paddingVertical: 4 },
