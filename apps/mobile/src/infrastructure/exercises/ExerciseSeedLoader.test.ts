@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ExerciseSeedLoader } from './ExerciseSeedLoader';
+import { ExerciseSeedLoader, type SeedExerciseEntry } from './ExerciseSeedLoader';
 import { InMemoryExerciseRepository } from './InMemoryExerciseRepository';
 
 const SEED_FILE_V1 = {
@@ -24,6 +24,29 @@ const SEED_FILE_V1 = {
     },
   ],
 };
+
+function entry(id: string, overrides: Partial<SeedExerciseEntry> = {}): SeedExerciseEntry {
+  return {
+    ...SEED_FILE_V1.exercises[0],
+    id,
+    name: `Exercicio ${id}`,
+    equivalent_alternatives: [],
+    muscle_group_alternatives: [],
+    ...overrides,
+  };
+}
+
+/** Simula o FK do SQLite: alternativa só pode apontar para exercício já inserido. */
+class FkEnforcingRepository extends InMemoryExerciseRepository {
+  override async addEquivalentAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    if (!(await this.findById(alternativaId))) throw new Error('FOREIGN KEY constraint failed');
+    await super.addEquivalentAlternativa(exercicioId, alternativaId);
+  }
+  override async addMuscleGroupAlternativa(exercicioId: string, alternativaId: string): Promise<void> {
+    if (!(await this.findById(alternativaId))) throw new Error('FOREIGN KEY constraint failed');
+    await super.addMuscleGroupAlternativa(exercicioId, alternativaId);
+  }
+}
 
 describe('ExerciseSeedLoader', () => {
   let repo: InMemoryExerciseRepository;
@@ -117,6 +140,52 @@ describe('ExerciseSeedLoader', () => {
     const exercise = await repo.findById('test-seed-cardio-001');
     expect(exercise).not.toBeNull();
     expect(exercise!.toPrimitives().trackingType).toBe('cardio');
+  });
+
+  it('loads forward and cross-file alternativa refs without violating FK (two-phase)', async () => {
+    const fkRepo = new FkEnforcingRepository();
+    const fkLoader = new ExerciseSeedLoader(fkRepo);
+
+    const fileA = {
+      catalog_version: 1,
+      exercises: [
+        // ex1 referencia ex2 (mais adiante no MESMO arquivo) e ex3 (em OUTRO arquivo)
+        entry('test-ex-1', { equivalent_alternatives: ['test-ex-2'], muscle_group_alternatives: ['test-ex-3'] }),
+        entry('test-ex-2'),
+      ],
+    };
+    const fileB = {
+      catalog_version: 1,
+      exercises: [entry('test-ex-3')],
+    };
+
+    await fkLoader.loadSeedFiles([fileA, fileB]);
+
+    expect(await fkRepo.findById('test-ex-1')).not.toBeNull();
+    expect(await fkRepo.findById('test-ex-2')).not.toBeNull();
+    expect(await fkRepo.findById('test-ex-3')).not.toBeNull();
+    const equivalentes = await fkRepo.listEquivalentAlternativas('test-ex-1');
+    expect(equivalentes.map((e) => e.toPrimitives().id)).toEqual(['test-ex-2']);
+    const grupo = await fkRepo.listMuscleGroupAlternativas('test-ex-1');
+    expect(grupo.map((e) => e.toPrimitives().id)).toEqual(['test-ex-3']);
+  });
+
+  it('skips dangling alternativa refs (target id in no seed file) without failing', async () => {
+    const fkRepo = new FkEnforcingRepository();
+    const fkLoader = new ExerciseSeedLoader(fkRepo);
+
+    const file = {
+      catalog_version: 1,
+      exercises: [
+        entry('test-ex-1', { equivalent_alternatives: ['test-fantasma', 'test-ex-2'] }),
+        entry('test-ex-2'),
+      ],
+    };
+
+    await fkLoader.loadSeedFiles([file]);
+
+    const equivalentes = await fkRepo.listEquivalentAlternativas('test-ex-1');
+    expect(equivalentes.map((e) => e.toPrimitives().id)).toEqual(['test-ex-2']);
   });
 
   it('defaults to reps_load when tracking_type is not specified', async () => {

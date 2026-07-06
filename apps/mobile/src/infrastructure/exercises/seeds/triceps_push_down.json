@@ -207,7 +207,7 @@
       "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
       "execution_type": "Bilateral",
       "equivalent_alternatives": ["gif-ex-102", "gif-ex-103"],
-      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026", "seed-ex-007"]
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026"]
     },
     {
       "id": "gif-ex-101",
@@ -249,7 +249,7 @@
       "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
       "execution_type": "Bilateral",
       "equivalent_alternatives": ["gif-ex-103", "gif-ex-100"],
-      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-007", "seed-ex-026"]
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026"]
     },
     {
       "id": "gif-ex-103",
@@ -269,7 +269,7 @@
       "stabilizers": ["core", "serratus_anterior", "deltoide_anterior"],
       "execution_type": "Bilateral",
       "equivalent_alternatives": ["gif-ex-102", "gif-ex-100"],
-      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-007", "seed-ex-026"]
+      "muscle_group_alternatives": ["gif-ex-097", "seed-ex-026"]
     },
     {
       "id": "gif-ex-104",

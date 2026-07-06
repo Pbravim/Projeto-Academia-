@@ -147,7 +147,9 @@ void (async () => {
     if (await databaseClient.getSetting(SEED_SIGNATURE_KEY) === signature) return;
 
     const seedLoader = new ExerciseSeedLoader(exerciseRepository);
-    await Promise.all(seedFiles.map((file) => seedLoader.loadSeedFile(file)));
+    // Duas fases (exercícios, depois alternativas): as alternativas têm FK para
+    // exercises(id) e cruzam arquivos — carregar arquivo a arquivo viola o FK.
+    await seedLoader.loadSeedFiles(seedFiles);
     await databaseClient.setSetting(SEED_SIGNATURE_KEY, signature);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));

@@ -101,7 +101,7 @@
       "stabilizers": ["flexores_antebraco", "gluteos", "quadriceps"],
       "execution_type": "Bilateral",
       "equivalent_alternatives": ["seed-ex-137"],
-      "muscle_group_alternatives": ["seed-ex-020", "seed-ex-031"]
+      "muscle_group_alternatives": ["seed-ex-031"]
     },
     {
       "id": "seed-ex-137",

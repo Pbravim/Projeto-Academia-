@@ -31,39 +31,74 @@ export class ExerciseSeedLoader {
   constructor(private readonly repository: ExerciseRepository) {}
 
   async loadSeedFile(seed: SeedFile): Promise<void> {
-    for (const entry of seed.exercises) {
-      const existing = await this.repository.findById(entry.id);
-      if (existing && existing.toPrimitives().isCustom) continue;
+    await this.loadSeedFiles([seed]);
+  }
 
-      const exercise = Exercise.restore({
-        id: entry.id,
-        name: entry.name,
-        normalizedName: normalizeText(entry.name),
-        groupMuscles: entry.group_muscles,
-        category: entry.category,
-        equipment: entry.equipment,
-        loadUnit: 'kg',
-        isCustom: false,
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: new Date().toISOString(),
-        mediaOnline: entry.media_online ?? null,
-        mediaLocal: entry.media_local ?? null,
-        musculoAlvo: entry.musculo_alvo,
-        movementPattern: entry.movement_pattern,
-        stabilizers: entry.stabilizers,
-        executionType: entry.execution_type,
-        nameVariations: entry.name_variations,
-        primaryEquipment: entry.primary_equipment,
-        secondaryEquipment: entry.secondary_equipment,
-        catalogVersion: seed.catalog_version,
-        trackingType: entry.tracking_type ?? 'reps_load',
-      });
+  /**
+   * Carrega em duas fases: primeiro TODOS os exercícios, depois TODAS as
+   * alternativas. As alternativas têm FK para exercises(id) e referenciam
+   * exercícios adiante no mesmo arquivo e em outros arquivos — em fase única
+   * a primeira referência "para frente" derruba o seeding inteiro.
+   */
+  async loadSeedFiles(seeds: SeedFile[]): Promise<void> {
+    const skipped = new Set<string>();
+    const seedIds = new Set<string>();
+    for (const seed of seeds) {
+      for (const entry of seed.exercises) seedIds.add(entry.id);
+    }
 
-      await this.repository.upsertCatalogExercise(
-        exercise,
-        entry.equivalent_alternatives,
-        entry.muscle_group_alternatives,
-      );
+    for (const seed of seeds) {
+      for (const entry of seed.exercises) {
+        const existing = await this.repository.findById(entry.id);
+        if (existing && existing.toPrimitives().isCustom) {
+          skipped.add(entry.id);
+          continue;
+        }
+
+        const exercise = Exercise.restore({
+          id: entry.id,
+          name: entry.name,
+          normalizedName: normalizeText(entry.name),
+          groupMuscles: entry.group_muscles,
+          category: entry.category,
+          equipment: entry.equipment,
+          loadUnit: 'kg',
+          isCustom: false,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: new Date().toISOString(),
+          mediaOnline: entry.media_online ?? null,
+          mediaLocal: entry.media_local ?? null,
+          musculoAlvo: entry.musculo_alvo,
+          movementPattern: entry.movement_pattern,
+          stabilizers: entry.stabilizers,
+          executionType: entry.execution_type,
+          nameVariations: entry.name_variations,
+          primaryEquipment: entry.primary_equipment,
+          secondaryEquipment: entry.secondary_equipment,
+          catalogVersion: seed.catalog_version,
+          trackingType: entry.tracking_type ?? 'reps_load',
+        });
+
+        await this.repository.upsertCatalogExercise(exercise, [], []);
+      }
+    }
+
+    // Referência pendurada (id fora de todos os seeds e ausente no banco)
+    // é ignorada em vez de derrubar o seeding — já houve exercícios removidos
+    // do catálogo cujas referências ficaram para trás.
+    const refExists = async (id: string) =>
+      seedIds.has(id) || (await this.repository.findById(id)) !== null;
+
+    for (const seed of seeds) {
+      for (const entry of seed.exercises) {
+        if (skipped.has(entry.id)) continue;
+        for (const altId of entry.equivalent_alternatives) {
+          if (await refExists(altId)) await this.repository.addEquivalentAlternativa(entry.id, altId);
+        }
+        for (const altId of entry.muscle_group_alternatives) {
+          if (await refExists(altId)) await this.repository.addMuscleGroupAlternativa(entry.id, altId);
+        }
+      }
     }
   }
 }
