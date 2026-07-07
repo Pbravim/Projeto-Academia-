@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { Treino } from '../../../domain/treinos/entities/Treino';
 import { InMemoryPlanoSemanalRepository } from '../../../infrastructure/plano/InMemoryPlanoSemanalRepository';
+import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
@@ -15,6 +17,10 @@ function makeRepos() {
     treinoRepository: new InMemoryTreinoRepository(),
     treinoExercicioRepository: new InMemoryTreinoExercicioRepository(),
     sessaoTreinoRepository: new InMemorySessaoTreinoRepository(),
+    sessaoExercicioRepository: new InMemorySessaoExercicioRepository(),
+    serieRegistradaRepository: new InMemorySerieRegistradaRepository(),
+    planoSemanalRepository: new InMemoryPlanoSemanalRepository(),
+    database: { withTransaction: <T>(fn: () => Promise<T>) => fn() },
   };
 }
 
@@ -68,22 +74,15 @@ describe('DeleteTreinoUseCase', () => {
   });
 
   it('clears plano semanal entries that reference the deleted treino', async () => {
-    const treinoRepo = new InMemoryTreinoRepository();
-    const teRepo = new InMemoryTreinoExercicioRepository();
-    const planoRepo = new InMemoryPlanoSemanalRepository();
-    const sessaoRepo = new InMemorySessaoTreinoRepository();
+    const repos = makeRepos();
+    const planoRepo = repos.planoSemanalRepository;
 
     const treino = Treino.create({ id: 'treino-1', name: 'Treino A', createdAt: new Date() });
-    await treinoRepo.save(treino);
+    await repos.treinoRepository.save(treino);
     await planoRepo.setDia('seg', 'treino-1');
     await planoRepo.setDia('qua', 'treino-1');
 
-    const uc = new DeleteTreinoUseCase({
-      treinoRepository: treinoRepo,
-      treinoExercicioRepository: teRepo,
-      sessaoTreinoRepository: sessaoRepo,
-      planoSemanalRepository: planoRepo,
-    });
+    const uc = new DeleteTreinoUseCase(repos);
 
     await uc.execute('treino-1');
 

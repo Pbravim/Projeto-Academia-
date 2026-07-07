@@ -90,6 +90,16 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     );
   }
 
+  async deleteByTreinoId(treinoId: string): Promise<void> {
+    await this.database.run(
+      `UPDATE sessao_exercicios SET deleted_at = ?, updated_at = ?, dirty = 1
+       WHERE deleted_at IS NULL AND sessao_treino_id IN (
+         SELECT id FROM sessao_treinos WHERE treino_id = ?
+       )`,
+      [nowIso(), nowIso(), treinoId]
+    );
+  }
+
   async getDirty(): Promise<import('@academia/contracts').SessaoExercicioSyncRow[]> {
     const rows = await this.database.getAll<{
       id: string; sessao_treino_id: string; exercicio_id: string; ordem: number;

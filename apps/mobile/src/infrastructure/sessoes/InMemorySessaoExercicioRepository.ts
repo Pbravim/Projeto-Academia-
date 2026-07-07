@@ -48,4 +48,9 @@ export class InMemorySessaoExercicioRepository implements SessaoExercicioReposit
       if (item.toPrimitives().exercicioId === exercicioId) this.itemsById.delete(id);
     }
   }
+
+  async deleteByTreinoId(_treinoId: string): Promise<void> {
+    // In-memory: este repo não conhece o treino das sessões (só sessaoTreinoId).
+    // A cascata real é coberta pelos testes SQLite (DeleteTreinoUseCase.cascade.p1.test.ts).
+  }
 }

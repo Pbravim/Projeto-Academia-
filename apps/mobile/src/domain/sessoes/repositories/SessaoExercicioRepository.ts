@@ -8,4 +8,6 @@ export interface SessaoExercicioRepository {
   countBySessaoId(sessaoId: string): Promise<number>;
   deleteBySessaoId(sessaoId: string): Promise<void>;
   deleteByExercicioId(exercicioId: string): Promise<void>;
+  /** Tombstona os exercicios de TODAS as sessoes do treino (cascata do DeleteTreino). */
+  deleteByTreinoId(treinoId: string): Promise<void>;
 }

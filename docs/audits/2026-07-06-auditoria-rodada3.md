@@ -65,13 +65,16 @@ P0/P1, corrigir P0→P1 com teste de regressão TDD cada, atualizar pendencias.m
 ### Integridade (B) — todos ✅ (comprovados com teste)
 - `listAlternativas` não filtra `ea.deleted_at` → remover alternativa é inócuo.
   `SQLiteExerciseRepository.ts:156`.
-- `ResetHistoricoUseCase` faz DELETE físico sem tombstones (servidor ressuscita no pull) e não
-  apaga sessões `cancelada` nem filhos. `ResetHistoricoUseCase.ts:14-30`.
-- `DeleteTreinoUseCase` instanciado sem `planoSemanalRepository` e sem `database` →
+- ✅ `ResetHistoricoUseCase` faz DELETE físico sem tombstones (servidor ressuscita no pull) e não
+  apaga sessões `cancelada` nem filhos. `ResetHistoricoUseCase.ts:14-30`. *Corrigido:* tombstones
+  (deleted_at + dirty) para finalizadas E canceladas com filhos, em transação; em_andamento intacta.
+- ✅ `DeleteTreinoUseCase` instanciado sem `planoSemanalRepository` e sem `database` →
   plano_semanal aponta para treino tombstoned; deleção multi-tabela sem transação.
-  `mobileDependencies.ts:280`.
-- `DeleteTreinoUseCase` tombstona sessões mas deixa sessao_exercicios/séries vivos.
-  `DeleteTreinoUseCase.ts:27`.
+  `mobileDependencies.ts:280`. *Corrigido:* deps obrigatórias (tsc trava wiring incompleto) e
+  instância de produção com plano + transação.
+- ✅ `DeleteTreinoUseCase` tombstona sessões mas deixa sessao_exercicios/séries vivos.
+  `DeleteTreinoUseCase.ts:27`. *Corrigido:* `deleteByTreinoId` em cascata (séries →
+  sessao_exercicios → sessões) com teste SQLite real.
 
 ### Sync (C)
 - ✅ Apply do pull em `Promise.all` sem ordem parent-first com FK ON → violação de FK no primeiro

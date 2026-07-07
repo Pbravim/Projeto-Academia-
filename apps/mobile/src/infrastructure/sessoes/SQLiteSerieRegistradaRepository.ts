@@ -105,6 +105,18 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     );
   }
 
+  async deleteByTreinoId(treinoId: string): Promise<void> {
+    await this.database.run(
+      `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
+       WHERE deleted_at IS NULL AND sessao_exercicio_id IN (
+         SELECT se.id FROM sessao_exercicios se
+         INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
+         WHERE st.treino_id = ?
+       )`,
+      [nowIso(), nowIso(), treinoId]
+    );
+  }
+
   async update(id: string, patch: { cargaKg?: number | null; repeticoes?: number | null; duracaoSegundos?: number | null; distanciaMetros?: number | null; intensidade?: number | null; observacao?: string | null }): Promise<void> {
     await this.database.run(
       `UPDATE series_registradas SET carga_kg = ?, repeticoes = ?, duracao_segundos = ?, distancia_metros = ?, intensidade = ?, observacao = ?, updated_at = ?, dirty = 1 WHERE id = ?`,

@@ -66,6 +66,11 @@ export class InMemorySerieRegistradaRepository implements SerieRegistradaReposit
     // This no-op satisfies the interface for test environments that don't wire the full cascade.
   }
 
+  async deleteByTreinoId(_treinoId: string): Promise<void> {
+    // In-memory: este repo não conhece o treino das séries (só sessaoExercicioId).
+    // A cascata real é coberta pelos testes SQLite (DeleteTreinoUseCase.cascade.p1.test.ts).
+  }
+
   async update(id: string, patch: { cargaKg: number; repeticoes: number; observacao?: string | null }): Promise<void> {
     const serie = this.seriesById.get(id);
     if (!serie) return;

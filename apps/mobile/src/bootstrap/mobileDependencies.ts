@@ -300,7 +300,15 @@ export const mobileDependencies = {
         now: () => new Date(),
       }),
       listTreinos,
-      deleteTreino: new DeleteTreinoUseCase({ treinoRepository, treinoExercicioRepository, sessaoTreinoRepository }),
+      deleteTreino: new DeleteTreinoUseCase({
+        treinoRepository,
+        treinoExercicioRepository,
+        sessaoTreinoRepository,
+        sessaoExercicioRepository,
+        serieRegistradaRepository,
+        planoSemanalRepository,
+        database: databaseClient,
+      }),
       duplicarTreino: new DuplicarTreinoUseCase({
         treinoRepository,
         treinoExercicioRepository,
