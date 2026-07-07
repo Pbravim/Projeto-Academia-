@@ -130,7 +130,9 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
       ordem: r.ordem, nomeSnapshot: r.nome_snapshot,
       grupoMuscularSnapshot: r.grupo_muscular_snapshot, categoriaSnapshot: r.categoria_snapshot,
       equipamentoSnapshot: r.equipamento_snapshot, musculoAlvoSnapshot: r.musculo_alvo_snapshot,
-      nomeOriginalSnapshot: r.nome_original_snapshot, realizado: Boolean(r.realizado),
+      nomeOriginalSnapshot: r.nome_original_snapshot,
+      movementPatternSnapshot: r.movement_pattern_snapshot,
+      realizado: Boolean(r.realizado),
       seriesRecomendadas: r.series_recomendadas, execucoesRecomendadas: r.execucoes_recomendadas,
       cargaPadrao: r.carga_padrao, tempoDescansoSegundos: r.tempo_descanso_segundos,
       metodo: r.metodo, grupoId: r.grupo_id,
@@ -150,11 +152,12 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
         `INSERT INTO sessao_exercicios
            (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
             categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, nome_original_snapshot,
+            movement_pattern_snapshot,
             realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
             metodo, grupo_id, tracking_type_snapshot, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada,
             substituido_por_exercicio_id, substituicao_motivo,
             updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
          ON CONFLICT(id) DO UPDATE SET
            sessao_treino_id = excluded.sessao_treino_id,
            exercicio_id = excluded.exercicio_id,
@@ -165,6 +168,7 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
            equipamento_snapshot = excluded.equipamento_snapshot,
            musculo_alvo_snapshot = excluded.musculo_alvo_snapshot,
            nome_original_snapshot = excluded.nome_original_snapshot,
+           movement_pattern_snapshot = excluded.movement_pattern_snapshot,
            realizado = excluded.realizado,
            series_recomendadas = excluded.series_recomendadas,
            execucoes_recomendadas = excluded.execucoes_recomendadas,
@@ -185,7 +189,8 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
          WHERE sessao_exercicios.dirty = 0 OR sessao_exercicios.updated_at IS NULL OR excluded.updated_at >= sessao_exercicios.updated_at`,
         [r.id, r.sessaoTreinoId, r.exercicioId, r.ordem, r.nomeSnapshot,
          r.grupoMuscularSnapshot, r.categoriaSnapshot, r.equipamentoSnapshot,
-         r.musculoAlvoSnapshot, r.nomeOriginalSnapshot, r.realizado ? 1 : 0,
+         r.musculoAlvoSnapshot, r.nomeOriginalSnapshot,
+         r.movementPatternSnapshot, r.realizado ? 1 : 0,
          r.seriesRecomendadas, r.execucoesRecomendadas, r.cargaPadrao, r.tempoDescansoSegundos,
          r.metodo, r.grupoId, r.trackingTypeSnapshot, r.duracaoRecomendadaSegundos, r.distanciaRecomendadaMetros, r.intensidadeRecomendada,
          r.substituidoPorExercicioId, r.substituicaoMotivo,

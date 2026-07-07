@@ -11,6 +11,7 @@ const asBody = (value: unknown) =>
 const emptyChanges = () => ({
   exercises: [], treinos: [], treinoExercicios: [], sessaoTreinos: [],
   sessaoExercicios: [], seriesRegistradas: [], registrosPeso: [], userSettings: [],
+  exerciseAlternatives: [],
 });
 
 describe('SyncRequestDto validation', () => {

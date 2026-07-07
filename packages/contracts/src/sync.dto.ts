@@ -70,6 +70,7 @@ export interface SessaoExercicioSyncRow extends SyncRow {
   equipamentoSnapshot: string | null;
   musculoAlvoSnapshot: string | null;
   nomeOriginalSnapshot: string | null;
+  movementPatternSnapshot: string | null;
   realizado: boolean;
   seriesRecomendadas: number | null;
   execucoesRecomendadas: number | null;
@@ -113,6 +114,14 @@ export interface UserSettingSyncRow {
   deletedAt: string | null;
 }
 
+/** Vínculo manual de alternativa entre exercícios (PK composta, sem id próprio). */
+export interface ExerciseAlternativeSyncRow {
+  exercicioId: string;
+  alternativaId: string;
+  updatedAt: string | null;
+  deletedAt: string | null;
+}
+
 export interface SyncChanges {
   exercises: ExerciseSyncRow[];
   treinos: TreinoSyncRow[];
@@ -122,6 +131,7 @@ export interface SyncChanges {
   seriesRegistradas: SerieRegistradaSyncRow[];
   registrosPeso: RegistroPesoSyncRow[];
   userSettings: UserSettingSyncRow[];
+  exerciseAlternatives: ExerciseAlternativeSyncRow[];
 }
 
 export interface SyncRequest {

@@ -53,6 +53,7 @@ import { SQLitePlanoSemanalRepository } from '../infrastructure/plano/SQLitePlan
 import { SQLiteHistoricoRepository } from '../infrastructure/historico/SQLiteHistoricoRepository';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
 import { SQLiteExerciseRepository } from '../infrastructure/exercises/SQLiteExerciseRepository';
+import { SQLiteExerciseAlternativeSyncRepository } from '../infrastructure/exercises/SQLiteExerciseAlternativeSyncRepository';
 import { ExerciseSeedLoader, type SeedFile } from '../infrastructure/exercises/ExerciseSeedLoader';
 import peitoPressJson from '../infrastructure/exercises/seeds/peito_press.json';
 import peitoFlyJson from '../infrastructure/exercises/seeds/peito_fly.json';
@@ -209,6 +210,7 @@ const syncEngine = new SyncEngine(
   sessaoExercicioRepository,
   serieRegistradaRepository,
   registroPesoRepository,
+  new SQLiteExerciseAlternativeSyncRepository(databaseClient),
   databaseClient,
   undefined,
   {

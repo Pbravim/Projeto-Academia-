@@ -37,6 +37,9 @@ const makePrisma = () => ({
     // Return empty by default for ownership checks
     return Promise.resolve([]);
   }) },
+  exerciseAlternative: { upsert: jest.fn(), findMany: jest.fn().mockImplementation(() => {
+    return Promise.resolve([]);
+  }) },
 });
 
 describe('SyncService', () => {
@@ -66,6 +69,42 @@ describe('SyncService', () => {
     seriesRegistradas: [],
     registrosPeso: [],
     userSettings: [],
+    exerciseAlternatives: [],
+  });
+
+  it('upserta vínculos de alternativa por usuário e os devolve no pull', async () => {
+    const T = '2026-07-07T10:00:00.000Z';
+    mockPrisma.exerciseAlternative.findMany
+      .mockResolvedValueOnce([]) // lookup do apply (nenhuma linha existente)
+      .mockResolvedValueOnce([   // pull
+        { userId: 'user-1', exercicioId: 'ex-c', alternativaId: 'ex-d', updatedAt: T, deletedAt: null },
+      ]);
+
+    const result = await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        exerciseAlternatives: [{ exercicioId: 'ex-a', alternativaId: 'ex-b', updatedAt: T, deletedAt: null }],
+      },
+    });
+
+    const call = mockPrisma.exerciseAlternative.upsert.mock.calls[0][0];
+    expect(call.where).toEqual({
+      userId_exercicioId_alternativaId: { userId: 'user-1', exercicioId: 'ex-a', alternativaId: 'ex-b' },
+    });
+    expect(call.create.userId).toBe('user-1');
+
+    expect(result.serverChanges.exerciseAlternatives).toEqual([
+      { exercicioId: 'ex-c', alternativaId: 'ex-d', updatedAt: T, deletedAt: null },
+    ]);
+  });
+
+  it('tolera push de cliente antigo sem o campo exerciseAlternatives', async () => {
+    const changes = emptyChanges();
+    delete (changes as Partial<SyncRequest['changes']>).exerciseAlternatives;
+
+    const result = await service.sync('user-1', { since: null, changes });
+    expect(result.serverChanges.exerciseAlternatives).toEqual([]);
   });
 
   it('returns empty serverChanges and a cursor when no changes exist', async () => {
@@ -90,6 +129,23 @@ describe('SyncService', () => {
     const since = new Date().toISOString(); // fresh cursor from a sync moments ago
     const result = await service.sync('user-1', { since, changes: emptyChanges() });
     expect(new Date(result.newCursor).getTime()).toBeGreaterThanOrEqual(new Date(since).getTime());
+  });
+
+  it('clamps a future client updatedAt/deletedAt to the server clock (clock skew)', async () => {
+    // Relógio do device 2h adiantado: sem clamp, essa linha vence QUALQUER edição
+    // legítima das próximas 2h em todos os outros devices (LWW invertido).
+    const future = new Date(Date.now() + 2 * 3600_000).toISOString();
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        treinos: [{ id: 'treino-1', name: 'Skew', objetivo: null, createdAt: future, updatedAt: future, deletedAt: future }],
+      },
+    });
+
+    const call = mockPrisma.treino.upsert.mock.calls[0][0];
+    expect(new Date(call.create.updatedAt).getTime()).toBeLessThanOrEqual(Date.now());
+    expect(new Date(call.create.deletedAt).getTime()).toBeLessThanOrEqual(Date.now());
   });
 
   it('upserts an incoming treino row', async () => {
@@ -292,6 +348,7 @@ describe('SyncService', () => {
           id: 'se-1', sessaoTreinoId: 'st-1', exercicioId: 'ex-1', ordem: 1,
           nomeSnapshot: 'Esteira', grupoMuscularSnapshot: 'Cardio', categoriaSnapshot: 'Cardio',
           equipamentoSnapshot: 'Esteira', musculoAlvoSnapshot: null, nomeOriginalSnapshot: null,
+          movementPatternSnapshot: 'Locomotion',
           realizado: true, seriesRecomendadas: null, execucoesRecomendadas: null,
           cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null,
           substituidoPorExercicioId: null, substituicaoMotivo: null,
@@ -302,11 +359,13 @@ describe('SyncService', () => {
       },
     });
 
-    const create = mockPrisma.sessaoExercicio.upsert.mock.calls[0][0].create;
-    expect(create).toMatchObject({
+    const call = mockPrisma.sessaoExercicio.upsert.mock.calls[0][0];
+    expect(call.create).toMatchObject({
       trackingTypeSnapshot: 'cardio', duracaoRecomendadaSegundos: 1200,
       distanciaRecomendadaMetros: 3000, intensidadeRecomendada: 7,
+      movementPatternSnapshot: 'Locomotion',
     });
+    expect(call.update).toMatchObject({ movementPatternSnapshot: 'Locomotion' });
   });
 
   it('passes biomechanical exercise fields through on custom exercise push', async () => {

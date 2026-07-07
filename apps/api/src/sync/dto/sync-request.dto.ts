@@ -6,7 +6,7 @@ import {
 import type {
   ExerciseSyncRow, TreinoSyncRow, TreinoExercicioSyncRow, SessaoTreinoSyncRow,
   SessaoExercicioSyncRow, SerieRegistradaSyncRow, RegistroPesoSyncRow,
-  UserSettingSyncRow, SyncChanges, SyncRequest,
+  UserSettingSyncRow, ExerciseAlternativeSyncRow, SyncChanges, SyncRequest,
 } from '@academia/contracts';
 
 // Wire DTOs for POST /sync. Same shape as the @academia/contracts interfaces, but as
@@ -220,6 +220,9 @@ export class SessaoExercicioSyncRowDto implements SessaoExercicioSyncRow {
   @IsOptional() @IsString() @MaxLength(255)
   nomeOriginalSnapshot: string | null;
 
+  @IsOptional() @IsString() @MaxLength(255)
+  movementPatternSnapshot: string | null;
+
   @IsBoolean()
   realizado: boolean;
 
@@ -341,6 +344,20 @@ export class UserSettingSyncRowDto implements UserSettingSyncRow {
   deletedAt: string | null;
 }
 
+export class ExerciseAlternativeSyncRowDto implements ExerciseAlternativeSyncRow {
+  @IsString() @MaxLength(255)
+  exercicioId: string;
+
+  @IsString() @MaxLength(255)
+  alternativaId: string;
+
+  @IsOptional() @IsISO8601()
+  updatedAt: string | null;
+
+  @IsOptional() @IsISO8601()
+  deletedAt: string | null;
+}
+
 export class SyncChangesDto implements SyncChanges {
   @IsArray() @ValidateNested({ each: true }) @Type(() => ExerciseSyncRowDto)
   exercises: ExerciseSyncRowDto[];
@@ -365,6 +382,10 @@ export class SyncChangesDto implements SyncChanges {
 
   @IsArray() @ValidateNested({ each: true }) @Type(() => UserSettingSyncRowDto)
   userSettings: UserSettingSyncRowDto[];
+
+  // @IsOptional: clientes anteriores a este campo não o enviam.
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => ExerciseAlternativeSyncRowDto)
+  exerciseAlternatives: ExerciseAlternativeSyncRowDto[];
 }
 
 export class SyncRequestDto implements SyncRequest {

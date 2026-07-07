@@ -11,6 +11,7 @@ const emptyChanges = () => ({
   seriesRegistradas: [],
   registrosPeso: [],
   userSettings: [],
+  exerciseAlternatives: [],
 });
 
 const makeRepo = (dirtyRows: any[] = []) => ({
@@ -33,6 +34,7 @@ describe('SyncEngine', () => {
   let sessaoExercicioRepo: ReturnType<typeof makeRepo>;
   let serieRepo: ReturnType<typeof makeRepo>;
   let pesoRepo: ReturnType<typeof makeRepo>;
+  let exerciseAlternativeRepo: ReturnType<typeof makeRepo>;
 
   const makeEngine = () =>
     new SyncEngine(
@@ -45,6 +47,7 @@ describe('SyncEngine', () => {
       sessaoExercicioRepo,
       serieRepo,
       pesoRepo,
+      exerciseAlternativeRepo,
       undefined,
       { attempts: 3, baseDelayMs: 0 },
     );
@@ -59,6 +62,21 @@ describe('SyncEngine', () => {
     sessaoExercicioRepo = makeRepo();
     serieRepo = makeRepo();
     pesoRepo = makeRepo();
+    exerciseAlternativeRepo = makeRepo();
+  });
+
+  it('pusha os vínculos de alternativa dirty e aplica os do servidor após exercises', async () => {
+    const link = { exercicioId: 'ex-a', alternativaId: 'ex-b', updatedAt: 'T1', deletedAt: null };
+    exerciseAlternativeRepo = makeRepo([link]);
+    apiClient.sync = vi.fn().mockResolvedValue({
+      serverChanges: { ...emptyChanges(), exerciseAlternatives: [link] },
+      newCursor: 'c1',
+    });
+
+    await makeEngine().run();
+
+    expect(apiClient.sync.mock.calls[0][0].changes.exerciseAlternatives).toEqual([link]);
+    expect(exerciseAlternativeRepo.applyServerRows).toHaveBeenCalledWith([link]);
   });
 
   it('sends dirty rows and applies server changes', async () => {
@@ -186,7 +204,7 @@ describe('SyncEngine', () => {
         { sync: apiClient.sync },
         mapStorage,
         exerciseRepo, treinoRepo, treinoExercicioRepo, sessaoTreinoRepo,
-        sessaoExercicioRepo, serieRepo, pesoRepo,
+        sessaoExercicioRepo, serieRepo, pesoRepo, exerciseAlternativeRepo,
         undefined,
         { attempts: 3, baseDelayMs: 0 },
         { current: () => current, onSwitch },

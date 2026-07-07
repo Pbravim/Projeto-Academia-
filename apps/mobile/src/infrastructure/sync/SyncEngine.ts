@@ -8,6 +8,7 @@ import type {
   SessaoExercicioSyncRow,
   SerieRegistradaSyncRow,
   RegistroPesoSyncRow,
+  ExerciseAlternativeSyncRow,
 } from '@academia/contracts';
 
 export const SYNC_CURSOR_KEY = '@sync/cursor';
@@ -56,6 +57,7 @@ export class SyncEngine {
     private readonly sessaoExercicioRepo: SyncableRepo<SessaoExercicioSyncRow>,
     private readonly serieRepo: SyncableRepo<SerieRegistradaSyncRow>,
     private readonly pesoRepo: SyncableRepo<RegistroPesoSyncRow>,
+    private readonly exerciseAlternativeRepo: SyncableRepo<ExerciseAlternativeSyncRow>,
     private readonly database?: TransactionRunner,
     private readonly retry: RetryPolicy = DEFAULT_RETRY,
     /**
@@ -102,6 +104,7 @@ export class SyncEngine {
       sessaoExercicios,
       seriesRegistradas,
       registrosPeso,
+      exerciseAlternatives,
     ] = await Promise.all([
       this.exerciseRepo.getDirty(),
       this.treinoRepo.getDirty(),
@@ -110,6 +113,7 @@ export class SyncEngine {
       this.sessaoExercicioRepo.getDirty(),
       this.serieRepo.getDirty(),
       this.pesoRepo.getDirty(),
+      this.exerciseAlternativeRepo.getDirty(),
     ]);
 
     let response: SyncResponse;
@@ -125,6 +129,7 @@ export class SyncEngine {
           seriesRegistradas,
           registrosPeso,
           userSettings: [],
+          exerciseAlternatives,
         },
       });
     } catch (err: unknown) {
@@ -146,6 +151,8 @@ export class SyncEngine {
     // (Promise.all) violava a FK e o restore nunca completava.
     const applyAll = async () => {
       await applyIfAny(serverChanges.exercises, this.exerciseRepo);
+      // Depois de exercises (FK para exercises com ON DELETE CASCADE):
+      await applyIfAny(serverChanges.exerciseAlternatives ?? [], this.exerciseAlternativeRepo);
       await applyIfAny(serverChanges.treinos, this.treinoRepo);
       await applyIfAny(serverChanges.treinoExercicios, this.treinoExercicioRepo);
       await applyIfAny(serverChanges.sessaoTreinos, this.sessaoTreinoRepo);

@@ -21,6 +21,7 @@ model User {
   registrosPeso  RegistroPeso[]
   settings       UserSetting[]
   refreshTokens  RefreshToken[]
+  exerciseAlternatives ExerciseAlternative[]
 
   @@map("users")
 }
@@ -146,6 +147,7 @@ model SessaoExercicio {
   equipamentoSnapshot      String?   @map("equipamento_snapshot")
   musculoAlvoSnapshot      String?   @map("musculo_alvo_snapshot")
   nomeOriginalSnapshot     String?   @map("nome_original_snapshot")
+  movementPatternSnapshot  String?   @map("movement_pattern_snapshot")
   realizado                Boolean   @default(true)
   seriesRecomendadas       Int?      @map("series_recomendadas")
   execucoesRecomendadas    Int?      @map("execucoes_recomendadas")
@@ -208,6 +210,20 @@ model RegistroPeso {
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("registros_peso")
+}
+
+model ExerciseAlternative {
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercicioId     String    @map("exercicio_id")
+  alternativaId   String    @map("alternativa_id")
+  updatedAt       String?   @map("updated_at")
+  deletedAt       String?   @map("deleted_at")
+  dirty           Boolean   @default(false)
+  serverUpdatedAt DateTime? @map("server_updated_at") @db.Timestamptz
+
+  @@id([userId, exercicioId, alternativaId])
+  @@map("exercise_alternatives")
 }
 
 model UserSetting {

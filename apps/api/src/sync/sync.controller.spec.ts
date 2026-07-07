@@ -10,6 +10,7 @@ const emptyReq: SyncRequest = {
   changes: {
     exercises: [], treinos: [], treinoExercicios: [], sessaoTreinos: [],
     sessaoExercicios: [], seriesRegistradas: [], registrosPeso: [], userSettings: [],
+    exerciseAlternatives: [],
   },
 };
 

@@ -340,7 +340,29 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
   }
 
   async applyServerRows(rows: import('@academia/contracts').ExerciseSyncRow[]): Promise<void> {
-    for (const r of rows) {
+    for (const incoming of rows) {
+      // UNIQUE(normalized_name): dois devices podem criar customs homônimos com
+      // ids distintos. Sem tratamento, o INSERT estoura e aborta o pull inteiro
+      // (e o antigo REPLACE apagava o custom local em silêncio).
+      let r = incoming;
+      const clash = await this.database.getFirst<{ id: string; is_custom: number }>(
+        'SELECT id, is_custom FROM exercises WHERE normalized_name = ? AND id <> ?',
+        [r.normalizedName, r.id]
+      );
+      if (clash && clash.is_custom === 1) {
+        // Renomeia o custom local (dirty=1: o rename sinca) e deixa a linha do
+        // servidor com o nome canônico. Nada é perdido em nenhum device.
+        const suffix = ` (${clash.id.slice(-4)})`;
+        await this.database.run(
+          'UPDATE exercises SET name = name || ?, normalized_name = normalized_name || ?, updated_at = ?, dirty = 1 WHERE id = ?',
+          [suffix, suffix, nowIso(), clash.id]
+        );
+      } else if (clash) {
+        // Colisão com o catálogo local (seed compartilhado — não renomeamos):
+        // o custom incoming ganha um sufixo determinístico por id neste device.
+        const suffix = ` (${r.id.slice(-4)})`;
+        r = { ...r, name: r.name + suffix, normalizedName: r.normalizedName + suffix };
+      }
       // UPSERT (não REPLACE): REPLACE dispararia o ON DELETE CASCADE das tabelas
       // de alternativas em cada pull, apagando os links locais.
       await this.database.run(

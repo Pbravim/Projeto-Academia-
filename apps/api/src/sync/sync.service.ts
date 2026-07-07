@@ -30,6 +30,7 @@ export class SyncService {
   async sync(userId: string, req: SyncRequest): Promise<SyncResponse> {
     const sinceDate = req.since ? new Date(req.since) : null;
     const now = new Date();
+    this.clampClientClocks(req.changes, now.toISOString());
 
     const serverChanges = await this.prisma.$transaction(async (tx) => {
       await this.applyExercises(tx, userId, req.changes.exercises, now);
@@ -40,6 +41,8 @@ export class SyncService {
       await this.applySeriesRegistradas(tx, userId, req.changes.seriesRegistradas, now);
       await this.applyRegistrosPeso(tx, userId, req.changes.registrosPeso, now);
       await this.applyUserSettings(tx, userId, req.changes.userSettings, now);
+      // `?? []`: clientes anteriores ao campo exerciseAlternatives não o enviam.
+      await this.applyExerciseAlternatives(tx, userId, req.changes.exerciseAlternatives ?? [], now);
 
       return this.pullChanges(tx, userId, sinceDate);
     });
@@ -49,6 +52,25 @@ export class SyncService {
       Date.now() - CURSOR_SAFETY_MARGIN_MS,
     ));
     return { serverChanges, newCursor: safeCursor.toISOString() };
+  }
+
+  // O LWW compara timestamps gerados pelo RELÓGIO DO CLIENTE: um device 2h
+  // adiantado venceria qualquer edição legítima das próximas 2h em todos os
+  // outros devices. Clampar ao relógio do servidor limita o dano do skew.
+  private clampClientClocks(changes: SyncChanges, nowIso: string) {
+    const clamp = (r: { updatedAt: string | null; deletedAt: string | null }) => {
+      if (r.updatedAt && r.updatedAt > nowIso) r.updatedAt = nowIso;
+      if (r.deletedAt && r.deletedAt > nowIso) r.deletedAt = nowIso;
+    };
+    changes.exercises.forEach(clamp);
+    changes.treinos.forEach(clamp);
+    changes.treinoExercicios.forEach(clamp);
+    changes.sessaoTreinos.forEach(clamp);
+    changes.sessaoExercicios.forEach(clamp);
+    changes.seriesRegistradas.forEach(clamp);
+    changes.registrosPeso.forEach(clamp);
+    changes.userSettings.forEach(clamp);
+    changes.exerciseAlternatives?.forEach(clamp); // ausente em clientes antigos
   }
 
   private lwwUpdate<T extends { updatedAt: string | null; deletedAt: string | null }>(
@@ -327,6 +349,7 @@ export class SyncService {
           nomeSnapshot: winner.nomeSnapshot, grupoMuscularSnapshot: winner.grupoMuscularSnapshot,
           categoriaSnapshot: winner.categoriaSnapshot, equipamentoSnapshot: winner.equipamentoSnapshot,
           musculoAlvoSnapshot: winner.musculoAlvoSnapshot, nomeOriginalSnapshot: winner.nomeOriginalSnapshot,
+          movementPatternSnapshot: winner.movementPatternSnapshot,
           realizado: winner.realizado, seriesRecomendadas: winner.seriesRecomendadas,
           execucoesRecomendadas: winner.execucoesRecomendadas, cargaPadrao: winner.cargaPadrao,
           tempoDescansoSegundos: winner.tempoDescansoSegundos, metodo: winner.metodo,
@@ -341,6 +364,7 @@ export class SyncService {
         },
         update: {
           nomeSnapshot: winner.nomeSnapshot, realizado: winner.realizado,
+          movementPatternSnapshot: winner.movementPatternSnapshot,
           seriesRecomendadas: winner.seriesRecomendadas, execucoesRecomendadas: winner.execucoesRecomendadas,
           cargaPadrao: winner.cargaPadrao, tempoDescansoSegundos: winner.tempoDescansoSegundos,
           metodo: winner.metodo, grupoId: winner.grupoId,
@@ -484,12 +508,53 @@ export class SyncService {
     }
   }
 
+  private async applyExerciseAlternatives(
+    tx: any,
+    userId: string,
+    rows: NonNullable<SyncRequest['changes']['exerciseAlternatives']>,
+    now: Date,
+  ) {
+    // Ownership é estrutural: a PK composta inclui userId, então uma linha de
+    // outro usuário é inalcançável — não há checagem de IDOR a fazer.
+    const existing = rows.length === 0 ? [] : await tx.exerciseAlternative.findMany({
+      where: {
+        userId,
+        OR: rows.map((r) => ({ exercicioId: r.exercicioId, alternativaId: r.alternativaId })),
+      },
+      select: { exercicioId: true, alternativaId: true, updatedAt: true, deletedAt: true },
+    });
+    const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
+      existing.map((r: any) => [`${r.exercicioId}|${r.alternativaId}`, r]),
+    );
+
+    for (const row of rows) {
+      const winner = this.lwwUpdate(row, existingMap.get(`${row.exercicioId}|${row.alternativaId}`));
+      await tx.exerciseAlternative.upsert({
+        where: {
+          userId_exercicioId_alternativaId: {
+            userId, exercicioId: row.exercicioId, alternativaId: row.alternativaId,
+          },
+        },
+        create: {
+          userId, exercicioId: row.exercicioId, alternativaId: row.alternativaId,
+          updatedAt: winner.updatedAt, deletedAt: winner.deletedAt,
+          dirty: false, serverUpdatedAt: now,
+        },
+        update: {
+          updatedAt: winner.updatedAt, deletedAt: winner.deletedAt,
+          dirty: false, serverUpdatedAt: now,
+        },
+      });
+    }
+  }
+
   private async pullChanges(tx: any, userId: string, since: Date | null): Promise<SyncChanges> {
     const cursor = since ? { gt: since } : undefined;
     const where = (extra = {}) => ({ ...extra, serverUpdatedAt: cursor });
 
     const [exercises, treinos, treinoExercicios, sessaoTreinos,
-           sessaoExercicios, seriesRegistradas, registrosPeso, userSettings] = await Promise.all([
+           sessaoExercicios, seriesRegistradas, registrosPeso, userSettings,
+           exerciseAlternatives] = await Promise.all([
       tx.exercise.findMany({ where: where({ OR: [{ userId }, { isCustom: false }] }) }),
       tx.treino.findMany({ where: where({ userId }) }),
       tx.treinoExercicio.findMany({
@@ -504,6 +569,7 @@ export class SyncService {
       }),
       tx.registroPeso.findMany({ where: where({ userId }) }),
       tx.userSetting.findMany({ where: where({ userId }) }),
+      tx.exerciseAlternative.findMany({ where: where({ userId }) }),
     ]);
 
     return {
@@ -515,6 +581,7 @@ export class SyncService {
       seriesRegistradas: seriesRegistradas.map(this.mapSerieRegistrada),
       registrosPeso: registrosPeso.map(this.mapRegistroPeso),
       userSettings: userSettings.map(this.mapUserSetting),
+      exerciseAlternatives: exerciseAlternatives.map(this.mapExerciseAlternative),
     };
   }
 
@@ -558,7 +625,9 @@ export class SyncService {
     ordem: r.ordem, nomeSnapshot: r.nomeSnapshot,
     grupoMuscularSnapshot: r.grupoMuscularSnapshot, categoriaSnapshot: r.categoriaSnapshot,
     equipamentoSnapshot: r.equipamentoSnapshot, musculoAlvoSnapshot: r.musculoAlvoSnapshot,
-    nomeOriginalSnapshot: r.nomeOriginalSnapshot, realizado: r.realizado,
+    nomeOriginalSnapshot: r.nomeOriginalSnapshot,
+    movementPatternSnapshot: r.movementPatternSnapshot ?? null,
+    realizado: r.realizado,
     seriesRecomendadas: r.seriesRecomendadas, execucoesRecomendadas: r.execucoesRecomendadas,
     cargaPadrao: r.cargaPadrao, tempoDescansoSegundos: r.tempoDescansoSegundos,
     metodo: r.metodo, grupoId: r.grupoId,
@@ -587,5 +656,10 @@ export class SyncService {
 
   private mapUserSetting = (r: any) => ({
     key: r.key, value: r.value, updatedAt: r.updatedAt ?? null, deletedAt: r.deletedAt,
+  });
+
+  private mapExerciseAlternative = (r: any) => ({
+    exercicioId: r.exercicioId, alternativaId: r.alternativaId,
+    updatedAt: r.updatedAt ?? null, deletedAt: r.deletedAt,
   });
 }
