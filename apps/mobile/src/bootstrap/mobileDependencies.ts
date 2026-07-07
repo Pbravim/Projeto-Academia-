@@ -76,6 +76,10 @@ import mobilidadeInferiorJson from '../infrastructure/exercises/seeds/mobilidade
 import mobilidadeSuperiorColunaJson from '../infrastructure/exercises/seeds/mobilidade_superior_coluna.json';
 import reabilitacaoOmbroCotoveloJson from '../infrastructure/exercises/seeds/reabilitacao_ombro_cotovelo.json';
 import reabilitacaoQuadrilJoelhoJson from '../infrastructure/exercises/seeds/reabilitacao_quadril_joelho.json';
+import reabilitacaoLombarCoreJson from '../infrastructure/exercises/seeds/reabilitacao_lombar_core.json';
+import forcaMaquinasEspecializadasJson from '../infrastructure/exercises/seeds/forca_maquinas_especializadas.json';
+import forcaSuspensionTrainerJson from '../infrastructure/exercises/seeds/forca_suspension_trainer.json';
+import forcaElasticoFuncionalJson from '../infrastructure/exercises/seeds/forca_elastico_funcional.json';
 
 const peitoPress = peitoPressJson as SeedFile;
 const peitoFly = peitoFlyJson as SeedFile;
@@ -100,6 +104,10 @@ const mobilidadeInferior = mobilidadeInferiorJson as SeedFile;
 const mobilidadeSuperiorColuna = mobilidadeSuperiorColunaJson as SeedFile;
 const reabilitacaoOmbroCotovelo = reabilitacaoOmbroCotoveloJson as SeedFile;
 const reabilitacaoQuadrilJoelho = reabilitacaoQuadrilJoelhoJson as SeedFile;
+const reabilitacaoLombarCore = reabilitacaoLombarCoreJson as SeedFile;
+const forcaMaquinasEspecializadas = forcaMaquinasEspecializadasJson as SeedFile;
+const forcaSuspensionTrainer = forcaSuspensionTrainerJson as SeedFile;
+const forcaElasticoFuncional = forcaElasticoFuncionalJson as SeedFile;
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
@@ -130,6 +138,10 @@ const seedFiles: SeedFile[] = [
   aquecimentoDinamico, mobilidadeInferior, mobilidadeSuperiorColuna,
   reabilitacaoOmbroCotovelo,
   reabilitacaoQuadrilJoelho,
+  reabilitacaoLombarCore,
+  forcaMaquinasEspecializadas,
+  forcaSuspensionTrainer,
+  forcaElasticoFuncional,
 ];
 
 // Seeding the catalog upserts ~250 exercises + their alternatives — ~1500 writes serialized

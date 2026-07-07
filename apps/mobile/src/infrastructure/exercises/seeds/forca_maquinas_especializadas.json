@@ -1,0 +1,116 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-341",
+      "name": "Pullover na Maquina",
+      "name_variations": [
+        "Machine Pullover",
+        "Lever Pullover",
+        "Pullover Nautilus",
+        "Pullover Hammer Strength",
+        "Pullover no Aparelho"
+      ],
+      "group_muscles": ["Costas", "Peito"],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Selectorized Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Pull",
+      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
+      "stabilizers": ["peitoral_esternal", "triceps_cabeca_longa", "trapezio_inferior", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-075", "gif-ex-029", "seed-ex-077"],
+      "muscle_group_alternatives": ["seed-ex-076", "gif-ex-044"],
+      "review_flags": [
+        {
+          "field": "musculo_alvo",
+          "concern": "Marcado lat-dominante (grande_dorsal primeiro), seguindo ExRx Lever Pullover (target: Latissimus Dorsi; pec esternal e vira sinergista com cotovelos apoiados). Diverge dos pullovers livres do catalogo (gif-ex-029/seed-ex-077: peitoral_esternal primeiro).",
+          "revisit_when": "Substituicao rankear o pullover maquina longe dos pullovers livres, ou usuarios o buscarem na aba de peito.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    },
+    {
+      "id": "seed-ex-342",
+      "name": "Belt Squat",
+      "name_variations": [
+        "Belt Squat Machine",
+        "Machine Belt Squat",
+        "Hip Belt Squat",
+        "Agachamento com Cinto de Tracao",
+        "Squat Lever Belt"
+      ],
+      "group_muscles": ["Quadriceps", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Maquina",
+      "primary_equipment": "Plate-Loaded Machine",
+      "secondary_equipment": "Cinto de Tracao",
+      "movement_pattern": "Squat",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["gluteos", "isquiotibiais", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-035", "seed-ex-113", "gif-ex-154"],
+      "muscle_group_alternatives": ["seed-ex-034", "seed-ex-112"]
+    },
+    {
+      "id": "seed-ex-343",
+      "name": "Hiperextensao Reversa",
+      "name_variations": [
+        "Reverse Hyperextension",
+        "Reverse Hyper",
+        "Reverse Hyper Machine",
+        "Hiperextensao Inversa",
+        "Reverse Back Extension"
+      ],
+      "group_muscles": ["Gluteos", "Posterior", "Lombar"],
+      "category": "Isolado",
+      "equipment": "Maquina",
+      "primary_equipment": "Plate-Loaded Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Hip Extension",
+      "musculo_alvo": ["gluteos", "isquiotibiais"],
+      "stabilizers": ["lombar", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-053", "gif-ex-142", "seed-ex-121"],
+      "muscle_group_alternatives": ["seed-ex-040", "seed-ex-039"],
+      "review_flags": [
+        {
+          "field": "movement_pattern",
+          "concern": "Classificado 'Hip Extension' (tronco fixo no banco, pernas balancam — familia kickback/gluteo na maquina, eretores isometricos), mas e o espelho da hiperextensao de banco (gif-ex-053), que ficou 'Hinge'. 4+ bases (BarBend, ATHLEAN-X, SetForSet, Fitbod) confirmam gluteos/isquios como motores e lombar como estabilizador.",
+          "revisit_when": "Substituicao nao oferecer gif-ex-053 como alternativa proxima, ou o ranking igualar reverse hyper a hip thrust acima da hiperextensao.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    },
+    {
+      "id": "seed-ex-344",
+      "name": "Hack Squat Reverso",
+      "name_variations": [
+        "Reverse Hack Squat",
+        "Hack Squat Invertido",
+        "Facing-In Hack Squat",
+        "Hack Squat de Frente para o Apoio"
+      ],
+      "group_muscles": ["Gluteos", "Quadriceps", "Posterior"],
+      "category": "Composto",
+      "equipment": "Maquina",
+      "primary_equipment": "Hack Squat Machine",
+      "secondary_equipment": null,
+      "movement_pattern": "Squat",
+      "musculo_alvo": ["gluteos", "quadriceps"],
+      "stabilizers": ["isquiotibiais", "core", "lombar"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-113", "gif-ex-154"],
+      "muscle_group_alternatives": ["seed-ex-040", "seed-ex-121"],
+      "review_flags": [
+        {
+          "field": "musculo_alvo",
+          "concern": "Registro distinto do Hack Squat (seed-ex-113) apenas pela enfase: de frente para o apoio, a mecanica de quadril desloca o alvo para gluteos/posterior (5+ bases: FitnessVolt, BOXROX, MasterClass, Westside Barbell, DMoose); roteado por posterior_gluteos como movimento de gluteo. Se a enfase for considerada microvariante de posicao, fundir com seed-ex-113.",
+          "revisit_when": "Ranking de substituicao tratar 344 e 113 como duplicatas, ou curadoria decidir que variantes de orientacao nao merecem registro proprio.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    }
+  ]
+}

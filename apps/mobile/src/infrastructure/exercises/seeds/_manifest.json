@@ -2150,6 +2150,401 @@
         "seed-ex-319",
         "seed-ex-320"
       ]
+    },
+    "reabilitacao_lombar_core": {
+      "status": "complete",
+      "type": "new_category_rehabilitation",
+      "exercise_count": 10,
+      "researched_at": "2026-07-06",
+      "completed_at": "2026-07-06",
+      "catalog_version": 1,
+      "tracking_type": "reps_only|hold (MISTO)",
+      "category": "Rehabilitation",
+      "research_notes": "ULTIMA sessao new_categories. Nova categoria Rehabilitation (group_muscles ['Reabilitacao']). SCOPE = reabilitacao/prehab de LOMBAR + CORE PROFUNDO: McGill big three (curl-up 401 e bird dog 402 criados aqui; side plank JA EXISTE como seed-ex-127 em abdome - cross-referenciado, nao recriado), motor control lombopelvico (pelvic tilt 403, bracing 404, drawing-in/TA 405 - progressao Physiopedia/Richardson), extensao lombar de baixa carga (superman 406 + superman isometrico 407, roteado de abdome), padrao de quadril spine-sparing (quadruped rock back 408, hip hinge com bastao 409 - reeducacao E3/McGill) e rotacao lombar suave (knee rolls 410 - NHS). Bird Dog e Superman estavam PRE-ROTEADOS para ca pelo ledger de abdome. tracking_type MISTO: 7 'reps_only' (401/402/403/406/408/409/410 - drills de repeticao controlada; curl-up McGill = reps de holds curtos 8-10s piramide 5-3-1, a repeticao e a unidade contavel; reps_load PROIBIDO) + 3 'hold' (bracing 404, drawing-in 405, superman isometrico 407). Codigo musculo_alvo NOVO PT-minusculo: 'transverso_abdominal' (core profundo - alvo especifico de bracing/drawing-in; 'core' generico agruparia com prancha/Pallof). REUTILIZADOS: abdomen, core, lombar, eretores_espinha, obliquo, gluteos, isquiotibiais, flexores_quadril, deltoide, trapezio. 2 review_flags: 406 (lacuna enum 'Trunk Extension'; gif-ex-053 e Hinge - substituicao liga so por musculo_alvo lombar), 405 (bracing vs hollowing: estrategias motoras concorrentes McGill vs Richardson/NASM, mantidas como registros distintos equivalentes). Notas brutas em docs/exercises/research-reabilitacao_lombar_core.md.",
+      "completion_notes": "Universo de reabilitacao lombar+core profundo auditado contra 12 bases independentes (clinico-pesado: backfitpro/McGill, Squat University, physio-pedia x3 [Lumbar Instability, Lumbar Motor Control, Core Stability], e3rehab, spine-health/McKenzie, NHS inform, BarBend/McGill, RehabHero, PMC/TA, MyRehabConnection). Curva de retornos decrescentes: rodada 1 (backfitpro, squatuniversity, physio-pedia x3) -> +8 distintos (curl-up McGill, bird dog, pelvic tilt, bracing, drawing-in, superman, superman isometrico, rock back); rodada 2 (e3rehab, spine-health, NHS) -> +2 distintos (hip hinge com bastao, rotacao lombar deitado); rodada 3 (barbend, rehabhero, PMC, myrehabconnection) -> +0 distintos. Fechamento confirmado. 10 registros (seed-ex-401..410). Side plank/dead bug/cat-camel/esfinge-cobra/pontes/back-extension ja existiam (cross-referenciados); McKenzie press-up dobrado no seed-ex-240; carries QL ja roteados a forca_kettlebell. gif_path null (midia e assunto separado).",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de reabilitacao lombar+core - informativo, NAO lido pelo app. Notas brutas em docs/exercises/research-reabilitacao_lombar_core.md.",
+        "databases_consulted": [
+          "https://www.backfitpro.com/mastering-the-mcgill-big-three-progressions-variations-and-common-pitfalls/",
+          "https://squatuniversity.com/2018/06/21/the-mcgill-big-3-for-core-stability/",
+          "https://www.physio-pedia.com/Exercises_for_Lumbar_Instability",
+          "https://www.physio-pedia.com/Lumbar_Motor_Control_Training",
+          "https://www.physio-pedia.com/Core_Stability",
+          "https://e3rehab.com/low-back-pain-rehab/",
+          "https://www.spine-health.com/wellness/exercise/7-mckenzie-method-exercises-back-pain-and-sciatica",
+          "https://www.nhsinform.scot/illnesses-and-conditions/muscle-bone-and-joints/neck-and-back-problems-and-conditions/exercises-for-back-pain/",
+          "https://barbend.com/stu-mcgill-core-exercises/",
+          "https://www.rehabhero.ca/exercise/quadruped-rock-back",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC6778169/",
+          "https://myrehabconnection.com/training-the-hip-hinge/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos deliberadamente fora desta sessao - ja existentes (cross-referenciados), roteados ou nao-distintos.",
+        "routed_to_other_sessions": {
+          "abdome": [
+            "Prancha Lateral / Side Plank (McGill big three #2 - JA EXISTE seed-ex-127, cross-referenciada)",
+            "Dead Bug (JA EXISTE gif-ex-123 - equivalente do bird dog 402)",
+            "Prancha (seed-ex-031) e Pallof Press (seed-ex-124) - anti-extensao/anti-rotacao de forca ja no catalogo"
+          ],
+          "mobilidade_superior_coluna": [
+            "Cat-Camel / Gato-Camelo (JA EXISTE seed-ex-238/239; dinamico seed-ex-215 em aquecimento)",
+            "McKenzie Prone Press-Up / Esfinge para Cobra (JA EXISTE seed-ex-240 - mesmo estimulo de extensao prona apoiada)"
+          ],
+          "reabilitacao_quadril_joelho": [
+            "Ponte de gluteo de ativacao / unilateral / mini band (JA EXISTEM seed-ex-294/295/296)"
+          ],
+          "posterior_gluteos": [
+            "Back Extension / Hiperextensao com carga (JA EXISTE gif-ex-053 - forca; a isometria prona no solo 407 e reabilitacao distinta)"
+          ],
+          "alongamento_estatico": [
+            "Joelho ao Peito (seed-ex-186), Postura da Crianca (seed-ex-176), Torcao Espinhal Sentado (seed-ex-182) - alongamentos passivos"
+          ],
+          "forca_kettlebell": [
+            "Farmer's Carry / Suitcase Carry (QL - ja roteados pelo ledger de abdome)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "mcgill_progression_variants": [
+            "Curl-up com braco elevado / pre-tensao (progressao de tecnica do 401)",
+            "Bird dog so braco / so perna / desenhando quadrados (regressao-progressao do 402)",
+            "Side plank de joelhos / pes empilhados / com elevacao de perna (regressao-progressao do seed-ex-127)"
+          ],
+          "extension_variants": [
+            "Superman com bastao / bracos ao lado do corpo (variantes do 406)",
+            "Teste de Biering-Sorensen no banco romano (aparelho/posicao do 407 ~ gif-ex-053)",
+            "McKenzie prone lying / prone on elbows (estagios de ROM do press-up ~ seed-ex-240)"
+          ],
+          "motor_control_variants": [
+            "Ponte segmentar / bridge com articulacao (variante de tempo-controle da ponte seed-ex-294 + gato-camelo)",
+            "Marcha supina / heel taps (regressao do dead bug gif-ex-123)",
+            "Pelvic tilt em pe / na parede (posicao do 403)",
+            "Stomach vacuum (ja excluido em abdome; ~ drawing-in 405)"
+          ]
+        }
+      },
+      "conventions": {
+        "group_muscles": "group_muscles ['Reabilitacao'] intencional - secao da categoria Rehabilitation do presenter, NAO anatomico (como as outras sessoes reabilitacao_*).",
+        "tracking_type_misto": "7 'reps_only' + 3 'hold' (bracing 404, drawing-in 405, superman isometrico 407). Curl-up McGill = reps_only (reps de holds curtos de 8-10s, piramide 5-3-1 - a repeticao e a unidade contavel; 'hold' reservado a isometria unica prolongada, precedente quad set).",
+        "movement_pattern_null_gaps": "null (lacunas documentadas): EXTENSAO DE TRONCO prona (superman 406/407) - NAO existe enum 'Trunk Extension' (gif-ex-053 e Hinge por ser quadril-dominante; review_flag no 406); INCLINACAO PELVICA (403), BRACING/DRAWING-IN (404/405 - drills isometricos de ativacao sem momento externo; Anti-Extension reservado a familia prancha/dead bug conforme abdome) e ROCK BACK (408 - motor control quadrupede). Padroes USADOS: Trunk Flexion (401), Anti-Extension (402, precedente dead bug gif-ex-123), Hinge (409), Rotation (410).",
+        "novos_codigos_musculo": "Codigo PT-minusculo NOVO: 'transverso_abdominal' (core profundo - alvo especifico de bracing/drawing-in; 'core' sozinho e generico e agruparia com prancha/Pallof como quase-identicos). REUTILIZADOS: abdomen, core, lombar, eretores_espinha, obliquo, gluteos, isquiotibiais, flexores_quadril, deltoide, trapezio. Validador nao valida vocabulario de musculo_alvo.",
+        "equipment": "Tudo Bodyweight. Hip hinge 409: bastao e ferramenta de feedback -> primary 'Bodyweight' + secondary 'Bastao' (precedente roda abdominal/bola suica - NAO estende PRIMARY_EQUIPMENT).",
+        "bracing_vs_hollowing": "Bracing (404) e drawing-in (405) mantidos como 2 registros distintos e equivalentes entre si - estrategias motoras concorrentes (McGill vs Richardson/NASM); review_flag no 405 documenta o debate."
+      },
+      "review_flags_open": "2 flags abertos: seed-ex-406 (movement_pattern - lacuna 'Trunk Extension') e seed-ex-405 (equivalent_alternatives - bracing vs hollowing). Ver --list-flags.",
+      "covers": [
+        "seed-ex-401",
+        "seed-ex-402",
+        "seed-ex-403",
+        "seed-ex-404",
+        "seed-ex-405",
+        "seed-ex-406",
+        "seed-ex-407",
+        "seed-ex-408",
+        "seed-ex-409",
+        "seed-ex-410"
+      ]
+    },
+    "forca_maquinas_especializadas": {
+      "status": "complete",
+      "exercise_count": 4,
+      "researched_at": "2026-07-06",
+      "completed_at": "2026-07-06",
+      "catalog_version": 1,
+      "completion_notes": "Universo de máquinas especializadas auditado contra 20 bases (ExRx, MuscleWiki, Hevy, REP Fitness, Gymshark, Lift Vault, BarBend, ATHLEAN-X, SetForSet, Fitbod, FitnessVolt, Westside, Strength Warehouse, estudo EMG Adelphi, fitliferegime, Life Fitness, VASA...). Curva: rodada 1 (inventário+roteados) → 8 candidatos; rodada 2 (verificação dirigida) → 4 distintos / 4 variantes; rodada 3 (varredura por catálogos de máquinas) → +0 → fechamento confirmado. O catálogo já cobria 40+ registros de máquina; sessão pequena por desenho — só lacunas reais.",
+      "conventions": {
+        "regua_kettlebell": "Registro novo SÓ para máquina com estímulo distinto ausente; máquina que replica registro existente = variante de implemento excluída (machine hip thrust, back extension machine, rotary torso, GHR, pendulum, hack calf raise, donkey machine).",
+        "pullover_machine": "Roteado por costas_pull_vertical antes da extensão de vocabulário de máquinas (2026-06-10); agora Selectorized Machine. musculo_alvo lat-first (ExRx Lever Pullover) + review_flag — pullovers livres do catálogo são pec-first.",
+        "belt_squat": "Plate-Loaded Machine + secondary 'Cinto de Tracao'. Distinto por carga tênsil na pelve (sem compressão axial); EMG de membros inferiores ≈ back squat com tronco poupado.",
+        "reverse_hyper_pattern": "Hip Extension (tronco fixo, pernas balançam — família kickback), não Hinge; review_flag documenta o espelhamento com gif-ex-053 (Hinge).",
+        "reverse_hack": "Distinto de seed-ex-113 apenas por ênfase glútea (musculo_alvo gluteos+quadriceps); review_flag prevê fusão se a curadoria julgar microvariante de orientação.",
+        "pendulum_regua_sobre_roteamento": "Pendulum Squat roteado por quadriceps mas EXCLUÍDO — régua vence roteamento (precedente Z-press landmine): mesmo alvo/padrão do hack+V-squat, difere só em curva de resistência.",
+        "vocab_gaps": "Trap-Bar/Hex-Bar Deadlift e Sled Drag/Prowler NÃO mapeados para valores 'parecidos' — barra hexagonal e trenó sem valor no vocabulário controlado; exigem extensão (spec sub-5 + SKILL + validate_exercise_seeds.py) em sessão futura.",
+        "equipment_legacy": "Campo legado equipment = 'Maquina' (precedente das máquinas existentes).",
+        "shrug_gap_observacao": "Catálogo não tem nenhum shrug (barra/halter/máquina) — lacuna geral de trapézio superior anotada para curadoria, fora do escopo desta sessão."
+      },
+      "review_flags_open": "3 flags abertos: seed-ex-341 (musculo_alvo lat vs pec), seed-ex-343 (Hip Extension vs Hinge), seed-ex-344 (distinção de ênfase vs seed-ex-113). Ver --list-flags.",
+      "research_sources": {
+        "_comment": "Bases consultadas — informativo, NÃO lido pelo app. Notas por fonte em docs/exercises/research-forca_maquinas_especializadas.md.",
+        "databases_consulted": [
+          "https://exrx.net/WeightExercises/LatissimusDorsi/LVPullover",
+          "https://exrx.net/WeightExercises/LatissimusDorsi/LVPulloverH",
+          "https://musclewiki.com/exercise/machine-pullover",
+          "https://www.hevyapp.com/equipment/machine/",
+          "https://repfitness.com/blogs/training/belt-squat-exercise",
+          "https://www.gymshark.com/blog/article/how-to-use-the-belt-squat-machine",
+          "https://liftvault.com/exercises/belt-squat-vs-back-squat/",
+          "https://barbend.com/reverse-hyperextension/",
+          "https://learn.athleanx.com/articles/legs-for-men/how-to-do-reverse-hyperextension",
+          "https://www.setforset.com/blogs/news/reverse-hyperextensions",
+          "https://fitbod.me/exercises/reverse-hyperextension",
+          "https://blog.myarsenalstrength.com/pendulum-squat-vs-hack-squat",
+          "https://www.soletreadmills.com/blogs/news/hack-squat-vs-pendulum-squat-muscles-worked-benefits-compared",
+          "https://fitnessvolt.com/reverse-hack-squat/",
+          "https://www.boxrox.com/reverse-hack-squat-benefits-muscles-worked/",
+          "https://www.westside-barbell.com/a/blog/the-reverse-hack-squat",
+          "https://strengthwarehouseusa.com/blogs/resources/hip-thrust-machine-vs-barbell-hip-thrusts",
+          "https://scholarlyworks.adelphi.edu/esploro/outputs/journalArticle/Machine-Vs-Barbell-Hip-Thrust-Electromyographic/991004365122106266",
+          "https://powerliftingtechnique.com/glute-ham-raise-vs-nordic-curl/",
+          "https://fitliferegime.com/gym-equipment-machine-names-with-image/",
+          "https://www.lifefitness.com/en-us/catalog/strength-training/plate-loaded",
+          "https://vasafitness.com/blog/full-body-workout-using-selectorized-machines/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Máquinas deliberadamente fora — para auditorias futuras não as tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "futura_expansao_vocabulario_equipamento": [
+            "Trap-Bar / Hex-Bar Deadlift (barra hexagonal sem valor no vocabulário — roteado por posterior_gluteos)",
+            "Sled Drag / Prowler Push (trenó sem valor no vocabulário — roteado por panturrilha)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "resistance_curve_trajectory_variants": [
+            "Pendulum Squat (≈ seed-ex-113 + gif-ex-154; roteado por quadriceps, régua venceu)",
+            "Vertical / Horizontal Leg Press (variantes de ângulo do seed-ex-035)"
+          ],
+          "implement_variant_of_existing": [
+            "Machine Hip Thrust (EMG ≈ seed-ex-040, estudo Adelphi)",
+            "Seated/Lever Back Extension Machine (≈ gif-ex-053)",
+            "Rotary Torso Machine (≈ gif-ex-126 + seed-ex-125)",
+            "Donkey Calf Machine (≈ seed-ex-130)",
+            "Hack Squat Calf Raise (≈ seed-ex-042 + seed-ex-129; roteado por panturrilha)"
+          ],
+          "apparatus_variants": [
+            "GHD Glute-Ham Raise (variante de aparelho da nórdica gif-ex-143)",
+            "GHD Back Extension / GHD Sit-Up (≈ gif-ex-053 / abdominais existentes)",
+            "Sissy Squat Bench (aparelho de apoio do seed-ex-117)",
+            "Multi-Hip / 4-Way Hip Machine (combinação de seed-ex-119/121 + gif-ex-136)"
+          ]
+        }
+      },
+      "covers": [
+        "seed-ex-341",
+        "seed-ex-342",
+        "seed-ex-343",
+        "seed-ex-344"
+      ]
+    },
+    "forca_suspension_trainer": {
+      "status": "complete",
+      "exercise_count": 13,
+      "researched_at": "2026-07-06",
+      "completed_at": "2026-07-06",
+      "catalog_version": 1,
+      "research_notes": "Sessão de expansão TRX/fitas de suspensão (primary_equipment 'Suspension Trainer'). Núcleo = movimentos roteados pelas sessões completas (peito_fly, costas_pull_vertical, costas_pull_horizontal, biceps, triceps_push_down, abdome). Régua kettlebell/landmine aplicada: registro novo só quando a instabilidade da suspensão muda o estímulo vs registro existente. 13 registros seed-ex-321..333; notas por fonte em docs/exercises/research-forca_suspension_trainer.md.",
+      "completion_notes": "Universo auditado contra 11 bases independentes (ExRx, TRX oficial, SET FOR SET, BarBend, Fitbod, Fitness Freedom Athletes, Greatist, ISPO, SF HealthTech, Muscle & Strength, ACE); curva de retornos decrescentes: rodada 1 (ExRx+TRX+S4S+BarBend+Fitbod) +13 -> rodada 2 (FFA+Greatist) +0 -> rodada 3 (ISPO+SFHealthTech+ExRx 2ª enumeração) +0 -> rodada 4 (M&S+ACE) +0; fechamento confirmado.",
+      "conventions": {
+        "equipment_legacy": "Campo legado equipment = 'Fitas de suspensao (TRX)' (precedente 'Kettlebell'/'Landmine'); primary_equipment 'Suspension Trainer'; secondary_equipment null (carga = peso corporal, implícito).",
+        "rings": "Anéis de ginástica dobram como variação do mesmo implemento (ExRx trata 'suspension trainer ou rings' como equivalentes em todas as páginas ST) — name_variations levam 'Ring Row', 'Ring Push-Up' etc.; movimentos exclusivos de anéis (muscle-up, iron cross) ficam fora do escopo.",
+        "chest_press_pushup": "TRX Chest Press e TRX Push-Up (mãos nas alças) = um registro (seed-ex-322); ângulo do corpo é progressão de carga. Push-up com pés nas fitas = variante de estabilidade da flexão declinada seed-ex-046 — excluído.",
+        "row_vs_barra": "Remada TRX (seed-ex-321) é distinta da Remada Invertida em barra (seed-ex-080): alças independentes/instáveis e pegada rotante; high/low/reverse-grip/single-arm row dobram nela (execution_type Can Be Both).",
+        "y_t_w": "Y e T flys são 2 registros com padrões distintos (Abduction trapezio_inferior vs Horizontal Abduction deltoide_posterior — precedente prone raises seed-ex-269/270); W fly e TRX Face Pull excluídos como não-distintos (≈ gif-ex-048 + seed-ex-324 + seed-ex-271).",
+        "pull_up": "TRX/Suspension Pull-Up (roteado por costas_pull_vertical) EXCLUÍDO: estímulo ≈ barra fixa neutra/rotante (seed-ex-009/072), mesmo precedente do Ring Dip em peito_press."
+      },
+      "review_flags_open": "2 flags abertos: seed-ex-325 (Elevacao Y TRX — Abduction vs arco overhead/scaption) e seed-ex-329 (Afundo Suspenso TRX — proximidade de estímulo com o Bulgaro seed-ex-114). Ver --list-flags.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de suspensão — informativo, NÃO lido pelo app. Notas por fonte em docs/exercises/research-forca_suspension_trainer.md.",
+        "databases_consulted": [
+          "https://exrx.net/WeightExercises/BackGeneral/STRow",
+          "https://exrx.net/WeightExercises/BackGeneral/STInvertedRow",
+          "https://exrx.net/WeightExercises/LatissimusDorsi/STPullup",
+          "https://exrx.net/WeightExercises/PectoralSternal/STFly",
+          "https://exrx.net/WeightExercises/PectoralSternal/STChestPress",
+          "https://exrx.net/WeightExercises/GluteusMaximus/STHipBridge",
+          "https://exrx.net/WeightExercises/Triceps/STTricepsExtension",
+          "https://exrx.net/WeightExercises/Hamstrings/STHangingLegCurl",
+          "https://exrx.net/WeightExercises/Brachialis/STArmCurl",
+          "https://www.trxtraining.com/blogs/news/trx-exercises",
+          "https://www.setforset.com/blogs/news/trx-exercises-and-workouts",
+          "https://barbend.com/best-trx-exercises/",
+          "https://fitbod.me/exercises/trx",
+          "https://fitnessfreedomathletes.com/the-ultimate-trx-exercise-list-with-video-guide-35-suspension-training-exercises/",
+          "https://greatist.com/fitness/effective-trx-exercises",
+          "https://www.ispo.com/en/know-how/trx-exercises-top-11-suspension-trainer",
+          "https://sfhealthtech.com/blogs/post/best-trx-exercises",
+          "https://www.muscleandstrength.com/articles/complete-guide-to-trx-suspension-training",
+          "https://www.acefitness.org/resources/pros/expert-articles/8773/quick-hit-workout-suspension-trainer/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de suspensão deliberadamente fora — para auditorias futuras não os tratarem como lacuna.",
+        "routed_to_other_sessions": {
+          "cardio_hiit_funcional": [
+            "TRX Mountain Climber (≈ seed-ex-157)",
+            "TRX Burpee / Single-Leg Burpee",
+            "TRX Jump Squat (≈ seed-ex-158)"
+          ]
+        },
+        "excluded_as_non_distinct": {
+          "implement_variant_of_existing": [
+            "TRX/Suspension Pull-Up e Self-Assisted Pull-Up (≈ seed-ex-009/072; precedente Ring Dip)",
+            "TRX Dip / Ring Dip (já excluído em peito_press; ≈ seed-ex-048/108)",
+            "TRX Glute Bridge / Hip Press / Hip Thrust / Hip Extension (≈ gif-ex-140/147 + seed-ex-040; estímulo suspenso do posterior coberto por seed-ex-330)",
+            "TRX Leg Raise (≈ seed-ex-032/122)",
+            "TRX Plank / Side Plank / Reverse Plank (variantes de estabilidade de seed-ex-031/127)",
+            "TRX Body Saw (variante anti-extensão de seed-ex-031 + seed-ex-333)",
+            "TRX Face Pull e W Fly (≈ gif-ex-048 + seed-ex-324 + seed-ex-271; 1 de 11 bases)",
+            "TRX Triceps Kickback (≈ seed-ex-027 + seed-ex-327)",
+            "TRX Hammer/Reverse/Drag Curl (pegadas da rosca seed-ex-326; ≈ seed-ex-098/100/102)",
+            "TRX Scapular Push-Up / Push-Up Plus (≈ seed-ex-249/277 rehab)",
+            "TRX Superman (≈ gif-ex-053)",
+            "TRX Hip Abduction ExRx (≈ seed-ex-119/289)",
+            "TRX Side Bend / Standing Hip Drop / Oblique Crunch (≈ gif-ex-115/116 + seed-ex-033)",
+            "Suspended Straight-Hip Leg Curl (dobra em seed-ex-330)"
+          ],
+          "balance_assist_variants": [
+            "TRX Squat / Overhead Squat (assistência de equilíbrio do seed-ex-034)",
+            "TRX Calf Raise (assistência do gif-ex-158)",
+            "TRX Lateral / Cossack / Curtsy / Balance / Crossing Lunges (assistência das variantes seed-ex-036, gif-ex-131/132, seed-ex-229)",
+            "TRX L-Sit (nicho de 1 base; isometria de flexão de quadril ≈ seed-ex-122)"
+          ],
+          "execution_angle_variants": [
+            "TRX Single-Arm Row / Three-Way Row / High-Low-Reverse-Grip Row / Alligator (dobrados em seed-ex-321, Can Be Both)",
+            "TRX Single-Arm Chest Press / Clock Press (técnica do seed-ex-322)",
+            "TRX Single-Leg Hamstring Curl / Hamstring Runner (execução do seed-ex-330)",
+            "TRX Decline Push-Up pés nas fitas (≈ seed-ex-046)",
+            "TRX Oblique Knee Tuck / Kneeling Oblique Rollout (rotações do seed-ex-332/333)"
+          ],
+          "athletic_hybrid_combos": [
+            "TRX Atomic Push-Up (flexão + grupado)",
+            "TRX Power Pull (remada + rotação)",
+            "TRX Squat Row / Squat-to-Y-Fly / Squat and Fly",
+            "TRX Reverse Lunge to Knee Drive / to Jump",
+            "TRX Sprinter Start",
+            "TRX Hip Throw / Resisted Rotations / Pendulum / Side-Straddle Golf Swing",
+            "TRX Crunch and Curl",
+            "TRX Spider Walks / Spiderman Push-Up",
+            "TRX Rocket Launcher / IYT combinado (dobrado em seed-ex-324/325)"
+          ]
+        }
+      },
+      "covers": [
+        "seed-ex-321",
+        "seed-ex-322",
+        "seed-ex-323",
+        "seed-ex-324",
+        "seed-ex-325",
+        "seed-ex-326",
+        "seed-ex-327",
+        "seed-ex-328",
+        "seed-ex-329",
+        "seed-ex-330",
+        "seed-ex-331",
+        "seed-ex-332",
+        "seed-ex-333"
+      ]
+    },
+    "forca_elastico_funcional": {
+      "status": "complete",
+      "exercise_count": 14,
+      "researched_at": "2026-07-06",
+      "completed_at": "2026-07-06",
+      "catalog_version": 1,
+      "completion_notes": "Universo de elastico (primary_equipment Resistance Band) auditado contra 11 bases independentes; curva de retornos decrescentes: rodada 1 (BarBend+Living.Fit+M&S) nucleo roteado confirmado +3 extras distintos (squat, deadlift, lat pulldown) -> rodada 2 (SET FOR SET+Gymshark) +0 -> rodada 3 (Healthline+Hevy+ACE+FitLifeRegime) +0 -> rodada 4 (Sweat+T-Nation) +0; fechamento confirmado. Nucleo = movimentos roteados pelas sessoes completas; roteados que ja viraram duplicata de registro existente (reabilitacao/gif-ex-068/seed-ex-307) NAO recriados. Notas por fonte em docs/exercises/research-forca_elastico_funcional.md.",
+      "conventions": {
+        "regua_elastico": "Curva de resistencia ascendente do elastico = estimulo distinto de peso livre/cabo; roteados das sessoes-mae entram (salvo duplicata direta), extras da auditoria so quando cobrem padrao de movimento inteiro ainda sem elastico (Squat seed-ex-382, Hinge seed-ex-383, Vertical Pull seed-ex-375).",
+        "equipment_legacy": "Campo legado equipment = 'Elastico' (precedente gif-ex-037/gif-ex-068); primary_equipment 'Resistance Band' em todos.",
+        "anchor_height": "Altura de ancoragem nao gera registro (banda e livremente ajustavel, sem analogo do banco fixo): Standing Incline/Decline Band Press dobrados em seed-ex-371; Low-to-High/High-to-Low Fly dobrados em seed-ex-373/374.",
+        "banded_pushup": "Flexao com elastico (seed-ex-372): banda RESISTE e define o estimulo -> primary 'Resistance Band' + secondary 'Bodyweight' (inverso do gif-ex-036, onde a banda assiste e primary e Bodyweight).",
+        "acomodativa": "Banda somada a barra (band-resisted/reverse band) e metodo de carga, nao exercicio — precedente peito_press ('Press com Correntes/Bandas') confirmado pela T-Nation; por isso o Band-Resisted Landmine Press roteado por forca_landmine foi excluido.",
+        "reabilitacao": "Registros de elastico da reabilitacao/mobilidade (rotacoes de manguito, walks, clam, TKE, Spanish squat isometrico etc.) NAO recriados; roteamentos de posterior_gluteos/quadriceps (2026-06-13) preenchidos pelas sessoes de reabilitacao viraram duplicatas."
+      },
+      "review_flags_open": "1 flag aberto: seed-ex-384 (Sissy Squat com Elastico — proximidade com seed-ex-117; banda e assistencia, nao resistencia). Ver --list-flags.",
+      "research_sources": {
+        "_comment": "Bases consultadas para o universo de elastico — informativo, NAO lido pelo app. Notas por fonte em docs/exercises/research-forca_elastico_funcional.md.",
+        "databases_consulted": [
+          "https://barbend.com/best-resistance-band-exercises/",
+          "https://www.living.fit/blogs/news/20-resistance-band-exercises-for-full-body-workouts",
+          "https://www.muscleandstrength.com/exercises/bands",
+          "https://www.muscleandstrength.com/workouts/band-only-muscle-building-workout",
+          "https://www.setforset.com/blogs/news/24-best-resistance-band-exercises",
+          "https://www.gymshark.com/blog/article/how-to-use-resistance-bands",
+          "https://www.healthline.com/health/exercise-fitness/resistance-band-exercises",
+          "https://www.hevyapp.com/equipment/resistance-band/",
+          "https://www.acefitness.org/resources/everyone/exercise-library/equipment/resistance-bands-cables/",
+          "https://fitliferegime.com/resistance-band-chest-exercises/",
+          "https://sweat.com/blogs/fitness/resistance-band-exercises",
+          "https://archive.t-nation.com/training/resistance-band-exercises-workouts/"
+        ]
+      },
+      "scope_exclusions": {
+        "_comment": "Movimentos de elastico deliberadamente fora — para auditorias futuras nao os tratarem como lacuna.",
+        "routed_to_other_sessions": {},
+        "excluded_as_non_distinct": {
+          "duplicata_de_registro_existente": [
+            "Banded Overhead Press (= gif-ex-068, roteado por ombros_press como existente)",
+            "Band Bent-Over/Seated/High Row (= gif-ex-037)",
+            "Band-Assisted Pull-Up/Chin-Up (= gif-ex-036)",
+            "Spanish Squat (= seed-ex-307; roteado por quadriceps antes da sessao de reabilitacao)",
+            "Lateral Band Walk (= seed-ex-287)",
+            "Diagonal Band Walk / Monster Walk (= seed-ex-288)",
+            "Banded Glute Bridge (= seed-ex-296; tambem ledger posterior_gluteos vs gif-ex-147)",
+            "Banded Hip Extension / Glute Kickback / Donkey Kick (= gif-ex-134)",
+            "Band External/Internal Rotation 0-90 graus (= seed-ex-259..262)",
+            "Banded Clamshell / Fire Hydrant / Hip Ab-Adducao em pe (= seed-ex-290/291/292/301)",
+            "Band TKE (= seed-ex-303)",
+            "Banded Tibialis Raise (= seed-ex-312)",
+            "Band Shoulder Pass-Through/Dislocate (= seed-ex-206/253)",
+            "Banded Leg Swing / Hip Distraction (= seed-ex-236/237)",
+            "Banded Y's / YTW (= seed-ex-269..272)"
+          ],
+          "anchor_position_execution_variants": [
+            "Standing Incline/Decline Band Press (dobrados em seed-ex-371)",
+            "Low-to-High / High-to-Low Band Fly (dobrados em seed-ex-373/374)",
+            "Single-Arm Band Press / Single-Arm Crossover / Alternating Press (execucao; 'Can Be Both')",
+            "Band Squeeze Press / Band Hug / Band Punches",
+            "Band Floor Press (= seed-ex-371 + seed-ex-052/053)",
+            "Band Close-Grip Push-Up (= seed-ex-372 + gif-ex-102)",
+            "Kneeling vs Standing Press/Extension (variante de base)",
+            "Band Power/Split/Sumo/Heel-Elevated Squat (dobrados em seed-ex-382)",
+            "Band RDL / Sumo Deadlift / Good Morning (dobrados em seed-ex-383; good morning tambem gif-ex-135/148)",
+            "3-D / Tall-Kneeling Pull-Apart (= seed-ex-376)"
+          ],
+          "implement_variant_de_registro_existente": [
+            "Band Face Pull (= gif-ex-048 + seed-ex-376; nao roteado por ombros_lateral)",
+            "Band Front Raise (= seed-ex-018/092)",
+            "Band Upright Row (= seed-ex-095 + gif-ex-078)",
+            "Band Pallof Press (= seed-ex-124)",
+            "Band Woodchop / Hay Baler (= seed-ex-126)",
+            "Band Pull-Through (= seed-ex-120)",
+            "Band Leg Curl deitado (= seed-ex-038/118)",
+            "Band Leg Extension (= seed-ex-112)",
+            "Band Leg Press (= seed-ex-035)",
+            "Band Calf Raise (= gif-ex-158/seed-ex-042)",
+            "Band Hip Thrust (= seed-ex-040)",
+            "Band Pullover (= seed-ex-075/gif-ex-029)",
+            "Band Reverse Curl (= seed-ex-100)",
+            "Band Concentration Curl (= seed-ex-023)",
+            "Band Triceps Kickback (= seed-ex-027/gif-ex-096)",
+            "Band Dead Bug / Bird Dog RNT (= gif-ex-123)",
+            "Band-Assisted Nordic Curl (= gif-ex-143)",
+            "Band-Assisted Dip (= seed-ex-063)"
+          ],
+          "accommodating_resistance_load_method": [
+            "Band-Resisted Landmine Press (roteado por forca_landmine; precedente peito_press)",
+            "Banded Bench Press / Squat / Deadlift com barra (banda somada a barra)",
+            "Band-Resisted Chin-Up",
+            "Reverse Band Method (T-Nation)",
+            "Band-Assisted Broad Jump / Assisted Plyometrics"
+          ],
+          "combos_atleticos_instabilidade": [
+            "Band Thruster / Squat-to-Press",
+            "Hinge|Row|Squat / Pulldown|Shrug / Reverse Curl|Press (combos SET FOR SET)",
+            "Lateral Lunge Upright Row / Lunge to Row / Anti-rotation Reverse Lunge",
+            "Chaos Push-Up (instabilidade)",
+            "Crossbody Chop / Lawn Mower Pull",
+            "Hollow Hold / Plank Lift-Offs resistidos",
+            "Spider Crawls / Lateral Plank Walk",
+            "Mini Band Hip Flexion Iso Hold / Psoas March / Passive Leg Lower"
+          ]
+        }
+      },
+      "covers": [
+        "seed-ex-371", "seed-ex-372", "seed-ex-373", "seed-ex-374", "seed-ex-375",
+        "seed-ex-376", "seed-ex-377", "seed-ex-378", "seed-ex-379", "seed-ex-380",
+        "seed-ex-381", "seed-ex-382", "seed-ex-383", "seed-ex-384"
+      ]
     }
   },
   "pending_sessions": [],
@@ -2185,11 +2580,10 @@
         "mobilidade_inferior",
         "mobilidade_superior_coluna",
         "reabilitacao_ombro_cotovelo",
-        "reabilitacao_quadril_joelho"
-      ],
-      "sessions": [
+        "reabilitacao_quadril_joelho",
         "reabilitacao_lombar_core"
-      ]
+      ],
+      "sessions": []
     },
     "new_strength": {
       "_comment": "Força/hipertrofia com equipamentos do vocabulário controlado que o catálogo atual não cobre: Kettlebell, Landmine, Suspension Trainer, Hack Squat Machine, Leg Press, Pec Deck, Chest Supported Row, Resistance Band aparecem quase ou totalmente ausentes como primary_equipment.",
@@ -2201,12 +2595,12 @@
       },
       "completed": [
         "forca_kettlebell",
-        "forca_landmine"
+        "forca_landmine",
+        "forca_maquinas_especializadas",
+        "forca_suspension_trainer",
+        "forca_elastico_funcional"
       ],
       "sessions": [
-        "forca_suspension_trainer",
-        "forca_maquinas_especializadas",
-        "forca_elastico_funcional"
       ]
     }
   }

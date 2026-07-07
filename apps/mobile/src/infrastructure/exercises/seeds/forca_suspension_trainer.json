@@ -1,0 +1,310 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-321",
+      "name": "Remada TRX",
+      "name_variations": [
+        "TRX Row",
+        "Suspended Row",
+        "TRX Inverted Row",
+        "TRX Low Row",
+        "Ring Row",
+        "Remada Suspensa"
+      ],
+      "group_muscles": ["Costas", "Biceps"],
+      "category": "Composto",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Pull",
+      "musculo_alvo": ["grande_dorsal", "romboides", "trapezio_medio"],
+      "stabilizers": ["biceps_braquial", "core", "gluteos", "deltoide_posterior"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-080", "gif-ex-037", "seed-ex-013"],
+      "muscle_group_alternatives": ["seed-ex-011", "seed-ex-012"]
+    },
+    {
+      "id": "seed-ex-322",
+      "name": "Flexao de Bracos TRX",
+      "name_variations": [
+        "TRX Chest Press",
+        "TRX Push-Up",
+        "Suspended Chest Press",
+        "Suspended Push-Up",
+        "Ring Push-Up",
+        "Press de Peito Suspenso"
+      ],
+      "group_muscles": ["Peito", "Triceps", "Ombros"],
+      "category": "Composto",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["core", "serratus_anterior", "manguito_rotador"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-045", "seed-ex-051"],
+      "muscle_group_alternatives": ["seed-ex-005", "seed-ex-006"]
+    },
+    {
+      "id": "seed-ex-323",
+      "name": "Crucifixo TRX",
+      "name_variations": [
+        "TRX Chest Fly",
+        "Suspended Fly",
+        "TRX Fly",
+        "Ring Fly",
+        "Crucifixo Suspenso"
+      ],
+      "group_muscles": ["Peito", "Ombros"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["deltoide_anterior", "core", "serratus_anterior", "biceps_braquial"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-005", "seed-ex-069"],
+      "muscle_group_alternatives": ["seed-ex-045", "gif-ex-021"]
+    },
+    {
+      "id": "seed-ex-324",
+      "name": "Crucifixo Invertido TRX",
+      "name_variations": [
+        "TRX T Fly",
+        "TRX T Deltoid Fly",
+        "TRX Reverse Fly",
+        "Suspended Reverse Fly",
+        "Ring Reverse Fly",
+        "Crucifixo Inverso Suspenso"
+      ],
+      "group_muscles": ["Ombros", "Costas"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": ["deltoide_posterior"],
+      "stabilizers": ["romboides", "trapezio_medio", "core", "manguito_rotador"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-093", "gif-ex-067", "seed-ex-019"],
+      "muscle_group_alternatives": ["gif-ex-048", "seed-ex-270"]
+    },
+    {
+      "id": "seed-ex-325",
+      "name": "Elevacao Y TRX",
+      "name_variations": [
+        "TRX Y Fly",
+        "TRX Y Deltoid Fly",
+        "TRX Y Raise",
+        "Suspended Y Raise",
+        "Elevacao em Y Suspensa"
+      ],
+      "group_muscles": ["Ombros", "Costas"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": ["trapezio_inferior", "deltoide"],
+      "stabilizers": ["romboides", "manguito_rotador", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-269"],
+      "muscle_group_alternatives": ["seed-ex-017", "seed-ex-018", "seed-ex-093"],
+      "review_flags": [
+        {
+          "field": "movement_pattern",
+          "concern": "Y raise e elevacao em plano de escapula acima da cabeca (scaption alta) com enfase em trapezio inferior; 'Abduction' segue o precedente das raises de ombros_lateral, mas o analogo de reabilitacao (seed-ex-269 Prone Y) usa movement_pattern null e o arco overhead flerta com Vertical Push.",
+          "revisit_when": "Substituicao rankear a Elevacao Y TRX como 'quase igual' de elevacoes laterais puras (seed-ex-017) ou usuarios esperarem ve-la junto dos desenvolvimentos.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    },
+    {
+      "id": "seed-ex-326",
+      "name": "Rosca Biceps TRX",
+      "name_variations": [
+        "TRX Biceps Curl",
+        "Suspended Arm Curl",
+        "TRX Curl",
+        "Ring Curl",
+        "Rosca Suspensa"
+      ],
+      "group_muscles": ["Biceps"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": ["biceps_braquial"],
+      "stabilizers": ["core", "deltoide_anterior", "flexores_antebraco"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-024", "seed-ex-021"],
+      "muscle_group_alternatives": ["seed-ex-071", "seed-ex-073"]
+    },
+    {
+      "id": "seed-ex-327",
+      "name": "Extensao de Triceps TRX",
+      "name_variations": [
+        "TRX Triceps Extension",
+        "TRX Skull Crusher",
+        "Suspended Triceps Extension",
+        "TRX Triceps Press",
+        "Ring Triceps Extension",
+        "Triceps Frances Suspenso"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["core", "deltoide_anterior", "abdomen"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-111", "seed-ex-025", "seed-ex-028"],
+      "muscle_group_alternatives": ["gif-ex-100", "seed-ex-029"]
+    },
+    {
+      "id": "seed-ex-328",
+      "name": "Agachamento Unilateral TRX",
+      "name_variations": [
+        "TRX Pistol Squat",
+        "TRX Single-Leg Squat",
+        "Pistol Assistido no TRX",
+        "Suspended Single-Leg Squat",
+        "Agachamento Pistol Suspenso"
+      ],
+      "group_muscles": ["Quadriceps", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Squat",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["gluteos", "isquiotibiais", "core", "estabilizadores_tornozelo"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["gif-ex-149"],
+      "muscle_group_alternatives": ["seed-ex-114", "seed-ex-116", "seed-ex-034"]
+    },
+    {
+      "id": "seed-ex-329",
+      "name": "Afundo Suspenso TRX",
+      "name_variations": [
+        "TRX Suspended Lunge",
+        "TRX Split Squat",
+        "TRX Rear-Foot-Elevated Split Squat",
+        "TRX Balance Lunge",
+        "Afundo Bulgaro Suspenso"
+      ],
+      "group_muscles": ["Quadriceps", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Lunge",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["gluteos", "isquiotibiais", "core", "adutores"],
+      "execution_type": "Unilateral",
+      "equivalent_alternatives": ["seed-ex-114", "gif-ex-150"],
+      "muscle_group_alternatives": ["seed-ex-036", "seed-ex-116"],
+      "review_flags": [
+        {
+          "field": "id",
+          "concern": "Proximidade com o Agachamento Bulgaro (seed-ex-114): o pe traseiro na fita (instavel, oscilante) eleva demanda de estabilizadores e core vs banco fixo — 6 de 11 bases o listam como exercicio proprio, por isso registro separado, mas a sobreposicao de estimulo e alta.",
+          "revisit_when": "Se a regua de variantes de implemento apertar (precedente kettlebell) ou o ranking tratar os dois como redundantes no mesmo plano.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    },
+    {
+      "id": "seed-ex-330",
+      "name": "Flexao de Pernas TRX",
+      "name_variations": [
+        "TRX Hamstring Curl",
+        "TRX Leg Curl",
+        "Suspended Leg Curl",
+        "TRX Hamstring Pull-In",
+        "Flexao de Joelhos Suspensa"
+      ],
+      "group_muscles": ["Posterior", "Gluteos"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Knee Flexion",
+      "musculo_alvo": ["isquiotibiais"],
+      "stabilizers": ["gluteos", "core", "lombar", "gastrocnemio"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-038", "gif-ex-143", "seed-ex-118"],
+      "muscle_group_alternatives": ["seed-ex-039", "gif-ex-147"]
+    },
+    {
+      "id": "seed-ex-331",
+      "name": "Pike TRX",
+      "name_variations": [
+        "TRX Pike",
+        "Suspended Pike",
+        "Atomic Pike",
+        "Pike Suspenso"
+      ],
+      "group_muscles": ["Abdomen", "Ombros"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Hip Flexion",
+      "musculo_alvo": ["abdomen"],
+      "stabilizers": ["deltoide_anterior", "serratus_anterior", "obliquo", "flexores_quadril"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-114", "seed-ex-122"],
+      "muscle_group_alternatives": ["seed-ex-031", "seed-ex-123"]
+    },
+    {
+      "id": "seed-ex-332",
+      "name": "Abdominal Grupado TRX",
+      "name_variations": [
+        "TRX Knee Tuck",
+        "Suspended Jack-Knife",
+        "TRX Jackknife",
+        "TRX Crunch",
+        "Abdominal Canivete Suspenso"
+      ],
+      "group_muscles": ["Abdomen"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Hip Flexion",
+      "musculo_alvo": ["abdomen"],
+      "stabilizers": ["flexores_quadril", "obliquo", "deltoide_anterior", "serratus_anterior"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-114", "seed-ex-032"],
+      "muscle_group_alternatives": ["seed-ex-030", "gif-ex-128"]
+    },
+    {
+      "id": "seed-ex-333",
+      "name": "Fallout TRX",
+      "name_variations": [
+        "TRX Fallout",
+        "Standing Fallout",
+        "TRX Ab Rollout",
+        "Suspended Rollout",
+        "Fallout em Pe no TRX"
+      ],
+      "group_muscles": ["Abdomen", "Core"],
+      "category": "Isolado",
+      "equipment": "Fitas de suspensao (TRX)",
+      "primary_equipment": "Suspension Trainer",
+      "secondary_equipment": null,
+      "movement_pattern": "Anti-Extension",
+      "musculo_alvo": ["abdomen", "core"],
+      "stabilizers": ["grande_dorsal", "deltoide_anterior", "obliquo", "lombar"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-123"],
+      "muscle_group_alternatives": ["seed-ex-031", "gif-ex-123"]
+    }
+  ]
+}

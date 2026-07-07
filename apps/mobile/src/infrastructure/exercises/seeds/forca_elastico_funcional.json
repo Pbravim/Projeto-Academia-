@@ -1,0 +1,316 @@
+{
+  "catalog_version": 1,
+  "exercises": [
+    {
+      "id": "seed-ex-371",
+      "name": "Press de Peito com Elastico",
+      "name_variations": [
+        "Standing Band Chest Press",
+        "Resistance Band Chest Press",
+        "Band Chest Press",
+        "Press de Peito em Pe com Elastico",
+        "Standing Incline Band Press",
+        "Standing Decline Band Press"
+      ],
+      "group_muscles": ["Peito", "Triceps", "Ombros"],
+      "category": "Composto",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["core", "serratus_anterior", "obliquos"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-051", "gif-ex-018", "seed-ex-001"],
+      "muscle_group_alternatives": ["seed-ex-005", "seed-ex-045"]
+    },
+    {
+      "id": "seed-ex-372",
+      "name": "Flexao de Braco com Elastico",
+      "name_variations": [
+        "Banded Push-Up",
+        "Band-Resisted Push-Up",
+        "Resistance Band Push-Up",
+        "Flexao com Elastico nas Costas",
+        "Flexao Resistida com Faixa"
+      ],
+      "group_muscles": ["Peito", "Triceps", "Ombros"],
+      "category": "Composto",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": "Bodyweight",
+      "movement_pattern": "Horizontal Push",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["core", "serratus_anterior", "obliquos"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-045", "seed-ex-371", "seed-ex-001"],
+      "muscle_group_alternatives": ["seed-ex-005", "seed-ex-373"]
+    },
+    {
+      "id": "seed-ex-373",
+      "name": "Crucifixo com Elastico",
+      "name_variations": [
+        "Band Chest Fly",
+        "Resistance Band Fly",
+        "Banded Chest Fly",
+        "Standing Band Fly",
+        "Crucifixo em Pe com Elastico"
+      ],
+      "group_muscles": ["Peito"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_medio", "peitoral_esternal"],
+      "stabilizers": ["biceps_braquial", "core"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-005", "seed-ex-006"],
+      "muscle_group_alternatives": ["seed-ex-371", "seed-ex-045"]
+    },
+    {
+      "id": "seed-ex-374",
+      "name": "Crossover com Elastico",
+      "name_variations": [
+        "Resistance Band Chest Crossover",
+        "Band Crossover",
+        "High to Low Band Fly",
+        "Crossover com Elastico Ancorado Alto",
+        "Band Decline Fly"
+      ],
+      "group_muscles": ["Peito"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Adduction",
+      "musculo_alvo": ["peitoral_inferior"],
+      "stabilizers": ["biceps_braquial", "core"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["gif-ex-012", "seed-ex-006"],
+      "muscle_group_alternatives": ["seed-ex-001", "seed-ex-048"]
+    },
+    {
+      "id": "seed-ex-375",
+      "name": "Puxada Alta com Elastico",
+      "name_variations": [
+        "Banded Lat Pulldown",
+        "Band Lat Pulldown",
+        "Kneeling Band Lat Pulldown",
+        "Half-Kneeling Band Pulldown",
+        "Puxada Ajoelhada com Elastico"
+      ],
+      "group_muscles": ["Costas", "Biceps"],
+      "category": "Composto",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Vertical Pull",
+      "musculo_alvo": ["grande_dorsal", "redondo_maior"],
+      "stabilizers": ["biceps_braquial", "braquial", "deltoide_posterior", "trapezio_inferior"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-010", "gif-ex-039"],
+      "muscle_group_alternatives": ["gif-ex-037", "seed-ex-009"]
+    },
+    {
+      "id": "seed-ex-376",
+      "name": "Pull-Apart com Elastico",
+      "name_variations": [
+        "Band Pull-Apart",
+        "Banded Pull-Apart",
+        "Rear Delt Band Pull-Apart",
+        "Separacao de Elastico",
+        "Abertura de Faixa Elastica"
+      ],
+      "group_muscles": ["Ombros", "Costas"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Horizontal Abduction",
+      "musculo_alvo": ["deltoide_posterior"],
+      "stabilizers": ["trapezio_medio", "romboides", "rotador_externo"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-019", "seed-ex-093", "gif-ex-048"],
+      "muscle_group_alternatives": ["gif-ex-037"]
+    },
+    {
+      "id": "seed-ex-377",
+      "name": "Elevacao Lateral com Elastico",
+      "name_variations": [
+        "Banded Lateral Raise",
+        "Resistance Band Lateral Raise",
+        "Band Side Raise",
+        "Elevacao Lateral com Faixa"
+      ],
+      "group_muscles": ["Ombros"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Abduction",
+      "musculo_alvo": ["deltoide_lateral"],
+      "stabilizers": ["trapezio", "rotador_externo", "serratus_anterior"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-017", "seed-ex-091", "gif-ex-077"],
+      "muscle_group_alternatives": ["gif-ex-068", "seed-ex-015"]
+    },
+    {
+      "id": "seed-ex-378",
+      "name": "Rosca Direta com Elastico",
+      "name_variations": [
+        "Resistance Band Curl",
+        "Band Biceps Curl",
+        "Banded Bicep Curl",
+        "Standing Band Curl",
+        "Rosca com Faixa Elastica"
+      ],
+      "group_muscles": ["Biceps"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": ["biceps_braquial"],
+      "stabilizers": ["braquial", "braquiorradial", "flexores_antebraco", "core"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-024", "seed-ex-021", "seed-ex-022"],
+      "muscle_group_alternatives": ["seed-ex-071", "gif-ex-037"]
+    },
+    {
+      "id": "seed-ex-379",
+      "name": "Rosca Martelo com Elastico",
+      "name_variations": [
+        "Banded Hammer Curl",
+        "Hammer Curl (Resistance Band)",
+        "Band Neutral-Grip Curl",
+        "Rosca Martelo com Faixa"
+      ],
+      "group_muscles": ["Biceps"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Flexion",
+      "musculo_alvo": ["braquiorradial", "braquial", "biceps_braquial"],
+      "stabilizers": ["flexores_antebraco", "core", "deltoide_anterior"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-098", "seed-ex-099"],
+      "muscle_group_alternatives": ["seed-ex-072"]
+    },
+    {
+      "id": "seed-ex-380",
+      "name": "Triceps Pushdown com Elastico",
+      "name_variations": [
+        "Band Triceps Pushdown",
+        "Banded Tricep Press Down",
+        "Resistance Band Pushdown",
+        "Triceps com Elastico Ancorado Alto"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_lateral_medial"],
+      "stabilizers": ["core", "deltoide_posterior", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["seed-ex-026", "seed-ex-106"],
+      "muscle_group_alternatives": ["gif-ex-102", "seed-ex-029"]
+    },
+    {
+      "id": "seed-ex-381",
+      "name": "Extensao de Triceps Sobre a Cabeca com Elastico",
+      "name_variations": [
+        "Band Overhead Triceps Extension",
+        "Overhead Banded Tricep Extension",
+        "Resistance Band French Press",
+        "Triceps Frances com Elastico"
+      ],
+      "group_muscles": ["Triceps"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Elbow Extension",
+      "musculo_alvo": ["triceps_cabeca_longa"],
+      "stabilizers": ["deltoide_anterior", "core", "flexores_antebraco"],
+      "execution_type": "Can Be Both",
+      "equivalent_alternatives": ["gif-ex-098", "seed-ex-028"],
+      "muscle_group_alternatives": ["seed-ex-029"]
+    },
+    {
+      "id": "seed-ex-382",
+      "name": "Agachamento com Elastico",
+      "name_variations": [
+        "Banded Squat",
+        "Resistance Band Squat",
+        "Band Front Squat",
+        "Band Sumo Squat",
+        "Agachamento com Faixa Elastica"
+      ],
+      "group_muscles": ["Quadriceps", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Squat",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["gluteos", "isquiotibiais", "core", "lombar"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-115", "seed-ex-034"],
+      "muscle_group_alternatives": ["seed-ex-035", "seed-ex-036"]
+    },
+    {
+      "id": "seed-ex-383",
+      "name": "Levantamento Terra com Elastico",
+      "name_variations": [
+        "Banded Deadlift",
+        "Resistance Band Deadlift",
+        "Band Romanian Deadlift",
+        "Band RDL",
+        "Terra com Faixa Elastica"
+      ],
+      "group_muscles": ["Posterior", "Gluteos"],
+      "category": "Composto",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": null,
+      "movement_pattern": "Hinge",
+      "musculo_alvo": ["gluteos", "isquiotibiais"],
+      "stabilizers": ["lombar", "core", "trapezio", "dorsal"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-014", "seed-ex-039"],
+      "muscle_group_alternatives": ["seed-ex-040", "gif-ex-147"]
+    },
+    {
+      "id": "seed-ex-384",
+      "name": "Sissy Squat com Elastico",
+      "name_variations": [
+        "Banded Sissy Squat",
+        "Band-Assisted Sissy Squat",
+        "Sissy Squat com Faixa Ancorada"
+      ],
+      "group_muscles": ["Quadriceps"],
+      "category": "Isolado",
+      "equipment": "Elastico",
+      "primary_equipment": "Resistance Band",
+      "secondary_equipment": "Bodyweight",
+      "movement_pattern": "Knee Extension",
+      "musculo_alvo": ["quadriceps"],
+      "stabilizers": ["core", "gluteos"],
+      "execution_type": "Bilateral",
+      "equivalent_alternatives": ["seed-ex-117", "seed-ex-112"],
+      "muscle_group_alternatives": ["seed-ex-034"],
+      "review_flags": [
+        {
+          "field": "id",
+          "concern": "Roteado por quadriceps como registro distinto (banda ancorada muda o vetor de carga e permite inclinar mais para tras), mas fica biomecanicamente proximo do Sissy Squat livre (seed-ex-117) — a banda e assistencia/suporte, nao resistencia; risco de a substituicao tratar os dois como quase iguais e o catalogo ter um par redundante.",
+          "revisit_when": "Substituicao rankear seed-ex-384 e seed-ex-117 como intercambiaveis, ou usuarios reportarem duplicidade na busca por sissy squat.",
+          "flagged_at": "2026-07-06"
+        }
+      ]
+    }
+  ]
+}
