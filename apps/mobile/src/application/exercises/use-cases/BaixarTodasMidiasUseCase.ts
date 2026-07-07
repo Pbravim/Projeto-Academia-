@@ -13,11 +13,11 @@ export class BaixarTodasMidiasUseCase {
   constructor(private readonly deps: BaixarTodasMidiasDependencies) {}
 
   async execute(): Promise<void> {
-    const exercises = await this.deps.exerciseRepository.list();
-
-    const pending = exercises
-      .map((ex) => ex.toPrimitives())
-      .filter((p) => p.mediaOnline && isDownloadableUrl(p.mediaOnline) && !p.mediaLocal);
+    // Consulta leve (id + url): antes era list() completo — 500+ linhas com
+    // 3 JSON.parse cada, a CADA boot, normalmente só para descobrir que não
+    // há nada a baixar.
+    const pending = (await this.deps.exerciseRepository.listComMidiaPendente())
+      .filter((p) => isDownloadableUrl(p.mediaOnline));
 
     const queue = [...pending];
 

@@ -13,6 +13,8 @@ export interface ExerciseRepository {
   findByNormalizedName(normalizedName: string): Promise<Exercise | null>;
   delete(id: string): Promise<void>;
   updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void>;
+  /** id + url dos exercícios com mídia remota ainda sem arquivo local — consulta leve para o boot. */
+  listComMidiaPendente(): Promise<{ id: string; mediaOnline: string }[]>;
 
   // Search
   findByNameOrVariation(query: string): Promise<Exercise[]>;

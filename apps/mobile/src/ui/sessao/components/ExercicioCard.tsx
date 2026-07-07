@@ -50,7 +50,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
     >
       {gifSource ? (
         <Pressable onPress={() => setMediaVisible(true)} hitSlop={4} style={styles.thumbnailWrap}>
-          <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+          <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} cachePolicy="memory-disk" />
           <View style={styles.thumbnailOverlay}>
             <Text style={styles.thumbnailPlayIcon}>▶</Text>
           </View>

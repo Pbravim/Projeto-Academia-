@@ -37,6 +37,15 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
     this.exercisesById.delete(id);
   }
 
+  async listComMidiaPendente(): Promise<{ id: string; mediaOnline: string }[]> {
+    const out: { id: string; mediaOnline: string }[] = [];
+    for (const e of this.exercisesById.values()) {
+      const p = e.toPrimitives();
+      if (p.mediaOnline && !p.mediaLocal) out.push({ id: p.id, mediaOnline: p.mediaOnline });
+    }
+    return out;
+  }
+
   async updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void> {
     const ex = this.exercisesById.get(id);
     if (!ex) return;

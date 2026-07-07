@@ -130,6 +130,14 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
     );
   }
 
+  async listComMidiaPendente(): Promise<{ id: string; mediaOnline: string }[]> {
+    const rows = await this.database.getAll<{ id: string; media_online: string }>(
+      `SELECT id, media_online FROM exercises
+       WHERE media_online IS NOT NULL AND media_local IS NULL AND deleted_at IS NULL`
+    );
+    return rows.map((r) => ({ id: r.id, mediaOnline: r.media_online }));
+  }
+
   async updateMedia(id: string, mediaOnline: string | null, mediaLocal: string | null): Promise<void> {
     await this.database.run(
       'UPDATE exercises SET media_online = ?, media_local = ?, updated_at = ?, dirty = 1 WHERE id = ?',

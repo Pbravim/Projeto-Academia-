@@ -62,7 +62,11 @@ function AppContent() {
 
   useEffect(() => registerGlobalErrorHandler(mobileDependencies.logger), []);
 
-  useEffect(() => { void mobileDependencies.baixarTodasMidias.execute(); }, []);
+  // Adiado: no boot compete com o primeiro render + seeding pela conexão SQLite.
+  useEffect(() => {
+    const timer = setTimeout(() => { void mobileDependencies.baixarTodasMidias.execute(); }, 3500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
