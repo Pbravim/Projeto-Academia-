@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
+import { AppState, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
@@ -31,11 +31,21 @@ export function RestTimerBanner({ nome, total, runId, minimized, onToggleMinimiz
   useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
 
   useEffect(() => {
-    setRestante(total);
-    const interval = setInterval(() => {
-      setRestante((prev) => Math.max(prev - 1, 0));
-    }, 1000);
-    return () => clearInterval(interval);
+    // Contagem por relógio de parede, não por ticks: o setInterval congela em
+    // background/tela bloqueada — ancorar em `endsAt` faz o tempo fora do app
+    // contar; ao voltar ao foreground o restante real é recalculado na hora.
+    const endsAt = Date.now() + total * 1000;
+    const compute = () =>
+      setRestante(Math.max(Math.ceil((endsAt - Date.now()) / 1000), 0));
+    compute();
+    const interval = setInterval(compute, 1000);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') compute();
+    });
+    return () => {
+      clearInterval(interval);
+      sub.remove();
+    };
   }, [total, runId]);
 
   useEffect(() => {
