@@ -135,8 +135,8 @@ export function useExerciseCatalogController(
     if (feedbackMessage) setFeedbackMessage(null);
   };
 
-  // useCallback: são props do ExerciseSection (memoizado) — identidade nova
-  // a cada render derrubaria o memo das ~30 sections a cada tecla da busca.
+  // useCallback: são props do ExerciseCardRow (memoizado, via SectionList) —
+  // identidade nova a cada render derrubaria o memo das linhas a cada tecla da busca.
   const onSelectEdit = useCallback((exercise: ExercisePrimitives) => {
     setEditingExerciseId(exercise.id);
     setDraft({

@@ -1,9 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator, Pressable, ScrollView, SectionList, StyleSheet, Text, TextInput, View,
+  type SectionListData, type SectionListRenderItem,
+} from 'react-native';
 
-import { buildExerciseCatalogViewModel, type CatalogSortMode } from '../presenters/buildExerciseCatalogViewModel';
+import {
+  buildExerciseCatalogViewModel,
+  type CatalogSortMode,
+  type ExerciseCardViewModel,
+  type ExerciseSectionViewModel,
+} from '../presenters/buildExerciseCatalogViewModel';
 import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
-import { ExerciseSection } from '../components/ExerciseSection';
+import { ExerciseCardRow, ExerciseSectionHeader } from '../components/ExerciseSection';
 import {
   Field, MultiChipPicker, ChipPicker, MediaFields,
   CATEGORIES, EQUIPMENTS, MOVEMENT_PATTERNS, EXECUTION_TYPES, PRIMARY_EQUIPMENTS,
@@ -14,6 +22,14 @@ import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+
+// Seção da SectionList: `data` vazio quando o grupo está colapsado, então só
+// os cards de grupos expandidos (e visíveis) montam suas thumbs de GIF.
+interface CatalogListSection {
+  key: string;
+  section: ExerciseSectionViewModel;
+  data: ExerciseCardViewModel[];
+}
 
 export function ExerciseCatalogScreen({
   draft,
@@ -47,6 +63,9 @@ export function ExerciseCatalogScreen({
   const [filterEquipment, setFilterEquipment] = useState('');
   const [sortMode, setSortMode] = useState<CatalogSortMode>('nome');
   const [viewerExercise, setViewerExercise] = useState<ExercisePrimitives | null>(null);
+  // Expansão por grupo muscular (colapsado por padrão) — antes vivia dentro de
+  // cada ExerciseSection; subiu para a tela para alimentar a SectionList.
+  const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(() => new Set());
 
   const isEditing = editingExerciseId !== null;
   const canSubmit = draft.name.trim().length > 0 && draft.groupMuscle.trim().length > 0 && !isSubmitting;
@@ -120,8 +139,69 @@ export function ExerciseCatalogScreen({
     [exercisesById]
   );
 
-  return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+  const toggleGroup = useCallback((group: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group);
+      else next.add(group);
+      return next;
+    });
+  }, []);
+
+  // A lista só existe quando o catálogo carregou e não está vazio (mesmas
+  // condições do render antigo); grupos colapsados entram com data vazio.
+  const showCatalogList = !isLoading && !viewModel.emptyStateMessage;
+  const listSections: CatalogListSection[] = useMemo(
+    () =>
+      showCatalogList
+        ? filteredSections.map((section) => ({
+            key: section.groupMuscle,
+            section,
+            data: hasAnyFilter || expandedGroups.has(section.groupMuscle) ? section.cards : [],
+          }))
+        : [],
+    [showCatalogList, filteredSections, hasAnyFilter, expandedGroups]
+  );
+
+  const keyExtractor = useCallback((item: ExerciseCardViewModel) => item.id, []);
+
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: SectionListData<ExerciseCardViewModel, CatalogListSection> }) => (
+      <View style={styles.sectionSpacer}>
+        <ExerciseSectionHeader
+          groupMuscle={section.section.groupMuscle}
+          count={section.section.cards.length}
+          isOpen={hasAnyFilter || expandedGroups.has(section.section.groupMuscle)}
+          onToggle={toggleGroup}
+        />
+      </View>
+    ),
+    [styles, hasAnyFilter, expandedGroups, toggleGroup]
+  );
+
+  const renderItem: SectionListRenderItem<ExerciseCardViewModel, CatalogListSection> = useCallback(
+    ({ item, index, section }) => (
+      <ExerciseCardRow
+        card={item}
+        isFirst={index === 0}
+        isLast={index === section.data.length - 1}
+        isEditing={editingExerciseId === item.id}
+        isDeleting={deletingId === item.id}
+        anyDeleting={deletingId !== null}
+        exercise={exercisesById.get(item.id)!}
+        onSelectEdit={onSelectEdit}
+        onViewHistorico={onViewHistorico}
+        onViewMedia={handleViewMedia}
+        onDelete={onDelete}
+      />
+    ),
+    [editingExerciseId, deletingId, exercisesById, onSelectEdit, onViewHistorico, handleViewMedia, onDelete]
+  );
+
+  // Elemento (não componente) para o ListHeaderComponent: evita remontagem do
+  // formulário/busca a cada render, o que faria o teclado fechar ao digitar.
+  const listHeader = (
+    <View style={styles.headerContent}>
       <View style={styles.heroCard}>
         <Text style={styles.eyebrow}>{t('exercises.catalog.eyebrow')}</Text>
         <Text style={styles.title}>{t('exercises.catalog.title')}</Text>
@@ -447,24 +527,25 @@ export function ExerciseCatalogScreen({
             <View style={styles.listCard}>
               <Text style={styles.emptyState}>{t('exercises.catalog.noneFound')}</Text>
             </View>
-          ) : (
-            filteredSections.map((section) => (
-              <ExerciseSection
-                key={section.groupMuscle}
-                section={section}
-                exercisesById={exercisesById}
-                editingExerciseId={editingExerciseId}
-                deletingId={deletingId}
-                forceExpanded={hasAnyFilter}
-                onSelectEdit={onSelectEdit}
-                onViewHistorico={onViewHistorico}
-                onViewMedia={handleViewMedia}
-                onDelete={onDelete}
-              />
-            ))
-          )}
+          ) : null}
         </>
       )}
+    </View>
+  );
+
+  return (
+    <>
+      <SectionList
+        style={styles.screen}
+        contentContainerStyle={styles.content}
+        sections={listSections}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        renderSectionHeader={renderSectionHeader}
+        ListHeaderComponent={listHeader}
+        stickySectionHeadersEnabled={false}
+        initialNumToRender={12}
+      />
 
       {viewerExercise ? (
         <ExerciseMediaViewer
@@ -475,14 +556,18 @@ export function ExerciseCatalogScreen({
           onClose={() => setViewerExercise(null)}
         />
       ) : null}
-    </ScrollView>
+    </>
   );
 }
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
-    content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 18 },
+    // Sem `gap` aqui: na SectionList cada linha é filha direta do container de
+    // conteúdo; o espaçamento de 18 vive em headerContent e sectionSpacer.
+    content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40 },
+    headerContent: { gap: 18 },
+    sectionSpacer: { marginTop: 18 },
     heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 10 },
     eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
     title: { color: c.heroText, fontSize: 30, fontWeight: '800' },

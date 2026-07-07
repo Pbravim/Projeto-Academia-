@@ -55,18 +55,21 @@ export class BaixarMidiaExercicioUseCase {
       idempotent: true,
     });
 
-    // Extract filename from downloaded file URI
+    // O download salva com o nome derivado da URL; renomeia para <id>.<ext>.
+    // (O código anterior gravava localFile.uri SEM renomear — media_local
+    // apontava para um arquivo inexistente quando os nomes diferiam.)
     const downloadedFileName = downloadedFile.uri.split('/').pop() ?? '';
-
-    // Rename if needed to match exercicioId
+    let finalLocalUri = downloadedFile.uri;
     if (downloadedFileName !== `${exercicioId}.${ext}`) {
-      // The downloaded file is already at the right location, just use its URI
-      const finalLocalUri = localFile.uri;
-      await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, finalLocalUri);
-      return finalLocalUri;
+      try {
+        downloadedFile.move(localFile);
+        finalLocalUri = localFile.uri;
+      } catch {
+        // Renomear falhou (ex.: destino já existe): usa a URI real baixada —
+        // um nome fora do padrão é melhor que um ponteiro quebrado.
+      }
     }
 
-    const finalLocalUri = localFile.uri;
     await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, finalLocalUri);
     return finalLocalUri;
   }

@@ -1,70 +1,53 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
-import type { ExerciseSectionViewModel, ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
+import type { ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { gifAssets } from './gifAssets';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
-interface SectionProps {
-  section: ExerciseSectionViewModel;
-  exercisesById: Map<string, ExercisePrimitives>;
-  editingExerciseId: string | null;
-  deletingId: string | null;
-  forceExpanded?: boolean;
-  onSelectEdit: (exercise: ExercisePrimitives) => void;
-  onViewHistorico: (id: string, name: string) => void;
-  onViewMedia: (id: string) => void;
-  onDelete: (id: string) => Promise<void>;
+// ── Header de seção (usado como renderSectionHeader da SectionList) ──
+// Visual idêntico ao antigo header interno do ExerciseSection; o estado de
+// expansão agora vive na tela (ExerciseCatalogScreen), que passa isOpen/onToggle.
+
+interface SectionHeaderProps {
+  groupMuscle: string;
+  count: number;
+  isOpen: boolean;
+  onToggle: (groupMuscle: string) => void;
 }
 
-export const ExerciseSection = memo(function ExerciseSection({ section, exercisesById, editingExerciseId, deletingId, forceExpanded, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: SectionProps) {
+export const ExerciseSectionHeader = memo(function ExerciseSectionHeader({ groupMuscle, count, isOpen, onToggle }: SectionHeaderProps) {
   const c = useTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const [expanded, setExpanded] = useState(false);
-  const isOpen = forceExpanded || expanded;
 
   return (
-    <View style={styles.sectionContainer}>
-      <Pressable
-        onPress={() => setExpanded((v) => !v)}
-        style={({ pressed }) => [styles.sectionHeader, pressed ? styles.sectionHeaderPressed : null]}
-      >
-        <View style={styles.sectionHeaderLeft}>
-          <Text style={styles.sectionHeaderTitle}>{section.groupMuscle}</Text>
-          <View style={styles.countBadge}>
-            <Text style={styles.countBadgeText}>{section.cards.length}</Text>
-          </View>
+    <Pressable
+      onPress={() => onToggle(groupMuscle)}
+      style={({ pressed }) => [styles.sectionHeader, pressed ? styles.sectionHeaderPressed : null]}
+    >
+      <View style={styles.sectionHeaderLeft}>
+        <Text style={styles.sectionHeaderTitle}>{groupMuscle}</Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countBadgeText}>{count}</Text>
         </View>
-        <Text style={styles.chevron}>{isOpen ? '▲' : '▼'}</Text>
-      </Pressable>
-
-      {isOpen ? (
-        <View style={styles.sectionBody}>
-          {section.cards.map((card) => (
-            <ExerciseCard
-              key={card.id}
-              card={card}
-              isEditing={editingExerciseId === card.id}
-              isDeleting={deletingId === card.id}
-              anyDeleting={deletingId !== null}
-              exercise={exercisesById.get(card.id)!}
-              onSelectEdit={onSelectEdit}
-              onViewHistorico={onViewHistorico}
-              onViewMedia={onViewMedia}
-              onDelete={onDelete}
-            />
-          ))}
-        </View>
-      ) : null}
-    </View>
+      </View>
+      <Text style={styles.chevron}>{isOpen ? '▲' : '▼'}</Text>
+    </Pressable>
   );
 });
 
-interface CardProps {
+// ── Card individual (usado como renderItem da SectionList) ──
+// O antigo container `sectionBody` (fundo card + borda + padding 12 + gap 10)
+// é reconstituído por linha: bordas laterais em todas, topo na primeira,
+// fundo/raios na última — visual final idêntico ao bloco único de antes.
+
+interface CardRowProps {
   card: ExerciseCardViewModel;
+  isFirst: boolean;
+  isLast: boolean;
   isEditing: boolean;
   isDeleting: boolean;
   anyDeleting: boolean;
@@ -75,7 +58,7 @@ interface CardProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: CardProps) {
+export const ExerciseCardRow = memo(function ExerciseCardRow({ card, isFirst, isLast, isEditing, isDeleting, anyDeleting, exercise, onSelectEdit, onViewHistorico, onViewMedia, onDelete }: CardRowProps) {
   const c = useTheme();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -83,56 +66,58 @@ const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, a
   const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
 
   return (
-    <View style={[styles.exerciseCard, isEditing ? styles.exerciseCardEditing : null]}>
-      <View style={styles.exerciseRow}>
-        {gifSource ? (
-          <Pressable onPress={() => onViewMedia(card.id)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
-            <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} recyclingKey={card.id} cachePolicy="memory-disk" />
-            <View style={styles.thumbnailOverlay}>
-              <Text style={styles.thumbnailPlayIcon}>▶</Text>
-            </View>
-          </Pressable>
-        ) : null}
-        <View style={styles.exerciseInfo}>
-          <Text style={styles.exerciseTitle}>{card.title}</Text>
-          <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
-          <Text style={styles.exerciseMeta}>{card.meta}</Text>
-          {card.ultimoPeso ? (
-            <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
+    <View style={[styles.rowWrap, isFirst ? styles.rowWrapFirst : null, isLast ? styles.rowWrapLast : null]}>
+      <View style={[styles.exerciseCard, isEditing ? styles.exerciseCardEditing : null]}>
+        <View style={styles.exerciseRow}>
+          {gifSource ? (
+            <Pressable onPress={() => onViewMedia(card.id)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
+              <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} recyclingKey={card.id} cachePolicy="memory-disk" />
+              <View style={styles.thumbnailOverlay}>
+                <Text style={styles.thumbnailPlayIcon}>▶</Text>
+              </View>
+            </Pressable>
           ) : null}
+          <View style={styles.exerciseInfo}>
+            <Text style={styles.exerciseTitle}>{card.title}</Text>
+            <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>
+            <Text style={styles.exerciseMeta}>{card.meta}</Text>
+            {card.ultimoPeso ? (
+              <Text style={styles.exerciseUltimoPeso}>{card.ultimoPeso}</Text>
+            ) : null}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.cardActions}>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => onSelectEdit(exercise)}
-          style={({ pressed }) => [styles.actionButton, pressed ? styles.actionButtonPressed : null]}
-        >
-          <Text style={styles.editButtonText}>{t('exercises.card.editar')}</Text>
-        </Pressable>
+        <View style={styles.cardActions}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => onSelectEdit(exercise)}
+            style={({ pressed }) => [styles.actionButton, pressed ? styles.actionButtonPressed : null]}
+          >
+            <Text style={styles.editButtonText}>{t('exercises.card.editar')}</Text>
+          </Pressable>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => onViewHistorico(card.id, card.title)}
-          style={({ pressed }) => [styles.actionButton, styles.historicoButton, pressed ? styles.actionButtonPressed : null]}
-        >
-          <Text style={styles.historicoButtonText}>{t('exercises.card.historico')}</Text>
-        </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => onViewHistorico(card.id, card.title)}
+            style={({ pressed }) => [styles.actionButton, styles.historicoButton, pressed ? styles.actionButtonPressed : null]}
+          >
+            <Text style={styles.historicoButtonText}>{t('exercises.card.historico')}</Text>
+          </Pressable>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => { void onDelete(card.id); }}
-          disabled={anyDeleting}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.deleteButton,
-            pressed ? styles.actionButtonPressed : null,
-            isDeleting ? styles.deleteButtonLoading : null,
-          ]}
-        >
-          <Text style={styles.deleteButtonText}>{isDeleting ? t('exercises.card.excluindo') : t('common.delete')}</Text>
-        </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => { void onDelete(card.id); }}
+            disabled={anyDeleting}
+            style={({ pressed }) => [
+              styles.actionButton,
+              styles.deleteButton,
+              pressed ? styles.actionButtonPressed : null,
+              isDeleting ? styles.deleteButtonLoading : null,
+            ]}
+          >
+            <Text style={styles.deleteButtonText}>{isDeleting ? t('exercises.card.excluindo') : t('common.delete')}</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -140,7 +125,6 @@ const ExerciseCard = memo(function ExerciseCard({ card, isEditing, isDeleting, a
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    sectionContainer: { gap: 0 },
     sectionHeader: { flexDirection: 'row', alignItems: 'center', backgroundColor: c.hero, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 2 },
     sectionHeaderPressed: { opacity: 0.85 },
     sectionHeaderLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -148,7 +132,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     countBadge: { backgroundColor: c.accent, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 },
     countBadgeText: { color: c.accentText, fontSize: 12, fontWeight: '800' },
     chevron: { color: c.heroSubtext, fontSize: 11, fontWeight: '700' },
-    sectionBody: { backgroundColor: c.card, borderRadius: 16, padding: 12, gap: 10, borderWidth: 1, borderColor: c.cardBorder, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+    // Reconstituição do antigo sectionBody (padding 12, gap 10) por linha
+    rowWrap: { backgroundColor: c.card, borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.cardBorder, paddingHorizontal: 12, paddingTop: 10 },
+    rowWrapFirst: { borderTopWidth: 1, borderTopLeftRadius: 4, borderTopRightRadius: 4, paddingTop: 12 },
+    rowWrapLast: { borderBottomWidth: 1, borderBottomLeftRadius: 16, borderBottomRightRadius: 16, paddingBottom: 12 },
     exerciseCard: { borderRadius: 14, padding: 14, backgroundColor: c.cardAlt, gap: 10 },
     exerciseCardEditing: { borderWidth: 2, borderColor: c.accent },
     exerciseRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },

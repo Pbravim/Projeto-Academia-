@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { File } from 'expo-file-system';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { useTheme } from '../../shared/theme';
@@ -14,6 +15,14 @@ interface Props {
   mediaOnline: string | null;
   mediaLocal: string | null;
   onClose: () => void;
+}
+
+function fileExists(uri: string): boolean {
+  try {
+    return new File(uri).exists;
+  } catch {
+    return false;
+  }
 }
 
 function isImageUri(uri: string): boolean {
@@ -40,7 +49,10 @@ export function ExerciseMediaViewer({ visible, exercicioNome, mediaOnline, media
 
   if (!visible) return null;
 
-  const activeUri = mediaLocal ?? mediaOnline;
+  // Ponteiro local quebrado (arquivo tmp_ limpo pelo SO ou download antigo com
+  // nome errado) não pode deixar o viewer em branco: cai para a URL online.
+  const localOk = mediaLocal != null && (!mediaLocal.startsWith('file://') || fileExists(mediaLocal));
+  const activeUri = (localOk ? mediaLocal : null) ?? mediaOnline;
   const isYT = activeUri ? isYouTubeUrl(activeUri) : false;
   const isImage = activeUri && !isYT ? isImageUri(activeUri) : false;
 
