@@ -52,6 +52,25 @@ Higiene geral ACIMA da média: zero casts inseguros em produção, 1 TODO real, 
 | 23 | GIFs ~118 MB também no histórico git → candidato a LFS/limpeza | pendencias.md:46 |
 | 24 | react-test-renderer possivelmente órfão em devDeps | package.json |
 
+## Rodada 2 (mesmo dia) — lentes: timers, tabs, over-fetching, formato de query
+
+**Corrigido (commit dbc59a2):** rest timer isolado no RestTimerBanner (tick/segundo re-renderizava
+ExercicioDetalhe 1427 l + BiSet 747 l a cada descanso); tabs keep-alive no MobileApp (troca de aba
+desmontava a feature: perdia timer/inputs e re-rodava queries de mount); listExercises lazy na sessão
+ativa (517 rows × 3 JSON.parse no mount de toda sessão → só na 1ª abertura do sheet); LineChart
+geometria em useMemo; SubstituirExercicioSessaoUseCase em transação (delete séries + save).
+
+**Pendentes rodada 2:**
+| Prio | Achado | Evidência |
+|---|---|---|
+| P1 | `listLite()` p/ pickers (list() traz 21 colunas + 3 JSON.parse/row em 4 telas) | SQLiteExerciseRepository.ts:66-79,343-367 |
+| P1 | SugerirSubstitutos: list() completo + getUltimasExecucoesValidas a cada toque em substituir → pré-filtrar por pattern/grupo no SQL | SugerirSubstitutosUseCase.ts:48-52 |
+| P1 | Sugestão de progressão busca histórico INTEIRO do exercício mas usa slice(0,2) → LIMIT/ROW_NUMBER na query | SQLiteHistoricoRepository.ts:78-91 |
+| P2 | Lote (bi-set) = N transações concorrentes (Promise.all de execute) → executeLote com 1 transação | useSessaoAtivaController.ts:195+ / RegistrarSerieUseCase |
+| P2 | TreinoDetail loadData: N+1 listAlternativas + catálogo completo por abertura | useTreinoDetailController.ts:78-88 |
+| P2 | Índice em sessao_treinos(data_hora_fim); ORDER BY 1RM calculado por row | SQLiteHistoricoRepository.ts:47,70 |
+| P3 | Statement cache p/ INSERT de série em lote; AderenciaCard agregados em useMemo; findByNameOrVariation órfão (candidata a remoção) | — |
+
 ## Já otimizado (não mexer)
 Dashboard/getStats sem N+1 (agregação single-query); GetSessaoDetalhe com findByIds em batch;
 SugerirProgressao.executeLote com chunking; catálogo com updates otimistas; índices de FK cobertos.
