@@ -91,8 +91,15 @@ describe('useSessaoAtivaController', () => {
     expect(deps.sugerirProgressao.executeLote).toHaveBeenCalled();
   });
 
-  it('onRegistrarSerie reloads detalhe on success', async () => {
-    const deps = makeDeps();
+  it('onRegistrarSerie appends the serie incrementally without reloading the session', async () => {
+    const novaSerie = {
+      id: 'sr-nova', sessaoExercicioId: 'se1', ordem: 1, tipoSerie: 'valida',
+      cargaKg: 50, repeticoes: 8, observacao: null,
+      duracaoSegundos: null, distanciaMetros: null, intensidade: null,
+    };
+    const deps = makeDeps({
+      registrarSerie: { execute: vi.fn().mockResolvedValue(novaSerie) } as never,
+    });
     const { result } = await renderHook(() =>
       useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
     );
@@ -106,7 +113,9 @@ describe('useSessaoAtivaController', () => {
       } as never);
     });
     expect(deps.registrarSerie.execute).toHaveBeenCalled();
-    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
+    // sem reload completo: só a carga do mount
+    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(1);
+    expect(result.current.detalhe?.exercicios[0].series).toContainEqual(novaSerie);
     expect(result.current.errorMessage).toBeNull();
   });
 

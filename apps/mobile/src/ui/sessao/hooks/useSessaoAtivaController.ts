@@ -125,11 +125,60 @@ export function useSessaoAtivaController(
 
   const temSerieValida = detalhe?.exercicios.some((ex) => ex.series.length > 0) ?? false;
 
+  // Updates incrementais: recarregar a sessão inteira (detalhe + sugestões em
+  // lote) a cada série registrada/removida deixava o registro visivelmente
+  // lento em treinos longos. Só operações raras (adicionar/substituir
+  // exercício, trocar técnica) continuam com reload completo.
+  const patchExercicios = (
+    ids: Set<string>,
+    patch: (ex: SessaoDetalhe['exercicios'][number]) => SessaoDetalhe['exercicios'][number],
+  ) => {
+    setDetalhe((prev) =>
+      prev === null
+        ? prev
+        : { ...prev, exercicios: prev.exercicios.map((ex) => (ids.has(ex.sessaoExercicio.id) ? patch(ex) : ex)) },
+    );
+  };
+
+  // Espelha RegistrarSerieUseCase.atualizarCargaSeNecessario para o snapshot local.
+  const novaCargaPadrao = (
+    se: { execucoesRecomendadas: number | null; cargaPadrao: number | null },
+    input: RegistrarSerieInput,
+  ): number | null => {
+    if (input.repeticoes == null || input.cargaKg == null) return null;
+    if (se.execucoesRecomendadas == null) return null;
+    if (input.repeticoes < se.execucoesRecomendadas) return null;
+    if (se.cargaPadrao != null && input.cargaKg <= se.cargaPadrao) return null;
+    return input.cargaKg;
+  };
+
+  const refreshSugestao = async (se: { id: string; exercicioId: string; execucoesRecomendadas: number | null; cargaPadrao: number | null }, cargaAtualizada: number | null) => {
+    try {
+      const map = await dependencies.sugerirProgressao.executeLote([
+        {
+          exercicioId: se.exercicioId,
+          execucoesRecomendadas: se.execucoesRecomendadas,
+          cargaPadrao: cargaAtualizada ?? se.cargaPadrao,
+        },
+      ]);
+      setSugestoes((prev) => ({ ...prev, [se.id]: map.get(se.exercicioId) ?? null }));
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.refresh_sugestao_failed', error);
+    }
+  };
+
   const onRegistrarSerie = async (input: RegistrarSerieInput) => {
     setErrorMessage(null);
     try {
-      await dependencies.registrarSerie.execute(input);
-      await loadDetalhe();
+      const nova = await dependencies.registrarSerie.execute(input);
+      const alvo = detalhe?.exercicios.find((ex) => ex.sessaoExercicio.id === input.sessaoExercicioId);
+      const carga = alvo ? novaCargaPadrao(alvo.sessaoExercicio, input) : null;
+      patchExercicios(new Set([input.sessaoExercicioId]), (ex) => ({
+        ...ex,
+        series: [...ex.series, nova],
+        sessaoExercicio: carga != null ? { ...ex.sessaoExercicio, cargaPadrao: carga } : ex.sessaoExercicio,
+      }));
+      if (alvo) void refreshSugestao(alvo.sessaoExercicio, carga);
     } catch (error) {
       dependencies.logger.error('sessao_ativa.registrar_serie_failed', error);
       if (error instanceof SessaoValidationError) {
@@ -143,19 +192,58 @@ export function useSessaoAtivaController(
   const onRegistrarSeriesEmLote = async (inputs: RegistrarSerieInput[]) => {
     setErrorMessage(null);
     try {
-      await Promise.all(inputs.map((input) => dependencies.registrarSerie.execute(input)));
-      await loadDetalhe();
+      const novas = await Promise.all(inputs.map((input) => dependencies.registrarSerie.execute(input)));
+      const porExercicio = new Map<string, typeof novas>();
+      inputs.forEach((input, i) => {
+        const lista = porExercicio.get(input.sessaoExercicioId) ?? [];
+        lista.push(novas[i]);
+        porExercicio.set(input.sessaoExercicioId, lista);
+      });
+      const cargaPorExercicio = new Map<string, number>();
+      for (const input of inputs) {
+        const alvo = detalhe?.exercicios.find((ex) => ex.sessaoExercicio.id === input.sessaoExercicioId);
+        if (!alvo) continue;
+        const base = { ...alvo.sessaoExercicio, cargaPadrao: cargaPorExercicio.get(input.sessaoExercicioId) ?? alvo.sessaoExercicio.cargaPadrao };
+        const carga = novaCargaPadrao(base, input);
+        if (carga != null) cargaPorExercicio.set(input.sessaoExercicioId, carga);
+      }
+      patchExercicios(new Set(porExercicio.keys()), (ex) => ({
+        ...ex,
+        series: [...ex.series, ...(porExercicio.get(ex.sessaoExercicio.id) ?? [])],
+        sessaoExercicio: cargaPorExercicio.has(ex.sessaoExercicio.id)
+          ? { ...ex.sessaoExercicio, cargaPadrao: cargaPorExercicio.get(ex.sessaoExercicio.id)! }
+          : ex.sessaoExercicio,
+      }));
+      for (const id of porExercicio.keys()) {
+        const alvo = detalhe?.exercicios.find((ex) => ex.sessaoExercicio.id === id);
+        if (alvo) void refreshSugestao(alvo.sessaoExercicio, cargaPorExercicio.get(id) ?? null);
+      }
     } catch (error) {
       dependencies.logger.error('sessao_ativa.registrar_series_lote_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.registrarSeries'));
     }
   };
 
+  const removerSeriesDoEstado = (serieIds: Set<string>) => {
+    setDetalhe((prev) =>
+      prev === null
+        ? prev
+        : {
+            ...prev,
+            exercicios: prev.exercicios.map((ex) =>
+              ex.series.some((s) => serieIds.has(s.id))
+                ? { ...ex, series: ex.series.filter((s) => !serieIds.has(s.id)) }
+                : ex,
+            ),
+          },
+    );
+  };
+
   const onDeleteSerie = async (serieId: string) => {
     setErrorMessage(null);
     try {
       await dependencies.deleteSerie.execute(serieId);
-      await loadDetalhe();
+      removerSeriesDoEstado(new Set([serieId]));
     } catch (error) {
       dependencies.logger.error('sessao_ativa.delete_serie_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.removerSerie'));
@@ -166,7 +254,7 @@ export function useSessaoAtivaController(
     setErrorMessage(null);
     try {
       await Promise.all(serieIds.map((id) => dependencies.deleteSerie.execute(id)));
-      await loadDetalhe();
+      removerSeriesDoEstado(new Set(serieIds));
     } catch (error) {
       dependencies.logger.error('sessao_ativa.delete_series_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.removerSeries'));
@@ -177,7 +265,10 @@ export function useSessaoAtivaController(
     setErrorMessage(null);
     try {
       await dependencies.toggleExercicioRealizado.execute(sessaoExercicioId);
-      await loadDetalhe();
+      patchExercicios(new Set([sessaoExercicioId]), (ex) => ({
+        ...ex,
+        sessaoExercicio: { ...ex.sessaoExercicio, realizado: !ex.sessaoExercicio.realizado },
+      }));
     } catch (error) {
       dependencies.logger.error('sessao_ativa.toggle_realizado_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.atualizarExercicio'));
@@ -188,7 +279,10 @@ export function useSessaoAtivaController(
     setErrorMessage(null);
     try {
       await Promise.all(sessaoExercicioIds.map((id) => dependencies.toggleExercicioRealizado.execute(id)));
-      await loadDetalhe();
+      patchExercicios(new Set(sessaoExercicioIds), (ex) => ({
+        ...ex,
+        sessaoExercicio: { ...ex.sessaoExercicio, realizado: !ex.sessaoExercicio.realizado },
+      }));
     } catch (error) {
       dependencies.logger.error('sessao_ativa.toggle_realizado_grupo_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.atualizarExercicios'));
@@ -289,7 +383,30 @@ export function useSessaoAtivaController(
     setErrorMessage(null);
     try {
       await dependencies.updateSerie.execute(input);
-      await loadDetalhe();
+      setDetalhe((prev) =>
+        prev === null
+          ? prev
+          : {
+              ...prev,
+              exercicios: prev.exercicios.map((ex) =>
+                ex.series.some((s) => s.id === input.serieId)
+                  ? {
+                      ...ex,
+                      series: ex.series.map((s) =>
+                        s.id === input.serieId
+                          ? {
+                              ...s,
+                              cargaKg: input.cargaKg,
+                              repeticoes: input.repeticoes,
+                              observacao: input.observacao !== undefined ? input.observacao : s.observacao,
+                            }
+                          : s,
+                      ),
+                    }
+                  : ex,
+              ),
+            },
+      );
     } catch (error) {
       dependencies.logger.error('sessao_ativa.update_serie_failed', error);
       if (error instanceof SessaoValidationError) {
