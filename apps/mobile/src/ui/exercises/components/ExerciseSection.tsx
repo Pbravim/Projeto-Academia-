@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 
 import type { ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { gifAssets } from './gifAssets';
+import { resolveThumbSource } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -63,7 +63,7 @@ export const ExerciseCardRow = memo(function ExerciseCardRow({ card, isFirst, is
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
-  const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
+  const gifSource = resolveThumbSource(exercise.mediaLocal, exercise.id);
 
   return (
     <View style={[styles.rowWrap, isFirst ? styles.rowWrapFirst : null, isLast ? styles.rowWrapLast : null]}>

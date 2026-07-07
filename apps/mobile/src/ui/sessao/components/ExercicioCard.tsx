@@ -6,7 +6,7 @@ import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { gifAssets } from '../../exercises/components/gifAssets';
+import { resolveThumbSource } from '../../shared/exerciseMedia';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
@@ -39,7 +39,7 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
   const dotCount = total != null ? Math.min(total, MAX_DOTS) : 0;
   const overflow = total != null && total > MAX_DOTS ? total - MAX_DOTS : 0;
 
-  const gifSource = mediaLocal ? (gifAssets[mediaLocal] ?? null) : null;
+  const gifSource = resolveThumbSource(mediaLocal);
   const [mediaVisible, setMediaVisible] = useState(false);
   const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
 

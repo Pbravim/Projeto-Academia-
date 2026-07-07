@@ -12,6 +12,8 @@ export function isDownloadableUrl(url: string): boolean {
 
 interface BaixarMidiaExercicioDependencies {
   exerciseRepository: ExerciseRepository;
+  /** Gera a thumb estática da mídia baixada (best-effort, fire-and-forget). */
+  gerarThumb?: (exercicioId: string, mediaUri: string) => Promise<string | null>;
 }
 
 /** Baixa o vídeo/GIF de media_online para o armazenamento local do app. */
@@ -71,6 +73,7 @@ export class BaixarMidiaExercicioUseCase {
     }
 
     await this.deps.exerciseRepository.updateMedia(exercicioId, mediaOnline, finalLocalUri);
+    if (this.deps.gerarThumb) void this.deps.gerarThumb(exercicioId, finalLocalUri);
     return finalLocalUri;
   }
 }

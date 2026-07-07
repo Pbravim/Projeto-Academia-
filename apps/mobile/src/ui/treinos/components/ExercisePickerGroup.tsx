@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { gifAssets } from '../../exercises/components/gifAssets';
+import { resolveThumbSource } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -43,7 +43,7 @@ export const ExercisePickerGroup = memo(function ExercisePickerGroup({ group, it
         <View style={styles.pickerGroupBody}>
           {items.map((exercise) => {
             const isSelected = selected.has(exercise.id);
-            const gifSource = exercise.mediaLocal ? (gifAssets[exercise.mediaLocal] ?? null) : null;
+            const gifSource = resolveThumbSource(exercise.mediaLocal, exercise.id);
             const hasMedia = gifSource !== null || exercise.mediaOnline !== null;
             return (
               <Pressable

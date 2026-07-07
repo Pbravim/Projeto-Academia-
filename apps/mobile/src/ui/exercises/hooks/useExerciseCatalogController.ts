@@ -13,6 +13,8 @@ import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exer
 import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { gerarThumbMidia } from '../../../infrastructure/exercises/gerarThumbMidia';
+import { invalidateMediaCache } from '../../shared/exerciseMedia';
 import { translate, useLocale } from '../../shared/i18n';
 
 export interface ExerciseDraft {
@@ -217,6 +219,10 @@ export function useExerciseCatalogController(
           id: editingExerciseId,
           ...cleanDraft,
         });
+        // Mídia custom (galeria) já no caminho canônico: regenera a thumb estática.
+        if (cleanDraft.mediaLocal?.startsWith('file:')) {
+          void gerarThumbMidia(editingExerciseId, cleanDraft.mediaLocal).then((u) => { if (u) invalidateMediaCache(u); });
+        }
         startTransition(() => {
           setExercises((prev) => prev.map((e) => e.id === updated.id ? updated : e));
         });
@@ -236,6 +242,7 @@ export function useExerciseCatalogController(
             const destFile = new File(Paths.document, 'exercises', `${created.id}.${ext}`);
             srcFile.move(destFile);
             await dependencies.exerciseRepository.updateMedia(created.id, created.mediaOnline, destFile.uri);
+            void gerarThumbMidia(created.id, destFile.uri).then((u) => { if (u) invalidateMediaCache(u); });
           } catch (error) {
             // Não bloqueia a criação, mas o caminho tmp_ pode ser limpo pelo SO
             // e a mídia sumir — precisa ficar visível no log.

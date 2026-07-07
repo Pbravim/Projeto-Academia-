@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 
 import type { CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { gifAssets } from '../../exercises/components/gifAssets';
+import { resolveFullMediaSource, resolveThumbSource } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -167,8 +167,9 @@ function CandidatoRow({
 }) {
   const t = useT();
   const ex = candidato.exercicio;
-  const gifSource = ex.mediaLocal ? (gifAssets[ex.mediaLocal] ?? null) : null;
   const [playing, setPlaying] = useState(false);
+  const thumbSource = resolveThumbSource(ex.mediaLocal, ex.id);
+  const gifSource = playing ? (resolveFullMediaSource(ex.mediaLocal) ?? thumbSource) : thumbSource;
   return (
     <Pressable
       onPress={onPress}

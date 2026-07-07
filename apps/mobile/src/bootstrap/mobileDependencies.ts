@@ -1,6 +1,7 @@
 import { CreateExerciseUseCase } from '../application/exercises/use-cases/CreateExerciseUseCase';
 import { DeleteExerciseUseCase } from '../application/exercises/use-cases/DeleteExerciseUseCase';
 import { ExpoMediaFileCleanup } from '../infrastructure/exercises/ExpoMediaFileCleanup';
+import { gerarThumbMidia } from '../infrastructure/exercises/gerarThumbMidia';
 import { ListExercisesUseCase } from '../application/exercises/use-cases/ListExercisesUseCase';
 import { UpdateExerciseUseCase } from '../application/exercises/use-cases/UpdateExerciseUseCase';
 import { GetHistoricoExercicioUseCase } from '../application/historico/use-cases/GetHistoricoExercicioUseCase';
@@ -211,7 +212,7 @@ const cancelarSessaoUC = new CancelarSessaoUseCase({
   sessaoExercicioRepository,
   serieRegistradaRepository,
 });
-const baixarMidiaExercicio = new BaixarMidiaExercicioUseCase({ exerciseRepository });
+const baixarMidiaExercicio = new BaixarMidiaExercicioUseCase({ exerciseRepository, gerarThumb: gerarThumbMidia });
 const baixarMidiasTreino = new BaixarMidiasTreinoUseCase({
   exerciseRepository,
   treinoExercicioRepository,

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { gifAssets } from '../../exercises/components/gifAssets';
+import { resolveFullMediaSource, resolveThumbSource } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -91,8 +91,9 @@ function ExerciseGroup({ group, items, onAdd }: ExerciseGroupProps) {
       {expanded ? (
         <View style={styles.groupBody}>
           {items.map((ex) => {
-            const gifSource = ex.mediaLocal ? (gifAssets[ex.mediaLocal] ?? null) : null;
             const playing = playingId === ex.id;
+            const thumbSource = resolveThumbSource(ex.mediaLocal, ex.id);
+            const gifSource = playing ? (resolveFullMediaSource(ex.mediaLocal) ?? thumbSource) : thumbSource;
             return (
               <Pressable
                 key={ex.id}

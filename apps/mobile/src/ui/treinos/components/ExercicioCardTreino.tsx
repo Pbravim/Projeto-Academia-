@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { gifAssets } from '../../exercises/components/gifAssets';
+import { resolveThumbSource } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -20,6 +20,7 @@ function useTecnicas(): { value: Exclude<MetodoExercicio, 'normal'>; label: stri
 interface Props {
   item: {
     treinoExercicioId: string;
+    exercicioId: string;
     name: string;
     groupMuscle: string;
     category: string;
@@ -91,7 +92,7 @@ export function ExercicioCardTreino({
 
   const tecnicaAtiva = TECNICAS.find((tec) => tec.value === item.metodo);
   const isNormal = item.metodo === 'normal';
-  const gifSource = item.mediaLocal ? (gifAssets[item.mediaLocal] ?? null) : null;
+  const gifSource = resolveThumbSource(item.mediaLocal, item.exercicioId);
 
   function toggleTecnica(value: Exclude<MetodoExercicio, 'normal'>) {
     void onUpdateMetodo(item.metodo === value ? 'normal' : value);

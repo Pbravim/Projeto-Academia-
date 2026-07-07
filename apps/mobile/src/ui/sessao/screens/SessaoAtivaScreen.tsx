@@ -12,7 +12,7 @@ import { BiSetDetalheScreen } from './BiSetDetalheScreen';
 import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { gifAssets } from '../../exercises/components/gifAssets';
+import { resolveThumbSource } from '../../shared/exerciseMedia';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
@@ -288,16 +288,18 @@ export function SessaoAtivaScreen({
             {/* Exercise list | progress | checkbox | arrow — all vertically centered, mirroring ExercicioCard */}
             <View style={styles.grupoBody}>
               <View style={styles.grupoExercicios}>
-                {grupo.itens.map((item, idx) => (
+                {grupo.itens.map((item, idx) => {
+                  const grupoThumb = resolveThumbSource(item.mediaLocal, item.sessaoExercicio.exercicioId);
+                  return (
                   <View key={item.sessaoExercicio.id}>
                     {idx > 0 ? <View style={styles.grupoItemDivider} /> : null}
                     <View style={styles.grupoItemRow}>
-                      {item.mediaLocal && gifAssets[item.mediaLocal] ? (
+                      {grupoThumb ? (
                         <Pressable
                           hitSlop={4}
                           onPress={(e) => { e.stopPropagation(); setMediaViewerItem({ nome: item.sessaoExercicio.nomeSnapshot, mediaLocal: item.mediaLocal ?? null }); }}
                         >
-                          <Image source={gifAssets[item.mediaLocal]} style={styles.grupoItemThumb} contentFit="cover" autoplay={false} />
+                          <Image source={grupoThumb} style={styles.grupoItemThumb} contentFit="cover" autoplay={false} />
                           <View style={styles.grupoItemThumbOverlay}>
                             <Text style={styles.grupoItemThumbIcon}>▶</Text>
                           </View>
@@ -316,7 +318,8 @@ export function SessaoAtivaScreen({
                       </View>
                     </View>
                   </View>
-                ))}
+                  );
+                })}
               </View>
               {recSeries != null && minValidSeries != null ? (
                 <View style={styles.grupoProgressCol}>
