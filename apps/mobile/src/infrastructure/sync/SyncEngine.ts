@@ -141,16 +141,18 @@ export class SyncEngine {
 
     // Transação única: sem ela cada linha do servidor vira um auto-commit
     // próprio e uma falha no meio deixa o banco em estado parcial.
-    const applyAll = () =>
-      Promise.all([
-        applyIfAny(serverChanges.exercises, this.exerciseRepo),
-        applyIfAny(serverChanges.treinos, this.treinoRepo),
-        applyIfAny(serverChanges.treinoExercicios, this.treinoExercicioRepo),
-        applyIfAny(serverChanges.sessaoTreinos, this.sessaoTreinoRepo),
-        applyIfAny(serverChanges.sessaoExercicios, this.sessaoExercicioRepo),
-        applyIfAny(serverChanges.seriesRegistradas, this.serieRepo),
-        applyIfAny(serverChanges.registrosPeso, this.pesoRepo),
-      ]);
+    // Ordem parent-first OBRIGATÓRIA (foreign_keys=ON): no primeiro sync de um
+    // device novo, o filho chega no mesmo pull que o pai — aplicar em paralelo
+    // (Promise.all) violava a FK e o restore nunca completava.
+    const applyAll = async () => {
+      await applyIfAny(serverChanges.exercises, this.exerciseRepo);
+      await applyIfAny(serverChanges.treinos, this.treinoRepo);
+      await applyIfAny(serverChanges.treinoExercicios, this.treinoExercicioRepo);
+      await applyIfAny(serverChanges.sessaoTreinos, this.sessaoTreinoRepo);
+      await applyIfAny(serverChanges.sessaoExercicios, this.sessaoExercicioRepo);
+      await applyIfAny(serverChanges.seriesRegistradas, this.serieRepo);
+      await applyIfAny(serverChanges.registrosPeso, this.pesoRepo);
+    };
 
     if (this.database) {
       await this.database.withTransaction(applyAll);

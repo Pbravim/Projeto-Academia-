@@ -5,6 +5,7 @@ import type { DashboardControllerDependencies } from './hooks/useDashboardContro
 import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoController';
 import { useDashboardController } from './hooks/useDashboardController';
 import { useTreinoEvolucaoController } from './hooks/useTreinoEvolucaoController';
+import { useTabActive } from '../shared/tabActivity';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { GerenciarSessoesScreen } from './screens/GerenciarSessoesScreen';
 import { RecordesPessoaisScreen } from './screens/RecordesPessoaisScreen';
@@ -28,16 +29,20 @@ type ActiveView =
 
 export function DashboardFeature({ dependencies, onGoToSessao }: Props) {
   const [view, setView] = useState<ActiveView>({ type: 'dashboard' });
+  const tabActive = useTabActive();
   const controller = useDashboardController(dependencies);
 
   useEffect(() => {
+    // Keep-alive: aba oculta não registra handler (BackHandler é LIFO e ela
+    // consumiria o back da aba visível).
+    if (!tabActive) return;
     if (view.type === 'dashboard') return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       setView({ type: 'dashboard' });
       return true;
     });
     return () => sub.remove();
-  }, [view.type]);
+  }, [view.type, tabActive]);
 
   if (view.type === 'recordes') {
     return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { GetSessaoAtivaUseCase } from '../../../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import type { IniciarSessaoUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoUseCase';
@@ -12,6 +12,7 @@ import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJa
 import { TreinoSemExerciciosError } from '../../../application/sessoes/errors/TreinoSemExerciciosError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
+import { useTabActive } from '../../shared/tabActivity';
 
 type SessaoView = 'loading' | 'inicio' | 'ativa' | 'resumo';
 
@@ -55,6 +56,21 @@ export function useSessaoFeatureController(
   useEffect(() => {
     void checkSessaoAtiva();
   }, []);
+
+  // Keep-alive: recarrega lista de treinos/sugestão ao reativar a aba (ex.:
+  // treino criado em outra aba). Só na view 'inicio' — recarregar durante
+  // sessão ativa ou resumo resetaria o estado em andamento.
+  const tabActive = useTabActive();
+  const firstActivationRef = useRef(true);
+  useEffect(() => {
+    if (!tabActive) return;
+    if (firstActivationRef.current) {
+      firstActivationRef.current = false; // load inicial do mount já cobre
+      return;
+    }
+    if (view !== 'inicio') return;
+    void checkSessaoAtiva();
+  }, [tabActive]);
 
   const checkSessaoAtiva = async () => {
     try {

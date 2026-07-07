@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { DashboardStats, GetDashboardStatsUseCase } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import type { ExportarHistoricoUseCase } from '../../../application/dashboard/use-cases/ExportarHistoricoUseCase';
@@ -8,6 +8,7 @@ import type { DesarquivarSessaoUseCase } from '../../../application/dashboard/us
 import type { DeletarSessaoUseCase } from '../../../application/dashboard/use-cases/DeletarSessaoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
+import { useTabActive } from '../../shared/tabActivity';
 
 export interface DashboardControllerDependencies {
   getDashboardStats: GetDashboardStatsUseCase;
@@ -62,6 +63,19 @@ export function useDashboardController(dependencies: DashboardControllerDependen
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Keep-alive: a aba fica montada oculta; recarrega ao reativar para não
+  // exibir stats congelados (ex.: sessão finalizada em outra aba).
+  const tabActive = useTabActive();
+  const firstActivationRef = useRef(true);
+  useEffect(() => {
+    if (!tabActive) return;
+    if (firstActivationRef.current) {
+      firstActivationRef.current = false; // load inicial do mount já cobre
+      return;
+    }
+    void load();
+  }, [tabActive]);
 
   const onReset = async () => {
     setIsResetting(true);

@@ -14,6 +14,7 @@ import { TreinoFeature } from '../ui/treinos/TreinoFeature';
 import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 import { DashboardFeature } from '../ui/dashboard/DashboardFeature';
 import { ThemeContext, useTheme, useThemeProvider } from '../ui/shared/theme';
+import { TabActivityContext } from '../ui/shared/tabActivity';
 import { LocaleProvider, useT } from '../ui/shared/i18n';
 
 type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'evolucao' | 'perfil';
@@ -68,9 +69,15 @@ function AppContent() {
     return () => clearTimeout(timer);
   }, []);
 
+  const activeModuleRef = useRef(activeModule);
+  useEffect(() => { activeModuleRef.current = activeModule; }, [activeModule]);
+
+  // Registrado UMA vez no mount: BackHandler é LIFO, então este handler fica no
+  // FUNDO da pilha e subtelas registradas depois têm prioridade. Re-registrar a
+  // cada troca de aba o colocava no topo e engolia o back das subtelas.
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (activeModule === 'perfil') {
+      if (activeModuleRef.current === 'perfil') {
         setActiveModule(lastTabRef.current);
         return true;
       }
@@ -81,7 +88,7 @@ function AppContent() {
       return true;
     });
     return () => sub.remove();
-  }, [activeModule]);
+  }, []);
 
   useEffect(() => {
     void Promise.all([
@@ -109,7 +116,9 @@ function AppContent() {
 
   const tabPage = (mod: ActiveModule, element: React.ReactNode) =>
     mountedModules.has(mod) ? (
-      <View style={[styles.tabPage, activeModule !== mod ? styles.tabPageHidden : null]}>{element}</View>
+      <View style={[styles.tabPage, activeModule !== mod ? styles.tabPageHidden : null]}>
+        <TabActivityContext.Provider value={activeModule === mod}>{element}</TabActivityContext.Provider>
+      </View>
     ) : null;
 
   const handleProfilePress = () => {
