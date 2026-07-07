@@ -5,6 +5,10 @@
 > seções colapsadas limitam o ganho restante), #3 (transação no seeding), #5 (filtro CSV),
 > #6 parcial (transação no apply do sync; retry/backoff/NetInfo pendentes), #8 (Reordenar wiring).
 > #4 (GIFs → CDN) adiado por decisão do usuário (depende de hospedagem).
+> **Batch P1 (commit 6826c9f):** #6 completo exceto NetInfo (retry/backoff com testes), #7 (SecureTokenStore
+> com migração da sessão legada), #11 (migração v23: índices parciais dirty=1), #15/#16 da lista P2
+> (PesoLineChart removido; catch de mídia loga). Pendentes: #10 baseURL prod, #12 lazy seeds, #13,
+> NetInfo, telas-deus, testes faltantes, pendencias.md refresh.
 
 3 varreduras paralelas (runtime, código, arquitetura/dados) sobre apps/mobile + apps/api.
 Higiene geral ACIMA da média: zero casts inseguros em produção, 1 TODO real, tracker ativo.
