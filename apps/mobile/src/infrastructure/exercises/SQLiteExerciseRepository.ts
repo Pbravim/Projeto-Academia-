@@ -37,14 +37,38 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async save(exercise: Exercise): Promise<void> {
     const p = exercise.toPrimitives();
+    // NUNCA usar INSERT OR REPLACE aqui: o REPLACE deleta a linha e o ON DELETE
+    // CASCADE das tabelas de alternativas apaga todos os links do exercício.
     await this.database.run(
-      `INSERT OR REPLACE INTO exercises (
+      `INSERT INTO exercises (
          id, name, normalized_name, group_muscle, category, equipment,
          load_unit, is_custom, created_at, updated_at, media_online, media_local,
          musculo_alvo, movement_pattern, stabilizers, execution_type,
          name_variations, primary_equipment, secondary_equipment, catalog_version,
          tracking_type, deleted_at, dirty
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         name                = excluded.name,
+         normalized_name     = excluded.normalized_name,
+         group_muscle        = excluded.group_muscle,
+         category            = excluded.category,
+         equipment           = excluded.equipment,
+         load_unit           = excluded.load_unit,
+         is_custom           = excluded.is_custom,
+         updated_at          = excluded.updated_at,
+         media_online        = excluded.media_online,
+         media_local         = excluded.media_local,
+         musculo_alvo        = excluded.musculo_alvo,
+         movement_pattern    = excluded.movement_pattern,
+         stabilizers         = excluded.stabilizers,
+         execution_type      = excluded.execution_type,
+         name_variations     = excluded.name_variations,
+         primary_equipment   = excluded.primary_equipment,
+         secondary_equipment = excluded.secondary_equipment,
+         catalog_version     = excluded.catalog_version,
+         tracking_type       = excluded.tracking_type,
+         deleted_at          = NULL,
+         dirty               = 1`,
       [
         p.id, p.name, p.normalizedName, serializeGroupMuscles(p.groupMuscles), p.category, p.equipment,
         p.loadUnit, p.isCustom ? 1 : 0, p.createdAt, p.updatedAt,
@@ -153,7 +177,7 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
               e.name_variations, e.primary_equipment, e.secondary_equipment, e.catalog_version
        FROM exercises e
        JOIN exercise_alternatives ea ON ea.alternativa_id = e.id
-       WHERE ea.exercicio_id = ? AND e.deleted_at IS NULL
+       WHERE ea.exercicio_id = ? AND ea.deleted_at IS NULL AND e.deleted_at IS NULL
        ORDER BY e.name ASC`,
       [exercicioId]
     );
@@ -317,14 +341,40 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
 
   async applyServerRows(rows: import('@academia/contracts').ExerciseSyncRow[]): Promise<void> {
     for (const r of rows) {
+      // UPSERT (não REPLACE): REPLACE dispararia o ON DELETE CASCADE das tabelas
+      // de alternativas em cada pull, apagando os links locais.
       await this.database.run(
-        `INSERT OR REPLACE INTO exercises
+        `INSERT INTO exercises
            (id, name, normalized_name, group_muscle, category, equipment, load_unit,
             is_custom, media_online, media_local, musculo_alvo,
             movement_pattern, stabilizers, execution_type, name_variations,
             primary_equipment, secondary_equipment, catalog_version, tracking_type,
             created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           name                = excluded.name,
+           normalized_name     = excluded.normalized_name,
+           group_muscle        = excluded.group_muscle,
+           category            = excluded.category,
+           equipment           = excluded.equipment,
+           load_unit           = excluded.load_unit,
+           is_custom           = excluded.is_custom,
+           media_online        = excluded.media_online,
+           media_local         = excluded.media_local,
+           musculo_alvo        = excluded.musculo_alvo,
+           movement_pattern    = excluded.movement_pattern,
+           stabilizers         = excluded.stabilizers,
+           execution_type      = excluded.execution_type,
+           name_variations     = excluded.name_variations,
+           primary_equipment   = excluded.primary_equipment,
+           secondary_equipment = excluded.secondary_equipment,
+           catalog_version     = excluded.catalog_version,
+           tracking_type       = excluded.tracking_type,
+           created_at          = excluded.created_at,
+           updated_at          = excluded.updated_at,
+           deleted_at          = excluded.deleted_at,
+           dirty               = 0,
+           server_rev          = 1`,
         [r.id, r.name, r.normalizedName, r.groupMuscle, r.category, r.equipment,
          r.loadUnit, r.isCustom ? 1 : 0, r.mediaOnline, r.mediaLocal, r.musculoAlvo,
          r.movementPattern, r.stabilizers, r.executionType, r.nameVariations,
