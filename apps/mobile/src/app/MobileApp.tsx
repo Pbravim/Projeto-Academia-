@@ -81,11 +81,10 @@ function AppContent() {
         setActiveModule(lastTabRef.current);
         return true;
       }
-      // Consume the event at tab root so Expo Go doesn't intercept it.
-      // Returning true here prevents the Expo launcher from appearing;
-      // the OS default (minimize app) is triggered only when nothing consumes it,
-      // which in a standalone/dev-client build would just minimize the app.
-      return true;
+      // Em DEV (Expo Go) consumimos o evento para o launcher não aparecer.
+      // Em produção deixamos o SO agir: back no tab root minimiza o app —
+      // consumir sempre deixava o usuário "preso" sem conseguir minimizar.
+      return __DEV__;
     });
     return () => sub.remove();
   }, []);

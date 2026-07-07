@@ -95,46 +95,70 @@ export function SessaoAtivaScreen({
   const [mediaViewerItem, setMediaViewerItem] = useState<{ nome: string; mediaLocal: string | null } | null>(null);
   const [confirmCancelarVisible, setConfirmCancelarVisible] = useState(false);
   const [confirmConcluirGrupo, setConfirmConcluirGrupo] = useState<Grupo | null>(null);
+  // Guard de in-flight: sem ele, dois toques no checkbox (o patch é assíncrono)
+  // gravavam as séries auto-preenchidas em dobro e desfaziam o toggle.
+  const [concluindoIds, setConcluindoIds] = useState<Set<string>>(new Set());
 
   const handleConcluirExercicio = async (item: SessaoExercicioComSeries) => {
     const { sessaoExercicio, series } = item;
-    const validCount = series.length;
-    const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
-    const missing = Math.max(0, recomendadas - validCount);
-    if (missing > 0) {
-      const inputs = Array.from({ length: missing }, () => ({
-        sessaoExercicioId: sessaoExercicio.id,
-        cargaKg: sessaoExercicio.cargaPadrao ?? 0,
-        repeticoes: sessaoExercicio.execucoesRecomendadas ?? 1,
-        observacao: '',
-      }));
-      await onRegistrarSeriesEmLote(inputs);
+    if (concluindoIds.has(sessaoExercicio.id)) return;
+    setConcluindoIds((prev) => new Set(prev).add(sessaoExercicio.id));
+    try {
+      const validCount = series.length;
+      const recomendadas = sessaoExercicio.seriesRecomendadas ?? 0;
+      const missing = Math.max(0, recomendadas - validCount);
+      if (missing > 0) {
+        const inputs = Array.from({ length: missing }, () => ({
+          sessaoExercicioId: sessaoExercicio.id,
+          cargaKg: sessaoExercicio.cargaPadrao ?? 0,
+          repeticoes: sessaoExercicio.execucoesRecomendadas ?? 1,
+          observacao: '',
+        }));
+        await onRegistrarSeriesEmLote(inputs);
+      }
+      await onToggleRealizado(sessaoExercicio.id);
+    } finally {
+      setConcluindoIds((prev) => {
+        const next = new Set(prev);
+        next.delete(sessaoExercicio.id);
+        return next;
+      });
     }
-    await onToggleRealizado(sessaoExercicio.id);
   };
 
   const handleConcluirGrupo = async (grupo: Grupo) => {
-    const allRealizado = grupo.itens.every((i) => i.sessaoExercicio.realizado);
-    const toToggle = allRealizado
-      ? grupo.itens.map((i) => i.sessaoExercicio.id)
-      : grupo.itens.filter((i) => !i.sessaoExercicio.realizado).map((i) => i.sessaoExercicio.id);
+    const grupoKey = grupo.grupoId ?? '__sem_grupo__';
+    if (concluindoIds.has(grupoKey)) return;
+    setConcluindoIds((prev) => new Set(prev).add(grupoKey));
+    try {
+      const allRealizado = grupo.itens.every((i) => i.sessaoExercicio.realizado);
+      const toToggle = allRealizado
+        ? grupo.itens.map((i) => i.sessaoExercicio.id)
+        : grupo.itens.filter((i) => !i.sessaoExercicio.realizado).map((i) => i.sessaoExercicio.id);
 
-    if (!allRealizado) {
-      const allInputs = grupo.itens.flatMap((item) => {
-        if (item.sessaoExercicio.realizado) return [];
-        const validCount = item.series.length;
-        const recomendadas = item.sessaoExercicio.seriesRecomendadas ?? 0;
-        const missing = Math.max(0, recomendadas - validCount);
-        return Array.from({ length: missing }, () => ({
-          sessaoExercicioId: item.sessaoExercicio.id,
-          cargaKg: item.sessaoExercicio.cargaPadrao ?? 0,
-          repeticoes: item.sessaoExercicio.execucoesRecomendadas ?? 1,
-          observacao: '',
-        }));
+      if (!allRealizado) {
+        const allInputs = grupo.itens.flatMap((item) => {
+          if (item.sessaoExercicio.realizado) return [];
+          const validCount = item.series.length;
+          const recomendadas = item.sessaoExercicio.seriesRecomendadas ?? 0;
+          const missing = Math.max(0, recomendadas - validCount);
+          return Array.from({ length: missing }, () => ({
+            sessaoExercicioId: item.sessaoExercicio.id,
+            cargaKg: item.sessaoExercicio.cargaPadrao ?? 0,
+            repeticoes: item.sessaoExercicio.execucoesRecomendadas ?? 1,
+            observacao: '',
+          }));
+        });
+        if (allInputs.length > 0) await onRegistrarSeriesEmLote(allInputs);
+      }
+      await onToggleRealizadoGrupo(toToggle);
+    } finally {
+      setConcluindoIds((prev) => {
+        const next = new Set(prev);
+        next.delete(grupoKey);
+        return next;
       });
-      if (allInputs.length > 0) await onRegistrarSeriesEmLote(allInputs);
     }
-    await onToggleRealizadoGrupo(toToggle);
   };
 
   const handleCancelar = () => {

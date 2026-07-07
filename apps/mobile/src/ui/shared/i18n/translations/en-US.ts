@@ -201,6 +201,9 @@ export const enUS = {
       loadStats: 'Could not load the statistics.',
       reset: 'Could not reset the history.',
       export: 'Could not export the history.',
+      arquivarSessao: 'Could not archive the session.',
+      desarquivarSessao: 'Could not unarchive the session.',
+      deletarSessao: 'Could not delete the session.',
     },
     home: {
       description: 'Real progress per workout, last 10 sessions each.',
@@ -298,6 +301,10 @@ export const enUS = {
       chartTitle: 'Estimated 1RM progress',
       execucoesTitle: 'Executions',
     },
+    errors: {
+      load: 'Could not load the history.',
+      retry: 'Try again',
+    },
     emptyStateMessage: 'No execution recorded yet.',
     plateauMensagem:
       'No improvement in estimated 1RM over the last %{count} sessions. Consider increasing volume, changing exercise order, or varying the stimulus.',
@@ -338,6 +345,8 @@ export const enUS = {
       duplicando: 'Duplicating...',
       duplicar: 'Duplicate',
       excluindo: 'Deleting...',
+      confirmDeleteTitle: 'Delete workout?',
+      confirmDeleteMessage: 'The workout and its exercise setup will be removed. Completed sessions stay in your history.',
       feedback: {
         excluido: 'Workout deleted successfully.',
       },
@@ -369,6 +378,8 @@ export const enUS = {
       eyebrow: 'Workout',
       exerciciosDoTreino: 'Workout exercises',
       desfazer: 'Undo',
+      moverBlocoCima: 'Move block up',
+      moverBlocoBaixo: 'Move block down',
       adicionarProximoAoGrupo: '+ Add next to group',
       salvarTreino: 'Save workout',
       adicionarExercicios: 'Add exercises',
@@ -463,6 +474,8 @@ export const enUS = {
       ultimoLabel: 'Last: %{carga} kg × %{reps} reps',
       editingFormTitle: 'Edit exercise',
       newFormTitle: 'New exercise',
+      confirmDeleteTitle: 'Delete exercise?',
+      confirmDeleteMessage: 'The exercise will be removed from the catalog and from workouts that use it. History from completed sessions is kept.',
       exactMatchWarning: '⚠ Exercise already exists — tap to edit',
       suggestionsLabel: 'Exercises with a similar name:',
       editArrow: 'Edit →',
@@ -576,6 +589,7 @@ export const enUS = {
     },
     dialogs: {
       erroExportar: 'Export failed.',
+      erroReset: 'Failed to delete the history.',
       erroBackup: 'Could not generate the backup.',
       erroImportar: 'Could not import the backup.',
       backupRestauradoTitle: 'Backup restored',

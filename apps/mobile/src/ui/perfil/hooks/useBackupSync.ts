@@ -47,6 +47,10 @@ export function useBackupSync(deps: BackupSyncDependencies) {
       const result = await deps.syncNow();
       setStatus(messageFor(result, locale));
       refresh(); // a rejected refresh token may have logged us out
+    } catch (err) {
+      // Sem este catch, o auto-sync de foreground (`void sync()`) virava
+      // unhandled rejection e o usuário não via status nenhum.
+      setStatus(errorMessage(err, locale));
     } finally {
       setBusy(false);
     }

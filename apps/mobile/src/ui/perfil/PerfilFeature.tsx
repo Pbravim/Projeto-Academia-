@@ -63,6 +63,8 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
       await dependencies.resetHistorico.execute();
     } catch (e) {
       dependencies.logger.error('perfil.reset', e);
+      // Sem o diálogo o usuário acreditava que o histórico tinha sido apagado.
+      setInfoDialog({ title: t('common.error'), message: e instanceof Error ? e.message : t('perfil.dialogs.erroReset') });
     } finally {
       setIsResetting(false);
     }

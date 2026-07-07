@@ -14,6 +14,7 @@ import type { TreinoListControllerState } from '../hooks/useTreinoListController
 import type { PlanoControllerState } from '../hooks/usePlanoController';
 import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
 import { PlanoPickerModal } from '../components/PlanoPickerModal';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
@@ -46,6 +47,9 @@ export function TreinoListScreen({
   const styles = useMemo(() => makeStyles(c), [c]);
   const viewModel = useMemo(() => buildTreinoListViewModel(treinos, locale), [treinos, locale]);
   const nameInputRef = useRef<TextInput>(null);
+  // Excluir é destrutivo (leva a configuração de exercícios junto) — 1 toque
+  // acidental não pode deletar; reset/import/deletar sessão já confirmam.
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   return (
     <>
@@ -192,7 +196,7 @@ export function TreinoListScreen({
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => {
-                    void onDelete(card.id);
+                    setConfirmDeleteId(card.id);
                   }}
                   disabled={deletingId !== null || duplicandoId !== null}
                   style={({ pressed }) => [
@@ -219,6 +223,20 @@ export function TreinoListScreen({
       treinoAtualId={plano.diaSelecionado ? plano.plano[plano.diaSelecionado] : null}
       onSelect={plano.onSetTreino}
       onClose={plano.onClosePicker}
+    />
+
+    <ConfirmDialog
+      visible={confirmDeleteId !== null}
+      title={t('treinos.list.confirmDeleteTitle')}
+      message={t('treinos.list.confirmDeleteMessage')}
+      confirmLabel={t('common.delete')}
+      destructive
+      onConfirm={() => {
+        const id = confirmDeleteId;
+        setConfirmDeleteId(null);
+        if (id) void onDelete(id);
+      }}
+      onCancel={() => setConfirmDeleteId(null)}
     />
     </>
   );

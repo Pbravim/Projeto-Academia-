@@ -7,7 +7,7 @@ import {
   buildHistoricoExercicioViewModel,
   type HistoricoExercicioViewModel,
 } from '../presenters/buildHistoricoExercicioViewModel';
-import { useLocale } from '../../shared/i18n';
+import { translate, useLocale } from '../../shared/i18n';
 
 export interface HistoricoExercicioControllerDependencies {
   getHistoricoExercicio: GetHistoricoExercicioUseCase;
@@ -17,6 +17,9 @@ export interface HistoricoExercicioControllerDependencies {
 export interface HistoricoExercicioControllerState {
   viewModel: HistoricoExercicioViewModel;
   isLoading: boolean;
+  /** Erro de load — sem ele a tela caía no empty state "sem histórico" (P2 rodada 3). */
+  errorMessage: string | null;
+  onRetry: () => Promise<void>;
   onBack: () => void;
 }
 
@@ -29,6 +32,7 @@ export function useHistoricoExercicioController(
   const locale = useLocale();
   const [execucoes, setExecucoes] = useState<ExecucaoExercicio[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     void load();
@@ -37,10 +41,12 @@ export function useHistoricoExercicioController(
   const load = async () => {
     try {
       setIsLoading(true);
+      setErrorMessage(null);
       const data = await dependencies.getHistoricoExercicio.execute(exercicioId);
       setExecucoes(data);
     } catch (error) {
       dependencies.logger.error('historico_exercicio.load_failed', error);
+      setErrorMessage(translate(locale, 'historico.errors.load'));
     } finally {
       setIsLoading(false);
     }
@@ -48,5 +54,5 @@ export function useHistoricoExercicioController(
 
   const viewModel = buildHistoricoExercicioViewModel(exercicioNome, execucoes, locale);
 
-  return { viewModel, isLoading, onBack };
+  return { viewModel, isLoading, errorMessage, onRetry: load, onBack };
 }

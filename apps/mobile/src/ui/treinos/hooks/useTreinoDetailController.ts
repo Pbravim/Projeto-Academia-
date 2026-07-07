@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
@@ -38,6 +38,8 @@ export interface TreinoDetailControllerState {
   exercisesById: Map<string, ExercisePrimitives>;
   errorMessage: string | null;
   feedbackMessage: string | null;
+  /** True enquanto um reorder está pendente — a tela desabilita as setas ↑/↓. */
+  isReordering: boolean;
   onAddExercicio: (exercicioId: string) => Promise<void>;
   onAddMultiplosExercicios: (exercicioIds: string[]) => Promise<void>;
   onRemoveExercicio: (treinoExercicioId: string) => Promise<void>;
@@ -71,6 +73,7 @@ export function useTreinoDetailController(
   const [exercisesById, setExercisesById] = useState<Map<string, ExercisePrimitives>>(new Map());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
   const [alternativasByExercicioId, setAlternativasByExercicioId] = useState<Map<string, ExercisePrimitives[]>>(new Map());
 
   const loadData = async () => {
@@ -176,7 +179,15 @@ export function useTreinoDetailController(
     }
   };
 
+  // Guard de in-flight: dois taps rápidos nas setas disparavam reorders
+  // concorrentes calculados sobre a lista stale — a segunda gravação usava a
+  // ordem antiga e o resultado final ficava imprevisível. Ref (não state):
+  // o segundo tap chega antes do re-render.
+  const reorderInFlight = useRef(false);
   const reorder = async (newIds: string[]) => {
+    if (reorderInFlight.current) return;
+    reorderInFlight.current = true;
+    setIsReordering(true);
     try {
       await dependencies.reordenarExercicios.execute({
         treinoId: treino.id,
@@ -186,6 +197,9 @@ export function useTreinoDetailController(
     } catch (error) {
       dependencies.logger.error('treino_detail.reorder_failed', error);
       setErrorMessage(translate(locale, 'treinos.detail.errors.reorder'));
+    } finally {
+      reorderInFlight.current = false;
+      setIsReordering(false);
     }
   };
 
@@ -343,6 +357,7 @@ export function useTreinoDetailController(
     exercisesById,
     errorMessage,
     feedbackMessage,
+    isReordering,
     onAddExercicio,
     onAddMultiplosExercicios,
     onRemoveExercicio,

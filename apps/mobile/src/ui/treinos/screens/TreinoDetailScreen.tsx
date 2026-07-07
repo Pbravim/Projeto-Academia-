@@ -69,6 +69,7 @@ export function TreinoDetailScreen({
   exercisesById,
   errorMessage,
   feedbackMessage,
+  isReordering,
   onAddExercicio,
   onAddMultiplosExercicios,
   onRemoveExercicio,
@@ -368,13 +369,17 @@ export function TreinoDetailScreen({
                   <Text style={styles.grupoHeaderText}>{label}</Text>
                   <View style={styles.grupoHeaderActions}>
                     <Pressable onPress={() => { void onMoveUp(bloco.exercicios[0].id); }}
-                      disabled={bi === 0}
-                      style={[styles.grupoArrowBtn, bi === 0 ? { opacity: 0.3 } : null]}>
+                      disabled={bi === 0 || isReordering}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('treinos.detail.moverBlocoCima')}
+                      style={[styles.grupoArrowBtn, bi === 0 || isReordering ? { opacity: 0.3 } : null]}>
                       <Text style={styles.grupoArrowText}>↑</Text>
                     </Pressable>
                     <Pressable onPress={() => { void onMoveDown(bloco.exercicios[0].id); }}
-                      disabled={bi === blocos.length - 1}
-                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 ? { opacity: 0.3 } : null]}>
+                      disabled={bi === blocos.length - 1 || isReordering}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('treinos.detail.moverBlocoBaixo')}
+                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 || isReordering ? { opacity: 0.3 } : null]}>
                       <Text style={styles.grupoArrowText}>↓</Text>
                     </Pressable>
                     <Pressable

@@ -105,12 +105,15 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     }
   };
 
+  // Falha silenciosa era P2 (auditoria rodada 3): a linha não sumia e o usuário
+  // tocava de novo sem saber por quê — todo catch abaixo mostra errorMessage.
   const onArquivarSessao = async (sessaoId: string) => {
     try {
       await dependencies.arquivarSessao.execute(sessaoId);
       await load();
     } catch (error) {
       dependencies.logger.error('dashboard.arquivar_sessao_failed', error);
+      setErrorMessage(translate(locale, 'dashboard.errors.arquivarSessao'));
     }
   };
 
@@ -120,6 +123,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       await load();
     } catch (error) {
       dependencies.logger.error('dashboard.desarquivar_sessao_failed', error);
+      setErrorMessage(translate(locale, 'dashboard.errors.desarquivarSessao'));
     }
   };
 
@@ -129,6 +133,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       await load();
     } catch (error) {
       dependencies.logger.error('dashboard.deletar_sessao_failed', error);
+      setErrorMessage(translate(locale, 'dashboard.errors.deletarSessao'));
     }
   };
 
@@ -140,6 +145,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       await load();
     } catch (error) {
       dependencies.logger.error('dashboard.arquivar_todas_failed', error);
+      setErrorMessage(translate(locale, 'dashboard.errors.arquivarSessao'));
     }
   };
 
@@ -151,6 +157,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       await load();
     } catch (error) {
       dependencies.logger.error('dashboard.deletar_todas_failed', error);
+      setErrorMessage(translate(locale, 'dashboard.errors.deletarSessao'));
     }
   };
 

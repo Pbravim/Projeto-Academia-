@@ -11,6 +11,8 @@ import { useT } from '../../shared/i18n';
 export function HistoricoExercicioScreen({
   viewModel,
   isLoading,
+  errorMessage,
+  onRetry,
   onBack,
 }: HistoricoExercicioControllerState) {
   const c = useTheme();
@@ -51,6 +53,19 @@ export function HistoricoExercicioScreen({
 
       {isLoading ? (
         <ActivityIndicator size="large" color={c.accent} style={styles.loading} />
+      ) : errorMessage ? (
+        // Erro NÃO pode cair no empty state: "sem histórico" para um exercício
+        // que tem histórico induzia o usuário ao erro, sem como tentar de novo.
+        <View style={styles.card}>
+          <Text style={styles.emptyState}>{errorMessage}</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => { void onRetry(); }}
+            style={({ pressed }) => [styles.retryButton, pressed ? { opacity: 0.8 } : null]}
+          >
+            <Text style={styles.retryButtonText}>{t('historico.errors.retry')}</Text>
+          </Pressable>
+        </View>
       ) : viewModel.emptyStateMessage ? (
         <View style={styles.card}>
           <Text style={styles.emptyState}>{viewModel.emptyStateMessage}</Text>
@@ -110,6 +125,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderColor: c.cardBorder,
     },
     emptyState: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    retryButton: { marginTop: 12, alignSelf: 'flex-start', backgroundColor: c.accent, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
+    retryButtonText: { color: c.accentText, fontSize: 14, fontWeight: '700' },
     execucoesTitle: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
   });
 }

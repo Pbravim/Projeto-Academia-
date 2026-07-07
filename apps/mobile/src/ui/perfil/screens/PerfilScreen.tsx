@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -201,7 +202,14 @@ export function PerfilScreen({
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    // KAV + persistTaps: sem eles o teclado cobria o botão "Registrar" do form
+    // de peso e o 1º toque no botão só fechava o teclado.
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
 
       {/* ── Hero ── */}
       <View style={styles.heroCard}>
@@ -652,6 +660,7 @@ export function PerfilScreen({
         onCancel={() => setConfirmResetVisible(false)}
       />
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

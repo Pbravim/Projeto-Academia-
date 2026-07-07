@@ -17,6 +17,7 @@ import {
   CATEGORIES, EQUIPMENTS, MOVEMENT_PATTERNS, EXECUTION_TYPES, PRIMARY_EQUIPMENTS,
 } from '../components/ExerciseFormFields';
 import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { metadataLabel } from '../exerciseMetadataLabels';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
@@ -63,6 +64,8 @@ export function ExerciseCatalogScreen({
   const [filterEquipment, setFilterEquipment] = useState('');
   const [sortMode, setSortMode] = useState<CatalogSortMode>('nome');
   const [viewerExercise, setViewerExercise] = useState<ExercisePrimitives | null>(null);
+  // Excluir exercício é destrutivo — exige confirmação (1 toque acidental não apaga).
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   // Expansão por grupo muscular (colapsado por padrão) — antes vivia dentro de
   // cada ExerciseSection; subiu para a tela para alimentar a SectionList.
   const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(() => new Set());
@@ -192,10 +195,10 @@ export function ExerciseCatalogScreen({
         onSelectEdit={onSelectEdit}
         onViewHistorico={onViewHistorico}
         onViewMedia={handleViewMedia}
-        onDelete={onDelete}
+        onDelete={async (id) => setConfirmDeleteId(id)}
       />
     ),
-    [editingExerciseId, deletingId, exercisesById, onSelectEdit, onViewHistorico, handleViewMedia, onDelete]
+    [editingExerciseId, deletingId, exercisesById, onSelectEdit, onViewHistorico, handleViewMedia]
   );
 
   // Elemento (não componente) para o ListHeaderComponent: evita remontagem do
@@ -558,6 +561,20 @@ export function ExerciseCatalogScreen({
           onClose={() => setViewerExercise(null)}
         />
       ) : null}
+
+      <ConfirmDialog
+        visible={confirmDeleteId !== null}
+        title={t('exercises.catalog.confirmDeleteTitle')}
+        message={t('exercises.catalog.confirmDeleteMessage')}
+        confirmLabel={t('common.delete')}
+        destructive
+        onConfirm={() => {
+          const id = confirmDeleteId;
+          setConfirmDeleteId(null);
+          if (id) void onDelete(id);
+        }}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </>
   );
 }

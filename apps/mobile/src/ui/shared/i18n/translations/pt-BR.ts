@@ -202,6 +202,9 @@ export const ptBR = {
       loadStats: 'Não foi possível carregar as estatísticas.',
       reset: 'Não foi possível resetar o histórico.',
       export: 'Não foi possível exportar o histórico.',
+      arquivarSessao: 'Não foi possível arquivar a sessão.',
+      desarquivarSessao: 'Não foi possível desarquivar a sessão.',
+      deletarSessao: 'Não foi possível excluir a sessão.',
     },
     home: {
       description: 'Progresso real por treino, últimas 10 sessões de cada.',
@@ -299,6 +302,10 @@ export const ptBR = {
       chartTitle: 'Evolução do 1RM estimado',
       execucoesTitle: 'Execuções',
     },
+    errors: {
+      load: 'Não foi possível carregar o histórico.',
+      retry: 'Tentar novamente',
+    },
     emptyStateMessage: 'Nenhuma execução registrada ainda.',
     plateauMensagem:
       'Sem melhora no 1RM estimado nas últimas %{count} sessões. Considere aumentar volume, mudar a ordem dos exercícios ou trocar o estímulo.',
@@ -339,6 +346,8 @@ export const ptBR = {
       duplicando: 'Duplicando...',
       duplicar: 'Duplicar',
       excluindo: 'Excluindo...',
+      confirmDeleteTitle: 'Excluir treino?',
+      confirmDeleteMessage: 'O treino e a configuração de exercícios dele serão removidos. As sessões já realizadas continuam no histórico.',
       feedback: {
         excluido: 'Treino excluído com sucesso.',
       },
@@ -370,6 +379,8 @@ export const ptBR = {
       eyebrow: 'Treino',
       exerciciosDoTreino: 'Exercícios do treino',
       desfazer: 'Desfazer',
+      moverBlocoCima: 'Mover bloco para cima',
+      moverBlocoBaixo: 'Mover bloco para baixo',
       adicionarProximoAoGrupo: '+ Adicionar próximo ao grupo',
       salvarTreino: 'Salvar treino',
       adicionarExercicios: 'Adicionar exercícios',
@@ -464,6 +475,8 @@ export const ptBR = {
       ultimoLabel: 'Último: %{carga} kg × %{reps} rep',
       editingFormTitle: 'Editar exercício',
       newFormTitle: 'Novo exercício',
+      confirmDeleteTitle: 'Excluir exercício?',
+      confirmDeleteMessage: 'O exercício será removido do catálogo e dos treinos que o usam. O histórico das sessões já realizadas é mantido.',
       exactMatchWarning: '⚠ Exercício já existe — toque para editar',
       suggestionsLabel: 'Exercícios com nome similar:',
       editArrow: 'Editar →',
@@ -577,6 +590,7 @@ export const ptBR = {
     },
     dialogs: {
       erroExportar: 'Falha ao exportar.',
+      erroReset: 'Falha ao apagar o histórico.',
       erroBackup: 'Falha ao gerar backup.',
       erroImportar: 'Falha ao importar backup.',
       backupRestauradoTitle: 'Backup restaurado',
