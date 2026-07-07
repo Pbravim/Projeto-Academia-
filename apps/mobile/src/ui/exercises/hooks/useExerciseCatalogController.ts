@@ -16,6 +16,7 @@ import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { gerarThumbMidia } from '../../../infrastructure/exercises/gerarThumbMidia';
 import { invalidateMediaCache } from '../../shared/exerciseMedia';
 import { translate, useLocale } from '../../shared/i18n';
+import { useTabActive } from '../../shared/tabActivity';
 
 export interface ExerciseDraft {
   name: string;
@@ -129,6 +130,19 @@ export function useExerciseCatalogController(
   useEffect(() => {
     void loadExercises();
   }, []);
+
+  // Keep-alive: a aba fica montada oculta; recarrega ao reativar para refletir
+  // mudanças feitas em outras abas (ex.: últimos pesos após sessão).
+  const tabActive = useTabActive();
+  const firstActivationRef = useRef(true);
+  useEffect(() => {
+    if (!tabActive) return;
+    if (firstActivationRef.current) {
+      firstActivationRef.current = false; // load inicial do mount já cobre
+      return;
+    }
+    void loadExercises();
+  }, [tabActive]);
 
   const onChangeField = (field: keyof ExerciseDraft, value: string) => {
     setDraft((currentDraft) => ({ ...currentDraft, [field]: value }));
