@@ -133,8 +133,18 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseE
     const currentVersion = versionRow?.user_version ?? 0;
 
     for (let i = currentVersion; i < migrations.length; i++) {
-      await this.runMigrationStep(database, migrations[i]);
-      await database.execAsync(`PRAGMA user_version = ${i + 1}`);
+      // Step + bump do user_version em UMA transação: um crash no meio de um
+      // rebuild (ex.: entre DROP e RENAME da v22) deixava o banco irreparável
+      // no boot seguinte. Com rollback, o step inteiro é re-tentável.
+      await database.execAsync('BEGIN IMMEDIATE');
+      try {
+        await this.runMigrationStep(database, migrations[i]);
+        await database.execAsync(`PRAGMA user_version = ${i + 1}`);
+        await database.execAsync('COMMIT');
+      } catch (err) {
+        await database.execAsync('ROLLBACK').catch(() => undefined);
+        throw err;
+      }
       this.logger.info('database.migration_applied', { version: i + 1 });
     }
 

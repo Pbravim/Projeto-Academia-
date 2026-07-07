@@ -120,26 +120,24 @@ P0/P1, corrigir P0→P1 com teste de regressão TDD cada, atualizar pendencias.m
 - ✅ Mutação sobrevivente: fronteira `cargaKg <= cargaPadrao` → `<` passa 12/12.
   `RegistrarSerieUseCase.ts:97`.
 
-## P2 (resumo — detalhes nos apêndices)
+## P2 (resumo — detalhes nos apêndices) — ✅ TODOS CORRIGIDOS 2026-07-07 (frentes 1-8)
 
-- Rebuild v22 não transacional: crash entre DROP e RENAME = banco irreparável no boot seguinte
-  (`ExpoSQLiteDatabaseClient.ts:594-614`). Migrações jamais testadas em replay no CI (F).
-- `ordem` duplicada viva após remover exercício do meio (`AddExercicioAoTreinoUseCase.ts:48-53`, ✅);
-  re-adicionar exercício REPLACEa o tombstone antes do push (`SQLiteTreinoExercicioRepository.ts:29`);
-  `deletarSessao`/arquivar sem tombstone/dirty → ressurreição no pull ou mudança nunca sinca
-  (`SqliteDashboardRepository.ts:268-292`).
-- `exercise_alternatives` marca dirty mas está fora do contrato/Prisma → links custom nunca sincam;
-  pull de custom homônimo apaga o custom local via UNIQUE(normalized_name); LWW por relógio do
-  cliente; 1 linha rejeitada aborta a transação inteira do push → conta envenenada;
-  `movement_pattern_snapshot` fora do contrato → NULL após restore (C).
-- Dashboard inclui aquecimento no volume/1RM enquanto histórico exclui; `formatCarga` hardcoda
-  vírgula em en-US; carrossel de carga só de 2.5 em 2.5 salva valor errado; "-0 kg" no peso (A).
-- Double-submit em concluir exercício/grupo da sessão ativa; reorder ↑/↓ concorrente; excluir
-  treino/exercício em 1 toque sem confirmação; teclado cobre "Registrar" no form de peso; back no
-  root nunca minimiza o app; erros de load viram empty state sem retry; falhas silenciosas em
-  reset/arquivar/auto-sync (E). Buracos de teste: migrações, SqliteDashboardRepository (aderência
-  inteira sem teste), useBackupSync, SyncApiClient (F).
-- 409 no register permite enumeração de contas; ValidationPipe sem `forbidNonWhitelisted` (D).
+- ✅ Rebuild v22 não transacional (`ExpoSQLiteDatabaseClient.ts`). *Corrigido:* cada step de
+  migração + bump do user_version rodam em UMA transação (rollback em crash); replay v0→vN das
+  migrações reais roda no CI (`migrations.replay.test.ts`).
+- ✅ `ordem` duplicada (MAX(ordem)+1 incl. soft-deletadas); re-adicionar exercício reativa o
+  tombstone (mesmo id) em vez de REPLACE; `deletarSessao` tombstona e arquivar/desarquivar
+  marcam dirty/updated_at.
+- ✅ `exercise_alternatives` no pipeline (contrato+Prisma+servidor+mobile); colisão de
+  `normalized_name` no pull com rename explícito; clamp do relógio do cliente no ingest;
+  linha rejeitada é pulada com log (não aborta o push); `movement_pattern_snapshot` no wire.
+- ✅ Dashboard exclui aquecimento (volume/1RM/recordes/evolução); `formatCarga`/`formatVolume`
+  por locale; editor de série em modo texto para carga fora da grade de 2.5; "0 kg" neutro.
+- ✅ Guards de double-submit (concluir exercício/grupo, reorder); confirmação em excluir
+  treino/exercício; KAV no form de peso; back no root minimiza em produção (`__DEV__`);
+  histórico com erro+retry; falhas de reset/arquivar/auto-sync visíveis. Buracos de teste
+  fechados: replay de migrações, useBackupSync, SyncApiClient.
+- ✅ Register com resposta genérica (anti-enumeração); `forbidNonWhitelisted` no pipe global.
 
 ## P3 (resumo)
 

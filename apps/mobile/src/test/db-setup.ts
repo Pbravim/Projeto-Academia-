@@ -14,19 +14,28 @@ export function createTestDatabase(): SQLiteDatabaseClient {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
 
-  // Same semantics as ExpoSQLiteDatabaseClient.runMigrationStep: execute per
-  // statement, swallowing only "duplicate column name" (v5 is an intentional
-  // safety-net that re-runs v3's ALTERs).
-  for (const migration of migrations) {
-    for (const stmt of splitSqlStatements(migration)) {
-      try {
-        db.exec(stmt + ';');
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (!/duplicate column name/i.test(msg)) throw err;
+  // Same semantics as ExpoSQLiteDatabaseClient.runMigrations: each step runs in
+  // ONE transaction (step + user_version bump — crash mid-rebuild must roll
+  // back), executing per statement and swallowing only "duplicate column name"
+  // (v5 is an intentional safety-net that re-runs v3's ALTERs).
+  migrations.forEach((migration, i) => {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      for (const stmt of splitSqlStatements(migration)) {
+        try {
+          db.exec(stmt + ';');
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (!/duplicate column name/i.test(msg)) throw err;
+        }
       }
+      db.pragma(`user_version = ${i + 1}`);
+      db.exec('COMMIT');
+    } catch (err) {
+      try { db.exec('ROLLBACK'); } catch { /* já revertido */ }
+      throw err;
     }
-  }
+  });
 
   // Wrap better-sqlite3 in our SQLiteDatabaseClient interface
   return new BetterSQLiteAdapter(db);
