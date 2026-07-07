@@ -36,6 +36,12 @@ export class AuthSession {
     private readonly now: () => number = () => Date.now(),
     /** Refresh this many ms before the access token actually expires. */
     private readonly refreshSkewMs = 30_000,
+    /**
+     * Invoked after the tokens are cleared on logout. Wired by the composition
+     * root to clear the sync cursor — a stale cursor from a previous account
+     * would hide the next account's history on the first pull.
+     */
+    private readonly onLogout?: () => Promise<void>,
   ) {}
 
   /** Rehydrate a previously-saved session at app start. */
@@ -64,6 +70,7 @@ export class AuthSession {
   async logout(): Promise<void> {
     this.tokens = null;
     await this.store.clear();
+    await this.onLogout?.();
   }
 
   /**

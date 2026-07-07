@@ -136,14 +136,43 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
     for (const r of rows) {
       await this.database.run(
         // No created_at column on sessao_exercicios; createdAt rides on the wire only.
-        `INSERT OR REPLACE INTO sessao_exercicios
+        // Guarda LWW: linha local dirty mais nova nunca e sobrescrita pelo echo-back.
+        `INSERT INTO sessao_exercicios
            (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
             categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, nome_original_snapshot,
             realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
             metodo, grupo_id, tracking_type_snapshot, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada,
             substituido_por_exercicio_id, substituicao_motivo,
             updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           sessao_treino_id = excluded.sessao_treino_id,
+           exercicio_id = excluded.exercicio_id,
+           ordem = excluded.ordem,
+           nome_snapshot = excluded.nome_snapshot,
+           grupo_muscular_snapshot = excluded.grupo_muscular_snapshot,
+           categoria_snapshot = excluded.categoria_snapshot,
+           equipamento_snapshot = excluded.equipamento_snapshot,
+           musculo_alvo_snapshot = excluded.musculo_alvo_snapshot,
+           nome_original_snapshot = excluded.nome_original_snapshot,
+           realizado = excluded.realizado,
+           series_recomendadas = excluded.series_recomendadas,
+           execucoes_recomendadas = excluded.execucoes_recomendadas,
+           carga_padrao = excluded.carga_padrao,
+           tempo_descanso_segundos = excluded.tempo_descanso_segundos,
+           metodo = excluded.metodo,
+           grupo_id = excluded.grupo_id,
+           tracking_type_snapshot = excluded.tracking_type_snapshot,
+           duracao_recomendada_segundos = excluded.duracao_recomendada_segundos,
+           distancia_recomendada_metros = excluded.distancia_recomendada_metros,
+           intensidade_recomendada = excluded.intensidade_recomendada,
+           substituido_por_exercicio_id = excluded.substituido_por_exercicio_id,
+           substituicao_motivo = excluded.substituicao_motivo,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE sessao_exercicios.dirty = 0 OR sessao_exercicios.updated_at IS NULL OR excluded.updated_at >= sessao_exercicios.updated_at`,
         [r.id, r.sessaoTreinoId, r.exercicioId, r.ordem, r.nomeSnapshot,
          r.grupoMuscularSnapshot, r.categoriaSnapshot, r.equipamentoSnapshot,
          r.musculoAlvoSnapshot, r.nomeOriginalSnapshot, r.realizado ? 1 : 0,

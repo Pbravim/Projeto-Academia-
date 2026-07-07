@@ -140,12 +140,52 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
 
   async applyServerRows(rows: import('@academia/contracts').TreinoExercicioSyncRow[]): Promise<void> {
     for (const r of rows) {
+      // Guarda LWW: linha local dirty mais nova nunca e sobrescrita pelo echo-back.
+      // Segunda clausula ON CONFLICT cobre o UNIQUE(treino_id, exercicio_id):
+      // o servidor pode mandar o mesmo par com outro id (re-adicao em outro
+      // device); nada referencia treino_exercicios.id, entao trocar o id
+      // in-place e seguro.
       await this.database.run(
-        `INSERT OR REPLACE INTO treino_exercicios
+        `INSERT INTO treino_exercicios
            (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas,
             carga_padrao, tempo_descanso_segundos, metodo, grupo_id, duracao_recomendada_segundos,
             distancia_recomendada_metros, intensidade_recomendada, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           treino_id = excluded.treino_id,
+           exercicio_id = excluded.exercicio_id,
+           ordem = excluded.ordem,
+           series_recomendadas = excluded.series_recomendadas,
+           execucoes_recomendadas = excluded.execucoes_recomendadas,
+           carga_padrao = excluded.carga_padrao,
+           tempo_descanso_segundos = excluded.tempo_descanso_segundos,
+           metodo = excluded.metodo,
+           grupo_id = excluded.grupo_id,
+           duracao_recomendada_segundos = excluded.duracao_recomendada_segundos,
+           distancia_recomendada_metros = excluded.distancia_recomendada_metros,
+           intensidade_recomendada = excluded.intensidade_recomendada,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE treino_exercicios.dirty = 0 OR treino_exercicios.updated_at IS NULL OR excluded.updated_at >= treino_exercicios.updated_at
+         ON CONFLICT(treino_id, exercicio_id) DO UPDATE SET
+           id = excluded.id,
+           ordem = excluded.ordem,
+           series_recomendadas = excluded.series_recomendadas,
+           execucoes_recomendadas = excluded.execucoes_recomendadas,
+           carga_padrao = excluded.carga_padrao,
+           tempo_descanso_segundos = excluded.tempo_descanso_segundos,
+           metodo = excluded.metodo,
+           grupo_id = excluded.grupo_id,
+           duracao_recomendada_segundos = excluded.duracao_recomendada_segundos,
+           distancia_recomendada_metros = excluded.distancia_recomendada_metros,
+           intensidade_recomendada = excluded.intensidade_recomendada,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE treino_exercicios.dirty = 0 OR treino_exercicios.updated_at IS NULL OR excluded.updated_at >= treino_exercicios.updated_at`,
         [r.id, r.treinoId, r.exercicioId, r.ordem, r.seriesRecomendadas, r.execucoesRecomendadas,
          r.cargaPadrao, r.tempoDescansoSegundos, r.metodo, r.grupoId, r.duracaoRecomendadaSegundos, r.distanciaRecomendadaMetros, r.intensidadeRecomendada, r.updatedAt, r.deletedAt]
       );

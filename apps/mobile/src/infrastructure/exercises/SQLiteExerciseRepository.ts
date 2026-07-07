@@ -374,7 +374,8 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
            updated_at          = excluded.updated_at,
            deleted_at          = excluded.deleted_at,
            dirty               = 0,
-           server_rev          = 1`,
+           server_rev          = 1
+         WHERE exercises.dirty = 0 OR excluded.updated_at >= exercises.updated_at`,
         [r.id, r.name, r.normalizedName, r.groupMuscle, r.category, r.equipment,
          r.loadUnit, r.isCustom ? 1 : 0, r.mediaOnline, r.mediaLocal, r.musculoAlvo,
          r.movementPattern, r.stabilizers, r.executionType, r.nameVariations,

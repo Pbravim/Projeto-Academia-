@@ -65,9 +65,19 @@ export class SQLiteRegistroPesoRepository implements RegistroPesoRepository {
     for (const r of rows) {
       await this.database.run(
         // No created_at column on registros_peso; createdAt rides on the wire only.
-        `INSERT OR REPLACE INTO registros_peso
+        // Guarda LWW: linha local dirty mais nova nunca e sobrescrita pelo echo-back.
+        `INSERT INTO registros_peso
            (id, peso_kg, data_registro, observacao, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           peso_kg = excluded.peso_kg,
+           data_registro = excluded.data_registro,
+           observacao = excluded.observacao,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE registros_peso.dirty = 0 OR registros_peso.updated_at IS NULL OR excluded.updated_at >= registros_peso.updated_at`,
         [r.id, r.pesoKg, r.dataRegistro, r.observacao, r.updatedAt, r.deletedAt]
       );
     }

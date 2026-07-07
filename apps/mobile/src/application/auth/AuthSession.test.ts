@@ -96,4 +96,17 @@ describe('AuthSession', () => {
     expect(session.isAuthenticated()).toBe(false);
     expect(store.clear).toHaveBeenCalled();
   });
+
+  // Regressão P0.4 (rodada 3): logout precisa limpar o cursor de sync — stale,
+  // ele esconderia o histórico da próxima conta no primeiro pull.
+  it('logout invoca o hook onLogout (limpeza do cursor de sync)', async () => {
+    store.current = { email: 'a@b.com', accessToken: jwtWithExp(2_000), refreshToken: 'ref' };
+    const onLogout = vi.fn().mockResolvedValue(undefined);
+    const session = new AuthSession(makeClient(vi.fn()), store, () => 0, undefined, onLogout);
+    await session.restore();
+
+    await session.logout();
+
+    expect(onLogout).toHaveBeenCalledTimes(1);
+  });
 });

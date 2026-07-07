@@ -10,7 +10,8 @@ import type {
   RegistroPesoSyncRow,
 } from '@academia/contracts';
 
-const CURSOR_KEY = '@sync/cursor';
+export const SYNC_CURSOR_KEY = '@sync/cursor';
+export const SYNC_ACCOUNT_KEY = '@sync/account';
 
 interface SyncClient {
   sync(req: SyncRequest): Promise<SyncResponse>;
@@ -57,6 +58,16 @@ export class SyncEngine {
     private readonly pesoRepo: SyncableRepo<RegistroPesoSyncRow>,
     private readonly database?: TransactionRunner,
     private readonly retry: RetryPolicy = DEFAULT_RETRY,
+    /**
+     * Guarda de troca de conta: `current` devolve o e-mail autenticado no
+     * momento do sync; `onSwitch` é invocado quando a conta mudou desde o
+     * último sync (o composition root limpa os flags dirty herdados, para os
+     * dados da conta anterior nunca serem pushados para a conta nova).
+     */
+    private readonly account?: {
+      current: () => string | null;
+      onSwitch: () => Promise<void>;
+    },
   ) {}
 
   private async syncWithRetry(request: SyncRequest): Promise<SyncResponse> {
@@ -71,7 +82,17 @@ export class SyncEngine {
   }
 
   async run(): Promise<void> {
-    const since = await this.storage.getItem(CURSOR_KEY);
+    // Settings usam '' como "ausente" (convenção do SettingsTokenStore).
+    let since = (await this.storage.getItem(SYNC_CURSOR_KEY)) || null;
+
+    const account = this.account?.current() ?? null;
+    const lastAccount = (await this.storage.getItem(SYNC_ACCOUNT_KEY)) || null;
+    if (this.account && account && lastAccount && account !== lastAccount) {
+      // Conta trocou: o cursor antigo esconderia o histórico da conta nova, e
+      // os dirty herdados vazariam os dados da conta anterior para ela.
+      await this.account.onSwitch();
+      since = null;
+    }
 
     const [
       exercises,
@@ -137,6 +158,7 @@ export class SyncEngine {
       await applyAll();
     }
 
-    await this.storage.setItem(CURSOR_KEY, newCursor);
+    await this.storage.setItem(SYNC_CURSOR_KEY, newCursor);
+    if (account) await this.storage.setItem(SYNC_ACCOUNT_KEY, account);
   }
 }

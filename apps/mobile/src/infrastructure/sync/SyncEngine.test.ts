@@ -159,4 +159,92 @@ describe('SyncEngine', () => {
     const engine = makeEngine();
     await expect(engine.run()).rejects.toThrow('Unauthorized');
   });
+
+  // Regressão P0.4 (rodada 3): logout não limpava cursor/dirty — login de outra
+  // conta pushava os dados da conta anterior e o cursor stale escondia o
+  // histórico da conta nova.
+  describe('guarda de troca de conta', () => {
+    const makeMapStorage = (initial: Record<string, string> = {}) => {
+      const map = new Map(Object.entries(initial));
+      return {
+        getItem: vi.fn((key: string) => Promise.resolve(map.get(key) ?? null)),
+        setItem: vi.fn((key: string, value: string) => {
+          map.set(key, value);
+          return Promise.resolve();
+        }),
+      };
+    };
+
+    const okResponse = { serverChanges: emptyChanges(), newCursor: 'c-novo' };
+
+    const makeEngineWithAccount = (
+      mapStorage: ReturnType<typeof makeMapStorage>,
+      current: string | null,
+      onSwitch: () => Promise<void>,
+    ) =>
+      new SyncEngine(
+        { sync: apiClient.sync },
+        mapStorage,
+        exerciseRepo, treinoRepo, treinoExercicioRepo, sessaoTreinoRepo,
+        sessaoExercicioRepo, serieRepo, pesoRepo,
+        undefined,
+        { attempts: 3, baseDelayMs: 0 },
+        { current: () => current, onSwitch },
+      );
+
+    it('conta trocou: chama onSwitch, ignora o cursor antigo e grava a conta nova', async () => {
+      apiClient.sync.mockResolvedValue(okResponse);
+      const mapStorage = makeMapStorage({
+        '@sync/cursor': 'cursor-da-conta-a',
+        '@sync/account': 'a@x.com',
+      });
+      const onSwitch = vi.fn().mockResolvedValue(undefined);
+
+      await makeEngineWithAccount(mapStorage, 'b@x.com', onSwitch).run();
+
+      expect(onSwitch).toHaveBeenCalledTimes(1);
+      expect(apiClient.sync).toHaveBeenCalledWith(
+        expect.objectContaining({ since: null }),
+      );
+      expect(mapStorage.setItem).toHaveBeenCalledWith('@sync/account', 'b@x.com');
+    });
+
+    it('mesma conta: não chama onSwitch e usa o cursor salvo', async () => {
+      apiClient.sync.mockResolvedValue(okResponse);
+      const mapStorage = makeMapStorage({
+        '@sync/cursor': 'cursor-salvo',
+        '@sync/account': 'a@x.com',
+      });
+      const onSwitch = vi.fn();
+
+      await makeEngineWithAccount(mapStorage, 'a@x.com', onSwitch).run();
+
+      expect(onSwitch).not.toHaveBeenCalled();
+      expect(apiClient.sync).toHaveBeenCalledWith(
+        expect.objectContaining({ since: 'cursor-salvo' }),
+      );
+    });
+
+    it('primeiro sync do device (sem conta gravada): não chama onSwitch', async () => {
+      apiClient.sync.mockResolvedValue(okResponse);
+      const mapStorage = makeMapStorage();
+      const onSwitch = vi.fn();
+
+      await makeEngineWithAccount(mapStorage, 'a@x.com', onSwitch).run();
+
+      expect(onSwitch).not.toHaveBeenCalled();
+      expect(mapStorage.setItem).toHaveBeenCalledWith('@sync/account', 'a@x.com');
+    });
+
+    it('cursor vazio (limpo no logout) vira since=null', async () => {
+      apiClient.sync.mockResolvedValue(okResponse);
+      const mapStorage = makeMapStorage({ '@sync/cursor': '' });
+
+      await makeEngineWithAccount(mapStorage, 'a@x.com', vi.fn()).run();
+
+      expect(apiClient.sync).toHaveBeenCalledWith(
+        expect.objectContaining({ since: null }),
+      );
+    });
+  });
 });

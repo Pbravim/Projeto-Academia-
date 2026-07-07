@@ -77,10 +77,23 @@ export class SQLiteSessaoTreinoRepository implements SessaoTreinoRepository {
     for (const r of rows) {
       await this.database.run(
         // No created_at column on sessao_treinos; createdAt rides on the wire only.
-        `INSERT OR REPLACE INTO sessao_treinos
+        // Guarda LWW: linha local dirty mais nova nunca e sobrescrita pelo echo-back.
+        `INSERT INTO sessao_treinos
            (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim,
             status, arquivado, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           treino_id = excluded.treino_id,
+           treino_nome_snapshot = excluded.treino_nome_snapshot,
+           data_hora_inicio = excluded.data_hora_inicio,
+           data_hora_fim = excluded.data_hora_fim,
+           status = excluded.status,
+           arquivado = excluded.arquivado,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE sessao_treinos.dirty = 0 OR sessao_treinos.updated_at IS NULL OR excluded.updated_at >= sessao_treinos.updated_at`,
         [r.id, r.treinoId, r.treinoNomeSnapshot, r.dataHoraInicio, r.dataHoraFim,
          r.status, r.arquivado ? 1 : 0, r.updatedAt, r.deletedAt]
       );

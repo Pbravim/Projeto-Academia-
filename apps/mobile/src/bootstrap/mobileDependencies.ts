@@ -123,7 +123,7 @@ import { AuthApiClient } from '../infrastructure/auth/AuthApiClient';
 import { SecureTokenStore } from '../infrastructure/auth/SecureTokenStore';
 import { AuthSession } from '../application/auth/AuthSession';
 import { SyncApiClient } from '../infrastructure/sync/SyncApiClient';
-import { SyncEngine } from '../infrastructure/sync/SyncEngine';
+import { SyncEngine, SYNC_CURSOR_KEY } from '../infrastructure/sync/SyncEngine';
 import { SettingsStorageAdapter } from '../infrastructure/sync/SettingsStorageAdapter';
 import { BackupSyncService } from '../application/sync/BackupSyncService';
 
@@ -183,14 +183,25 @@ const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
 const dashboardRepository = new SqliteDashboardRepository(databaseClient);
 
 // --- Backup & sync (opt-in, offline-first) ---
+const syncStorage = new SettingsStorageAdapter(databaseClient);
+// Tabelas com flag dirty que participam do push (userSettings não pusha do mobile).
+const SYNC_DIRTY_TABLES = [
+  'exercises', 'treinos', 'treino_exercicios', 'sessao_treinos',
+  'sessao_exercicios', 'series_registradas', 'registros_peso', 'exercise_alternatives',
+] as const;
 const authSession = new AuthSession(
   new AuthApiClient(API_BASE_URL),
   // Keychain/keystore; migra a sessão legada da tabela settings na 1ª leitura.
   new SecureTokenStore(databaseClient),
+  undefined,
+  undefined,
+  // Logout: cursor de sync não pode sobreviver à sessão — stale, esconderia o
+  // histórico da próxima conta no primeiro pull ('' = ausente, convenção settings).
+  () => syncStorage.setItem(SYNC_CURSOR_KEY, ''),
 );
 const syncEngine = new SyncEngine(
   new SyncApiClient(API_BASE_URL, () => authSession.getAccessToken()),
-  new SettingsStorageAdapter(databaseClient),
+  syncStorage,
   exerciseRepository,
   treinoRepository,
   treinoExercicioRepository,
@@ -199,6 +210,18 @@ const syncEngine = new SyncEngine(
   serieRegistradaRepository,
   registroPesoRepository,
   databaseClient,
+  undefined,
+  {
+    current: () => authSession.email,
+    // Conta trocou neste device: zera os dirty herdados para nunca pushar os
+    // dados da conta anterior para a conta nova.
+    onSwitch: () =>
+      databaseClient.withTransaction(async () => {
+        for (const table of SYNC_DIRTY_TABLES) {
+          await databaseClient.run(`UPDATE ${table} SET dirty = 0 WHERE dirty = 1`);
+        }
+      }),
+  },
 );
 const backupSync = new BackupSyncService(authSession, syncEngine);
 // Rehydrate any saved session at startup (fire-and-forget; UI also awaits via restore()).

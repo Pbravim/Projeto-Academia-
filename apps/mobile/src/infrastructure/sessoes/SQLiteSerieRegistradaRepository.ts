@@ -139,11 +139,27 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     for (const r of rows) {
       await this.database.run(
         // No created_at column on series_registradas; createdAt rides on the wire only.
-        `INSERT OR REPLACE INTO series_registradas
+        // Guarda LWW: linha local dirty mais nova nunca e sobrescrita pelo echo-back.
+        `INSERT INTO series_registradas
            (id, sessao_exercicio_id, tipo_serie, ordem, carga_kg, repeticoes, observacao,
             duracao_segundos, distancia_metros, intensidade,
             updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           sessao_exercicio_id = excluded.sessao_exercicio_id,
+           tipo_serie = excluded.tipo_serie,
+           ordem = excluded.ordem,
+           carga_kg = excluded.carga_kg,
+           repeticoes = excluded.repeticoes,
+           observacao = excluded.observacao,
+           duracao_segundos = excluded.duracao_segundos,
+           distancia_metros = excluded.distancia_metros,
+           intensidade = excluded.intensidade,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE series_registradas.dirty = 0 OR series_registradas.updated_at IS NULL OR excluded.updated_at >= series_registradas.updated_at`,
         [r.id, r.sessaoExercicioId, r.tipoSerie, r.ordem, r.cargaKg, r.repeticoes,
          r.observacao, r.duracaoSegundos ?? null, r.distanciaMetros ?? null, r.intensidade ?? null,
          r.updatedAt, r.deletedAt]

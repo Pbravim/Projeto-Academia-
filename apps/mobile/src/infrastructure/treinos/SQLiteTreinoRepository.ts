@@ -66,9 +66,21 @@ export class SQLiteTreinoRepository implements TreinoRepository {
 
   async applyServerRows(rows: import('@academia/contracts').TreinoSyncRow[]): Promise<void> {
     for (const r of rows) {
+      // Guarda LWW no cliente: uma linha local dirty com updated_at mais novo
+      // (edicao feita durante o round-trip do push) nunca e sobrescrita pelo
+      // echo-back — ela continua dirty e vai no proximo push.
       await this.database.run(
-        `INSERT OR REPLACE INTO treinos (id, name, objetivo, created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, 0, 1)`,
+        `INSERT INTO treinos (id, name, objetivo, created_at, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           name = excluded.name,
+           objetivo = excluded.objetivo,
+           created_at = excluded.created_at,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE treinos.dirty = 0 OR treinos.updated_at IS NULL OR excluded.updated_at >= treinos.updated_at`,
         [r.id, r.name, r.objetivo, r.createdAt, r.updatedAt, r.deletedAt]
       );
     }
