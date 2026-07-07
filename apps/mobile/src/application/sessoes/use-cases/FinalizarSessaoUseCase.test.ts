@@ -35,6 +35,14 @@ describe('FinalizarSessaoUseCase', () => {
 
     expect(result.status).toBe('finalizada');
     expect(result.dataHoraFim).toBe('2026-05-22T10:00:00.000Z');
+
+    // Relê o repositório: o retorno correto não prova a persistência — uma
+    // mutação que remove o save() passava com asserts só sobre `result`.
+    const persistida = await repo.findById('sessao-1');
+    expect(persistida?.toPrimitives()).toMatchObject({
+      status: 'finalizada',
+      dataHoraFim: '2026-05-22T10:00:00.000Z',
+    });
   });
 
   it('throws SessaoNotFoundError when session does not exist', async () => {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
@@ -157,5 +157,41 @@ describe('RegistrarSerieUseCase', () => {
 
     expect(serie.repeticoes).toBe(20);
     expect(serie.cargaKg).toBeNull();
+  });
+});
+
+describe('RegistrarSerieUseCase — atualização automática de carga (fronteira)', () => {
+  async function seedComRecomendacoes(deps: ReturnType<typeof makeDeps>) {
+    const sessao = SessaoTreino.create({ id: 'sessao_1', treinoId: 't1', treinoNomeSnapshot: 'A', dataHoraInicio: new Date() });
+    await deps.sessaoTreinoRepository.save(sessao);
+    const se = SessaoExercicio.create({ id: 'se_1', sessaoTreinoId: 'sessao_1', exercicioId: 'ex_1', ordem: 1, nomeSnapshot: 'Supino', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto', equipamentoSnapshot: null, musculoAlvoSnapshot: [], movementPatternSnapshot: null, realizado: true, seriesRecomendadas: 3, execucoesRecomendadas: 10, cargaPadrao: 60, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, trackingTypeSnapshot: 'reps_load', duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null, substituidoPorExercicioId: null, substituicaoMotivo: null, nomeOriginalSnapshot: null });
+    await deps.sessaoExercicioRepository.save(se);
+  }
+
+  // Mutação sobrevivente da rodada 3: trocar `cargaKg <= cargaPadrao` por `<`
+  // passava na suite inteira — a fronteira (carga IGUAL à padrão) nunca era
+  // exercitada. Carga igual NÃO é progressão e não deve reescrever o snapshot.
+  it('carga IGUAL à padrão com reps na meta NÃO regrava o snapshot', async () => {
+    const deps = makeDeps();
+    await seedComRecomendacoes(deps);
+    // Regravar o MESMO valor seria invisível num assert de valor — espiona a
+    // escrita: com carga igual não pode haver save algum do sessao_exercicio.
+    const saveSpy = vi.spyOn(deps.sessaoExercicioRepository, 'save');
+
+    await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 60, repeticoes: 10 });
+
+    expect(saveSpy).not.toHaveBeenCalled();
+    const se = await deps.sessaoExercicioRepository.findById('se_1');
+    expect(se?.toPrimitives().cargaPadrao).toBe(60);
+  });
+
+  it('carga MAIOR que a padrão com reps na meta atualiza o snapshot da sessão', async () => {
+    const deps = makeDeps();
+    await seedComRecomendacoes(deps);
+
+    await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 62.5, repeticoes: 10 });
+
+    const se = await deps.sessaoExercicioRepository.findById('se_1');
+    expect(se?.toPrimitives().cargaPadrao).toBe(62.5);
   });
 });

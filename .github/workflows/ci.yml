@@ -1,0 +1,42 @@
+name: CI
+
+# Rodada 3 (P1-F): o repositório não rodava NENHUM teste nem typecheck no CI —
+# o único check era o validador Python de seeds. Este workflow trava regressão
+# de mobile (tsc + vitest) e API (tsc + jest) em todo push/PR.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile:
+    name: Mobile (tsc + vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix apps/mobile run typecheck
+      - run: npm --prefix apps/mobile run test
+
+  api:
+    name: API (tsc + jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+      - run: npm --prefix apps/api run typecheck
+      - run: npm --prefix apps/api run test
