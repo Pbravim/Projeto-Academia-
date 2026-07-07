@@ -21,6 +21,11 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseE
     return this.databaseName;
   }
 
+  /** Maior PRAGMA user_version que este build conhece (última migração aplicável). */
+  get supportedSchemaVersion(): number {
+    return migrations.length;
+  }
+
   async close(): Promise<void> {
     if (!this.databasePromise) return;
     try {

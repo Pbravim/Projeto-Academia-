@@ -10,8 +10,11 @@ interface ImportarBancoDependencies {
 export type ImportarBancoResult = { status: 'imported' } | { status: 'cancelled' };
 
 const SQLITE_MAGIC = 'SQLite format 3\0';
+// PRAGMA user_version fica nos bytes 60-63 (big-endian) do header de 100 bytes do SQLite.
+const USER_VERSION_OFFSET = 60;
+const SQLITE_HEADER_SIZE = 100;
 
-/** Pede um .db ao usuário, valida o cabeçalho SQLite e substitui o banco local. */
+/** Pede um .db ao usuário, valida o cabeçalho SQLite + user_version e substitui o banco local. */
 export class ImportarBancoUseCase {
   constructor(private readonly deps: ImportarBancoDependencies) {}
 
@@ -29,10 +32,25 @@ export class ImportarBancoUseCase {
 
     // Valida magic header SQLite.
     const bytes = await pickedFile.bytes();
-    if (bytes.length < 16) throw new Error('Arquivo invalido: muito pequeno.');
+    if (bytes.length < SQLITE_HEADER_SIZE) throw new Error('Arquivo invalido: muito pequeno.');
     const header = new TextDecoder().decode(bytes.slice(0, 16));
     if (header !== SQLITE_MAGIC) {
       throw new Error('Arquivo invalido: nao parece ser um banco SQLite.');
+    }
+
+    // Valida o user_version: 0 = SQLite qualquer (rodar as migrações em cima corromperia);
+    // acima do suportado = backup de uma versão mais nova do app.
+    const userVersion = new DataView(bytes.buffer, bytes.byteOffset).getUint32(
+      USER_VERSION_OFFSET,
+      false,
+    );
+    if (userVersion === 0) {
+      throw new Error('Arquivo invalido: nao parece ser um backup deste app.');
+    }
+    if (userVersion > this.deps.databaseClient.supportedSchemaVersion) {
+      throw new Error(
+        'Backup criado por uma versao mais nova do app. Atualize o app antes de importar.',
+      );
     }
 
     // Fecha conexao atual antes de sobrescrever.
@@ -44,11 +62,12 @@ export class ImportarBancoUseCase {
     const dbName = this.deps.databaseClient.databaseFileName;
     const dest = new File(sqliteDir, dbName);
 
-    // Cria backup de segurança antes de sobrescrever.
+    // Cria backup de segurança antes de sobrescrever — no diretório de documentos
+    // (durável), nunca no cache, que o sistema pode purgar a qualquer momento.
     let backupFile: InstanceType<typeof File> | null = null;
     if (dest.exists) {
-      const ts = Date.now();
-      backupFile = new File(Paths.cache, `academia-pre-import-${ts}.db`);
+      backupFile = new File(Paths.document, 'academia-pre-import.db');
+      if (backupFile.exists) backupFile.delete();
       dest.copy(backupFile);
       dest.delete();
     }

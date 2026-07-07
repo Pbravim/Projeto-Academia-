@@ -76,18 +76,24 @@ P0/P1, corrigir P0→P1 com teste de regressão TDD cada, atualizar pendencias.m
 ### Sync (C)
 - ✅ Apply do pull em `Promise.all` sem ordem parent-first com FK ON → violação de FK no primeiro
   sync de device novo; restore nunca completa (FK error reproduzido por B). `SyncEngine.ts:123-132`.
-- 📖 Tombstone incoming sempre vence, independente de timestamp — delete velho mata edição nova; na
-  ordem inversa, a edição ressuscita o delete. `sync.service.ts:34`. *Fix:* LWW também para deletes.
-- 📖 `newCursor = now` calculado pré-transação — commit concorrente de outro device com
-  `serverUpdatedAt < now` é pulado para sempre. `sync.service.ts:11,26`. *Fix:* cursor = max
-  serverUpdatedAt aplicado, ou now capturado pós-commit com margem.
+- ✅ Tombstone incoming sempre vence, independente de timestamp — delete velho mata edição nova; na
+  ordem inversa, a edição ressuscita o delete. `sync.service.ts:34`. *Corrigido:* LWW por
+  `max(updatedAt, deletedAt)` em `lwwUpdate`/`lwwTime` (inclui userSettings), com testes.
+- ✅ `newCursor = now` calculado pré-transação — commit concorrente de outro device com
+  `serverUpdatedAt < now` é pulado para sempre. `sync.service.ts:11,26`. *Corrigido:* cursor com
+  margem de segurança de 10s (janela do tx timeout + skew), monotônico com `since`; redelivery é
+  inócua porque o apply do cliente é LWW idempotente.
 
 ### Segurança (D)
-- 📖 Sem rate limit em login/register (throttler ausente). `auth.controller.ts:14-33`.
-- 📖 Body do `/sync` é interface TS sem class-validator — ValidationPipe não valida nada; JSON
-  arbitrário chega ao Prisma. `sync.controller.ts:13`. *Fix:* DTOs com class-validator.
-- 📖 Import de backup valida só o magic header SQLite (não schema/user_version) e o backup de
+- ✅ Sem rate limit em login/register (throttler ausente). `auth.controller.ts:14-33`. *Corrigido:*
+  `@nestjs/throttler` no AuthController — 5/min login e register, 10/min refresh (teste com 429).
+- ✅ Body do `/sync` é interface TS sem class-validator — ValidationPipe não valida nada; JSON
+  arbitrário chega ao Prisma. `sync.controller.ts:13`. *Corrigido:* `SyncRequestDto` + row DTOs com
+  class-validator; whitelist derruba `userId`/`serverUpdatedAt`/`dirty` enviados pelo cliente.
+- ✅ Import de backup valida só o magic header SQLite (não schema/user_version) e o backup de
   segurança fica em `Paths.cache` (purgável) → perda total possível. `ImportarBancoUseCase.ts:30-71`.
+  *Corrigido:* valida `user_version` do header (0 ou acima do suportado → rejeita) e backup de
+  segurança em `Paths.document` (`academia-pre-import.db`), com testes de comportamento.
 
 ### UX (E)
 - 📖 **Keep-alive quebrou o BackHandler**: ao voltar para uma aba, o listener raiz re-registrado
