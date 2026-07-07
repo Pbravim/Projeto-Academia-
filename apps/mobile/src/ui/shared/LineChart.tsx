@@ -47,6 +47,13 @@ export function LineChart({
   const lineColor = color ?? c.accent;
   const fmt = formatValue ?? defaultFormat;
 
+  // Antes dos early-returns (regra dos hooks). Sem memo, cada toque no
+  // tooltip recomputava min/max + path Catmull-Rom inteiro.
+  const geo = useMemo(
+    () => (points.length > 1 ? buildChartGeometry(points, chartWidth, height, fmt) : null),
+    [points, chartWidth, height, fmt]
+  );
+
   if (points.length === 0) return null;
 
   // Estado de ponto único: mostra o valor em destaque em vez de esconder o grafico.
@@ -60,7 +67,6 @@ export function LineChart({
     );
   }
 
-  const geo = buildChartGeometry(points, chartWidth, height, fmt);
   if (!geo) return null;
 
   const handlePress = (e: GestureResponderEvent) => {

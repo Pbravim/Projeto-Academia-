@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
@@ -37,7 +37,7 @@ function grupoLabel(count: number, locale: AppLocale): string {
   return translate(locale, 'sessao.grupo.circuito');
 }
 
-interface TimerState { total: number; restante: number }
+interface TimerState { total: number; runId: number }
 
 interface Props {
   grupoItens: SessaoExercicioComSeries[];
@@ -110,34 +110,20 @@ export function BiSetDetalheScreen({
   const [deletingSetIndexes, setDeletingSetIndexes] = useState<Set<number>>(new Set());
   const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
 
+  // Countdown vive no RestTimerBanner — ver comentário em ExercicioDetalheScreen.
   const [timer, setTimer] = useState<TimerState | null>(null);
   const [timerMinimized, setTimerMinimized] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRunIdRef = useRef(0);
   const timerMinimizedByScrollRef = useRef(false);
-  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
   const startTimer = (segundos: number) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
     timerMinimizedByScrollRef.current = false;
     setTimerMinimized(false);
-    setTimer({ total: segundos, restante: segundos });
-    intervalRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (!prev) return null;
-        if (prev.restante <= 1) {
-          clearInterval(intervalRef.current!);
-          intervalRef.current = null;
-          Vibration.vibrate([0, 400, 100, 400]);
-          return null;
-        }
-        return { ...prev, restante: prev.restante - 1 };
-      });
-    }, 1000);
+    timerRunIdRef.current += 1;
+    setTimer({ total: segundos, runId: timerRunIdRef.current });
   };
 
   const skipTimer = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
     setTimer(null);
   };
 
@@ -642,11 +628,12 @@ export function BiSetDetalheScreen({
       {timer ? (
         <RestTimerBanner
           nome={label}
-          restante={timer.restante}
           total={timer.total}
+          runId={timer.runId}
           minimized={timerMinimized}
           onToggleMinimized={() => setTimerMinimized((v) => !v)}
           onSkip={skipTimer}
+          onDone={() => setTimer(null)}
         />
       ) : null}
     </KeyboardAvoidingView>

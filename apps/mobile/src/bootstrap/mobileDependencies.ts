@@ -393,6 +393,7 @@ export const mobileDependencies = {
         sessaoExercicioRepository,
         exerciseRepository,
         serieRegistradaRepository,
+        database: databaseClient,
       }),
       listExercises,
       logger,

@@ -94,6 +94,20 @@ function AppContent() {
     setActiveModule(tab);
   };
 
+  // Keep-alive: cada aba monta na primeira visita e fica montada (oculta via
+  // display:none). Antes, trocar de aba DESMONTAVA a feature — perdia estado
+  // (timer de descanso, inputs digitados) e re-executava todas as queries de
+  // mount ao voltar.
+  const [mountedModules, setMountedModules] = useState<Set<ActiveModule>>(() => new Set(['sessao']));
+  useEffect(() => {
+    setMountedModules((prev) => (prev.has(activeModule) ? prev : new Set(prev).add(activeModule)));
+  }, [activeModule]);
+
+  const tabPage = (mod: ActiveModule, element: React.ReactNode) =>
+    mountedModules.has(mod) ? (
+      <View style={[styles.tabPage, activeModule !== mod ? styles.tabPageHidden : null]}>{element}</View>
+    ) : null;
+
   const handleProfilePress = () => {
     if (activeModule === 'perfil') {
       setActiveModule(lastTabRef.current);
@@ -140,12 +154,13 @@ function AppContent() {
 
       {/* ── Content ── */}
       <View style={styles.container}>
-        {activeModule === 'sessao' ? (
+        {tabPage('sessao', (
           <SessaoFeature
             dependencies={mobileDependencies.sessao}
             onGoToTreinos={() => handleTabPress('treinos')}
           />
-        ) : activeModule === 'treinos' ? (
+        ))}
+        {tabPage('treinos', (
           <TreinoFeature
             dependencies={{
               list: mobileDependencies.treinos.list,
@@ -154,20 +169,23 @@ function AppContent() {
             }}
             onGoToSessao={() => handleTabPress('sessao')}
           />
-        ) : activeModule === 'exercicios' ? (
+        ))}
+        {tabPage('exercicios', (
           <ExerciseCatalogFeature dependencies={mobileDependencies.exerciseCatalog} />
-        ) : activeModule === 'evolucao' ? (
+        ))}
+        {tabPage('evolucao', (
           <DashboardFeature
             dependencies={mobileDependencies.dashboard}
             onGoToSessao={() => handleTabPress('sessao')}
           />
-        ) : (
+        ))}
+        {tabPage('perfil', (
           <PerfilFeature
             dependencies={PERFIL_DEPS}
             onNameChange={setDisplayName}
             onPhotoChange={setPhotoUri}
           />
-        )}
+        ))}
       </View>
 
       {/* ── Bottom tab bar ── */}
@@ -264,6 +282,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     profileInitialsActive: { color: c.accentText },
 
     container: { flex: 1, backgroundColor: c.background },
+    tabPage: { flex: 1 },
+    tabPageHidden: { display: 'none' },
 
     tabBar: {
       flexDirection: 'row',

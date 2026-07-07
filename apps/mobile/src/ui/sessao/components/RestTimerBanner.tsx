@@ -1,27 +1,54 @@
-import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
 interface Props {
   nome: string;
-  restante: number;
+  /** Duração total do descanso em segundos. */
   total: number;
+  /** Muda a cada novo descanso — reinicia a contagem mesmo com o mesmo total. */
+  runId: number;
   minimized: boolean;
   onToggleMinimized: () => void;
   onSkip: () => void;
+  /** Chamado quando a contagem chega a zero (o pai esconde o banner). */
+  onDone: () => void;
 }
 
-export function RestTimerBanner({ nome, restante, total, minimized, onToggleMinimized, onSkip }: Props) {
+/**
+ * O countdown vive AQUI, não no ecrã: um tick por segundo no componente-pai
+ * (1400+ linhas) re-renderizava a tela inteira durante todo o descanso.
+ */
+export function RestTimerBanner({ nome, total, runId, minimized, onToggleMinimized, onSkip, onDone }: Props) {
   const c = useTheme();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
+  const [restante, setRestante] = useState(total);
+  const onDoneRef = useRef(onDone);
+  useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
+
+  useEffect(() => {
+    setRestante(total);
+    const interval = setInterval(() => {
+      setRestante((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [total, runId]);
+
+  useEffect(() => {
+    if (restante === 0 && total > 0) {
+      Vibration.vibrate([0, 400, 100, 400]);
+      onDoneRef.current();
+    }
+  }, [restante, total]);
+
   const mins = Math.floor(restante / 60);
   const secs = restante % 60;
   const label = mins > 0 ? `${mins}:${String(secs).padStart(2, '0')}` : `${secs}s`;
-  const progress = restante / total;
+  const progress = total > 0 ? restante / total : 0;
 
   if (minimized) {
     return (

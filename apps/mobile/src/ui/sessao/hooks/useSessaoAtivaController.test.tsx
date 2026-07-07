@@ -87,7 +87,7 @@ describe('useSessaoAtivaController', () => {
     );
     await flush();
     expect(result.current.detalhe).toEqual(detalheBase);
-    expect(deps.listExercises.execute).toHaveBeenCalled();
+    expect(deps.listExercises.execute).not.toHaveBeenCalled(); // lazy: só na 1ª abertura do sheet
     expect(deps.sugerirProgressao.executeLote).toHaveBeenCalled();
   });
 
@@ -258,6 +258,11 @@ describe('useSessaoAtivaController', () => {
       useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
     );
     await flush();
+    // catálogo é lazy: só carrega na primeira abertura do sheet
+    expect(deps.listExercises.execute).not.toHaveBeenCalled();
+    await act(async () => { result.current.onToggleShowAddExercise(); });
+    await flush();
+    expect(deps.listExercises.execute).toHaveBeenCalledTimes(1);
     expect(result.current.availableExercises.map((e) => e.id)).toEqual(['ex2']);
   });
 });

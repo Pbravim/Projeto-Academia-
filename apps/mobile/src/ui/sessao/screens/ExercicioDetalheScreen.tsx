@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
@@ -46,7 +46,7 @@ interface Props {
   onBack: () => void;
 }
 
-interface TimerState { total: number; restante: number }
+interface TimerState { total: number; runId: number }
 
 // 0, 2.5, 5, …, 200 kg
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
@@ -188,18 +188,14 @@ export function ExercicioDetalheScreen({
   }, [series, trackingType]);
 
   // --- timer ---
+  // A contagem por segundo vive no RestTimerBanner; aqui só existe o "há um
+  // descanso ativo" — o ecrã inteiro não re-renderiza a cada tick.
   const [timer, setTimer] = useState<TimerState | null>(null);
   const [timerMinimized, setTimerMinimized] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRunIdRef = useRef(0);
   const timerMinimizedByScrollRef = useRef(false);
 
-  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
-
   useEffect(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
     setCargaMode('carousel');
     setCargaIndex(sessaoExercicio.cargaPadrao != null ? kgIndexFor(sessaoExercicio.cargaPadrao) : 0);
     setCargaText(sessaoExercicio.cargaPadrao != null ? String(sessaoExercicio.cargaPadrao) : '');
@@ -223,27 +219,13 @@ export function ExercicioDetalheScreen({
   }, [sessaoExercicio.id]);
 
   const startTimer = (segundos: number) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
     timerMinimizedByScrollRef.current = false;
     setTimerMinimized(false); // always expand when a new timer starts
-    setTimer({ total: segundos, restante: segundos });
-    intervalRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (!prev) return null;
-        if (prev.restante <= 1) {
-          clearInterval(intervalRef.current!);
-          intervalRef.current = null;
-          Vibration.vibrate([0, 400, 100, 400]);
-          return null;
-        }
-        return { ...prev, restante: prev.restante - 1 };
-      });
-    }, 1000);
+    timerRunIdRef.current += 1;
+    setTimer({ total: segundos, runId: timerRunIdRef.current });
   };
 
   const skipTimer = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
     setTimer(null);
   };
 
@@ -1255,11 +1237,12 @@ export function ExercicioDetalheScreen({
     {timer ? (
       <RestTimerBanner
         nome={sessaoExercicio.nomeSnapshot}
-        restante={timer.restante}
         total={timer.total}
+        runId={timer.runId}
         minimized={timerMinimized}
         onToggleMinimized={() => setTimerMinimized((v) => !v)}
         onSkip={skipTimer}
+        onDone={() => setTimer(null)}
       />
     ) : null}
     </KeyboardAvoidingView>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { AddExercicioASessaoUseCase } from '../../../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cases/CancelarSessaoUseCase';
@@ -84,9 +84,15 @@ export function useSessaoAtivaController(
   const [candidatosSubstituicao, setCandidatosSubstituicao] = useState<CandidatoSubstituto[]>([]);
   const [sessaoExercicioSubstituindo, setSessaoExercicioSubstituindo] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Lazy: o catálogo completo (500+ linhas × 3 JSON.parse cada) só é carregado
+  // na primeira abertura do sheet "adicionar exercício" — não no mount de toda
+  // sessão, que é o caminho mais quente do app.
+  const exercisesLoadedRef = useRef(false);
+  const ensureExercisesLoaded = () => {
+    if (exercisesLoadedRef.current) return;
+    exercisesLoadedRef.current = true;
     void dependencies.listExercises.execute().then(setAllExercises);
-  }, []);
+  };
 
   const loadDetalhe = useCallback(async () => {
     try {
@@ -437,7 +443,10 @@ export function useSessaoAtivaController(
     onToggleRealizado,
     onToggleRealizadoGrupo,
     onAddExercicio,
-    onToggleShowAddExercise: () => setShowAddExercise((v) => !v),
+    onToggleShowAddExercise: () => {
+      if (!showAddExercise) ensureExercisesLoaded();
+      setShowAddExercise((v) => !v);
+    },
     onFinalizar,
     onCancelar,
     onAbrirSubstituicao,

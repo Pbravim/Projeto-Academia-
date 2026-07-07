@@ -7,6 +7,7 @@ import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundEr
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 
 export interface SubstituirExercicioInput {
   sessaoExercicioId: string;
@@ -19,6 +20,7 @@ interface Dependencies {
   sessaoExercicioRepository: SessaoExercicioRepository;
   exerciseRepository: ExerciseRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
+  database?: TransactionPort;
 }
 
 export class DuplicateExercicioInSessaoError extends Error {
@@ -49,9 +51,6 @@ export class SubstituirExercicioSessaoUseCase {
     );
     if (existing) throw new DuplicateExercicioInSessaoError(input.novoExercicioId);
 
-    // Delete series recorded for the original exercise before saving the substitution
-    await this.deps.serieRegistradaRepository.deleteBySessaoExercicioId(input.sessaoExercicioId);
-
     const ex = novoExercicio.toPrimitives();
     const substituido = sessaoExercicio.withSubstituicao(
       ex.id,
@@ -64,6 +63,16 @@ export class SubstituirExercicioSessaoUseCase {
       input.motivo,
     );
 
-    await this.deps.sessaoExercicioRepository.save(substituido);
+    // Transação: sem ela, morrer entre o delete e o save deixava as séries
+    // apagadas sem a substituição gravada.
+    const apply = async () => {
+      await this.deps.serieRegistradaRepository.deleteBySessaoExercicioId(input.sessaoExercicioId);
+      await this.deps.sessaoExercicioRepository.save(substituido);
+    };
+    if (this.deps.database) {
+      await this.deps.database.withTransaction(apply);
+    } else {
+      await apply();
+    }
   }
 }
