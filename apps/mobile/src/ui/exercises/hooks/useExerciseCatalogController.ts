@@ -135,7 +135,9 @@ export function useExerciseCatalogController(
     if (feedbackMessage) setFeedbackMessage(null);
   };
 
-  const onSelectEdit = (exercise: ExercisePrimitives) => {
+  // useCallback: são props do ExerciseSection (memoizado) — identidade nova
+  // a cada render derrubaria o memo das ~30 sections a cada tecla da busca.
+  const onSelectEdit = useCallback((exercise: ExercisePrimitives) => {
     setEditingExerciseId(exercise.id);
     setDraft({
       name: exercise.name,
@@ -155,7 +157,7 @@ export function useExerciseCatalogController(
     void dependencies.exerciseRepository.listAlternativas(exercise.id).then((exs) => {
       setAlternativas(exs.map((e) => e.toPrimitives()));
     });
-  };
+  }, [dependencies.exerciseRepository]);
 
   const onCancelEdit = () => {
     setEditingExerciseId(null);
@@ -262,7 +264,7 @@ export function useExerciseCatalogController(
     }
   };
 
-  const onDelete = async (id: string) => {
+  const onDelete = useCallback(async (id: string) => {
     if (deletingId) return;
     setDeletingId(id);
     setErrorMessage(null);
@@ -286,7 +288,7 @@ export function useExerciseCatalogController(
     } finally {
       setDeletingId(null);
     }
-  };
+  }, [deletingId, editingExerciseId, locale, showFeedback, dependencies.deleteExercise, dependencies.logger]);
 
   return {
     draft,

@@ -65,13 +65,17 @@ export function ExerciseCatalogScreen({
     [exercises]
   );
 
-  // Sugestões de nomes similares ao criar (não ao editar)
+  // Sugestões de nomes similares ao criar (não ao editar).
+  // useMemo: sem ele o filtro sobre os 500+ exercícios rodava a cada render
+  // da tela (inclusive a cada tecla do campo de busca, que nem usa o draft).
   const normalizedDraftName = normalizeText(draft.name);
-  const nameSuggestions: ExercisePrimitives[] = !isEditing && normalizedDraftName.length >= 2
-    ? exercises
-        .filter((e) => e.normalizedName.includes(normalizedDraftName))
-        .slice(0, 4)
-    : [];
+  const nameSuggestions: ExercisePrimitives[] = useMemo(
+    () =>
+      !isEditing && normalizedDraftName.length >= 2
+        ? exercises.filter((e) => e.normalizedName.includes(normalizedDraftName)).slice(0, 4)
+        : [],
+    [exercises, isEditing, normalizedDraftName]
+  );
   const exactMatch = nameSuggestions.find((e) => e.normalizedName === normalizedDraftName);
 
   // Aplica filtros de categoria/equipamento antes de construir a view model
