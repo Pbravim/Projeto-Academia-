@@ -2,6 +2,13 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { SyncRequest, SyncResponse, SyncChanges } from '@academia/contracts';
 
+// A concurrent transaction on another device stamps rows with a `now` computed before
+// its commit; if it commits after our pull read, those rows carry serverUpdatedAt < our
+// cursor and would be skipped forever. Keeping the cursor this far in the past re-covers
+// that window (Prisma interactive tx timeout 5s + clock skew); re-delivered rows are
+// harmless because the client apply is idempotent LWW.
+const CURSOR_SAFETY_MARGIN_MS = 10_000;
+
 @Injectable()
 export class SyncService {
   constructor(private readonly prisma: PrismaService) {}
@@ -23,7 +30,11 @@ export class SyncService {
       return this.pullChanges(tx, userId, sinceDate);
     });
 
-    return { serverChanges, newCursor: now.toISOString() };
+    const safeCursor = new Date(Math.max(
+      sinceDate?.getTime() ?? 0,
+      Date.now() - CURSOR_SAFETY_MARGIN_MS,
+    ));
+    return { serverChanges, newCursor: safeCursor.toISOString() };
   }
 
   private lwwUpdate<T extends { updatedAt: string | null; deletedAt: string | null }>(
@@ -31,10 +42,15 @@ export class SyncService {
     existing: { updatedAt: string | null; deletedAt: string | null } | undefined,
   ): T {
     if (!existing) return incoming;
-    if (incoming.deletedAt !== null) return incoming;
-    const incomingTime = incoming.updatedAt ?? '';
-    const existingTime = existing.updatedAt ?? '';
-    return incomingTime >= existingTime ? incoming : (existing as T);
+    return this.lwwTime(incoming) >= this.lwwTime(existing) ? incoming : (existing as T);
+  }
+
+  // Effective LWW timestamp: deletes carry their time in deletedAt (updatedAt may lag),
+  // so the row's logical clock is the max of the two. ISO-8601 compares lexicographically.
+  private lwwTime(row: { updatedAt: string | null; deletedAt: string | null }): string {
+    const updated = row.updatedAt ?? '';
+    const deleted = row.deletedAt ?? '';
+    return updated >= deleted ? updated : deleted;
   }
 
   private async applyExercises(tx: any, userId: string, rows: SyncRequest['changes']['exercises'], now: Date) {
@@ -414,7 +430,7 @@ export class SyncService {
   private async applyUserSettings(tx: any, userId: string, rows: SyncRequest['changes']['userSettings'], now: Date) {
     const existing = rows.length === 0 ? [] : await tx.userSetting.findMany({
       where: { userId, key: { in: rows.map((r) => r.key) } },
-      select: { key: true, updatedAt: true, deletedAt: true },
+      select: { key: true, value: true, updatedAt: true, deletedAt: true },
     });
     const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
       existing.map((r: any) => [r.key, r]),
@@ -422,7 +438,7 @@ export class SyncService {
     for (const row of rows) {
       const existingRow = existingMap.get(row.key);
       const winner =
-        !existingRow || row.deletedAt !== null || (row.updatedAt ?? '') >= (existingRow.updatedAt ?? '')
+        !existingRow || this.lwwTime(row) >= this.lwwTime(existingRow)
           ? row
           : (existingRow as typeof row);
       await tx.userSetting.upsert({

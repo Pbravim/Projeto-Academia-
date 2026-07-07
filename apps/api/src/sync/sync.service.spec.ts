@@ -79,6 +79,20 @@ describe('SyncService', () => {
     expect(result.newCursor).toMatch(/^\d{4}-/);
   });
 
+  it('returns a cursor with a safety margin so concurrent commits are not skipped', async () => {
+    const before = Date.now();
+    const result = await service.sync('user-1', { since: null, changes: emptyChanges() });
+    // A transaction on another device may commit rows stamped up to ~txTimeout before
+    // our own `now`; the cursor must sit at least 10s in the past to re-cover that window.
+    expect(new Date(result.newCursor).getTime()).toBeLessThanOrEqual(before - 9_000);
+  });
+
+  it('never moves the cursor backwards past the client since', async () => {
+    const since = new Date().toISOString(); // fresh cursor from a sync moments ago
+    const result = await service.sync('user-1', { since, changes: emptyChanges() });
+    expect(new Date(result.newCursor).getTime()).toBeGreaterThanOrEqual(new Date(since).getTime());
+  });
+
   it('upserts an incoming treino row', async () => {
     const now = new Date().toISOString();
     await service.sync('user-1', {
@@ -135,9 +149,9 @@ describe('SyncService', () => {
     ).rejects.toThrow(ForbiddenException);
   });
 
-  it('lets an incoming tombstone win even when the server row is newer', async () => {
-    const serverTime = '2026-06-05T12:00:00.000Z';
-    const clientDeleteTime = '2026-06-05T10:00:00.000Z'; // older, but a delete
+  it('lets a newer incoming tombstone win over an older server edit (LWW)', async () => {
+    const serverTime = '2026-06-05T10:00:00.000Z';
+    const clientDeleteTime = '2026-06-05T12:00:00.000Z'; // newer delete
     mockPrisma.treino.findMany
       .mockResolvedValueOnce([
         { id: 'treino-1', name: 'Server', updatedAt: serverTime, deletedAt: null },
@@ -154,6 +168,68 @@ describe('SyncService', () => {
 
     const call = mockPrisma.treino.upsert.mock.calls[0][0];
     expect(call.update.deletedAt).toBe(clientDeleteTime);
+  });
+
+  it('does not let an older incoming tombstone kill a newer server edit (LWW for deletes)', async () => {
+    const serverEditTime = '2026-06-05T12:00:00.000Z';
+    const clientDeleteTime = '2026-06-05T10:00:00.000Z'; // older delete must lose
+    mockPrisma.treino.findMany
+      .mockResolvedValueOnce([
+        { id: 'treino-1', name: 'Server edit', updatedAt: serverEditTime, deletedAt: null },
+      ])
+      .mockResolvedValueOnce([{ id: 'treino-1' }]);
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        treinos: [{ id: 'treino-1', name: 'Old name', objetivo: null, createdAt: clientDeleteTime, updatedAt: clientDeleteTime, deletedAt: clientDeleteTime }],
+      },
+    });
+
+    const call = mockPrisma.treino.upsert.mock.calls[0][0];
+    expect(call.update.deletedAt).toBeNull();
+    expect(call.update.name).toBe('Server edit');
+  });
+
+  it('does not resurrect a newer server tombstone with an older incoming edit', async () => {
+    const serverDeleteTime = '2026-06-05T12:00:00.000Z';
+    const clientEditTime = '2026-06-05T10:00:00.000Z'; // older edit must lose
+    mockPrisma.treino.findMany
+      .mockResolvedValueOnce([
+        { id: 'treino-1', name: 'Deleted', updatedAt: '2026-06-05T09:00:00.000Z', deletedAt: serverDeleteTime },
+      ])
+      .mockResolvedValueOnce([{ id: 'treino-1' }]);
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        treinos: [{ id: 'treino-1', name: 'Resurrected', objetivo: null, createdAt: clientEditTime, updatedAt: clientEditTime, deletedAt: null }],
+      },
+    });
+
+    const call = mockPrisma.treino.upsert.mock.calls[0][0];
+    expect(call.update.deletedAt).toBe(serverDeleteTime);
+  });
+
+  it('applies LWW to userSettings tombstones too (older delete loses)', async () => {
+    const serverEditTime = '2026-06-05T12:00:00.000Z';
+    const clientDeleteTime = '2026-06-05T10:00:00.000Z';
+    mockPrisma.userSetting.findMany.mockResolvedValueOnce([
+      { key: 'theme', value: 'dark', updatedAt: serverEditTime, deletedAt: null },
+    ]);
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        userSettings: [{ key: 'theme', value: 'dark', updatedAt: clientDeleteTime, deletedAt: clientDeleteTime }],
+      },
+    });
+
+    const call = mockPrisma.userSetting.upsert.mock.calls[0][0];
+    expect(call.update.deletedAt).toBeNull();
   });
 
   it('round-trips a cardio serie (null carga/reps, duration+intensity) on push', async () => {
