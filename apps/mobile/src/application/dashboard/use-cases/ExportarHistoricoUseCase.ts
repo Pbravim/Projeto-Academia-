@@ -33,6 +33,10 @@ export class ExportarHistoricoUseCase {
        JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
        JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
        WHERE st.status = 'finalizada'
+         AND st.arquivado = 0
+         AND st.deleted_at IS NULL
+         AND se.deleted_at IS NULL
+         AND sr.deleted_at IS NULL
        ORDER BY st.data_hora_inicio DESC, se.ordem ASC, sr.ordem ASC`
     );
 

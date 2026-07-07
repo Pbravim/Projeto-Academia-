@@ -163,7 +163,9 @@ void (async () => {
     const seedLoader = new ExerciseSeedLoader(exerciseRepository);
     // Duas fases (exercícios, depois alternativas): as alternativas têm FK para
     // exercises(id) e cruzam arquivos — carregar arquivo a arquivo viola o FK.
-    await seedLoader.loadSeedFiles(seedFiles);
+    // Transação única: sem ela são ~1500 auto-commits que estrangulam as
+    // leituras das telas de exercício durante o seeding.
+    await databaseClient.withTransaction(() => seedLoader.loadSeedFiles(seedFiles));
     await databaseClient.setSetting(SEED_SIGNATURE_KEY, signature);
   } catch (e) {
     logger.error('ExerciseSeedLoader failed', e instanceof Error ? e : new Error(String(e)));
@@ -194,6 +196,7 @@ const syncEngine = new SyncEngine(
   sessaoExercicioRepository,
   serieRegistradaRepository,
   registroPesoRepository,
+  databaseClient,
 );
 const backupSync = new BackupSyncService(authSession, syncEngine);
 // Rehydrate any saved session at startup (fire-and-forget; UI also awaits via restore()).
@@ -292,7 +295,7 @@ export const mobileDependencies = {
         database: databaseClient,
       }),
       removeExercicioDoTreino: new RemoveExercicioDoTreinoUseCase({ treinoExercicioRepository }),
-      reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository }),
+      reordenarExercicios: new ReordenarExerciciosUseCase({ treinoRepository, treinoExercicioRepository, database: databaseClient }),
       updateTreino: new UpdateTreinoUseCase({ treinoRepository, now: () => new Date() }),
       listExercises,
       updateRecomendacoes: (id: string, series: number | null, execucoes: number | null, cargaPadrao: number | null, tempoDescansoSegundos: number | null) =>
