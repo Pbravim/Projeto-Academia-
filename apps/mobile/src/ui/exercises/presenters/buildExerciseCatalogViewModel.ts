@@ -1,6 +1,7 @@
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
 import { translate, type AppLocale } from '../../shared/i18n/core';
+import { metadataLabel } from '../exerciseMetadataLabels';
 
 export interface ExerciseCardViewModel {
   id: string;
@@ -71,9 +72,9 @@ export function buildExerciseCatalogViewModel(
     const card: ExerciseCardViewModel = {
       id: exercise.id,
       title: exercise.name,
-      subtitle: exercise.category ? `${groupLabel} · ${exercise.category}` : groupLabel,
+      subtitle: exercise.category ? `${groupLabel} · ${metadataLabel('category', exercise.category, locale)}` : groupLabel,
       meta: exercise.equipment
-        ? translate(locale, 'exercises.catalog.equipamentoLabel', { equipamento: exercise.equipment })
+        ? translate(locale, 'exercises.catalog.equipamentoLabel', { equipamento: metadataLabel('equipment', exercise.equipment, locale) })
         : translate(locale, 'exercises.catalog.equipamentoLivre'),
       ultimoPeso: ultima
         ? translate(locale, 'exercises.catalog.ultimoLabel', { carga: ultima.cargaKg, reps: ultima.repeticoes })

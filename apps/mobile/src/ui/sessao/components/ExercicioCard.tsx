@@ -5,8 +5,9 @@ import { Image } from 'expo-image';
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { metadataLabel } from '../../exercises/exerciseMetadataLabels';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
@@ -55,18 +56,24 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
             <Text style={styles.thumbnailPlayIcon}>▶</Text>
           </View>
         </Pressable>
+      ) : (
+        <View style={styles.thumbnailWrap}>
+          <Image source={resolveThumbSourceOrPlaceholder(mediaLocal)} style={styles.thumbnail} contentFit="cover" autoplay={false} cachePolicy="memory-disk" />
+        </View>
+      )}
+      {gifSource ? (
+        <ExerciseMediaViewer
+          visible={mediaVisible}
+          exercicioNome={sessaoExercicio.nomeSnapshot}
+          mediaOnline={mediaOnline ?? null}
+          mediaLocal={mediaLocal ?? null}
+          onClose={() => setMediaVisible(false)}
+        />
       ) : null}
-      <ExerciseMediaViewer
-        visible={mediaVisible}
-        exercicioNome={sessaoExercicio.nomeSnapshot}
-        mediaOnline={mediaOnline ?? null}
-        mediaLocal={mediaLocal ?? null}
-        onClose={() => setMediaVisible(false)}
-      />
       <View style={styles.info}>
         <Text style={styles.name}>{sessaoExercicio.nomeSnapshot}</Text>
         <Text style={styles.meta}>
-          {sessaoExercicio.grupoMuscularSnapshot} · {sessaoExercicio.categoriaSnapshot}
+          {sessaoExercicio.grupoMuscularSnapshot} · {metadataLabel('category', sessaoExercicio.categoriaSnapshot, locale)}
         </Text>
         {metodoConfig ? (
           <View style={[styles.metodoBadge, { backgroundColor: metodoConfig.color }]}>

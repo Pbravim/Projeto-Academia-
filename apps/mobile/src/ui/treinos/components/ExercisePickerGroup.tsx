@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 
 interface Props {
@@ -76,7 +76,11 @@ export const ExercisePickerGroup = memo(function ExercisePickerGroup({ group, it
                         <Text style={styles.thumbnailPlayIcon}>▶</Text>
                       </View>
                     </Pressable>
-                  ) : null}
+                  ) : (
+                    <View style={styles.thumbnailWrap}>
+                      <Image source={resolveThumbSourceOrPlaceholder(exercise.mediaLocal, exercise.id)} style={styles.thumbnail} contentFit="cover" autoplay={false} recyclingKey={exercise.id} cachePolicy="memory-disk" />
+                    </View>
+                  )}
                   <View style={{ flex: 1 }}>
                     <Text style={styles.availableName}>{exercise.name}</Text>
                     <Text style={styles.availableMeta}>{exercise.category ? `${exercise.groupMuscles.join(', ')} · ${exercise.category}` : exercise.groupMuscles.join(', ')}</Text>

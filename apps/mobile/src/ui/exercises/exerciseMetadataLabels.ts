@@ -1,4 +1,4 @@
-export type MetadataField = 'movementPattern' | 'executionType' | 'primaryEquipment' | 'secondaryEquipment';
+export type MetadataField = 'movementPattern' | 'executionType' | 'primaryEquipment' | 'secondaryEquipment' | 'category' | 'equipment';
 type LabelLocale = 'pt-BR' | 'en-US';
 
 // Canonical (stored) value → per-locale display label. Stored values never change.
@@ -7,6 +7,70 @@ type LabelLocale = 'pt-BR' | 'en-US';
 // legacy/custom values (e.g. "Banco", "Anilha") are intentionally left out — they were entered in
 // Portuguese already and the fallback below renders them as-is, never undefined.
 const LABELS: Record<Exclude<MetadataField, 'secondaryEquipment'>, Record<string, { 'pt-BR': string; 'en-US': string }>> = {
+  // Campos LEGADOS category/equipment: valores do catálogo são conteúdo do DB
+  // (mistura PT/EN histórica); só entram aqui os que mudam por locale — o
+  // fallback exibe o valor cru para qualquer outro (custom do usuário incluso).
+  category: {
+    'Composto':       { 'pt-BR': 'Composto',      'en-US': 'Compound' },
+    'Isolado':        { 'pt-BR': 'Isolado',       'en-US': 'Isolation' },
+    'Cardio':         { 'pt-BR': 'Cardio',        'en-US': 'Cardio' },
+    'Flexibility':    { 'pt-BR': 'Alongamento',   'en-US': 'Flexibility' },
+    'Mobility':       { 'pt-BR': 'Mobilidade',    'en-US': 'Mobility' },
+    'Rehabilitation': { 'pt-BR': 'Reabilitação',  'en-US': 'Rehabilitation' },
+    'Warm-Up':        { 'pt-BR': 'Aquecimento',   'en-US': 'Warm-up' },
+  },
+  equipment: {
+    'Barra olimpica':        { 'pt-BR': 'Barra olímpica',        'en-US': 'Olympic barbell' },
+    'Barra W':               { 'pt-BR': 'Barra W',               'en-US': 'EZ bar' },
+    'Haltere':               { 'pt-BR': 'Haltere',               'en-US': 'Dumbbell' },
+    'Halter':                { 'pt-BR': 'Halter',                'en-US': 'Dumbbell' },
+    'Cabo':                  { 'pt-BR': 'Cabo',                  'en-US': 'Cable' },
+    'Cabo/Polia':            { 'pt-BR': 'Cabo/Polia',            'en-US': 'Cable/Pulley' },
+    'Maquina':               { 'pt-BR': 'Máquina',               'en-US': 'Machine' },
+    'Peso corporal':         { 'pt-BR': 'Peso corporal',         'en-US': 'Bodyweight' },
+    'Peso Corporal':         { 'pt-BR': 'Peso corporal',         'en-US': 'Bodyweight' },
+    'Elastico':              { 'pt-BR': 'Elástico',              'en-US': 'Resistance band' },
+    'Faixa Elastica':        { 'pt-BR': 'Faixa elástica',        'en-US': 'Resistance band' },
+    'Faixa Elastica grossa ancorada': { 'pt-BR': 'Faixa elástica grossa ancorada', 'en-US': 'Anchored heavy band' },
+    'Faixa Elastica ou Cabo/Polia':   { 'pt-BR': 'Faixa elástica ou cabo/polia',   'en-US': 'Band or cable/pulley' },
+    'Faixa/Strap':           { 'pt-BR': 'Faixa/Strap',           'en-US': 'Strap' },
+    'Mini Band':             { 'pt-BR': 'Mini band',             'en-US': 'Mini band' },
+    'Smith':                 { 'pt-BR': 'Smith',                 'en-US': 'Smith machine' },
+    'Kettlebell':            { 'pt-BR': 'Kettlebell',            'en-US': 'Kettlebell' },
+    'Landmine':              { 'pt-BR': 'Landmine',              'en-US': 'Landmine' },
+    'Leg Press':             { 'pt-BR': 'Leg press',             'en-US': 'Leg press' },
+    'Graviton':              { 'pt-BR': 'Graviton',              'en-US': 'Assisted pull-up machine' },
+    'Fitas de suspensao (TRX)': { 'pt-BR': 'Fitas de suspensão (TRX)', 'en-US': 'Suspension trainer (TRX)' },
+    'Bastao':                { 'pt-BR': 'Bastão',                'en-US': 'Stick' },
+    'Bola':                  { 'pt-BR': 'Bola',                  'en-US': 'Ball' },
+    'Medicine Ball / Slam Ball': { 'pt-BR': 'Medicine ball / slam ball', 'en-US': 'Medicine ball / slam ball' },
+    'Roda Abdominal':        { 'pt-BR': 'Roda abdominal',        'en-US': 'Ab wheel' },
+    'Rolo de Espuma':        { 'pt-BR': 'Rolo de espuma',        'en-US': 'Foam roller' },
+    'Corda de Pular':        { 'pt-BR': 'Corda de pular',        'en-US': 'Jump rope' },
+    'Battle Rope':           { 'pt-BR': 'Corda naval',           'en-US': 'Battle rope' },
+    'Caixa pliometrica':     { 'pt-BR': 'Caixa pliométrica',     'en-US': 'Plyo box' },
+    'Step/Caixa':            { 'pt-BR': 'Step/Caixa',            'en-US': 'Step/Box' },
+    'Esteira':               { 'pt-BR': 'Esteira',               'en-US': 'Treadmill' },
+    'Eliptico':              { 'pt-BR': 'Elíptico',              'en-US': 'Elliptical' },
+    'Bicicleta Ergometrica': { 'pt-BR': 'Bicicleta ergométrica', 'en-US': 'Stationary bike' },
+    'Bicicleta Reclinada':   { 'pt-BR': 'Bicicleta reclinada',   'en-US': 'Recumbent bike' },
+    'Bicicleta de Spinning': { 'pt-BR': 'Bicicleta de spinning', 'en-US': 'Spin bike' },
+    'Remo Ergometro':        { 'pt-BR': 'Remo ergômetro',        'en-US': 'Rowing machine' },
+    'Ergometro de Braco':    { 'pt-BR': 'Ergômetro de braço',    'en-US': 'Arm ergometer' },
+    'Simulador de Escada':   { 'pt-BR': 'Simulador de escada',   'en-US': 'Stair climber' },
+    'Air Bike':              { 'pt-BR': 'Air bike',              'en-US': 'Air bike' },
+    'Arc Trainer':           { 'pt-BR': 'Arc trainer',           'en-US': 'Arc trainer' },
+    'Ski Erg':               { 'pt-BR': 'Ski erg',               'en-US': 'Ski erg' },
+    'VersaClimber':          { 'pt-BR': 'VersaClimber',          'en-US': 'VersaClimber' },
+    "Jacob's Ladder":        { 'pt-BR': "Jacob's Ladder",        'en-US': "Jacob's Ladder" },
+    'FlexBar/Barra de Resistencia': { 'pt-BR': 'FlexBar/Barra de resistência', 'en-US': 'FlexBar/Resistance bar' },
+    'Parede':                { 'pt-BR': 'Parede',                'en-US': 'Wall' },
+    'Parede/Barra':          { 'pt-BR': 'Parede/Barra',          'en-US': 'Wall/Bar' },
+    'Parede/Batente':        { 'pt-BR': 'Parede/Batente',        'en-US': 'Wall/Door frame' },
+    'Nenhum (ao ar livre)':  { 'pt-BR': 'Nenhum (ao ar livre)',  'en-US': 'None (outdoors)' },
+    'Nenhum (cones/quadra)': { 'pt-BR': 'Nenhum (cones/quadra)', 'en-US': 'None (cones/court)' },
+    'Nenhum (pista/ao ar livre)': { 'pt-BR': 'Nenhum (pista/ao ar livre)', 'en-US': 'None (track/outdoors)' },
+  },
   movementPattern: {
     'Horizontal Push':      { 'pt-BR': 'Empurrar horizontal',   'en-US': 'Horizontal push' },
     'Vertical Push':        { 'pt-BR': 'Empurrar vertical',     'en-US': 'Vertical push' },

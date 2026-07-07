@@ -12,12 +12,13 @@ import { BiSetDetalheScreen } from './BiSetDetalheScreen';
 import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
 import { translate, type AppLocale } from '../../shared/i18n/core';
 import { formatTime } from '../../shared/i18n/formatters';
+import { metadataLabel } from '../../exercises/exerciseMetadataLabels';
 
 function grupoLabelFor(metodo: string, count: number, locale: AppLocale): string {
   if (count === 2) return translate(locale, 'sessao.grupo.biSet');
@@ -304,7 +305,9 @@ export function SessaoAtivaScreen({
                             <Text style={styles.grupoItemThumbIcon}>▶</Text>
                           </View>
                         </Pressable>
-                      ) : null}
+                      ) : (
+                        <Image source={resolveThumbSourceOrPlaceholder(item.mediaLocal, item.sessaoExercicio.exercicioId)} style={styles.grupoItemThumb} contentFit="cover" autoplay={false} />
+                      )}
                       <View style={styles.grupoItemInfo}>
                         <View style={styles.grupoItemNameRow}>
                           <Text style={styles.grupoItemNome}>{item.sessaoExercicio.nomeSnapshot}</Text>
@@ -314,7 +317,7 @@ export function SessaoAtivaScreen({
                             </View>
                           ) : null}
                         </View>
-                        <Text style={styles.grupoItemMeta}>{item.sessaoExercicio.grupoMuscularSnapshot} · {item.sessaoExercicio.categoriaSnapshot}</Text>
+                        <Text style={styles.grupoItemMeta}>{item.sessaoExercicio.grupoMuscularSnapshot} · {metadataLabel('category', item.sessaoExercicio.categoriaSnapshot, locale)}</Text>
                       </View>
                     </View>
                   </View>

@@ -13,6 +13,18 @@ import { thumbAssets } from '../exercises/components/thumbAssets';
  */
 type ExerciseImageSource = number | { uri: string };
 
+/** Placeholder neutro para exercícios sem mídia (ou com ponteiro morto). */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+export const exercisePlaceholder: ExerciseImageSource = require('../../../assets/exercise-placeholder.png');
+
+/** Como resolveThumbSource, mas nunca null — cai no placeholder. */
+export function resolveThumbSourceOrPlaceholder(
+  mediaLocal: string | null | undefined,
+  exercicioId?: string,
+): ExerciseImageSource {
+  return resolveThumbSource(mediaLocal, exercicioId) ?? exercisePlaceholder;
+}
+
 const existsCache = new Map<string, boolean>();
 
 function fileExists(uri: string): boolean {

@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 
 import type { ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -69,14 +69,14 @@ export const ExerciseCardRow = memo(function ExerciseCardRow({ card, isFirst, is
     <View style={[styles.rowWrap, isFirst ? styles.rowWrapFirst : null, isLast ? styles.rowWrapLast : null]}>
       <View style={[styles.exerciseCard, isEditing ? styles.exerciseCardEditing : null]}>
         <View style={styles.exerciseRow}>
-          {gifSource ? (
-            <Pressable onPress={() => onViewMedia(card.id)} hitSlop={4} style={styles.exerciseThumbnailWrap}>
-              <Image source={gifSource} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} recyclingKey={card.id} cachePolicy="memory-disk" />
+          <Pressable onPress={() => onViewMedia(card.id)} hitSlop={4} style={styles.exerciseThumbnailWrap} disabled={!gifSource}>
+            <Image source={resolveThumbSourceOrPlaceholder(exercise.mediaLocal, exercise.id)} style={styles.exerciseThumbnail} contentFit="cover" autoplay={false} recyclingKey={card.id} cachePolicy="memory-disk" />
+            {gifSource ? (
               <View style={styles.thumbnailOverlay}>
                 <Text style={styles.thumbnailPlayIcon}>▶</Text>
               </View>
-            </Pressable>
-          ) : null}
+            ) : null}
+          </Pressable>
           <View style={styles.exerciseInfo}>
             <Text style={styles.exerciseTitle}>{card.title}</Text>
             <Text style={styles.exerciseSubtitle}>{card.subtitle}</Text>

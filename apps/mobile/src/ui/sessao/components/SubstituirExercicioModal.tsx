@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 
 import type { CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { resolveFullMediaSource, resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveFullMediaSource, resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -184,7 +184,11 @@ function CandidatoRow({
             </View>
           ) : null}
         </Pressable>
-      ) : null}
+      ) : (
+        <View style={styles.candidatoThumbnailWrap}>
+          <Image source={resolveThumbSourceOrPlaceholder(ex.mediaLocal, ex.id)} style={styles.candidatoThumbnail} contentFit="cover" autoplay={false} />
+        </View>
+      )}
       <View style={styles.candidatoInfo}>
         <Text style={[styles.candidatoNome, selected ? styles.candidatoNomeSelected : null]} numberOfLines={1}>
           {ex.name}

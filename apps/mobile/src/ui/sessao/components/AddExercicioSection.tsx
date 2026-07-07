@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { resolveFullMediaSource, resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveFullMediaSource, resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -109,7 +109,11 @@ function ExerciseGroup({ group, items, onAdd }: ExerciseGroupProps) {
                       </View>
                     ) : null}
                   </Pressable>
-                ) : null}
+                ) : (
+                  <View style={styles.thumbnailWrap}>
+                    <Image source={resolveThumbSourceOrPlaceholder(ex.mediaLocal, ex.id)} style={styles.thumbnail} contentFit="cover" autoplay={false} />
+                  </View>
+                )}
                 <View style={styles.exerciseInfo}>
                   <Text style={styles.exerciseName}>{ex.name}</Text>
                   <Text style={styles.exerciseMeta}>{ex.category ? `${ex.groupMuscles.join(', ')} · ${ex.category}` : ex.groupMuscles.join(', ')}</Text>

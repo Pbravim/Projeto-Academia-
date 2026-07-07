@@ -277,6 +277,7 @@ export function ExerciseCatalogScreen({
           customPlaceholder={t('exercises.form.categoriaPlaceholder')}
           value={draft.category}
           onChange={(value) => onChangeField('category', value)}
+          formatOption={(v) => metadataLabel('category', v, locale)}
         />
         <ChipPicker
           label={t('exercises.form.equipamento')}
@@ -284,6 +285,7 @@ export function ExerciseCatalogScreen({
           customPlaceholder={t('exercises.form.equipamentoPlaceholder')}
           value={draft.equipment}
           onChange={(value) => onChangeField('equipment', value)}
+          formatOption={(v) => metadataLabel('equipment', v, locale)}
         />
 
         <Text style={styles.helperText}>
@@ -488,7 +490,7 @@ export function ExerciseCatalogScreen({
                   style={[styles.filterChip, filterCategory === cat ? styles.filterChipActive : null]}
                 >
                   <Text style={[styles.filterChipText, filterCategory === cat ? styles.filterChipTextActive : null]}>
-                    {cat}
+                    {metadataLabel('category', cat, locale)}
                   </Text>
                 </Pressable>
               ))}
@@ -506,7 +508,7 @@ export function ExerciseCatalogScreen({
                   style={[styles.filterChip, filterEquipment === eq ? styles.filterChipActive : null]}
                 >
                   <Text style={[styles.filterChipText, filterEquipment === eq ? styles.filterChipTextActive : null]}>
-                    {eq}
+                    {metadataLabel('equipment', eq, locale)}
                   </Text>
                 </Pressable>
               ))}

@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 
 import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { resolveThumbSource } from '../../shared/exerciseMedia';
+import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
 
@@ -121,14 +121,14 @@ export function ExercicioCardTreino({
           {item.ordem}
         </Text>
 
-        {gifSource ? (
-          <Pressable onPress={onViewMedia} hitSlop={4} style={styles.thumbnailWrap}>
-            <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} recyclingKey={item.treinoExercicioId} cachePolicy="memory-disk" />
+        <Pressable onPress={onViewMedia} hitSlop={4} style={styles.thumbnailWrap} disabled={!gifSource}>
+          <Image source={resolveThumbSourceOrPlaceholder(item.mediaLocal, item.exercicioId)} style={styles.thumbnail} contentFit="cover" autoplay={false} recyclingKey={item.treinoExercicioId} cachePolicy="memory-disk" />
+          {gifSource ? (
             <View style={styles.thumbnailOverlay}>
               <Text style={styles.thumbnailPlayIcon}>▶</Text>
             </View>
-          </Pressable>
-        ) : null}
+          ) : null}
+        </Pressable>
 
         <View style={styles.nameBlock}>
           <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
