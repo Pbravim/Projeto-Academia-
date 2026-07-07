@@ -13,8 +13,15 @@ describe('ReordenarExerciciosUseCase - P1 Regression Tests', () => {
   let treinoExercicioRepository: SQLiteTreinoExercicioRepository;
   let useCase: ReordenarExerciciosUseCase;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     database = createTestDatabase();
+    // linhas-pais exigidas pela FK real treino_exercicios.exercicio_id
+    await database.run(
+      `INSERT INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
+       ('ex_1', 'Exercicio Teste 1', 'exercicio teste 1', 'Peito', 'Composto', NULL, 'kg', 0, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z'),
+       ('ex_2', 'Exercicio Teste 2', 'exercicio teste 2', 'Peito', 'Composto', NULL, 'kg', 0, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z'),
+       ('ex_3', 'Exercicio Teste 3', 'exercicio teste 3', 'Peito', 'Composto', NULL, 'kg', 0, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z')`
+    );
     treinoRepository = new SQLiteTreinoRepository(database);
     treinoExercicioRepository = new SQLiteTreinoExercicioRepository(database);
 

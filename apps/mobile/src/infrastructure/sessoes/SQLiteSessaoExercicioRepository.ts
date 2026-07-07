@@ -103,14 +103,16 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
       tracking_type_snapshot: string | null;
       duracao_recomendada_segundos: number | null; distancia_recomendada_metros: number | null; intensidade_recomendada: number | null;
       substituido_por_exercicio_id: string | null; substituicao_motivo: string | null;
-      created_at: string; updated_at: string; deleted_at: string | null;
+      updated_at: string; deleted_at: string | null;
     }>(
+      // sessao_exercicios has no created_at column (the domain doesn't model one);
+      // the wire's createdAt is derived from updated_at.
       `SELECT id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
               categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, movement_pattern_snapshot, nome_original_snapshot,
               realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
               metodo, grupo_id, tracking_type_snapshot, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada,
               substituido_por_exercicio_id, substituicao_motivo,
-              created_at, updated_at, deleted_at
+              updated_at, deleted_at
        FROM sessao_exercicios WHERE dirty = 1`
     );
     return rows.map((r) => ({
@@ -126,28 +128,29 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
       duracaoRecomendadaSegundos: r.duracao_recomendada_segundos, distanciaRecomendadaMetros: r.distancia_recomendada_metros, intensidadeRecomendada: r.intensidade_recomendada,
       substituidoPorExercicioId: r.substituido_por_exercicio_id,
       substituicaoMotivo: r.substituicao_motivo,
-      createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
+      createdAt: r.updated_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
     }));
   }
 
   async applyServerRows(rows: import('@academia/contracts').SessaoExercicioSyncRow[]): Promise<void> {
     for (const r of rows) {
       await this.database.run(
+        // No created_at column on sessao_exercicios; createdAt rides on the wire only.
         `INSERT OR REPLACE INTO sessao_exercicios
            (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot,
             categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, nome_original_snapshot,
             realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos,
             metodo, grupo_id, tracking_type_snapshot, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada,
             substituido_por_exercicio_id, substituicao_motivo,
-            created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+            updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
         [r.id, r.sessaoTreinoId, r.exercicioId, r.ordem, r.nomeSnapshot,
          r.grupoMuscularSnapshot, r.categoriaSnapshot, r.equipamentoSnapshot,
          r.musculoAlvoSnapshot, r.nomeOriginalSnapshot, r.realizado ? 1 : 0,
          r.seriesRecomendadas, r.execucoesRecomendadas, r.cargaPadrao, r.tempoDescansoSegundos,
          r.metodo, r.grupoId, r.trackingTypeSnapshot, r.duracaoRecomendadaSegundos, r.distanciaRecomendadaMetros, r.intensidadeRecomendada,
          r.substituidoPorExercicioId, r.substituicaoMotivo,
-         r.createdAt, r.updatedAt, r.deletedAt]
+         r.updatedAt, r.deletedAt]
       );
     }
   }

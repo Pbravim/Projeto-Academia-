@@ -18,8 +18,17 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
   let treinoExercicioRepository: SQLiteTreinoExercicioRepository;
   let useCase: RegistrarSerieUseCase;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     database = createTestDatabase();
+    // linhas-pais exigidas pelas FKs reais de treino_exercicios
+    await database.run(
+      `INSERT INTO treinos (id, name, objetivo, created_at, updated_at)
+       VALUES ('treino_1', 'Treino A', NULL, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z')`
+    );
+    await database.run(
+      `INSERT INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at)
+       VALUES ('ex_1', 'Exercicio Teste 1', 'exercicio teste 1', 'Peito', 'Composto', NULL, 'kg', 0, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z')`
+    );
     sessaoRepository = new SQLiteSessaoTreinoRepository(database);
     sessaoExercicioRepository = new SQLiteSessaoExercicioRepository(database);
     serieRepository = new SQLiteSerieRegistradaRepository(database);

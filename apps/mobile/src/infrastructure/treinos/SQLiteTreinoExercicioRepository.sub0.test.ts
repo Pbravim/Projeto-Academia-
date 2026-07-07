@@ -7,9 +7,19 @@ import { TreinoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 let db: SQLiteDatabaseClient;
 let repo: SQLiteTreinoExercicioRepository;
 
-beforeEach(() => {
+beforeEach(async () => {
   db = createTestDatabase();
   repo = new SQLiteTreinoExercicioRepository(db);
+  // linhas-pais exigidas pelas FKs reais de treino_exercicios
+  await db.run(
+    `INSERT INTO treinos (id, name, objetivo, created_at, updated_at)
+     VALUES ('tr1', 'Treino Teste', NULL, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z')`
+  );
+  await db.run(
+    `INSERT INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
+     ('ex1', 'Exercicio Teste 1', 'exercicio teste 1', 'Peito', 'Composto', NULL, 'kg', 0, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z'),
+     ('ex2', 'Exercicio Teste 2', 'exercicio teste 2', 'Peito', 'Composto', NULL, 'kg', 0, '2026-07-01T10:00:00.000Z', '2026-07-01T10:00:00.000Z')`
+  );
 });
 
 function make(id: string, treinoId: string, exId: string): TreinoExercicio {

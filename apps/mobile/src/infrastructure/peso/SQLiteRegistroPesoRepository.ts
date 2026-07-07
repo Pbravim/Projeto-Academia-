@@ -47,14 +47,16 @@ export class SQLiteRegistroPesoRepository implements RegistroPesoRepository {
   async getDirty(): Promise<import('@academia/contracts').RegistroPesoSyncRow[]> {
     const rows = await this.database.getAll<{
       id: string; peso_kg: number; data_registro: string; observacao: string | null;
-      created_at: string; updated_at: string; deleted_at: string | null;
+      updated_at: string; deleted_at: string | null;
     }>(
-      `SELECT id, peso_kg, data_registro, observacao, created_at, updated_at, deleted_at
+      // registros_peso has no created_at column; the wire's createdAt is
+      // data_registro (a weight entry is created when it is recorded).
+      `SELECT id, peso_kg, data_registro, observacao, updated_at, deleted_at
        FROM registros_peso WHERE dirty = 1`
     );
     return rows.map((r) => ({
       id: r.id, pesoKg: r.peso_kg, dataRegistro: r.data_registro,
-      observacao: r.observacao, createdAt: r.created_at,
+      observacao: r.observacao, createdAt: r.data_registro,
       updatedAt: r.updated_at, deletedAt: r.deleted_at,
     }));
   }
@@ -62,10 +64,11 @@ export class SQLiteRegistroPesoRepository implements RegistroPesoRepository {
   async applyServerRows(rows: import('@academia/contracts').RegistroPesoSyncRow[]): Promise<void> {
     for (const r of rows) {
       await this.database.run(
+        // No created_at column on registros_peso; createdAt rides on the wire only.
         `INSERT OR REPLACE INTO registros_peso
-           (id, peso_kg, data_registro, observacao, created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 0, 1)`,
-        [r.id, r.pesoKg, r.dataRegistro, r.observacao, r.createdAt, r.updatedAt, r.deletedAt]
+           (id, peso_kg, data_registro, observacao, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, 0, 1)`,
+        [r.id, r.pesoKg, r.dataRegistro, r.observacao, r.updatedAt, r.deletedAt]
       );
     }
   }

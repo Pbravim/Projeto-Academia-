@@ -7,9 +7,14 @@ import { SessaoExercicio } from '../../domain/sessoes/entities/SessaoExercicio';
 let db: SQLiteDatabaseClient;
 let repo: SQLiteSessaoExercicioRepository;
 
-beforeEach(() => {
+beforeEach(async () => {
   db = createTestDatabase();
   repo = new SQLiteSessaoExercicioRepository(db);
+  // linha-pai exigida pela FK real de sessao_exercicios
+  await db.run(
+    `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, status)
+     VALUES ('s1', 'tr1', 'Treino Teste', '2026-07-01T10:00:00.000Z', 'em_andamento')`
+  );
 });
 
 function make(id: string, sessaoId: string, exId: string): SessaoExercicio {

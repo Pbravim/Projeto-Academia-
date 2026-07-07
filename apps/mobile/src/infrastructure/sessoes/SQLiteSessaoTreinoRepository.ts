@@ -57,29 +57,32 @@ export class SQLiteSessaoTreinoRepository implements SessaoTreinoRepository {
     const rows = await this.database.getAll<{
       id: string; treino_id: string; treino_nome_snapshot: string;
       data_hora_inicio: string; data_hora_fim: string | null; status: string;
-      arquivado: number; created_at: string; updated_at: string; deleted_at: string | null;
+      arquivado: number; updated_at: string; deleted_at: string | null;
     }>(
+      // sessao_treinos has no created_at column; the wire's createdAt is
+      // data_hora_inicio (a session is created when it starts).
       `SELECT id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim,
-              status, arquivado, created_at, updated_at, deleted_at
+              status, arquivado, updated_at, deleted_at
        FROM sessao_treinos WHERE dirty = 1`
     );
     return rows.map((r) => ({
       id: r.id, treinoId: r.treino_id, treinoNomeSnapshot: r.treino_nome_snapshot,
       dataHoraInicio: r.data_hora_inicio, dataHoraFim: r.data_hora_fim,
       status: r.status, arquivado: Boolean(r.arquivado),
-      createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
+      createdAt: r.data_hora_inicio, updatedAt: r.updated_at, deletedAt: r.deleted_at,
     }));
   }
 
   async applyServerRows(rows: import('@academia/contracts').SessaoTreinoSyncRow[]): Promise<void> {
     for (const r of rows) {
       await this.database.run(
+        // No created_at column on sessao_treinos; createdAt rides on the wire only.
         `INSERT OR REPLACE INTO sessao_treinos
            (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim,
-            status, arquivado, created_at, updated_at, deleted_at, dirty, server_rev)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+            status, arquivado, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
         [r.id, r.treinoId, r.treinoNomeSnapshot, r.dataHoraInicio, r.dataHoraFim,
-         r.status, r.arquivado ? 1 : 0, r.createdAt, r.updatedAt, r.deletedAt]
+         r.status, r.arquivado ? 1 : 0, r.updatedAt, r.deletedAt]
       );
     }
   }

@@ -7,10 +7,23 @@ import { SerieRegistrada } from '../../domain/sessoes/entities/SerieRegistrada';
 let db: SQLiteDatabaseClient;
 let repo: SQLiteSerieRegistradaRepository;
 
-beforeEach(() => {
+beforeEach(async () => {
   db = createTestDatabase();
   repo = new SQLiteSerieRegistradaRepository(db);
+  await seedSessaoExercicio(db);
 });
+
+// linhas-pais exigidas pelas FKs reais (sessao_treinos -> sessao_exercicios)
+async function seedSessaoExercicio(target: SQLiteDatabaseClient): Promise<void> {
+  await target.run(
+    `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, status)
+     VALUES ('s1', 'tr1', 'Treino Teste', '2026-07-01T10:00:00.000Z', 'em_andamento')`
+  );
+  await target.run(
+    `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot)
+     VALUES ('se1', 's1', 'e1', 0, 'X', 'Peito', 'Composto')`
+  );
+}
 
 function make(id: string, seId: string): SerieRegistrada {
   return SerieRegistrada.restore({
