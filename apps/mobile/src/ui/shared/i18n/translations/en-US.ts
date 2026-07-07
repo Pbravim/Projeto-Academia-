@@ -169,6 +169,8 @@ export const enUS = {
       pular: 'Skip rest',
       notifTitle: 'Rest complete 💪',
       notifBody: 'Time for your next set of %{nome}!',
+      ongoingTitle: 'Rest in progress ⏱',
+      ongoingBody: '%{nome} — ends at %{hora}',
     },
     errors: {
       load: 'Could not load the session.',

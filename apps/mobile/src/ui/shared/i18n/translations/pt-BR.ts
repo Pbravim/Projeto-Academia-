@@ -170,6 +170,8 @@ export const ptBR = {
       pular: 'Pular descanso',
       notifTitle: 'Descanso concluído 💪',
       notifBody: 'Hora da próxima série de %{nome}!',
+      ongoingTitle: 'Descanso em andamento ⏱',
+      ongoingBody: '%{nome} — termina às %{hora}',
     },
     errors: {
       load: 'Não foi possível carregar a sessão.',

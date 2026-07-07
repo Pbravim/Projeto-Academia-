@@ -1,16 +1,24 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-// Com o app em foreground o banner in-app já cobre o aviso — a notificação
-// só deve aparecer quando o descanso termina em background/tela bloqueada.
+// Mesmo identifier para as duas: a de fim SUBSTITUI a fixa na barra.
+const REST_ID = 'rest-timer';
+
+// Handler por tipo: a notificação FIXA (kind rest-live) deve entrar na barra
+// mesmo com o app em foreground (é o pedido do usuário — presença na barra),
+// mas sem banner/som; a de FIM é suprimida em foreground (o banner in-app
+// com vibração cobre) e só aparece quando o descanso termina em background.
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: false,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowBanner: false,
-    shouldShowList: false,
-  }),
+  handleNotification: async (notification) => {
+    const live = notification.request.content.data?.kind === 'rest-live';
+    return {
+      shouldShowAlert: false,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+      shouldShowBanner: false,
+      shouldShowList: live,
+    };
+  },
 });
 
 const CHANNEL_ID = 'rest-timer';
@@ -42,20 +50,43 @@ async function ensureReady(): Promise<boolean> {
   return true;
 }
 
+export interface RestNotificationTexts {
+  ongoingTitle: string;
+  ongoingBody: string;
+  doneTitle: string;
+  doneBody: string;
+}
+
 /**
- * Agenda a notificação de fim de descanso para daqui a `seconds` segundos.
- * Retorna o id agendado (para cancelar em skip/novo descanso) ou null se o
- * usuário negou permissão.
+ * Publica a notificação FIXA (sticky) do descanso na barra imediatamente e
+ * agenda a de conclusão para daqui a `seconds` — mesma id, então a de fim
+ * substitui a fixa (com som/vibração do sistema, mesmo com o app fechado).
  */
-export async function scheduleRestEndNotification(
-  title: string,
-  body: string,
-  seconds: number,
-): Promise<string | null> {
+export async function startRestNotification(texts: RestNotificationTexts, seconds: number): Promise<void> {
   try {
-    if (seconds < 1 || !(await ensureReady())) return null;
-    return await Notifications.scheduleNotificationAsync({
-      content: { title, body, sound: 'default', vibrate: [0, 400, 100, 400] },
+    if (seconds < 1 || !(await ensureReady())) return;
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: REST_ID,
+      content: {
+        title: texts.ongoingTitle,
+        body: texts.ongoingBody,
+        sticky: true,
+        autoDismiss: false,
+        data: { kind: 'rest-live' },
+      },
+      trigger: null, // imediata
+    });
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: REST_ID,
+      content: {
+        title: texts.doneTitle,
+        body: texts.doneBody,
+        sound: 'default',
+        vibrate: [0, 400, 100, 400],
+        data: { kind: 'rest-end' },
+      },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds,
@@ -63,15 +94,16 @@ export async function scheduleRestEndNotification(
       },
     });
   } catch {
-    return null; // notificação é acessória — nunca derruba o fluxo do treino
+    // notificação é acessória — nunca derruba o fluxo do treino
   }
 }
 
-export async function cancelRestEndNotification(id: string | null): Promise<void> {
-  if (!id) return;
+/** Remove a fixa da barra e cancela a de fim (skip / novo descanso / concluiu no app). */
+export async function cancelRestNotification(): Promise<void> {
   try {
-    await Notifications.cancelScheduledNotificationAsync(id);
-  } catch {
-    // já disparada/cancelada — nada a fazer
-  }
+    await Notifications.cancelScheduledNotificationAsync(REST_ID);
+  } catch { /* já disparada */ }
+  try {
+    await Notifications.dismissNotificationAsync(REST_ID);
+  } catch { /* já dispensada */ }
 }
