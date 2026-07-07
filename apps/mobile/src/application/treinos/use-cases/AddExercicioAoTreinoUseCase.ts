@@ -45,12 +45,20 @@ export class AddExercicioAoTreinoUseCase {
     let treinoExercicio!: TreinoExercicio;
 
     const saveNew = async () => {
-      const count = await this.dependencies.treinoExercicioRepository.countByTreinoId(input.treinoId);
+      // MAX(ordem)+1 incluindo soft-deletadas: count+1 colide após remover do meio.
+      const maxOrdem = await this.dependencies.treinoExercicioRepository.maxOrdemByTreinoId(input.treinoId);
+      // Se existe tombstone do mesmo par (removido e re-adicionado), reutiliza o id:
+      // inserir um id novo estouraria o UNIQUE(treino_id, exercicio_id) e o REPLACE
+      // destruiria o tombstone antes do push (a deleção nunca chegaria ao servidor).
+      const tombstonedId = await this.dependencies.treinoExercicioRepository.findTombstonedId(
+        input.treinoId,
+        input.exercicioId
+      );
       treinoExercicio = TreinoExercicio.create({
-        id: this.dependencies.idGenerator(),
+        id: tombstonedId ?? this.dependencies.idGenerator(),
         treinoId: input.treinoId,
         exercicioId: input.exercicioId,
-        ordem: count + 1,
+        ordem: maxOrdem + 1,
         seriesRecomendadas: null,
         execucoesRecomendadas: null,
         cargaPadrao: null,

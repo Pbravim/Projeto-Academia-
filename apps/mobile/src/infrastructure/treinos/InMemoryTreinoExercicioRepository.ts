@@ -39,6 +39,20 @@ export class InMemoryTreinoExercicioRepository implements TreinoExercicioReposit
     return count;
   }
 
+  async maxOrdemByTreinoId(treinoId: string): Promise<number> {
+    let max = 0;
+    for (const item of this.itemsById.values()) {
+      const p = item.toPrimitives();
+      if (p.treinoId === treinoId && p.ordem > max) max = p.ordem;
+    }
+    return max;
+  }
+
+  async findTombstonedId(_treinoId: string, _exercicioId: string): Promise<string | null> {
+    // In-memory: delete é físico, não há tombstones para reativar.
+    return null;
+  }
+
   async countAllByTreino(): Promise<Record<string, number>> {
     const counts: Record<string, number> = {};
     for (const item of this.itemsById.values()) {

@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
@@ -23,7 +23,10 @@ export class AuthService {
 
   async register(email: string, password: string, name?: string) {
     const existing = await this.usersService.findByEmail(email);
-    if (existing) throw new ConflictException('Email already in use');
+    // Resposta genérica de propósito: um 409 "email already in use" confirma a
+    // existência da conta para terceiros (enumeração). Combinado com o rate
+    // limit do register, o custo de enumerar fica alto.
+    if (existing) throw new BadRequestException('Nao foi possivel criar a conta com os dados informados.');
     const user = await this.usersService.create({ email, password, name });
     return this.generateTokens(user.id, user.email);
   }

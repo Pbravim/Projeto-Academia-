@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type { SyncRequest } from '@academia/contracts';
@@ -132,21 +131,45 @@ describe('SyncService', () => {
     expect(call.update.name).toBe('Server version');
   });
 
-  it('throws ForbiddenException when client tries to modify another user\'s treino', async () => {
+  it('skips a treino owned by another user instead of aborting the whole push', async () => {
     // treino exists in DB but belongs to a different user (not returned in userId-scoped query)
     mockPrisma.treino.findMany
       .mockResolvedValueOnce([]) // userId-scoped query returns nothing (not owned by user-1)
       .mockResolvedValueOnce([{ id: 'treino-other' }]); // all-ids query finds it (belongs to someone else)
 
-    await expect(
-      service.sync('user-1', {
-        since: null,
-        changes: {
-          ...emptyChanges(),
-          treinos: [{ id: 'treino-other', name: 'Stolen', objetivo: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), deletedAt: null }],
-        },
-      }),
-    ).rejects.toThrow(ForbiddenException);
+    const result = await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        treinos: [{ id: 'treino-other', name: 'Stolen', objetivo: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), deletedAt: null }],
+      },
+    });
+
+    // Uma linha rejeitada não pode envenenar a conta: o push completa (200) e a
+    // linha ofensora simplesmente não é gravada.
+    expect(mockPrisma.treino.upsert).not.toHaveBeenCalled();
+    expect(typeof result.newCursor).toBe('string');
+  });
+
+  it('applies the owned rows of a batch even when another row is rejected', async () => {
+    const now = new Date().toISOString();
+    mockPrisma.treino.findMany
+      .mockResolvedValueOnce([]) // nenhum dos 2 ids pertence ao user-1
+      .mockResolvedValueOnce([{ id: 'treino-other' }]); // só o alheio já existe no DB
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        treinos: [
+          { id: 'treino-other', name: 'Stolen', objetivo: null, createdAt: now, updatedAt: now, deletedAt: null },
+          { id: 'treino-mine', name: 'Meu novo', objetivo: null, createdAt: now, updatedAt: now, deletedAt: null },
+        ],
+      },
+    });
+
+    expect(mockPrisma.treino.upsert).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.treino.upsert.mock.calls[0][0].where).toEqual({ id: 'treino-mine' });
   });
 
   it('lets a newer incoming tombstone win over an older server edit (LWW)', async () => {
@@ -316,23 +339,24 @@ describe('SyncService', () => {
     expect(call.update).toMatchObject(fields);
   });
 
-  it('throws ForbiddenException when a serie targets a sessaoExercicio the user does not own', async () => {
+  it('skips a serie targeting a sessaoExercicio the user does not own (no abort)', async () => {
     mockPrisma.sessaoExercicio.findMany.mockResolvedValueOnce([]); // parent not owned
 
-    await expect(
-      service.sync('user-1', {
-        since: null,
-        changes: {
-          ...emptyChanges(),
-          seriesRegistradas: [{
-            id: 'serie-x', sessaoExercicioId: 'se-not-mine', tipoSerie: 'valida', ordem: 1,
-            cargaKg: 80, repeticoes: 8, duracaoSegundos: null, distanciaMetros: null,
-            intensidade: null, observacao: null,
-            createdAt: '2026-06-14T10:00:00.000Z', updatedAt: '2026-06-14T10:00:00.000Z', deletedAt: null,
-          }],
-        },
-      }),
-    ).rejects.toThrow(ForbiddenException);
+    const result = await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        seriesRegistradas: [{
+          id: 'serie-x', sessaoExercicioId: 'se-not-mine', tipoSerie: 'valida', ordem: 1,
+          cargaKg: 80, repeticoes: 8, duracaoSegundos: null, distanciaMetros: null,
+          intensidade: null, observacao: null,
+          createdAt: '2026-06-14T10:00:00.000Z', updatedAt: '2026-06-14T10:00:00.000Z', deletedAt: null,
+        }],
+      },
+    });
+
+    expect(mockPrisma.serieRegistrada.upsert).not.toHaveBeenCalled();
+    expect(typeof result.newCursor).toBe('string');
   });
 
   it('pulls server changes filtered by the since cursor and maps the 5b fields', async () => {

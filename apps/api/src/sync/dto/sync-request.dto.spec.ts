@@ -1,9 +1,10 @@
-import { ValidationPipe, BadRequestException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { SyncRequestDto } from './sync-request.dto';
 import { SyncController } from '../sync.controller';
+import { buildValidationPipe } from '../../validation';
 
-// Same configuration as main.ts — this is what the running API applies to @Body()
-const pipe = new ValidationPipe({ whitelist: true, transform: true });
+// O MESMO pipe do main.ts — é o que a API aplica ao @Body() em produção.
+const pipe = buildValidationPipe();
 const asBody = (value: unknown) =>
   pipe.transform(value, { type: 'body', metatype: SyncRequestDto });
 
@@ -81,20 +82,20 @@ describe('SyncRequestDto validation', () => {
     );
   });
 
-  it('strips unknown keys from rows (whitelist)', async () => {
+  it('rejects rows carrying server-managed fields (forbidNonWhitelisted)', async () => {
     const now = '2026-07-07T10:00:00.000Z';
-    const result = await asBody({
-      since: null,
-      changes: {
-        ...emptyChanges(),
-        treinos: [{
-          id: 't1', name: 'Peito', objetivo: null, createdAt: now, updatedAt: now,
-          deletedAt: null, dirty: true, serverUpdatedAt: now, userId: 'attacker',
-        }],
-      },
-    });
-    expect(result.changes.treinos[0]).not.toHaveProperty('userId');
-    expect(result.changes.treinos[0]).not.toHaveProperty('serverUpdatedAt');
+    await expect(
+      asBody({
+        since: null,
+        changes: {
+          ...emptyChanges(),
+          treinos: [{
+            id: 't1', name: 'Peito', objetivo: null, createdAt: now, updatedAt: now,
+            deletedAt: null, dirty: true, serverUpdatedAt: now, userId: 'attacker',
+          }],
+        },
+      }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('is the metatype of the controller @Body param (route actually validates)', () => {

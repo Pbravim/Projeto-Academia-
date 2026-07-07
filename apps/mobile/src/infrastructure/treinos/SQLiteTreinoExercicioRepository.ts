@@ -71,6 +71,22 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     return row?.count ?? 0;
   }
 
+  async maxOrdemByTreinoId(treinoId: string): Promise<number> {
+    const row = await this.database.getFirst<{ max: number | null }>(
+      'SELECT MAX(ordem) as max FROM treino_exercicios WHERE treino_id = ?',
+      [treinoId]
+    );
+    return row?.max ?? 0;
+  }
+
+  async findTombstonedId(treinoId: string, exercicioId: string): Promise<string | null> {
+    const row = await this.database.getFirst<{ id: string }>(
+      'SELECT id FROM treino_exercicios WHERE treino_id = ? AND exercicio_id = ? AND deleted_at IS NOT NULL LIMIT 1',
+      [treinoId, exercicioId]
+    );
+    return row?.id ?? null;
+  }
+
   async countAllByTreino(): Promise<Record<string, number>> {
     const rows = await this.database.getAll<{ treino_id: string; count: number }>(
       'SELECT treino_id, COUNT(*) as count FROM treino_exercicios WHERE deleted_at IS NULL GROUP BY treino_id',

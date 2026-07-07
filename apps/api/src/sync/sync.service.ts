@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { SyncRequest, SyncResponse, SyncChanges } from '@academia/contracts';
 
@@ -11,7 +11,21 @@ const CURSOR_SAFETY_MARGIN_MS = 10_000;
 
 @Injectable()
 export class SyncService {
+  private readonly logger = new Logger(SyncService.name);
+
   constructor(private readonly prisma: PrismaService) {}
+
+  // Uma linha rejeitada (id colidindo com linha de outro usuário, pai não
+  // possuído) é PULADA com log em vez de abortar a transação: um throw aqui
+  // envenenava a conta — o dirty nunca limpava no mobile e todo sync futuro
+  // falhava com o mesmo erro, sem remédio na UI.
+  private skip(table: string, userId: string, ids: Iterable<string>) {
+    const list = [...ids];
+    if (list.length === 0) return;
+    this.logger.warn(
+      `sync: skipping ${list.length} ${table} row(s) not owned by user ${userId}: ${list.join(', ')}`,
+    );
+  }
 
   async sync(userId: string, req: SyncRequest): Promise<SyncResponse> {
     const sinceDate = req.since ? new Date(req.since) : null;
@@ -76,13 +90,15 @@ export class SyncService {
     const globalCatalogueIds = new Set(
       allCustomInDb.filter((r: any) => r.userId === null).map((r: any) => r.id),
     );
-    const allCustomInDbIds = new Set(allCustomInDb.map((r: any) => r.id));
+    const allCustomInDbIds = new Set<string>(allCustomInDb.map((r: any) => r.id as string));
     const ownedCustomIds = new Set(existing.map((r: any) => r.id));
-    for (const id of allCustomInDbIds) {
-      if (!ownedCustomIds.has(id)) throw new ForbiddenException();
-    }
+    const rejected = new Set<string>(
+      [...allCustomInDbIds].filter((id) => !ownedCustomIds.has(id)),
+    );
+    this.skip('exercise', userId, rejected);
 
     for (const row of customRows) {
+      if (rejected.has(row.id)) continue;
       // Skip any row that resolves to a global catalogue entry (extra safety net)
       if (globalCatalogueIds.has(row.id)) continue;
 
@@ -132,18 +148,19 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
 
-    // Check if any incoming id belongs to a different user
+    // Skip incoming ids that belong to a different user
     const allInDb = rows.length === 0 ? [] : await tx.treino.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true },
     });
-    const allInDbIds = new Set(allInDb.map((r: any) => r.id));
     const ownedIds = new Set(existing.map((r: any) => r.id));
-    for (const id of allInDbIds) {
-      if (!ownedIds.has(id)) throw new ForbiddenException();
-    }
+    const rejected = new Set<string>(
+      allInDb.map((r: any) => r.id).filter((id: string) => !ownedIds.has(id)),
+    );
+    this.skip('treino', userId, rejected);
 
     for (const row of rows) {
+      if (rejected.has(row.id)) continue;
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.treino.upsert({
         where: { id: row.id },
@@ -170,18 +187,20 @@ export class SyncService {
       select: { id: true },
     });
     const ownedTreinoIds = new Set(ownedTreinos.map((t: any) => t.id));
+    const rejected = new Set<string>();
     for (const row of rows) {
-      if (!ownedTreinoIds.has(row.treinoId)) throw new ForbiddenException();
+      if (!ownedTreinoIds.has(row.treinoId)) rejected.add(row.id);
     }
 
-    // Verify existing rows with these IDs are also under owned treinos
+    // Rows whose existing DB record sits under a treino of another user are also skipped
     const existingRows = rows.length === 0 ? [] : await tx.treinoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, treinoId: true },
     });
     for (const existing of existingRows) {
-      if (!ownedTreinoIds.has(existing.treinoId)) throw new ForbiddenException();
+      if (!ownedTreinoIds.has(existing.treinoId)) rejected.add(existing.id);
     }
+    this.skip('treinoExercicio', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.treinoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -191,6 +210,7 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
     for (const row of rows) {
+      if (rejected.has(row.id)) continue;
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.treinoExercicio.upsert({
         where: { id: row.id },
@@ -231,18 +251,19 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
 
-    // Check if any incoming id belongs to a different user
+    // Skip incoming ids that belong to a different user
     const allInDb = rows.length === 0 ? [] : await tx.sessaoTreino.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true },
     });
-    const allInDbIds = new Set(allInDb.map((r: any) => r.id));
     const ownedIds = new Set(existing.map((r: any) => r.id));
-    for (const id of allInDbIds) {
-      if (!ownedIds.has(id)) throw new ForbiddenException();
-    }
+    const rejected = new Set<string>(
+      allInDb.map((r: any) => r.id).filter((id: string) => !ownedIds.has(id)),
+    );
+    this.skip('sessaoTreino', userId, rejected);
 
     for (const row of rows) {
+      if (rejected.has(row.id)) continue;
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.sessaoTreino.upsert({
         where: { id: row.id },
@@ -273,18 +294,20 @@ export class SyncService {
       select: { id: true },
     });
     const ownedSessaoIds = new Set(ownedSessoes.map((s: any) => s.id));
+    const rejected = new Set<string>();
     for (const row of rows) {
-      if (!ownedSessaoIds.has(row.sessaoTreinoId)) throw new ForbiddenException();
+      if (!ownedSessaoIds.has(row.sessaoTreinoId)) rejected.add(row.id);
     }
 
-    // Verify existing rows with these IDs are also under owned sessaoTreinos
+    // Rows whose existing DB record sits under another user's sessaoTreino are also skipped
     const existingRowsCheck = rows.length === 0 ? [] : await tx.sessaoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, sessaoTreinoId: true },
     });
     for (const existing of existingRowsCheck) {
-      if (!ownedSessaoIds.has(existing.sessaoTreinoId)) throw new ForbiddenException();
+      if (!ownedSessaoIds.has(existing.sessaoTreinoId)) rejected.add(existing.id);
     }
+    this.skip('sessaoExercicio', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.sessaoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -294,6 +317,7 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
     for (const row of rows) {
+      if (rejected.has(row.id)) continue;
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.sessaoExercicio.upsert({
         where: { id: row.id },
@@ -341,18 +365,20 @@ export class SyncService {
       select: { id: true },
     });
     const ownedSessaoExercicioIds = new Set(ownedSessaoExercicios.map((s: any) => s.id));
+    const rejected = new Set<string>();
     for (const row of rows) {
-      if (!ownedSessaoExercicioIds.has(row.sessaoExercicioId)) throw new ForbiddenException();
+      if (!ownedSessaoExercicioIds.has(row.sessaoExercicioId)) rejected.add(row.id);
     }
 
-    // Verify existing rows with these IDs are also under owned sessaoExercicios
+    // Rows whose existing DB record sits under another user's sessaoExercicio are also skipped
     const existingRowsCheck = rows.length === 0 ? [] : await tx.serieRegistrada.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true, sessaoExercicioId: true },
     });
     for (const existing of existingRowsCheck) {
-      if (!ownedSessaoExercicioIds.has(existing.sessaoExercicioId)) throw new ForbiddenException();
+      if (!ownedSessaoExercicioIds.has(existing.sessaoExercicioId)) rejected.add(existing.id);
     }
+    this.skip('serieRegistrada', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.serieRegistrada.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -362,6 +388,7 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
     for (const row of rows) {
+      if (rejected.has(row.id)) continue;
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.serieRegistrada.upsert({
         where: { id: row.id },
@@ -397,18 +424,19 @@ export class SyncService {
       existing.map((r: any) => [r.id, r]),
     );
 
-    // Check if any incoming id belongs to a different user
+    // Skip incoming ids that belong to a different user
     const allInDb = rows.length === 0 ? [] : await tx.registroPeso.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
       select: { id: true },
     });
-    const allInDbIds = new Set(allInDb.map((r: any) => r.id));
     const ownedIds = new Set(existing.map((r: any) => r.id));
-    for (const id of allInDbIds) {
-      if (!ownedIds.has(id)) throw new ForbiddenException();
-    }
+    const rejected = new Set<string>(
+      allInDb.map((r: any) => r.id).filter((id: string) => !ownedIds.has(id)),
+    );
+    this.skip('registroPeso', userId, rejected);
 
     for (const row of rows) {
+      if (rejected.has(row.id)) continue;
       const winner = this.lwwUpdate(row, existingMap.get(row.id));
       await tx.registroPeso.upsert({
         where: { id: row.id },

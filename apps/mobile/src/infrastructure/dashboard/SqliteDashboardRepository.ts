@@ -1,4 +1,5 @@
 import { calcularEstimativa1rm, estimativa1rmSql } from '../../shared/utils/estimativa1rm';
+import { nowIso } from '../../shared/utils/syncStamp';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import type {
   DashboardRepository,
@@ -274,29 +275,40 @@ export class SqliteDashboardRepository implements DashboardRepository {
   }
 
   async arquivarSessao(sessaoId: string): Promise<number> {
-    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 1 WHERE id = ?', [sessaoId]);
+    return this.database.runWithChanges(
+      'UPDATE sessao_treinos SET arquivado = 1, updated_at = ?, dirty = 1 WHERE id = ?',
+      [nowIso(), sessaoId]
+    );
   }
 
   async desarquivarSessao(sessaoId: string): Promise<number> {
-    return this.database.runWithChanges('UPDATE sessao_treinos SET arquivado = 0 WHERE id = ?', [sessaoId]);
+    return this.database.runWithChanges(
+      'UPDATE sessao_treinos SET arquivado = 0, updated_at = ?, dirty = 1 WHERE id = ?',
+      [nowIso(), sessaoId]
+    );
   }
 
   async deletarSessao(sessaoId: string): Promise<void> {
+    // Soft delete (tombstone + dirty), nunca DELETE físico: a sessão já pode ter
+    // sincronizado — sem tombstone o servidor a ressuscita no próximo pull.
+    const now = nowIso();
     await this.database.withTransaction(async () => {
-      const exercicioIds = await this.database.getAll<{ id: string }>(
-        'SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?',
-        [sessaoId]
+      await this.database.run(
+        `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
+         WHERE deleted_at IS NULL AND sessao_exercicio_id IN (
+           SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?
+         )`,
+        [now, now, sessaoId]
       );
-      if (exercicioIds.length > 0) {
-        const placeholders = exercicioIds.map(() => '?').join(',');
-        const ids = exercicioIds.map((r) => r.id);
-        await this.database.run(
-          `DELETE FROM series_registradas WHERE sessao_exercicio_id IN (${placeholders})`,
-          ids
-        );
-      }
-      await this.database.run('DELETE FROM sessao_exercicios WHERE sessao_treino_id = ?', [sessaoId]);
-      await this.database.run('DELETE FROM sessao_treinos WHERE id = ?', [sessaoId]);
+      await this.database.run(
+        `UPDATE sessao_exercicios SET deleted_at = ?, updated_at = ?, dirty = 1
+         WHERE deleted_at IS NULL AND sessao_treino_id = ?`,
+        [now, now, sessaoId]
+      );
+      await this.database.run(
+        `UPDATE sessao_treinos SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?`,
+        [now, now, sessaoId]
+      );
     });
   }
 

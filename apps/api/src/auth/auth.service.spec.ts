@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -42,9 +42,14 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('throws ConflictException if email already exists', async () => {
+    it('responds with a generic 400 for duplicate email (no account enumeration)', async () => {
       mockUsers.findByEmail.mockResolvedValueOnce({ id: '1', email: 'a@b.com' });
-      await expect(service.register('a@b.com', 'pass')).rejects.toThrow(ConflictException);
+
+      // 409 "Email already in use" confirmava a existência da conta (enumeração).
+      const error = await service.register('a@b.com', 'pass').catch((e) => e);
+      expect(error).toBeInstanceOf(BadRequestException);
+      expect(String(error.message).toLowerCase()).not.toContain('email');
+      expect(String(error.message).toLowerCase()).not.toContain('use');
       expect(mockUsers.create).not.toHaveBeenCalled();
     });
 
