@@ -32,30 +32,34 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
   constructor(private readonly database: SQLiteDatabaseClient) {}
 
   async getUltimasExecucoesValidas(): Promise<Map<string, UltimaExecucaoValida>> {
+    // Uma única janela por exercício: sessão mais recente primeiro (id como
+    // tiebreak de empate de data_hora_fim), e dentro dela a série válida de
+    // maior 1RM estimado. O antigo GROUP BY com MAX(data_hora_fim) × MAX(id)
+    // independentes fazia o exercício sumir quando a sessão mais recente não
+    // tinha o maior id lexicográfico (P0.5, rodada 3).
     const rows = await this.database.getAll<{ exercicio_id: string; carga_kg: number; repeticoes: number; data_hora_fim: string }>(
-      `SELECT se.exercicio_id, sr.carga_kg, sr.repeticoes, st.data_hora_fim
-       FROM (
-         SELECT se2.exercicio_id, MAX(st2.data_hora_fim) AS max_fim, MAX(st2.id) AS max_id
-         FROM sessao_exercicios se2
-         JOIN sessao_treinos st2 ON se2.sessao_treino_id = st2.id
-         WHERE st2.status = 'finalizada' AND st2.data_hora_fim IS NOT NULL AND st2.deleted_at IS NULL AND se2.deleted_at IS NULL
-         GROUP BY se2.exercicio_id
-       ) latest
-       JOIN sessao_exercicios se ON se.exercicio_id = latest.exercicio_id AND se.deleted_at IS NULL
-       JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.data_hora_fim = latest.max_fim AND st.id = latest.max_id AND st.deleted_at IS NULL
-       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
-       ORDER BY se.exercicio_id, ${estimativa1rmSql()} DESC`
+      `SELECT exercicio_id, carga_kg, repeticoes, data_hora_fim FROM (
+         SELECT se.exercicio_id, sr.carga_kg, sr.repeticoes, st.data_hora_fim,
+                ROW_NUMBER() OVER (
+                  PARTITION BY se.exercicio_id
+                  ORDER BY st.data_hora_fim DESC, st.id DESC, ${estimativa1rmSql()} DESC
+                ) AS rn
+         FROM sessao_exercicios se
+         JOIN sessao_treinos st ON se.sessao_treino_id = st.id
+           AND st.status = 'finalizada' AND st.data_hora_fim IS NOT NULL AND st.deleted_at IS NULL
+         JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
+           AND sr.deleted_at IS NULL AND sr.tipo_serie = 'valida'
+         WHERE se.deleted_at IS NULL
+       ) WHERE rn = 1`
     );
 
     const result = new Map<string, UltimaExecucaoValida>();
     for (const row of rows) {
-      if (!result.has(row.exercicio_id)) {
-        result.set(row.exercicio_id, {
-          cargaKg: row.carga_kg,
-          repeticoes: row.repeticoes,
-          dataExecucao: row.data_hora_fim,
-        });
-      }
+      result.set(row.exercicio_id, {
+        cargaKg: row.carga_kg,
+        repeticoes: row.repeticoes,
+        dataExecucao: row.data_hora_fim,
+      });
     }
     return result;
   }
@@ -67,6 +71,7 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
        INNER JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id AND se.deleted_at IS NULL
        INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
        WHERE se.exercicio_id = ? AND st.status = 'finalizada' AND sr.deleted_at IS NULL
+         AND sr.tipo_serie = 'valida'
        ORDER BY st.data_hora_fim DESC, ${estimativa1rmSql()} DESC
        LIMIT 1`,
       [exercicioId]

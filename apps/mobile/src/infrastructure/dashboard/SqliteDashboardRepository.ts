@@ -12,12 +12,21 @@ import type {
   TreinoComUltimaSessao,
 } from '../../domain/dashboard/repositories/DashboardRepository';
 
+/**
+ * Chave de data no fuso LOCAL do device (YYYY-MM-DD). O banco guarda ISO-UTC;
+ * bucketar por dia UTC jogava treino das 21h+ (BRT) no dia seguinte — as
+ * queries usam date(..., 'localtime') e as chaves JS este helper (P1-A, rodada 3).
+ */
+function localDateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function getMondayOfWeek(date: Date): string {
   const d = new Date(date);
   d.setHours(12, 0, 0, 0);
   const day = d.getDay();
   d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
-  return d.toISOString().split('T')[0]!;
+  return localDateKey(d);
 }
 
 export class SqliteDashboardRepository implements DashboardRepository {
@@ -25,7 +34,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
 
   async getStats(): Promise<DashboardStats> {
     const now = new Date();
-    const todayKey = now.toISOString().split('T')[0]!;
+    const todayKey = localDateKey(now);
     const year = now.getFullYear();
     const month = now.getMonth();
 
@@ -33,7 +42,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
     const mondayDate = new Date(monday + 'T12:00:00');
     const sundayDate = new Date(mondayDate);
     sundayDate.setDate(sundayDate.getDate() + 6);
-    const sundayKey = sundayDate.toISOString().split('T')[0]!;
+    const sundayKey = localDateKey(sundayDate);
 
     const firstOfMonth = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -85,7 +94,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
          JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id AND se.deleted_at IS NULL
          JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
          JOIN exercises e ON se.exercicio_id = e.id AND e.deleted_at IS NULL
-         WHERE st.arquivado = 0 AND sr.deleted_at IS NULL
+         WHERE st.status = 'finalizada' AND st.arquivado = 0 AND sr.deleted_at IS NULL
            AND sr.carga_kg IS NOT NULL AND sr.repeticoes IS NOT NULL
          GROUP BY se.exercicio_id
          ORDER BY melhor_orm DESC
@@ -96,23 +105,23 @@ export class SqliteDashboardRepository implements DashboardRepository {
         [new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()]
       ),
       this.database.getAll<{ dia: string; total: number }>(
-        `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
+        `SELECT date(data_hora_inicio, 'localtime') AS dia, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND date(data_hora_inicio, 'localtime') >= ? AND date(data_hora_inicio, 'localtime') <= ?
          GROUP BY dia`,
         [monday, sundayKey]
       ),
       this.database.getAll<{ dia: string; total: number }>(
-        `SELECT date(data_hora_inicio) AS dia, COUNT(*) AS total
+        `SELECT date(data_hora_inicio, 'localtime') AS dia, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND date(data_hora_inicio) >= ? AND date(data_hora_inicio) <= ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND date(data_hora_inicio, 'localtime') >= ? AND date(data_hora_inicio, 'localtime') <= ?
          GROUP BY dia`,
         [firstOfMonth, lastOfMonth]
       ),
       this.database.getAll<{ mes: string; total: number }>(
-        `SELECT strftime('%Y-%m', data_hora_inicio) AS mes, COUNT(*) AS total
+        `SELECT strftime('%Y-%m', data_hora_inicio, 'localtime') AS mes, COUNT(*) AS total
          FROM sessao_treinos
-         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND strftime('%Y', data_hora_inicio) = ?
+         WHERE status = 'finalizada' AND arquivado = 0 AND deleted_at IS NULL AND strftime('%Y', data_hora_inicio, 'localtime') = ?
          GROUP BY mes`,
         [yearStr]
       ),
@@ -161,7 +170,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
     for (let i = 0; i < 7; i++) {
       const d = new Date(mondayDate);
       d.setDate(d.getDate() + i);
-      const key = d.toISOString().split('T')[0]!;
+      const key = localDateKey(d);
       aderenciaSemanal.push({ label: DIAS_PT[i]!, totalSessoes: weekMap.get(key) ?? 0, isToday: key === todayKey });
     }
 

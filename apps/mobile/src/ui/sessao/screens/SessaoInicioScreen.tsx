@@ -18,8 +18,11 @@ interface Props {
 
 function labelUltimaSessao(ultimaSessao: string | null, t: ReturnType<typeof useT>): string {
   if (!ultimaSessao) return t('sessao.inicio.nuncaFeito');
-  const dias = Math.floor((Date.now() - new Date(ultimaSessao).getTime()) / 86_400_000);
-  if (dias === 0) return t('sessao.inicio.hoje');
+  // Dias-calendário LOCAIS, não floor de 24h: treino ontem às 22h visto hoje
+  // às 8h é "Ontem" (floor dava 0 → "Hoje").
+  const inicioDoDia = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const dias = Math.round((inicioDoDia(new Date()) - inicioDoDia(new Date(ultimaSessao))) / 86_400_000);
+  if (dias <= 0) return t('sessao.inicio.hoje');
   if (dias === 1) return t('sessao.inicio.ontem');
   return t('sessao.inicio.haDias', { count: dias });
 }
