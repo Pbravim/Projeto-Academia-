@@ -1,5 +1,11 @@
 # Auditoria de Performance & Tech Debt — 2026-07-06
 
+> **Status (mesmo dia, commits b6b077e/ea3cb86/bdc15be):** corrigidos #1 (sessão incremental),
+> #2 parcial (useCallback/useMemo preservam o memo das sections; conversão a SectionList adiada —
+> seções colapsadas limitam o ganho restante), #3 (transação no seeding), #5 (filtro CSV),
+> #6 parcial (transação no apply do sync; retry/backoff/NetInfo pendentes), #8 (Reordenar wiring).
+> #4 (GIFs → CDN) adiado por decisão do usuário (depende de hospedagem).
+
 3 varreduras paralelas (runtime, código, arquitetura/dados) sobre apps/mobile + apps/api.
 Higiene geral ACIMA da média: zero casts inseguros em produção, 1 TODO real, tracker ativo.
 
