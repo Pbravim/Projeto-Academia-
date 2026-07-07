@@ -168,6 +168,8 @@ export const ptBR = {
     },
     timer: {
       pular: 'Pular descanso',
+      notifTitle: 'Descanso concluído 💪',
+      notifBody: 'Hora da próxima série de %{nome}!',
     },
     errors: {
       load: 'Não foi possível carregar a sessão.',

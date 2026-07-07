@@ -3,6 +3,7 @@ import { AppState, Pressable, StyleSheet, Text, Vibration, View } from 'react-na
 
 import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { cancelRestEndNotification, scheduleRestEndNotification } from '../restTimerNotification';
 
 interface Props {
   nome: string;
@@ -42,10 +43,28 @@ export function RestTimerBanner({ nome, total, runId, minimized, onToggleMinimiz
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') compute();
     });
+
+    // Notificação local no fim do descanso — aparece na lockscreen/home com
+    // som e vibração do sistema quando o app está em background; em foreground
+    // o handler a suprime (o banner in-app cobre). Skip/novo descanso cancela.
+    let notifId: string | null = null;
+    let cancelled = false;
+    void scheduleRestEndNotification(
+      t('sessao.timer.notifTitle'),
+      t('sessao.timer.notifBody', { nome }),
+      total,
+    ).then((id) => {
+      if (cancelled) void cancelRestEndNotification(id);
+      else notifId = id;
+    });
+
     return () => {
       clearInterval(interval);
       sub.remove();
+      cancelled = true;
+      void cancelRestEndNotification(notifId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- t/nome só afetam o texto da notificação
   }, [total, runId]);
 
   useEffect(() => {
