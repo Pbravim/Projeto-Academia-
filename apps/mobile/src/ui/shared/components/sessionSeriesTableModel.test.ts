@@ -23,6 +23,10 @@ describe('formatCarga', () => {
   it('preserva duas casas decimais quando necessario', () => {
     expect(formatCarga(81.25)).toBe('81,25');
   });
+  it('decimal com PONTO em en-US (P2-7: virgula era hardcoded)', () => {
+    expect(formatCarga(82.5, 'en-US')).toBe('82.5');
+    expect(formatCarga(81.25, 'en-US')).toBe('81.25');
+  });
 });
 
 describe('formatVolume', () => {
@@ -31,6 +35,9 @@ describe('formatVolume', () => {
   });
   it('a partir de 1000 kg mostra em toneladas com virgula', () => {
     expect(formatVolume(2400)).toBe('2,4 t');
+  });
+  it('toneladas com PONTO em en-US', () => {
+    expect(formatVolume(2400, 'en-US')).toBe('2.4 t');
   });
 });
 

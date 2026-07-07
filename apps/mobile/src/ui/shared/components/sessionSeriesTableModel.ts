@@ -1,5 +1,6 @@
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
 import { translate, type AppLocale } from '../i18n/core';
+import { formatFixedDecimal } from '../i18n/formatters';
 
 export interface SessionTableInputSet {
   cargaKg: number;
@@ -36,15 +37,15 @@ export interface SessionTableRowVM {
   isLatest: boolean;
 }
 
-export function formatCarga(kg: number): string {
+export function formatCarga(kg: number, locale: AppLocale = 'pt-BR'): string {
   if (kg % 1 === 0) return String(kg);
   const oneDecimal = Math.round(kg * 10) / 10;
-  return (oneDecimal === kg ? kg.toFixed(1) : kg.toFixed(2)).replace('.', ',');
+  return formatFixedDecimal(kg, locale, oneDecimal === kg ? 1 : 2);
 }
 
-export function formatVolume(kg: number): string {
-  if (kg >= 1000) return `${(kg / 1000).toFixed(1).replace('.', ',')} t`;
-  return `${formatCarga(kg)} kg`;
+export function formatVolume(kg: number, locale: AppLocale = 'pt-BR'): string {
+  if (kg >= 1000) return `${formatFixedDecimal(kg / 1000, locale, 1)} t`;
+  return `${formatCarga(kg, locale)} kg`;
 }
 
 export function formatKgDelta(
@@ -53,8 +54,8 @@ export function formatKgDelta(
   locale: AppLocale = 'pt-BR',
 ): { direction: 'up' | 'down' | 'flat'; label: string } {
   const diff = Math.round((last - first) * 10) / 10;
-  if (diff > 0) return { direction: 'up', label: translate(locale, 'sessionSeriesTable.deltaUp', { value: formatCarga(diff) }) };
-  if (diff < 0) return { direction: 'down', label: translate(locale, 'sessionSeriesTable.deltaDown', { value: formatCarga(Math.abs(diff)) }) };
+  if (diff > 0) return { direction: 'up', label: translate(locale, 'sessionSeriesTable.deltaUp', { value: formatCarga(diff, locale) }) };
+  if (diff < 0) return { direction: 'down', label: translate(locale, 'sessionSeriesTable.deltaDown', { value: formatCarga(Math.abs(diff), locale) }) };
   return { direction: 'flat', label: translate(locale, 'sessionSeriesTable.deltaFlat') };
 }
 
@@ -82,7 +83,7 @@ export function buildSessionTableRows(
         calcularEstimativa1rm(x.cargaKg, x.repeticoes) === best;
       if (isBest) bestMarked = true;
       return {
-        cargaLabel: formatCarga(x.cargaKg),
+        cargaLabel: formatCarga(x.cargaKg, locale),
         repsLabel: String(x.repeticoes),
         isBest,
         muted: x.muted ?? false,
@@ -102,8 +103,8 @@ export function buildSessionTableRows(
       subLabel: s.subLabel ?? null,
       sets,
       setsCountLabel: valid.length > 0 ? translate(locale, 'common.seriesCount', { count: valid.length }) : null,
-      ormLabel: best > 0 ? `1RM ~${formatCarga(Math.round(best * 10) / 10)}` : null,
-      volumeLabel: valid.length > 0 ? formatVolume(volume) : null,
+      ormLabel: best > 0 ? `1RM ~${formatCarga(Math.round(best * 10) / 10, locale)}` : null,
+      volumeLabel: valid.length > 0 ? formatVolume(volume, locale) : null,
       trend,
       isLatest: i === 0,
     };

@@ -42,6 +42,17 @@ describe('buildPesoViewModel', () => {
     });
   });
 
+  describe('delta zero (P2-9: exibia "-0 kg")', () => {
+    it('dois registros iguais mostram delta neutro "0 kg"', () => {
+      const vm = buildPesoViewModel([
+        reg('r2', 80, '2026-05-02T10:00:00.000Z'),
+        reg('r1', 80, '2026-05-01T10:00:00.000Z'),
+      ]);
+      expect(vm.cards[0].delta).toBe('0 kg');
+      expect(vm.cards[0].pesoAumentou).toBe(false);
+    });
+  });
+
   describe('multiplos registros (lista ja ordenada DESC)', () => {
     it('calcula delta positivo entre registros consecutivos', () => {
       const vm = buildPesoViewModel([

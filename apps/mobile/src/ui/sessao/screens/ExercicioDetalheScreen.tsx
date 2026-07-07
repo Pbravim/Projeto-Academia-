@@ -172,6 +172,9 @@ export function ExercicioDetalheScreen({
   const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
   const [editKg, setEditKg] = useState(0);
   const [editReps, setEditReps] = useState(0);
+  // Carga fora da grade de 2.5kg (ex.: halter de 6kg): o carrossel arredondaria
+  // e o toque salvaria o valor errado — nesse caso o editor usa input de texto.
+  const [editKgText, setEditKgText] = useState<string | null>(null);
 
   // Melhor serie (maior 1RM estimado) — so destaca com 2+ series comparaveis.
   const bestSerieId = useMemo(() => {
@@ -1110,12 +1113,26 @@ export function ExercicioDetalheScreen({
                     <View style={styles.textModeRow}>
                       <View style={styles.pickerCol}>
                         <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
-                        <PickerCarousel
-                          count={KG_VALUES.length}
-                          selectedIndex={kgIndexFor(editKg)}
-                          onChangeIndex={(i) => setEditKg(KG_VALUES[i])}
-                          formatItem={formatKgItem}
-                        />
+                        {editKgText !== null ? (
+                          <TextInput
+                            style={styles.cargaInput}
+                            value={editKgText}
+                            onChangeText={(text) => {
+                              setEditKgText(text);
+                              const num = parseDecimalInput(text);
+                              if (num != null && Number.isFinite(num) && num >= 0) setEditKg(num);
+                            }}
+                            keyboardType="decimal-pad"
+                            textAlign="center"
+                          />
+                        ) : (
+                          <PickerCarousel
+                            count={KG_VALUES.length}
+                            selectedIndex={kgIndexFor(editKg)}
+                            onChangeIndex={(i) => setEditKg(KG_VALUES[i])}
+                            formatItem={formatKgItem}
+                          />
+                        )}
                       </View>
                       <View style={styles.pickerCol}>
                         <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
@@ -1162,6 +1179,8 @@ export function ExercicioDetalheScreen({
                         setEditingSerieId(serie.id);
                         setEditKg(serie.cargaKg);
                         setEditReps(serie.repeticoes);
+                        // Fora da grade do carrossel → editor abre em modo texto com o valor exato.
+                        setEditKgText(serie.cargaKg % 2.5 !== 0 ? String(serie.cargaKg) : null);
                       }
                     }}
                   >

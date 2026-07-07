@@ -133,7 +133,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
           {!expanded && !(temDados && ormValues.length >= 2) ? (
             <Text style={styles.collapsedHint}>
               {temDados && ultima
-                ? t('dashboard.evolucao.collapsedHintComDados', { orm: formatCarga(ultima.melhorOrm), count: sessoes.length })
+                ? t('dashboard.evolucao.collapsedHintComDados', { orm: formatCarga(ultima.melhorOrm, locale), count: sessoes.length })
                 : t('dashboard.common.sessoesCount', { count: sessoes.length })}
             </Text>
           ) : null}
@@ -175,7 +175,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
                     </View>
                   ) : null}
                 </View>
-                <Text style={styles.summaryValue}>{formatCarga(windowBest)} kg</Text>
+                <Text style={styles.summaryValue}>{formatCarga(windowBest, locale)} kg</Text>
               </View>
               {ormDiff !== null ? (
                 <View style={styles.summaryItem}>
@@ -186,7 +186,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
                       ormDiff > 0 ? styles.diffUp : ormDiff < 0 ? styles.diffDown : styles.diffEqual,
                     ]}
                   >
-                    {ormDiff > 0 ? `+${formatCarga(ormDiff)}` : ormDiff < 0 ? `−${formatCarga(Math.abs(ormDiff))}` : formatCarga(0)} kg
+                    {ormDiff > 0 ? `+${formatCarga(ormDiff, locale)}` : ormDiff < 0 ? `−${formatCarga(Math.abs(ormDiff), locale)}` : formatCarga(0, locale)} kg
                   </Text>
                 </View>
               ) : null}

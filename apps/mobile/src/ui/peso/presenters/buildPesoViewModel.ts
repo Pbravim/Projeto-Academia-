@@ -62,6 +62,7 @@ export function buildPesoViewModel(registros: RegistroPesoPrimitives[], locale: 
 }
 
 function formatDelta(delta: number): string {
+  if (delta === 0) return '0 kg'; // zero é neutro — "-0 kg" lia como queda
   const abs = Math.abs(delta);
   const formatted = Number.isInteger(abs) ? `${abs}` : abs.toFixed(1);
   return delta > 0 ? `+${formatted} kg` : `-${formatted} kg`;

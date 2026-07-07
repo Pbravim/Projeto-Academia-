@@ -78,8 +78,8 @@ export class SqliteDashboardRepository implements DashboardRepository {
            st.data_hora_inicio,
            st.data_hora_fim,
            st.arquivado,
-           COALESCE(SUM(sr.carga_kg * sr.repeticoes), 0) AS volume_total,
-           COALESCE(MAX(${estimativa1rmSql()}), 0) AS melhor_orm
+           COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes END), 0) AS volume_total,
+           COALESCE(MAX(CASE WHEN sr.tipo_serie = 'valida' THEN ${estimativa1rmSql()} END), 0) AS melhor_orm
          FROM sessao_treinos st
          LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id AND se.deleted_at IS NULL
          LEFT JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
@@ -96,6 +96,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
          JOIN sessao_treinos st ON se.sessao_treino_id = st.id AND st.deleted_at IS NULL
          JOIN exercises e ON se.exercicio_id = e.id AND e.deleted_at IS NULL
          WHERE st.status = 'finalizada' AND st.arquivado = 0 AND sr.deleted_at IS NULL
+           AND sr.tipo_serie = 'valida'
            AND sr.carga_kg IS NOT NULL AND sr.repeticoes IS NOT NULL
          GROUP BY se.exercicio_id
          ORDER BY melhor_orm DESC
@@ -226,6 +227,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
        JOIN series_registradas sr
          ON sr.sessao_exercicio_id = se.id AND sr.deleted_at IS NULL
        WHERE st.treino_id = ? AND st.status = 'finalizada' AND st.arquivado = 0 AND st.deleted_at IS NULL
+         AND sr.tipo_serie = 'valida'
          AND sr.carga_kg IS NOT NULL AND sr.repeticoes IS NOT NULL
        ORDER BY se.nome_snapshot ASC, st.data_hora_inicio DESC, sr.ordem ASC`,
       [treinoId]
