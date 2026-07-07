@@ -655,15 +655,6 @@ export function PerfilScreen({
   );
 }
 
-function PesoLineChart({ points }: { points: LineChartPoint[] }) {
-  return (
-    <LineChart
-      points={points}
-      formatValue={(v) => `${v % 1 === 0 ? String(v) : v.toFixed(1)} kg`}
-    />
-  );
-}
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 function makeStyles(c: ReturnType<typeof useTheme>) {

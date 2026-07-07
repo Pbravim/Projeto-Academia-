@@ -236,8 +236,10 @@ export function useExerciseCatalogController(
             const destFile = new File(Paths.document, 'exercises', `${created.id}.${ext}`);
             srcFile.move(destFile);
             await dependencies.exerciseRepository.updateMedia(created.id, created.mediaOnline, destFile.uri);
-          } catch {
-            // Falha silenciosa — o arquivo tmp ainda funciona enquanto existir
+          } catch (error) {
+            // Não bloqueia a criação, mas o caminho tmp_ pode ser limpo pelo SO
+            // e a mídia sumir — precisa ficar visível no log.
+            dependencies.logger.error('exercise_catalog.move_media_failed', error, { id: created.id });
           }
         }
 

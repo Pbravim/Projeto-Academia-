@@ -119,7 +119,7 @@ import { generateId } from '../shared/utils/generateId';
 import { databaseClient } from './databaseClient';
 import { API_BASE_URL } from '../config/apiConfig';
 import { AuthApiClient } from '../infrastructure/auth/AuthApiClient';
-import { SettingsTokenStore } from '../infrastructure/auth/SettingsTokenStore';
+import { SecureTokenStore } from '../infrastructure/auth/SecureTokenStore';
 import { AuthSession } from '../application/auth/AuthSession';
 import { SyncApiClient } from '../infrastructure/sync/SyncApiClient';
 import { SyncEngine } from '../infrastructure/sync/SyncEngine';
@@ -184,7 +184,8 @@ const dashboardRepository = new SqliteDashboardRepository(databaseClient);
 // --- Backup & sync (opt-in, offline-first) ---
 const authSession = new AuthSession(
   new AuthApiClient(API_BASE_URL),
-  new SettingsTokenStore(databaseClient),
+  // Keychain/keystore; migra a sessão legada da tabela settings na 1ª leitura.
+  new SecureTokenStore(databaseClient),
 );
 const syncEngine = new SyncEngine(
   new SyncApiClient(API_BASE_URL, () => authSession.getAccessToken()),

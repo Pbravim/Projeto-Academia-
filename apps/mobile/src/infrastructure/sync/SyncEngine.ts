@@ -30,6 +30,20 @@ interface TransactionRunner {
   withTransaction<T>(fn: () => Promise<T>): Promise<T>;
 }
 
+interface RetryPolicy {
+  attempts: number;
+  baseDelayMs: number;
+}
+
+const DEFAULT_RETRY: RetryPolicy = { attempts: 3, baseDelayMs: 1000 };
+
+/** Transitório = rede fora (fetch lança TypeError) ou erro 5xx do servidor. */
+function isTransient(err: unknown): boolean {
+  if (err instanceof TypeError) return true;
+  const status = (err as { status?: number }).status;
+  return typeof status === 'number' && status >= 500;
+}
+
 export class SyncEngine {
   constructor(
     private readonly client: SyncClient,
@@ -42,7 +56,19 @@ export class SyncEngine {
     private readonly serieRepo: SyncableRepo<SerieRegistradaSyncRow>,
     private readonly pesoRepo: SyncableRepo<RegistroPesoSyncRow>,
     private readonly database?: TransactionRunner,
+    private readonly retry: RetryPolicy = DEFAULT_RETRY,
   ) {}
+
+  private async syncWithRetry(request: SyncRequest): Promise<SyncResponse> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.client.sync(request);
+      } catch (err) {
+        if (!isTransient(err) || attempt >= this.retry.attempts - 1) throw err;
+        await new Promise((resolve) => setTimeout(resolve, this.retry.baseDelayMs * 2 ** attempt));
+      }
+    }
+  }
 
   async run(): Promise<void> {
     const since = await this.storage.getItem(CURSOR_KEY);
@@ -67,7 +93,7 @@ export class SyncEngine {
 
     let response: SyncResponse;
     try {
-      response = await this.client.sync({
+      response = await this.syncWithRetry({
         since,
         changes: {
           exercises,
@@ -81,7 +107,9 @@ export class SyncEngine {
         },
       });
     } catch (err: unknown) {
-      if (err instanceof TypeError) return; // network offline — silent
+      // Esgotadas as tentativas com backoff: offline continua silencioso
+      // (o auto-sync do foreground tenta de novo depois).
+      if (err instanceof TypeError) return;
       throw err;
     }
 

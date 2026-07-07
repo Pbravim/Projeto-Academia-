@@ -45,6 +45,8 @@ describe('SyncEngine', () => {
       sessaoExercicioRepo,
       serieRepo,
       pesoRepo,
+      undefined,
+      { attempts: 3, baseDelayMs: 0 },
     );
 
   beforeEach(() => {
@@ -127,6 +129,27 @@ describe('SyncEngine', () => {
     );
     const engine = makeEngine();
     await expect(engine.run()).resolves.not.toThrow();
+    // backoff: 3 tentativas antes de desistir em silêncio
+    expect(apiClient.sync).toHaveBeenCalledTimes(3);
+  });
+
+  it('retries transient failures with backoff and succeeds', async () => {
+    const serverResponse: SyncResponse = { serverChanges: emptyChanges(), newCursor: 'c1' };
+    apiClient.sync
+      .mockRejectedValueOnce(new TypeError('Network request failed'))
+      .mockRejectedValueOnce(Object.assign(new Error('Sync failed: 503'), { status: 503 }))
+      .mockResolvedValueOnce(serverResponse);
+    const engine = makeEngine();
+    await engine.run();
+    expect(apiClient.sync).toHaveBeenCalledTimes(3);
+    expect(storage.setItem).toHaveBeenCalledWith('@sync/cursor', 'c1');
+  });
+
+  it('does not retry non-transient errors (4xx)', async () => {
+    apiClient.sync.mockRejectedValue(Object.assign(new Error('Unauthorized'), { status: 401 }));
+    const engine = makeEngine();
+    await expect(engine.run()).rejects.toThrow('Unauthorized');
+    expect(apiClient.sync).toHaveBeenCalledTimes(1);
   });
 
   it('re-throws on server error (4xx/5xx)', async () => {

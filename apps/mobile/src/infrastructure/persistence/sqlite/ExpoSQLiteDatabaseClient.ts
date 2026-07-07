@@ -612,6 +612,18 @@ const migrations: string[] = [
    DROP TABLE series_registradas;
    ALTER TABLE series_registradas_new RENAME TO series_registradas;
    CREATE INDEX IF NOT EXISTS idx_series_sessao_exercicio ON series_registradas (sessao_exercicio_id);`,
+
+  // v23: índices parciais em dirty=1 — getDirty() do sync fazia full-scan nas 7
+  // tabelas sincronizadas a cada sync; o índice parcial fica minúsculo (só linhas
+  // pendentes de envio). deleted_at NÃO indexado: quase toda linha é NULL, o
+  // índice teria o tamanho da tabela sem ganho de seletividade.
+  `CREATE INDEX IF NOT EXISTS idx_exercises_dirty ON exercises (dirty) WHERE dirty = 1;
+   CREATE INDEX IF NOT EXISTS idx_treinos_dirty ON treinos (dirty) WHERE dirty = 1;
+   CREATE INDEX IF NOT EXISTS idx_treino_exercicios_dirty ON treino_exercicios (dirty) WHERE dirty = 1;
+   CREATE INDEX IF NOT EXISTS idx_sessao_treinos_dirty ON sessao_treinos (dirty) WHERE dirty = 1;
+   CREATE INDEX IF NOT EXISTS idx_sessao_exercicios_dirty ON sessao_exercicios (dirty) WHERE dirty = 1;
+   CREATE INDEX IF NOT EXISTS idx_series_registradas_dirty ON series_registradas (dirty) WHERE dirty = 1;
+   CREATE INDEX IF NOT EXISTS idx_registros_peso_dirty ON registros_peso (dirty) WHERE dirty = 1;`,
 ];
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {
