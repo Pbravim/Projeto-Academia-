@@ -37,6 +37,13 @@
     "react-native-svg": "15.12.1",
     "uuidv7": "^1.2.1"
   },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["@notifee/react-native"]
+      }
+    }
+  },
   "devDependencies": {
     "@testing-library/react-native": "^13.3.3",
     "@types/node": "^25.6.0",
