@@ -40,12 +40,13 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": ["@notifee/react-native"]
+        "exclude": [
+          "@notifee/react-native"
+        ]
       }
     }
   },
   "devDependencies": {
-    "@testing-library/react-native": "^13.3.3",
     "@types/node": "^25.6.0",
     "@types/react": "~19.1.0",
     "better-sqlite3": "^12.10.0",
