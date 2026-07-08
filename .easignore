@@ -12,6 +12,9 @@
 **/.expo-shared
 **/coverage
 **/dist
+# `**/dist` não estava casando no matcher do EAS (archive de 236 MB ≈ assets 119
+# + dist 124): âncora explícita garante a exclusão do export web (~124 MB).
+/apps/mobile/dist/
 /.code-review-graph/
 apps/*/package-lock.json
 packages/*/package-lock.json

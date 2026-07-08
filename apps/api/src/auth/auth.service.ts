@@ -3,8 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -56,7 +55,7 @@ export class AuthService {
       secret,
       expiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
     });
-    const rawRefresh = uuidv4();
+    const rawRefresh = randomUUID();
     const tokenHash = createHash('sha256').update(rawRefresh).digest('hex');
     const expiresAt = new Date();
     const refreshDays = Number(process.env.JWT_REFRESH_EXPIRES_IN_DAYS);
