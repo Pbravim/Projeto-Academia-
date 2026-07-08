@@ -2,7 +2,7 @@ export const enUS = {
   common: {
     cancel: 'Cancel', back: 'Back', backArrow: '← Back', confirm: 'Confirm', save: 'Save',
     delete: 'Delete', archive: 'Archive', restore: 'Restore', ok: 'OK',
-    error: 'Error', loading: 'Loading...',
+    error: 'Error', loading: 'Loading...', refresh: 'Refresh',
     seriesCount: { one: '%{count} set', other: '%{count} sets' },
   },
   tabs: { sessao: 'Session', treinos: 'Workouts', exercicios: 'Exercises', evolucao: 'Progress' },
@@ -22,6 +22,11 @@ export const enUS = {
     weekday: { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' },
   },
   sessao: {
+    a11y: {
+      verMidia: 'View exercise demo',
+      concluirExercicio: 'Complete exercise',
+      concluirGrupo: 'Complete exercise group',
+    },
     common: {
       concluir: 'Complete',
       retomar: 'Resume',
@@ -614,6 +619,7 @@ export const enUS = {
       jaTemConta: 'Already have an account? Sign in',
       statusSincronizado: 'Synced',
       statusFalha: "Sync failed — we'll retry later",
+      sessaoExpirada: 'Session expired — sign in again to keep syncing.',
       erroCredenciais: 'Incorrect email or password',
       erroServidor: 'Could not reach the server',
       erroGenerico: 'Something went wrong',
@@ -628,6 +634,8 @@ export const enUS = {
     historico: 'History',
     emptyStateMessage: 'No records yet. Start by weighing yourself today.',
     excluindo: 'Deleting...',
+    confirmDeleteTitle: 'Delete entry?',
+    confirmDeleteMessage: 'This weight entry will be removed from your history.',
     form: {
       pesoKgLabel: 'Weight (kg)',
       pesoPlaceholder: 'E.g.: 80.5',

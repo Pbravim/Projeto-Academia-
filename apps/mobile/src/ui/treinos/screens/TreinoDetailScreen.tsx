@@ -141,7 +141,9 @@ export function TreinoDetailScreen({
         te.id,
         Number.isInteger(s) && s > 0 ? s : null,
         Number.isInteger(e) && e > 0 ? e : null,
-        Number.isFinite(cv) && cv > 0 ? cv : null,
+        // Carga 0 é válida (peso corporal) — SerieRegistrada aceita >= 0; descartar
+        // silenciosamente quebrava a sugestão de progressão de barra fixa etc.
+        Number.isFinite(cv) && cv >= 0 ? cv : null,
         Number.isInteger(d) && d > 0 ? d : null,
       );
     }

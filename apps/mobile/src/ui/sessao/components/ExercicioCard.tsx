@@ -50,7 +50,13 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
       style={({ pressed }) => [styles.card, finalizado ? styles.cardFinalizado : null, pressed ? { opacity: 0.8 } : null]}
     >
       {gifSource ? (
-        <Pressable onPress={() => setMediaVisible(true)} hitSlop={4} style={styles.thumbnailWrap}>
+        <Pressable
+          onPress={() => setMediaVisible(true)}
+          hitSlop={4}
+          accessibilityRole="button"
+          accessibilityLabel={t('sessao.a11y.verMidia')}
+          style={styles.thumbnailWrap}
+        >
           <Image source={gifSource} style={styles.thumbnail} contentFit="cover" autoplay={false} cachePolicy="memory-disk" />
           <View style={styles.thumbnailOverlay}>
             <Text style={styles.thumbnailPlayIcon}>▶</Text>
@@ -121,6 +127,9 @@ export function ExercicioCard({ sessaoExercicio, series, mediaLocal, mediaOnline
                 setConfirmConcluirVisible(true);
               }
             }}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: finalizado }}
+            accessibilityLabel={t('sessao.a11y.concluirExercicio')}
             style={({ pressed }) => [
               styles.checkBtn,
               finalizado ? styles.checkBtnDone : styles.checkBtnPending,

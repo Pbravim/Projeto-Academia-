@@ -39,6 +39,19 @@ describe('BackupSyncService', () => {
     expect(result.error).toBe(boom);
   });
 
+  it('sinaliza auth-expired quando a sessão caiu durante o run (refresh rejeitado)', async () => {
+    // P3 rodada 3 (C): o AuthSession desloga sozinho no 401/403 do refresh; o
+    // resultado 'error' genérico escondia que o usuário precisa logar de novo.
+    const answers = [true, false]; // autenticado ao entrar, deslogado após o auto-logout
+    const session = { isAuthenticated: () => answers.shift() ?? false } as any;
+    const engine = { run: vi.fn().mockRejectedValue(new Error('Auth refresh failed: 401')) };
+    const svc = new BackupSyncService(session, engine, () => 400);
+
+    const result = await svc.syncNow();
+
+    expect(result.status).toBe('auth-expired');
+  });
+
   it('coalesces concurrent syncNow calls into a single run', async () => {
     let resolveRun: () => void = () => {};
     const engine = { run: vi.fn().mockReturnValue(new Promise<void>((r) => { resolveRun = r; })) };

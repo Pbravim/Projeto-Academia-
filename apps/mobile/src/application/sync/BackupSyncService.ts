@@ -5,7 +5,8 @@ interface Runnable {
 }
 
 export interface SyncResult {
-  status: 'synced' | 'skipped' | 'error';
+  /** 'auth-expired': a sessão caiu durante o run (refresh rejeitado) — o usuário precisa logar de novo. */
+  status: 'synced' | 'skipped' | 'error' | 'auth-expired';
   at: number;
   error?: unknown;
 }
@@ -46,6 +47,11 @@ export class BackupSyncService {
       await this.engine.run();
       return (this.lastResult = { status: 'synced', at: this.now() });
     } catch (error) {
+      // Entramos autenticados; se a sessão caiu durante o run, o AuthSession
+      // auto-deslogou por refresh rejeitado (401/403) — sinal claro para a UI.
+      if (!this.session.isAuthenticated()) {
+        return (this.lastResult = { status: 'auth-expired', at: this.now(), error });
+      }
       return (this.lastResult = { status: 'error', at: this.now(), error });
     }
   }

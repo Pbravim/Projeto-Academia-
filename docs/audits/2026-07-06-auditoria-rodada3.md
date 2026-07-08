@@ -139,17 +139,22 @@ P0/P1, corrigir P0→P1 com teste de regressão TDD cada, atualizar pendencias.m
   fechados: replay de migrações, useBackupSync, SyncApiClient.
 - ✅ Register com resposta genérica (anti-enumeração); `forbidNonWhitelisted` no pipe global.
 
-## P3 (resumo)
+## P3 (resumo) — ✅ tratados 2026-07-07, exceto 2 diferidos por design
 
-- `OrphanCleanupService` consulta tabela inexistente `exercicios` e nem está registrado (B).
-- `db-setup.ts` com schema divergente das migrações reais e `foreign_keys=OFF` — foi o que mascarou
-  os dois P0 de integridade (B). Corrigir junto da Fase 3.
-- Epley com reps=1 infla 1RM 3.3%; carga 0 (bodyweight) vira null no TreinoDetail; formatos de
-  número sem locale; truque do meio-dia quebra em UTC+13/14 (A).
-- Refresh rejeitado em background = logout silencioso; pull sem paginação; userSettings fora do
-  sync; auto-sync só com Perfil montado (C). bcrypt cost 10; expiry refresh hardcoded; .env com
-  placeholders no histórico do git (D). a11y: Pressables sem label; contraste dark textMeta/placeholder
-  abaixo de 4.5:1 (E). Teste de "canceled session" sem assert de throw (F).
+- ✅ `OrphanCleanupService` (código morto com bug) — DELETADO; cascatas de tombstone da rodada 3
+  eliminaram a necessidade.
+- ✅ `db-setup.ts` — corrigido na Fase 3 (migrações reais, FK ON, agora também transacional).
+- ✅ Epley reps≤1 devolve a carga (JS e SQL); carga 0 aceita no TreinoDetail (peso corporal);
+  peso/delta com separador do locale; meio-dia UTC+13/14 já resolvido pelo localDateKey do P1-A.
+- ✅ Refresh rejeitado → status 'auth-expired' visível ("sessão expirada"); auto-sync de foreground
+  no bootstrap (não depende mais do Perfil montado); bcrypt cost 12; expiry do refresh via
+  `JWT_REFRESH_EXPIRES_IN_DAYS`; a11y (labels em refresh/play/checkboxes; contraste dark
+  textMeta/placeholder ≥4.5:1); teste de "canceled session" asserta o throw do use case;
+  confirmação ao excluir registro de peso; guard no onAddExercicio (sem erro espúrio);
+  plano semanal limpa errorMessage antigo; criar treino não navega com a aba escondida.
+- ⏸ DIFERIDOS (mudança de design, latentes): pull sem paginação (exige token de continuação no
+  protocolo; risco só com base grande) e userSettings fora do sync (exige decidir QUAIS settings
+  sincronizar — a tabela local também guarda tokens/cursor, que jamais devem subir).
 
 ## Verificado e OK (não re-auditar)
 

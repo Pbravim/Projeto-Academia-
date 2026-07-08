@@ -45,4 +45,13 @@ describe('UsersService', () => {
     // hash deve bater com a senha original
     expect(await bcrypt.compare('plaintext', arg.data.password)).toBe(true);
   });
+
+  it('usa bcrypt cost 12 (P3 rodada 3: 10 estava abaixo do recomendado)', async () => {
+    mockPrisma.user.create.mockImplementation(({ data }: any) => Promise.resolve({ id: 'u1', ...data }));
+
+    await service.create({ email: 'a@b.com', password: 'plaintext' });
+
+    const arg = mockPrisma.user.create.mock.calls[0][0];
+    expect(arg.data.password).toMatch(/^\$2[aby]\$12\$/);
+  });
 });

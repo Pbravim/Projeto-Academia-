@@ -7,6 +7,8 @@
  * @returns Estimativa de 1RM em kg
  */
 export function calcularEstimativa1rm(cargaKg: number, repeticoes: number): number {
+  // Com 1 rep o 1RM demonstrado é a própria carga — Epley inflaria 3.3%.
+  if (repeticoes <= 1) return cargaKg;
   return cargaKg * (1 + repeticoes / 30);
 }
 
@@ -20,7 +22,8 @@ export function calcularEstimativa1rm(cargaKg: number, repeticoes: number): numb
  * @returns Expressão SQL, e.g. `(sr.carga_kg * (1.0 + sr.repeticoes / 30.0))`
  */
 export function estimativa1rmSql(alias = 'sr'): string {
-  return `(${alias}.carga_kg * (1.0 + ${alias}.repeticoes / 30.0))`;
+  return `(CASE WHEN ${alias}.repeticoes <= 1 THEN ${alias}.carga_kg
+                ELSE ${alias}.carga_kg * (1.0 + ${alias}.repeticoes / 30.0) END)`;
 }
 
 /**

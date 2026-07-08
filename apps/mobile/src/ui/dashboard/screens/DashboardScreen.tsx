@@ -43,6 +43,8 @@ export function DashboardScreen({
           <Pressable
             onPress={onRefresh}
             disabled={isLoading || isResetting}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.refresh')}
             style={({ pressed }) => [styles.refreshIconBtn, pressed ? { opacity: 0.7 } : null]}
           >
             <Text style={[styles.refreshIconText, (isLoading || isResetting) ? styles.refreshIconLoading : null]}>↺</Text>

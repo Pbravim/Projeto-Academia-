@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
+
+import { useTabActive } from '../shared/tabActivity';
 
 import type { TreinoPrimitives } from '../../domain/treinos/entities/Treino';
 import type { TreinoDetailControllerDependencies } from './hooks/useTreinoDetailController';
@@ -25,8 +27,18 @@ interface Props {
 export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   const [selectedTreino, setSelectedTreino] = useState<TreinoPrimitives | null>(null);
 
+  // Race P3 (rodada 3): criar treino e trocar de aba durante o submit fazia a
+  // aba escondida (keep-alive) navegar sozinha para o editor — ao voltar, o
+  // usuário caía no detalhe sem ter pedido. Só navega se a aba está visível.
+  const isTabActive = useTabActive();
+  const isTabActiveRef = useRef(isTabActive);
+  useEffect(() => { isTabActiveRef.current = isTabActive; }, [isTabActive]);
+  const selectTreinoSeVisivel = (treino: TreinoPrimitives) => {
+    if (isTabActiveRef.current) setSelectedTreino(treino);
+  };
+
   const planoController = usePlanoController(dependencies.plano);
-  const listController = useTreinoListController(dependencies.list, setSelectedTreino, planoController.reload);
+  const listController = useTreinoListController(dependencies.list, selectTreinoSeVisivel, planoController.reload);
 
   // Closing the detail view (back button, hardware back, or after saving) returns to the
   // list. Reload so edits made in the detail screen are reflected instead of showing stale data.

@@ -196,6 +196,8 @@ export function PerfilScreen({
   };
 
   const [confirmResetVisible, setConfirmResetVisible] = useState(false);
+  // Excluir registro de peso é destrutivo — 1 toque acidental não pode apagar.
+  const [confirmDeletePesoId, setConfirmDeletePesoId] = useState<string | null>(null);
 
   const handleReset = () => {
     setConfirmResetVisible(true);
@@ -612,7 +614,7 @@ export function PerfilScreen({
                         ) : null}
                         <Pressable
                           accessibilityRole="button"
-                          onPress={() => { void peso.onDelete(card.id); }}
+                          onPress={() => setConfirmDeletePesoId(card.id)}
                           disabled={peso.deletingId !== null}
                           style={({ pressed }) => [
                             styles.deleteButton,
@@ -658,6 +660,20 @@ export function PerfilScreen({
           void onReset();
         }}
         onCancel={() => setConfirmResetVisible(false)}
+      />
+
+      <ConfirmDialog
+        visible={confirmDeletePesoId !== null}
+        title={t('peso.confirmDeleteTitle')}
+        message={t('peso.confirmDeleteMessage')}
+        confirmLabel={t('common.delete')}
+        destructive
+        onConfirm={() => {
+          const id = confirmDeletePesoId;
+          setConfirmDeletePesoId(null);
+          if (id) void peso.onDelete(id);
+        }}
+        onCancel={() => setConfirmDeletePesoId(null)}
       />
     </ScrollView>
     </KeyboardAvoidingView>

@@ -1,3 +1,5 @@
+import { AppState } from 'react-native';
+
 import { CreateExerciseUseCase } from '../application/exercises/use-cases/CreateExerciseUseCase';
 import { DeleteExerciseUseCase } from '../application/exercises/use-cases/DeleteExerciseUseCase';
 import { ExpoMediaFileCleanup } from '../infrastructure/exercises/ExpoMediaFileCleanup';
@@ -230,6 +232,15 @@ const backupSync = new BackupSyncService(authSession, syncEngine);
 void authSession.restore().catch((e) =>
   logger.error('AuthSession.restore failed', e instanceof Error ? e : new Error(String(e))),
 );
+
+// Auto-sync de foreground no nível do APP (P3 rodada 3): quando o listener
+// vivia só no hook do Perfil, uma semana de treino sem abrir o Perfil = nada
+// sincava. syncNow() coalesce chamadas concorrentes com o listener do hook.
+AppState.addEventListener('change', (next) => {
+  if (next === 'active' && authSession.isAuthenticated()) {
+    void backupSync.syncNow();
+  }
+});
 
 const listExercises = new ListExercisesUseCase(exerciseRepository);
 const cancelarSessaoUC = new CancelarSessaoUseCase({

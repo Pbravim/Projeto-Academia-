@@ -322,6 +322,8 @@ export function SessaoAtivaScreen({
                       {grupoThumb ? (
                         <Pressable
                           hitSlop={4}
+                          accessibilityRole="button"
+                          accessibilityLabel={t('sessao.a11y.verMidia')}
                           onPress={(e) => { e.stopPropagation(); setMediaViewerItem({ nome: item.sessaoExercicio.nomeSnapshot, mediaLocal: item.mediaLocal ?? null }); }}
                         >
                           <Image source={grupoThumb} style={styles.grupoItemThumb} contentFit="cover" autoplay={false} />
@@ -371,6 +373,9 @@ export function SessaoAtivaScreen({
                     void handleConcluirGrupo(grupo);
                   }
                 }}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: allRealizado }}
+                accessibilityLabel={t('sessao.a11y.concluirGrupo')}
                 style={({ pressed }) => [styles.grupoCheckbox, allRealizado ? styles.grupoCheckboxDone : styles.grupoCheckboxPending, pressed ? { opacity: 0.7 } : null]}
                 hitSlop={8}
               >

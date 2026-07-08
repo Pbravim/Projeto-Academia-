@@ -75,12 +75,10 @@ describe('SessaoTreino.cancelar', () => {
     expect(cancelada.isAtiva()).toBe(false);
   });
 
-  it('throws when trying to finalize a canceled session', () => {
-    const sessao = SessaoTreino.create({
-      id: 's1', treinoId: 't1', treinoNomeSnapshot: 'A',
-      dataHoraInicio: new Date('2026-05-22T08:00:00.000Z'),
-    });
-    const cancelada = sessao.cancelar();
-    expect(cancelada.isAtiva()).toBe(false);
+  it('use case rejeita finalizar uma sessão cancelada (P3-F: teste antigo não assertava throw)', async () => {
+    const repo = makeRepo();
+    await repo.save(makeActiveSessao().cancelar());
+
+    await expect(makeUseCase(repo).execute('sessao-1')).rejects.toThrow(SessaoEncerradaError);
   });
 });

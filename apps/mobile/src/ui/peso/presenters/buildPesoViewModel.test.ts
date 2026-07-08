@@ -22,7 +22,7 @@ describe('buildPesoViewModel', () => {
   describe('registro unico', () => {
     it('exibe peso atual do registro mais recente', () => {
       const vm = buildPesoViewModel([reg('r1', 80.5, '2026-05-01T10:00:00.000Z')]);
-      expect(vm.pesoAtual).toBe('80.5 kg');
+      expect(vm.pesoAtual).toBe('80,5 kg'); // P3-13: separador decimal do locale
       expect(vm.emptyStateMessage).toBeNull();
     });
 
@@ -38,7 +38,7 @@ describe('buildPesoViewModel', () => {
 
     it('formata o peso com sufixo kg', () => {
       const vm = buildPesoViewModel([reg('r1', 75.3, '2026-05-01T10:00:00.000Z')]);
-      expect(vm.cards[0].peso).toBe('75.3 kg');
+      expect(vm.cards[0].peso).toBe('75,3 kg');
     });
   });
 
@@ -68,7 +68,7 @@ describe('buildPesoViewModel', () => {
         reg('r2', 79.5, '2026-05-08T10:00:00.000Z'),
         reg('r1', 80, '2026-05-01T10:00:00.000Z'),
       ]);
-      expect(vm.cards[0].delta).toBe('-0.5 kg');
+      expect(vm.cards[0].delta).toBe('-0,5 kg');
       expect(vm.cards[0].pesoAumentou).toBe(false);
     });
 
@@ -93,7 +93,7 @@ describe('buildPesoViewModel', () => {
         reg('r2', 80.3, '2026-05-08T10:00:00.000Z'),
         reg('r1', 80, '2026-05-01T10:00:00.000Z'),
       ]);
-      expect(vm.cards[0].delta).toBe('+0.3 kg');
+      expect(vm.cards[0].delta).toBe('+0,3 kg');
     });
 
     it('pesoAtual reflete o primeiro elemento (mais recente)', () => {

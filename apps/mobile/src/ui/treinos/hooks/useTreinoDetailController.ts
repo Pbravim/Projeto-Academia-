@@ -106,7 +106,12 @@ export function useTreinoDetailController(
     void loadData();
   }, [treino.id]);
 
+  // Guard por exercício: double-tap não duplica (o domínio rejeita), mas exibia
+  // um "já está no treino" espúrio para um toque repetido do mesmo dedo.
+  const addingExercicioIds = useRef(new Set<string>());
   const onAddExercicio = async (exercicioId: string) => {
+    if (addingExercicioIds.current.has(exercicioId)) return;
+    addingExercicioIds.current.add(exercicioId);
     setErrorMessage(null);
     setFeedbackMessage(null);
 
@@ -123,6 +128,8 @@ export function useTreinoDetailController(
       } else {
         setErrorMessage(translate(locale, 'treinos.detail.errors.addExercicio'));
       }
+    } finally {
+      addingExercicioIds.current.delete(exercicioId);
     }
   };
 

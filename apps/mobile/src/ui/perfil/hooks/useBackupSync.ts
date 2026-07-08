@@ -15,6 +15,7 @@ function messageFor(result: SyncResult, locale: AppLocale): string | null {
   switch (result.status) {
     case 'synced': return translate(locale, 'perfil.backup.statusSincronizado');
     case 'error': return translate(locale, 'perfil.backup.statusFalha');
+    case 'auth-expired': return translate(locale, 'perfil.backup.sessaoExpirada');
     default: return null;
   }
 }

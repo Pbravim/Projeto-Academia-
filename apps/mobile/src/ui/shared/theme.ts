@@ -95,7 +95,8 @@ const dark: Colors = {
   heroDescription: '#b3aaa2',
   textPrimary: '#edecea',
   textSecondary: '#a19a94',
-  textMeta: '#867f79',
+  // ≥4.5:1 sobre cardAlt (WCAG AA texto pequeno) — #867f79 dava ~4.0:1 (P3 a11y).
+  textMeta: '#9a938c',
   textLabel: '#aea69f',
   accent: '#fb8b3c',
   accentText: '#1a0f05',
@@ -110,7 +111,8 @@ const dark: Colors = {
   inputBg: '#1c1a18',
   inputBorder: '#312e2b',
   inputText: '#edecea',
-  inputPlaceholder: '#757069',
+  // ≥4.5:1 sobre inputBg — #757069 dava ~3.5:1 (P3 a11y).
+  inputPlaceholder: '#8d8780',
   tabBar: '#0d0c0b',
   tabActive: '#fb8b3c',
   tabText: '#8a8580',

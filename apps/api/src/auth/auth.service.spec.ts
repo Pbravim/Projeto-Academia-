@@ -96,6 +96,22 @@ describe('AuthService', () => {
     });
   });
 
+  describe('refresh token expiry', () => {
+    it('respeita JWT_REFRESH_EXPIRES_IN_DAYS da env (era 30 hardcoded)', async () => {
+      process.env.JWT_REFRESH_EXPIRES_IN_DAYS = '7';
+      mockUsers.findByEmail.mockResolvedValueOnce(null);
+      mockUsers.create.mockResolvedValueOnce({ id: 'u1', email: 'a@b.com' });
+
+      await service.register('a@b.com', 'pass');
+
+      const expiresAt: Date = mockPrisma.refreshToken.create.mock.calls[0][0].data.expiresAt;
+      const days = (expiresAt.getTime() - Date.now()) / 86_400_000;
+      expect(days).toBeGreaterThan(6.9);
+      expect(days).toBeLessThan(7.1);
+      delete process.env.JWT_REFRESH_EXPIRES_IN_DAYS;
+    });
+  });
+
   describe('refresh', () => {
     it('rotates a valid refresh token: deletes the old one and issues new tokens', async () => {
       const raw = 'raw-refresh';

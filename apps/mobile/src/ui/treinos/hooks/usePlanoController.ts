@@ -34,6 +34,7 @@ export function usePlanoController(deps: PlanoControllerDependencies): PlanoCont
 
   const reload = async () => {
     setIsLoading(true);
+    setErrorMessage(null); // erro antigo não pode ficar na tela para sempre (P3 rodada 3)
     try {
       const result = await deps.getPlanoSemanal.execute();
       setPlano(result);
@@ -53,6 +54,7 @@ export function usePlanoController(deps: PlanoControllerDependencies): PlanoCont
     const prev = plano;
     setPlano((p) => ({ ...p, [diaSelecionado]: treinoId }));
     setDiaSelecionado(null);
+    setErrorMessage(null);
     try {
       await deps.setDiaPlano.execute(diaSelecionado, treinoId);
     } catch {

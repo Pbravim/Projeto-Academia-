@@ -59,7 +59,8 @@ export class AuthService {
     const rawRefresh = uuidv4();
     const tokenHash = createHash('sha256').update(rawRefresh).digest('hex');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
+    const refreshDays = Number(process.env.JWT_REFRESH_EXPIRES_IN_DAYS);
+    expiresAt.setDate(expiresAt.getDate() + (Number.isFinite(refreshDays) && refreshDays > 0 ? refreshDays : 30));
     await this.prisma.refreshToken.create({
       data: { token: tokenHash, userId, expiresAt },
     });

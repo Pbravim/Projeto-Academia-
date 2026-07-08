@@ -2,7 +2,7 @@ export const ptBR = {
   common: {
     cancel: 'Cancelar', back: 'Voltar', backArrow: '← Voltar', confirm: 'Confirmar', save: 'Salvar',
     delete: 'Excluir', archive: 'Arquivar', restore: 'Restaurar', ok: 'OK',
-    error: 'Erro', loading: 'Carregando...',
+    error: 'Erro', loading: 'Carregando...', refresh: 'Atualizar',
     seriesCount: { one: '%{count} série', other: '%{count} séries' },
     onlyInPt: 'só em pt',
   },
@@ -23,6 +23,11 @@ export const ptBR = {
     weekday: { mon: 'Seg', tue: 'Ter', wed: 'Qua', thu: 'Qui', fri: 'Sex', sat: 'Sáb', sun: 'Dom' },
   },
   sessao: {
+    a11y: {
+      verMidia: 'Ver demonstração do exercício',
+      concluirExercicio: 'Concluir exercício',
+      concluirGrupo: 'Concluir grupo de exercícios',
+    },
     common: {
       concluir: 'Concluir',
       retomar: 'Retomar',
@@ -615,6 +620,7 @@ export const ptBR = {
       jaTemConta: 'Já tem conta? Entrar',
       statusSincronizado: 'Sincronizado',
       statusFalha: 'Falha ao sincronizar — tentaremos de novo mais tarde',
+      sessaoExpirada: 'Sessão expirada — entre novamente para continuar sincronizando.',
       erroCredenciais: 'Email ou senha incorretos',
       erroServidor: 'Não foi possível conectar ao servidor',
       erroGenerico: 'Algo deu errado',
@@ -629,6 +635,8 @@ export const ptBR = {
     historico: 'Histórico',
     emptyStateMessage: 'Nenhum registro ainda. Comece pesando-se hoje.',
     excluindo: 'Excluindo...',
+    confirmDeleteTitle: 'Excluir registro?',
+    confirmDeleteMessage: 'Este registro de peso será removido do histórico.',
     form: {
       pesoKgLabel: 'Peso (kg)',
       pesoPlaceholder: 'Ex.: 80.5',
