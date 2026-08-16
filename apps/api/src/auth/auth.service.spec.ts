@@ -1,11 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { JwtService } from '@nestjs/jwt';
+import { createHash } from 'node:crypto';
+
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { createHash } from 'crypto';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
+
+import { AuthService } from './auth.service';
 
 const mockPrisma = {
   refreshToken: {

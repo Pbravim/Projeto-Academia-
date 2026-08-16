@@ -1,7 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { SyncService } from './sync.service';
-import { PrismaService } from '../prisma/prisma.service';
 import type { SyncRequest } from '@academia/contracts';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { PrismaService } from '../prisma/prisma.service';
+
+import { SyncService } from './sync.service';
 
 const makePrisma = () => ({
   $transaction: jest.fn(),

@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+
+import { PrismaService } from '../prisma/prisma.service';
+
+import { UsersService } from './users.service';
 
 const mockPrisma = {
   user: { findUnique: jest.fn(), create: jest.fn() },

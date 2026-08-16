@@ -1,7 +1,8 @@
+import type { SyncRequest } from '@academia/contracts';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
-import type { SyncRequest } from '@academia/contracts';
 
 const mockSync = { sync: jest.fn() };
 

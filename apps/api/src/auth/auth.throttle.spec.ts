@@ -1,11 +1,11 @@
+import { ExecutionContext,INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { INestApplication, ExecutionContext } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import request = require('supertest');
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { AuthModule } from './auth.module';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { AuthController } from './auth.controller';
+import { AuthModule } from './auth.module';
+import { AuthService } from './auth.service';
 
 describe('Auth rate limiting', () => {
   let app: INestApplication;

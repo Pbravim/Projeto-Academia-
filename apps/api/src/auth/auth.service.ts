@@ -1,9 +1,11 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { createHash, randomUUID } from 'node:crypto';
+
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
-import { createHash, randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {

@@ -1,7 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
-import { SyncRequestDto } from './sync-request.dto';
-import { SyncController } from '../sync.controller';
+
 import { buildValidationPipe } from '../../validation';
+import { SyncController } from '../sync.controller';
+
+import { SyncRequestDto } from './sync-request.dto';
 
 // O MESMO pipe do main.ts — é o que a API aplica ao @Body() em produção.
 const pipe = buildValidationPipe();

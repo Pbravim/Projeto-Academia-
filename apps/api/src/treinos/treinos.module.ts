@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { TreinosService } from './treinos.service';
+
 import { TreinosController } from './treinos.controller';
+import { TreinosService } from './treinos.service';
 
 @Module({
   providers: [TreinosService],

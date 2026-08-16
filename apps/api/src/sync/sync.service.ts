@@ -1,6 +1,7 @@
+import type { SyncChanges,SyncRequest, SyncResponse } from '@academia/contracts';
 import { Injectable, Logger } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
-import type { SyncRequest, SyncResponse, SyncChanges } from '@academia/contracts';
 
 // A concurrent transaction on another device stamps rows with a `now` computed before
 // its commit; if it commits after our pull read, those rows carry serverUpdatedAt < our

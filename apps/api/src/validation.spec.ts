@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
-import { buildValidationPipe } from './validation';
+
 import { RegisterDto } from './auth/dto/register.dto';
+import { buildValidationPipe } from './validation';
 
 // O pipe global precisa de forbidNonWhitelisted: campos desconhecidos devem ser
 // rejeitados (400), não silenciosamente descartados — payloads malformados de

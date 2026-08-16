@@ -1,13 +1,13 @@
+import type {
+ExerciseAlternativeSyncRow,   ExerciseSyncRow, RegistroPesoSyncRow,
+SerieRegistradaSyncRow,   SessaoExercicioSyncRow, SessaoTreinoSyncRow,
+SyncChanges, SyncRequest,
+TreinoExercicioSyncRow, TreinoSyncRow,   UserSettingSyncRow, } from '@academia/contracts';
 import { Type } from 'class-transformer';
 import {
-  IsArray, IsBoolean, IsDefined, IsISO8601, IsInt, IsNumber, IsObject,
+  IsArray, IsBoolean, IsDefined, IsInt, IsISO8601, IsNumber, IsObject,
   IsOptional, IsString, MaxLength, ValidateNested,
 } from 'class-validator';
-import type {
-  ExerciseSyncRow, TreinoSyncRow, TreinoExercicioSyncRow, SessaoTreinoSyncRow,
-  SessaoExercicioSyncRow, SerieRegistradaSyncRow, RegistroPesoSyncRow,
-  UserSettingSyncRow, ExerciseAlternativeSyncRow, SyncChanges, SyncRequest,
-} from '@academia/contracts';
 
 // Wire DTOs for POST /sync. Same shape as the @academia/contracts interfaces, but as
 // classes so the global ValidationPipe (whitelist+transform) actually validates the body

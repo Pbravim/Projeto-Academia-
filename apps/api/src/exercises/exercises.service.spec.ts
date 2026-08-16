@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExercisesService } from './exercises.service';
+
 import { PrismaService } from '../prisma/prisma.service';
+
+import { ExercisesService } from './exercises.service';
 
 const mockPrisma = {
   exercise: { findMany: jest.fn(), findFirst: jest.fn() },

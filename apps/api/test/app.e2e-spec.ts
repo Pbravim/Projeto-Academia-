@@ -6,18 +6,19 @@
  * Env injetada ANTES de importar o AppModule (o app não usa ConfigModule; a JwtStrategy
  * exige secret >= 32 chars).
  */
+import type { SyncRequest } from '@academia/contracts';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import * as request from 'supertest';
+
+import { AppModule } from '../src/app.module';
+import { PrismaService } from '../src/prisma/prisma.service';
+
 process.env.JWT_ACCESS_SECRET ||= 'e2e-access-secret-0123456789-abcdefghij';
 process.env.JWT_REFRESH_SECRET ||= 'e2e-refresh-secret-0123456789-abcdefghij';
 process.env.JWT_ACCESS_EXPIRES_IN ||= '15m';
 process.env.JWT_REFRESH_EXPIRES_IN ||= '30d';
 process.env.DATABASE_URL ||= 'postgresql://academia:academia@localhost:5433/academia_db';
-
-import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
-import type { SyncRequest } from '@academia/contracts';
 
 const emptyChanges = (): SyncRequest['changes'] => ({
   exercises: [], treinos: [], treinoExercicios: [], sessaoTreinos: [],
