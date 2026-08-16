@@ -6,6 +6,11 @@
 # Added by code-review-graph
 .code-review-graph/
 
+# Orca pipeline (orca-config): specs/planos/estado são locais; só LEARNINGS.md é versionado
+docs/pipeline/*
+!docs/pipeline/LEARNINGS.md
+.orca/
+
 # this repo uses npm workspaces — a single root package-lock.json is the source of truth.
 # nested lockfiles (per-workspace) and yarn.lock are forbidden to avoid drift.
 apps/*/package-lock.json

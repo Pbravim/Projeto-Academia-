@@ -1,11 +1,10 @@
 {
   "mcpServers": {
     "code-review-graph": {
-      "command": "C:\\Users\\Usuario\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\code-review-graph.exe",
+      "command": "code-review-graph",
       "args": [
         "serve"
       ],
-      "cwd": "C:\\Users\\Usuario\\Documents\\Github\\projeto-academia-",
       "type": "stdio"
     }
   }

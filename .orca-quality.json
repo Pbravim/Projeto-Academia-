@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "stack": "node",
+  "base_ref": "origin/development",
+  "commands": {
+    "test": "npm --prefix apps/api test && npm --prefix apps/mobile run test",
+    "build": "npm --prefix apps/api run build && npm --prefix apps/mobile run typecheck",
+    "lint": "npm run lint:api && npm run api:typecheck && npm run mobile:typecheck",
+    "coverage": "node scripts/coverage-merge.mjs",
+    "coverage_report": "coverage/lcov.info",
+    "e2e": "npm --prefix apps/api run test:e2e",
+    "mutation": null,
+    "mutation_report": null
+  },
+  "thresholds": {
+    "coverage_patch_pct": 80,
+    "complexity_warn": 10,
+    "complexity_block": 15,
+    "module_loc_warn": 400,
+    "module_loc_block": 800,
+    "function_loc_warn": 60,
+    "mutation_score_min": 60,
+    "lint_max_errors": 0
+  },
+  "exempt": [
+    "**/generated/**",
+    "**/migrations/**",
+    "**/*.spec.*",
+    "**/*.test.*",
+    "**/test/**",
+    "**/tests/**",
+    "docs/**",
+    "scripts/**"
+  ]
+}

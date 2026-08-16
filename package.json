@@ -13,6 +13,12 @@
     "mobile:start": "npm --prefix apps/mobile run start",
     "mobile:test": "npm --prefix apps/mobile run test",
     "mobile:typecheck": "npm --prefix apps/mobile run typecheck",
-    "api:start:dev": "npm --prefix apps/api run start:dev"
+    "api:start:dev": "npm --prefix apps/api run start:dev",
+    "lint:api": "cd apps/api && inovatecjp lint --stack=node",
+    "lint:fix:api": "cd apps/api && inovatecjp lint:fix --stack=node",
+    "api:typecheck": "npm --prefix apps/api run typecheck"
+  },
+  "devDependencies": {
+    "@inovatecjp/eslint-config": "^1.3.1"
   }
 }
