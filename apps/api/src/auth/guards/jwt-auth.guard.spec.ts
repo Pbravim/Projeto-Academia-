@@ -1,5 +1,6 @@
-import { UnauthorizedException, type ExecutionContext } from '@nestjs/common';
+import { type ExecutionContext,UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 const ctxFor = (headers: Record<string, string>) => {
