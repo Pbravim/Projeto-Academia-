@@ -1,6 +1,6 @@
 import { Directory, File, Paths } from 'expo-file-system';
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as VideoThumbnails from 'expo-video-thumbnails';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import { createVideoPlayer } from 'expo-video';
 
 const VIDEO_EXTS = new Set(['mp4', 'mov', 'm4v', 'webm', '3gp']);
 
@@ -8,6 +8,7 @@ const VIDEO_EXTS = new Set(['mp4', 'mov', 'm4v', 'webm', '3gp']);
  * Gera a thumb estática (jpeg ~160px) de uma mídia custom/baixada em
  * exercises/thumbs/<id>.jpg. As listas mostram a thumb; o GIF/vídeo cheio
  * fica só para o viewer. Falha silenciosa — thumb é acessória.
+ * Vídeos usam o próprio expo-video (o expo-video-thumbnails foi descontinuado).
  */
 export async function gerarThumbMidia(exercicioId: string, mediaUri: string): Promise<string | null> {
   try {
@@ -17,21 +18,25 @@ export async function gerarThumbMidia(exercicioId: string, mediaUri: string): Pr
     try { if (!thumbsDir.exists) thumbsDir.create(); } catch { /* já existe */ }
 
     const ext = (mediaUri.split('?')[0]!.split('.').pop() ?? '').toLowerCase();
-    let sourceUri = mediaUri;
+    let source: Parameters<typeof ImageManipulator.manipulate>[0] = mediaUri;
     if (VIDEO_EXTS.has(ext)) {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(mediaUri, { time: 0 });
-      sourceUri = uri;
+      // Player fora de React: criar, extrair o frame 0 e liberar SEMPRE.
+      const player = createVideoPlayer(mediaUri);
+      try {
+        const [frame] = await player.generateThumbnailsAsync(0);
+        if (!frame) return null;
+        source = frame;
+      } finally {
+        player.release();
+      }
     }
 
-    const result = await ImageManipulator.manipulateAsync(
-      sourceUri,
-      [{ resize: { width: 160 } }],
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
-    );
+    const image = await ImageManipulator.manipulate(source).resize({ width: 160 }).renderAsync();
+    const saved = await image.saveAsync({ compress: 0.7, format: SaveFormat.JPEG });
 
     const dest = new File(thumbsDir, `${exercicioId}.jpg`);
     try { if (dest.exists) dest.delete(); } catch { /* substitui */ }
-    new File(result.uri).move(dest);
+    new File(saved.uri).move(dest);
     return dest.uri;
   } catch {
     return null;
