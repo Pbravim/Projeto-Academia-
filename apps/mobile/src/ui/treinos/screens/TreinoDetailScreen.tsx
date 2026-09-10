@@ -253,7 +253,7 @@ export function TreinoDetailScreen({
 
   return (
     <>
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
@@ -374,14 +374,14 @@ export function TreinoDetailScreen({
                       disabled={bi === 0 || isReordering}
                       accessibilityRole="button"
                       accessibilityLabel={t('treinos.detail.moverBlocoCima')}
-                      style={[styles.grupoArrowBtn, bi === 0 || isReordering ? { opacity: 0.3 } : null]}>
+                      style={[styles.grupoArrowBtn, bi === 0 || isReordering ? styles.dimmed : null]}>
                       <Text style={styles.grupoArrowText}>↑</Text>
                     </Pressable>
                     <Pressable onPress={() => { void onMoveDown(bloco.exercicios[0].id); }}
                       disabled={bi === blocos.length - 1 || isReordering}
                       accessibilityRole="button"
                       accessibilityLabel={t('treinos.detail.moverBlocoBaixo')}
-                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 || isReordering ? { opacity: 0.3 } : null]}>
+                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 || isReordering ? styles.dimmed : null]}>
                       <Text style={styles.grupoArrowText}>↓</Text>
                     </Pressable>
                     <Pressable
@@ -779,5 +779,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     grupoDivider: { height: 2, opacity: 0.35, marginVertical: 6, marginHorizontal: 4 },
     vincularAoGrupoBtn: { marginTop: 8, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center' },
     vincularAoGrupoBtnText: { fontSize: 12, fontWeight: '700' },
+    flex1: { flex: 1 },
+    dimmed: { opacity: 0.3 },
   });
 }

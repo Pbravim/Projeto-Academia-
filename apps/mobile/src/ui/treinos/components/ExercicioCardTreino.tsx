@@ -107,11 +107,11 @@ export function ExercicioCardTreino({
         {inGroup ? (
           <View style={styles.groupArrows}>
             <Pressable onPress={onMoveUpInGroup} disabled={isFirstInGroup}
-              style={[styles.groupArrowBtn, isFirstInGroup ? { opacity: 0.2 } : null]}>
+              style={[styles.groupArrowBtn, isFirstInGroup ? styles.dimmed : null]}>
               <Text style={styles.groupArrowText}>↑</Text>
             </Pressable>
             <Pressable onPress={onMoveDownInGroup} disabled={isLastInGroup}
-              style={[styles.groupArrowBtn, isLastInGroup ? { opacity: 0.2 } : null]}>
+              style={[styles.groupArrowBtn, isLastInGroup ? styles.dimmed : null]}>
               <Text style={styles.groupArrowText}>↓</Text>
             </Pressable>
           </View>
@@ -142,11 +142,11 @@ export function ExercicioCardTreino({
           {!inGroup ? (
             <>
               <Pressable onPress={onMoveUp} disabled={item.isFirst}
-                style={[styles.iconBtn, item.isFirst ? { opacity: 0.2 } : null]}>
+                style={[styles.iconBtn, item.isFirst ? styles.dimmed : null]}>
                 <Text style={styles.iconBtnText}>↑</Text>
               </Pressable>
               <Pressable onPress={onMoveDown} disabled={item.isLast}
-                style={[styles.iconBtn, item.isLast ? { opacity: 0.2 } : null]}>
+                style={[styles.iconBtn, item.isLast ? styles.dimmed : null]}>
                 <Text style={styles.iconBtnText}>↓</Text>
               </Pressable>
             </>
@@ -377,5 +377,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     substitutoMeta: { color: c.textSecondary, fontSize: 10, marginTop: 1 },
     substitutoRemoveBtn: { padding: 2 },
     substitutoRemoveText: { color: c.error, fontSize: 12, fontWeight: '800' },
+    dimmed: { opacity: 0.2 },
   });
 }

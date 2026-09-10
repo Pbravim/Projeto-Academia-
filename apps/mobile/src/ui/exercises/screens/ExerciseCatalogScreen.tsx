@@ -260,7 +260,7 @@ export function ExerciseCatalogScreen({
                   pressed ? styles.suggestionRowPressed : null,
                 ]}
               >
-                <View style={{ flex: 1 }}>
+                <View style={styles.flex1}>
                   <Text style={styles.suggestionName}>{ex.name}</Text>
                   <Text style={styles.suggestionMeta}>{ex.category ? `${ex.groupMuscles.join(', ')} · ${ex.category}` : ex.groupMuscles.join(', ')}</Text>
                 </View>
@@ -684,5 +684,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     substPickerName: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     substPickerMeta: { color: c.textSecondary, fontSize: 12 },
+    flex1: { flex: 1 },
   });
 }

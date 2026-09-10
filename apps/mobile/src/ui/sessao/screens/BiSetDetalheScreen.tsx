@@ -259,7 +259,7 @@ export function BiSetDetalheScreen({
   const formatRepsItem = useCallback((idx: number) => String(idx + 1), []);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
@@ -730,5 +730,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     setMetric: { color: c.textPrimary, fontSize: 13, fontVariant: ['tabular-nums'] },
     deleteBtn: { padding: 4 },
     deleteBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
+    flex1: { flex: 1 },
   });
 }

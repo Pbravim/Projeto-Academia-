@@ -81,7 +81,7 @@ export const ExercisePickerGroup = memo(function ExercisePickerGroup({ group, it
                       <Image source={resolveThumbSourceOrPlaceholder(exercise.mediaLocal, exercise.id)} style={styles.thumbnail} contentFit="cover" autoplay={false} recyclingKey={exercise.id} cachePolicy="memory-disk" />
                     </View>
                   )}
-                  <View style={{ flex: 1 }}>
+                  <View style={styles.flex1}>
                     <Text style={styles.availableName}>{exercise.name}</Text>
                     <Text style={styles.availableMeta}>{exercise.category ? `${exercise.groupMuscles.join(', ')} · ${exercise.category}` : exercise.groupMuscles.join(', ')}</Text>
                   </View>
@@ -119,5 +119,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     availableMeta: { color: c.textSecondary, fontSize: 13, marginTop: 2 },
     checkmark: { width: 24, height: 24, borderRadius: 12, backgroundColor: c.hero, alignItems: 'center', justifyContent: 'center' },
     checkmarkText: { color: c.heroText, fontSize: 13, fontWeight: '800' },
+    flex1: { flex: 1 },
   });
 }

@@ -60,7 +60,7 @@ export function PickerCarousel({ count, selectedIndex, onChangeIndex, formatItem
       >
         {Array.from({ length: count }, (_, i) => (
           <View key={i} style={styles.item}>
-            <Text style={{ color: c.inputText, fontSize: 18, fontWeight: '600' }}>
+            <Text style={[styles.itemText, { color: c.inputText }]}>
               {formatItem(i)}
             </Text>
           </View>
@@ -83,4 +83,5 @@ const styles = StyleSheet.create({
   selector: { position: 'absolute', left: 10, right: 10, borderRadius: 10, borderWidth: 1.5 },
   maskTop: { position: 'absolute', top: 0, left: 0, right: 0, height: PICKER_ITEM_H * SIDE - 2, opacity: 0.75 },
   maskBot: { position: 'absolute', bottom: 0, left: 0, right: 0, height: PICKER_ITEM_H * SIDE - 2, opacity: 0.75 },
+  itemText: { fontSize: 18, fontWeight: '600' },
 });

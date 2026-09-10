@@ -9,7 +9,7 @@ export function useAndroidBack(onBack: () => void) {
     // Keep-alive: subtela em aba OCULTA não registra handler — BackHandler é
     // LIFO e ela consumiria o back da aba visível. Re-registrar ao reativar
     // também devolve prioridade sobre o handler raiz do shell.
-    if (!tabActive) return;
+    if (!tabActive) return undefined;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       onBack();
       return true;

@@ -222,6 +222,7 @@ interface TabButtonProps {
 
 function TabButton({ label, icon, active, onPress }: TabButtonProps) {
   const c = useTheme();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const color = active ? c.tabTextActive : c.tabText;
   return (
     <Pressable
@@ -231,12 +232,12 @@ function TabButton({ label, icon, active, onPress }: TabButtonProps) {
       accessibilityLabel={label}
       android_ripple={{ color: 'rgba(255,255,255,0.12)', borderless: false }}
       style={[
-        { flex: 1, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 3 },
+        styles.tabButton,
         active ? { backgroundColor: c.tabActive } : null,
       ]}
     >
       <Ionicons name={active ? icon : (`${icon}-outline` as keyof typeof Ionicons.glyphMap)} size={22} color={color} />
-      <Text style={{ color, fontSize: 11, fontWeight: '700', letterSpacing: 0.2 }}>
+      <Text style={[styles.tabLabel, { color }]}>
         {label}
       </Text>
     </Pressable>
@@ -305,5 +306,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       paddingTop: 6,
       gap: 2,
     },
+    badgeText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.2 },
+    tabLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.2 },
+    tabButton: { flex: 1, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 3 },
   });
 }

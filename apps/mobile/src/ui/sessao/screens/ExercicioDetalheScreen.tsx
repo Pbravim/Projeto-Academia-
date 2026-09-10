@@ -479,7 +479,7 @@ export function ExercicioDetalheScreen({
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
@@ -743,7 +743,7 @@ export function ExercicioDetalheScreen({
                       </Text>
                     </View>
                   ) : (
-                    <Text style={[styles.seriesProgressLabel, { marginLeft: 0 }]}>
+                    <Text style={[styles.seriesProgressLabel, styles.noMarginLeft]}>
                       {t('sessao.detalhe.seriesRegistradasCount', { count: validCount })}
                     </Text>
                   )}
@@ -1108,7 +1108,7 @@ export function ExercicioDetalheScreen({
               const isEditing = editingSerieId === serie.id;
               if (isEditing) {
                 return (
-                  <View key={serie.id} style={[styles.serieRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
+                  <View key={serie.id} style={[styles.serieRow, styles.stackColumn]}>
                     <Text style={styles.serieLabel}>{t('sessao.detalhe.editandoSerie')}</Text>
                     <View style={styles.textModeRow}>
                       <View style={styles.pickerCol}>
@@ -1144,7 +1144,7 @@ export function ExercicioDetalheScreen({
                         />
                       </View>
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <View style={styles.stackRow}>
                       <Pressable
                         onPress={() => {
                           void (async () => {
@@ -1152,13 +1152,13 @@ export function ExercicioDetalheScreen({
                             setEditingSerieId(null);
                           })();
                         }}
-                        style={({ pressed }) => [styles.addSerieBtn, { flex: 1 }, pressed ? { opacity: 0.85 } : null]}
+                        style={({ pressed }) => [styles.addSerieBtn, styles.flex1, pressed ? { opacity: 0.85 } : null]}
                       >
                         <Text style={styles.addSerieBtnText}>{t('common.save')}</Text>
                       </Pressable>
                       <Pressable
                         onPress={() => setEditingSerieId(null)}
-                        style={({ pressed }) => [styles.concluirBtn, { flex: 1 }, pressed ? { opacity: 0.75 } : null]}
+                        style={({ pressed }) => [styles.concluirBtn, styles.flex1, pressed ? { opacity: 0.75 } : null]}
                       >
                         <Text style={styles.concluirBtnText}>{t('common.cancel')}</Text>
                       </Pressable>
@@ -1173,7 +1173,7 @@ export function ExercicioDetalheScreen({
                     <Text style={[styles.serieBadgeText, isBest ? styles.serieBadgeTextBest : null]}>{i + 1}</Text>
                   </View>
                   <Pressable
-                    style={{ flex: 1 }}
+                    style={styles.flex1}
                     onLongPress={() => {
                       if (!sessaoExercicio.realizado && trackingType === 'reps_load' && serie.cargaKg != null && serie.repeticoes != null) {
                         setEditingSerieId(serie.id);
@@ -1425,5 +1425,9 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     navegacaoBtnText: { fontSize: 15, fontWeight: '800' },
     navegacaoBtnTextProximo: { color: c.accent },
     navegacaoBtnTextFinalizar: { color: c.accentText },
+    flex1: { flex: 1 },
+    noMarginLeft: { marginLeft: 0 },
+    stackColumn: { flexDirection: 'column', alignItems: 'stretch', gap: 8 },
+    stackRow: { flexDirection: 'row', gap: 8 },
   });
 }

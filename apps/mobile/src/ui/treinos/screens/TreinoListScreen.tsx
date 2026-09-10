@@ -294,13 +294,13 @@ function ObjetivoPicker({
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>
         {t('treinos.list.objetivoPicker.label')}{' '}
-        <Text style={{ color: c.textSecondary, fontWeight: '400' }}>
+        <Text style={[styles.weightRegular, { color: c.textSecondary }]}>
           {t('treinos.list.objetivoPicker.opcional')}
         </Text>
       </Text>
       <Pressable
         onPress={() => editable && setOpen(true)}
-        style={[styles.selectTrigger, !editable ? { opacity: 0.6 } : null]}
+        style={[styles.selectTrigger, !editable ? styles.dimmedSoft : null]}
       >
         <Text
           style={[
@@ -635,5 +635,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteButtonPressed: { opacity: 0.75 },
     deleteButtonLoading: { opacity: 0.5 },
     deleteButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },
+    weightRegular: { fontWeight: '400' },
+    dimmedSoft: { opacity: 0.6 },
   });
 }

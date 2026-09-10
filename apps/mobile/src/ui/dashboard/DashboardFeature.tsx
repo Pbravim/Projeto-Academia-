@@ -36,8 +36,8 @@ export function DashboardFeature({ dependencies, onGoToSessao }: Props) {
   useEffect(() => {
     // Keep-alive: aba oculta não registra handler (BackHandler é LIFO e ela
     // consumiria o back da aba visível).
-    if (!tabActive) return;
-    if (view.type === 'dashboard') return;
+    if (!tabActive) return undefined;
+    if (view.type === 'dashboard') return undefined;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       setView({ type: 'dashboard' });
       return true;

@@ -49,7 +49,7 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   };
 
   useEffect(() => {
-    if (!selectedTreino) return;
+    if (!selectedTreino) return undefined;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       closeDetail();
       return true;

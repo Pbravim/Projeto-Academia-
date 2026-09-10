@@ -206,7 +206,7 @@ export function PerfilScreen({
   return (
     // KAV + persistTaps: sem eles o teclado cobria o botão "Registrar" do form
     // de peso e o 1º toque no botão só fechava o teclado.
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
@@ -867,5 +867,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteButtonLoading: { opacity: 0.5 },
     deleteButtonPressed: { opacity: 0.75 },
     deleteButtonText: { color: c.error, fontSize: 12, fontWeight: '700' },
+    flex1: { flex: 1 },
   });
 }

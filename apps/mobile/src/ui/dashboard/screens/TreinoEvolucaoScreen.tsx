@@ -127,7 +127,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
         onPress={() => setExpanded((v) => !v)}
         style={({ pressed }) => [styles.cardHeader, pressed ? { opacity: 0.7 } : null]}
       >
-        <View style={{ flex: 1 }}>
+        <View style={styles.flex1}>
           <Text style={styles.exercicioNome}>{exercicio.exercicioNome}</Text>
           <Text style={styles.exercicioMeta}>{exercicio.groupMuscle}</Text>
           {!expanded && !(temDados && ormValues.length >= 2) ? (
@@ -310,5 +310,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     segmentActive: { backgroundColor: c.hero },
     segmentText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
     segmentTextActive: { color: c.heroText },
+    flex1: { flex: 1 },
   });
 }
