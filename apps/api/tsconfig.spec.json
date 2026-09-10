@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "//": "exclude precisa ser redeclarado: o exclude da config base lista 'test' e exclude vence include, o que deixaria esta config inerte.",
+  "exclude": ["node_modules", "dist"]
+}
