@@ -24,8 +24,8 @@ vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' 
 vi.mock('expo-sqlite', () => ({}));
 
 // gerarThumbMidia (importado transitivamente pelo controller) puxa essas libs nativas.
-vi.mock('expo-image-manipulator', () => ({ manipulateAsync: vi.fn(), SaveFormat: { JPEG: 'jpeg' } }));
-vi.mock('expo-video-thumbnails', () => ({ getThumbnailAsync: vi.fn() }));
+vi.mock('expo-image-manipulator', () => ({ ImageManipulator: { manipulate: vi.fn() }, SaveFormat: { JPEG: 'jpeg' } }));
+vi.mock('expo-video', () => ({ createVideoPlayer: vi.fn() }));
 
 // exerciseMedia puxa gifAssets/thumbAssets (require de .gif/.jpg binários que o
 // parser do Vitest não aceita) — mocka o módulo inteiro.
