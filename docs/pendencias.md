@@ -73,7 +73,12 @@
 - [x] **N+1 de séries** em `GetSessaoDetalheUseCase` ✅ `2026-06-23` — **já estava corrigido**: usa
   `Promise.all([findByIds, listBySessaoExercicioIds])` com Maps; `listBySessaoExercicioIds` é uma única
   query `IN (...)`. Pendência obsoleta; nenhuma mudança necessária.
-- [ ] **`InMemoryHistoricoRepository.getUltimasExecucoesValidas`** usa loop O(N²). _(só afeta testes)_
+- [x] **`InMemoryHistoricoRepository.getUltimasExecucoesValidas`** ✅ `2026-09-09` — **pendência
+  obsoleta, nenhuma mudança necessária.** Verificado no código
+  (`apps/mobile/src/infrastructure/historico/InMemoryHistoricoRepository.ts:35-57`): o método
+  é uma **passada única** sobre `this.records` alimentando um `Map` por `exercicioId` —
+  O(N), não O(N²). O `reduce` interno percorre só as séries válidas da execução corrente.
+  O diagnóstico do loop quadrático já não correspondia ao código quando foi escrito.
 - [x] **Violações de DIP** ✅ `2026-06-23` — os 3 nomeados (`AddExercicioAoTreino`, `RegistrarSerie`,
   `IniciarSessao`) **já dependiam de `TransactionPort`** (`domain/shared/ports`). Estendido por
   consistência a mais **6 use cases** que só usavam `withTransaction` (`DeleteExercise`, `AddExercicioASessao`,
