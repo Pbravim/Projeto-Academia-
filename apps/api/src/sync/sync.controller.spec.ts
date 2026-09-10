@@ -1,6 +1,8 @@
 import type { SyncRequest } from '@academia/contracts';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
 import { SyncController } from './sync.controller';
 import { SyncService } from './sync.service';
 
@@ -23,7 +25,10 @@ describe('SyncController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SyncController],
       providers: [{ provide: SyncService, useValue: mockSync }],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
     controller = module.get(SyncController);
   });
 
