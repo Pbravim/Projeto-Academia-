@@ -18,9 +18,15 @@
 > **documental**: os documentos-índice não tinham sido atualizados quando as correções
 > entraram.
 >
-> **Baseline de vulnerabilidades corrigido:** medido em 2026-09-09, `npm audit` reporta
-> **49 vulnerabilidades (1 crítica, 20 high)**, não 44. A crítica é `tar`, puxada por
-> `bcrypt@5 → @mapbox/node-pre-gyp`.
+> **Baseline de vulnerabilidades corrigido, e já superado:** medido em 2026-09-09, o
+> `npm audit` reportava **49 vulnerabilidades (1 crítica, 20 high)**, não 44. A crítica
+> era `tar`, puxada por `bcrypt@5 → @mapbox/node-pre-gyp`.
+>
+> **Situação atual: 43 vulnerabilidades, 0 críticas, 17 high** — o `bcrypt` subiu para 6,
+> que abandona o `node-pre-gyp` e levou 27 pacotes junto (PR #9). As 17 high restantes
+> exigem majors (`expo@57`, `@nestjs/platform-express@12`, `@nestjs/swagger@12`).
+> Ou seja: **a conclusão "cinco rodadas limpas não atingidas" continua válida, mas por um
+> conjunto menor de motivos** do que este documento registra.
 >
 > Lição registrada: auditoria que lê documento-índice em vez de ler o código herda o atraso
 > do índice. Item de débito só entra em auditoria depois de conferido na fonte.
