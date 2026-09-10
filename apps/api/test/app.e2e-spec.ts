@@ -23,6 +23,7 @@ process.env.DATABASE_URL ||= 'postgresql://academia:academia@localhost:5433/acad
 const emptyChanges = (): SyncRequest['changes'] => ({
   exercises: [], treinos: [], treinoExercicios: [], sessaoTreinos: [],
   sessaoExercicios: [], seriesRegistradas: [], registrosPeso: [], userSettings: [],
+  exerciseAlternatives: [],
 });
 
 describe('API (e2e)', () => {
