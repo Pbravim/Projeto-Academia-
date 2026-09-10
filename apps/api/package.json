@@ -6,7 +6,7 @@
     "build": "nest build",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.spec.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "test": "jest",
