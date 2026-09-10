@@ -1,8 +1,11 @@
 import { File } from 'expo-file-system';
 
 import type { MediaFileCleanup } from '../../application/exercises/use-cases/DeleteExerciseUseCase';
+import type { AppLogger } from '../logging/AppLogger';
 
 export class ExpoMediaFileCleanup implements MediaFileCleanup {
+  constructor(private readonly logger: AppLogger) {}
+
   async deleteFileIfExists(uri: string): Promise<void> {
     // Handle both file:// and content:// URIs
     // file:// URIs can be deleted directly
@@ -11,7 +14,7 @@ export class ExpoMediaFileCleanup implements MediaFileCleanup {
       // Android content:// URIs typically cannot be deleted directly via File API
       // Log a warning and skip deletion for content:// URIs
       // In a real app, you might use ContentProvider APIs to delete these
-      console.warn(`Cannot delete content:// URI: ${uri}. This requires ContentProvider access.`);
+      this.logger.info('media_cleanup.content_uri_skipped', { uri });
       return;
     }
 
@@ -23,7 +26,7 @@ export class ExpoMediaFileCleanup implements MediaFileCleanup {
       }
     } catch (error) {
       // Log but don't throw — file may have already been deleted or permission denied
-      console.warn(`Failed to delete file at ${uri}:`, error);
+      this.logger.error('media_cleanup.delete_failed', error, { uri });
     }
   }
 }

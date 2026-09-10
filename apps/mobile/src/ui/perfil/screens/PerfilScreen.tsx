@@ -169,7 +169,7 @@ export function PerfilScreen({
   // ── Derived stats ────────────────────────────────────────────────────────
   const { stats } = statsState;
   const treinoFavorito = stats?.evolucaoPorTreino.reduce(
-    (best, t) => (t.sessoes.length > (best?.sessoes.length ?? 0) ? t : best),
+    (best, treino) => (treino.sessoes.length > (best?.sessoes.length ?? 0) ? treino : best),
     null as (typeof stats.evolucaoPorTreino)[0] | null,
   ) ?? null;
   const topRecord = stats?.recordesPessoais[0] ?? null;

@@ -24,7 +24,9 @@ export function LanguagePickerModal({ visible, activeLocale, onSelect, onClose }
 
   useEffect(() => {
     if (visible) translateY.setValue(0);
-  }, [visible]);
+    // translateY vem de useRef(...).current: identidade estável por toda a vida
+    // do componente, então incluí-lo não muda quando o efeito roda.
+  }, [visible, translateY]);
 
   const panResponder = useRef(
     PanResponder.create({

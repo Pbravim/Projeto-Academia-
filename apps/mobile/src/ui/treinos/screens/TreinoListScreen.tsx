@@ -159,7 +159,7 @@ export function TreinoListScreen({
             <Pressable
               key={card.id}
               onPress={() =>
-                onSelectTreino(treinos.find((t) => t.id === card.id)!)
+                onSelectTreino(treinos.find((treino) => treino.id === card.id)!)
               }
               style={({ pressed }) => [
                 styles.treinoCard,

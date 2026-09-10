@@ -288,7 +288,7 @@ export const mobileDependencies = {
       treinoExercicioRepository,
       sessaoExercicioRepository,
       serieRegistradaRepository,
-      mediaFileCleanup: new ExpoMediaFileCleanup(),
+      mediaFileCleanup: new ExpoMediaFileCleanup(logger),
     }),
     listExercises,
     getUltimasExecucoesValidas: new GetUltimasExecucoesValidasUseCase({ historicoRepository }),

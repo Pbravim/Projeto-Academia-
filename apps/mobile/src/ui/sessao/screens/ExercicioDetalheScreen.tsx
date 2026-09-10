@@ -1129,7 +1129,7 @@ export function ExercicioDetalheScreen({
                           <PickerCarousel
                             count={KG_VALUES.length}
                             selectedIndex={kgIndexFor(editKg)}
-                            onChangeIndex={(i) => setEditKg(KG_VALUES[i])}
+                            onChangeIndex={(idx) => setEditKg(KG_VALUES[idx])}
                             formatItem={formatKgItem}
                           />
                         )}
@@ -1139,7 +1139,7 @@ export function ExercicioDetalheScreen({
                         <PickerCarousel
                           count={30}
                           selectedIndex={Math.max(0, Math.min(editReps - 1, 29))}
-                          onChangeIndex={(i) => setEditReps(i + 1)}
+                          onChangeIndex={(idx) => setEditReps(idx + 1)}
                           formatItem={formatRepsItem}
                         />
                       </View>

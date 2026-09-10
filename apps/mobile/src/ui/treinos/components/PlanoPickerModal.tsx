@@ -27,7 +27,9 @@ export function PlanoPickerModal({ dia, treinos, treinosVazios, treinoAtualId, o
 
   useEffect(() => {
     if (dia) translateY.setValue(0);
-  }, [dia]);
+    // translateY vem de useRef(...).current: identidade estável por toda a vida
+    // do componente, então incluí-lo não muda quando o efeito roda.
+  }, [dia, translateY]);
 
   const panResponder = useRef(
     PanResponder.create({

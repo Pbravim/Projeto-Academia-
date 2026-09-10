@@ -157,10 +157,10 @@ export class SqliteDashboardRepository implements DashboardRepository {
 
     const evolucaoPorTreino: EvolucaoPorTreino[] = Array.from(byTreino.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([treinoNome, { treinoId, sessoes, sessoesArquivadas }]) => ({
+      .map(([treinoNome, { treinoId, sessoes: sessoesDoTreino, sessoesArquivadas }]) => ({
         treinoId,
         treinoNome,
-        sessoes: sessoes.slice(0, 10),
+        sessoes: sessoesDoTreino.slice(0, 10),
         sessoesArquivadas,
       }));
 

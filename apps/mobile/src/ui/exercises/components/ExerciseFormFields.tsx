@@ -137,7 +137,7 @@ export function MultiChipPicker({
   }
 
   function removeCustom(item: string) {
-    onChange(buildValue(predefined, custom.filter((c) => c !== item)));
+    onChange(buildValue(predefined, custom.filter((entry) => entry !== item)));
   }
 
   return (

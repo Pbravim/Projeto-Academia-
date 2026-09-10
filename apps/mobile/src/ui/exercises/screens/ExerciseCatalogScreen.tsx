@@ -75,7 +75,7 @@ export function ExerciseCatalogScreen({
 
   // Opções únicas derivadas do catálogo real
   const availableCategories = useMemo(
-    () => [...new Set(exercises.map((e) => e.category).filter((c): c is string => !!c))].sort(),
+    () => [...new Set(exercises.map((e) => e.category).filter((cat): cat is string => !!cat))].sort(),
     [exercises]
   );
   const availableEquipments = useMemo(
