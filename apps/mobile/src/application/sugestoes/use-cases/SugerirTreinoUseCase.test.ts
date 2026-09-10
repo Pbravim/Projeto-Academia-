@@ -37,6 +37,9 @@ describe('SugerirTreinoUseCase', () => {
 
     expect(sugestao?.treino.id).toBe('t1');
     expect(sugestao?.fonte).toBe('plano');
+    // Propagação de ultimaSessao: caso que só existia no teste da cópia duplicada
+    // (application/sessoes), preservado aqui na deduplicação.
+    expect(sugestao?.ultimaSessao).toBe('2026-02-01T10:00:00Z');
   });
 
   it('cai na rotação quando não há plano para o dia', async () => {

@@ -1,4 +1,4 @@
-import type { DashboardRepository } from '../../../domain/dashboard/repositories/DashboardRepository';
+import type { SugestaoRepository } from '../../../domain/sugestoes/repositories/SugestaoRepository';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
 import { diaSemanaHoje } from '../../../domain/plano/entities/DiaSemana';
@@ -12,7 +12,7 @@ export interface SugestaoTreino {
 }
 
 interface Deps {
-  dashboardRepository: DashboardRepository;
+  dashboardRepository: SugestaoRepository;
   planoRepository?: PlanoSemanalRepository;
 }
 
@@ -23,8 +23,10 @@ interface Deps {
  * While it uses DashboardRepository (from domain/dashboard), it's focused on
  * suggesting trainings rather than managing dashboard state, so it lives here.
  *
- * TODO (future): Consider creating a dedicated SugestaoRepository to reduce
- * coupling with DashboardRepository methods.
+ * Depende de SugestaoRepository (domain/sugestoes), não do DashboardRepository
+ * inteiro: dos 7 métodos daquele, este use case usa 2. O
+ * SqliteDashboardRepository satisfaz a porta estruturalmente, então o wiring
+ * continua passando o mesmo objeto.
  */
 export class SugerirTreinoUseCase {
   constructor(private readonly deps: Deps) {}

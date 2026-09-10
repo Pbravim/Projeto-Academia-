@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { GetSessaoAtivaUseCase } from '../../../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import type { IniciarSessaoUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoUseCase';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
-import type { SugerirTreinoUseCase, SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
+import type { SugerirTreinoUseCase, SugestaoTreino } from '../../../application/sugestoes/use-cases/SugerirTreinoUseCase';
 import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
