@@ -2,12 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
+import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
-import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
-import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
+
 import { RegistrarSerieUseCase } from './RegistrarSerieUseCase';
 
 function makeDeps() {

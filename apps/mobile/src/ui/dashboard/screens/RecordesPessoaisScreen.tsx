@@ -3,8 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { RecordeItem } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   recordes: RecordeItem[];

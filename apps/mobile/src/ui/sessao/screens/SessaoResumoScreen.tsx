@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
-import { buildSessaoResumoViewModel } from '../presenters/buildSessaoResumoViewModel';
-import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+import { buildSessaoResumoViewModel } from '../presenters/buildSessaoResumoViewModel';
 
 interface Props {
   detalhe: SessaoDetalhe;

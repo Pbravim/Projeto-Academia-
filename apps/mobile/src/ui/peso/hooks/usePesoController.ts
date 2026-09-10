@@ -7,8 +7,8 @@ import type { RegistroPesoPrimitives } from '../../../domain/peso/entities/Regis
 import { PesoValidationError } from '../../../domain/peso/errors/PesoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
-import { buildPesoViewModel, type PesoViewModel } from '../presenters/buildPesoViewModel';
 import { translate, useLocale } from '../../shared/i18n';
+import { buildPesoViewModel, type PesoViewModel } from '../presenters/buildPesoViewModel';
 
 export interface PesoControllerDependencies {
   registrarPeso: RegistrarPesoUseCase;

@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
 
-import { renderHook, act } from '../../../test/renderHook';
-import { usePerfilController, PERFIL_NOME_KEY, PERFIL_FOTO_KEY } from './usePerfilController';
+import { act,renderHook } from '../../../test/renderHook';
+
+import { PERFIL_FOTO_KEY,PERFIL_NOME_KEY, usePerfilController } from './usePerfilController';
 
 // Mock expo-sqlite kv-store
 const kvStore: Record<string, string> = {};

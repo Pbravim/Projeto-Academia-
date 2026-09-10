@@ -1,8 +1,8 @@
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
-import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
-import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
+import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import { SerieNotFoundError } from '../errors/SerieNotFoundError';
+import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 
 interface DeleteSerieUseCaseDependencies {
   serieRegistradaRepository: SerieRegistradaRepository;

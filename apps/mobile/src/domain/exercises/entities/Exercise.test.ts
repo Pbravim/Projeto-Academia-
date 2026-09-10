@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { Exercise } from './Exercise';
 import { ExerciseValidationError } from '../errors/ExerciseValidationError';
+
+import { Exercise } from './Exercise';
 
 describe('Exercise', () => {
   it('creates a normalized exercise ready to persist', () => {

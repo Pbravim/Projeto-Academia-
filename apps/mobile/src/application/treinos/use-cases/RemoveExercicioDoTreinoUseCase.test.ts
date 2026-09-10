@@ -5,6 +5,7 @@ import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/In
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
+
 import { AddExercicioAoTreinoUseCase } from './AddExercicioAoTreinoUseCase';
 import { CreateTreinoUseCase } from './CreateTreinoUseCase';
 import { RemoveExercicioDoTreinoUseCase } from './RemoveExercicioDoTreinoUseCase';

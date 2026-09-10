@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
-import { LineChart } from '../../shared/LineChart';
-import { Sparkline } from '../../shared/Sparkline';
 import { SessionSeriesTable } from '../../shared/components/SessionSeriesTable';
 import {
   buildSessionTableRows,
@@ -11,9 +9,11 @@ import {
   formatKgDelta,
 } from '../../shared/components/sessionSeriesTableModel';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
 import { formatShortDate } from '../../shared/i18n/formatters';
+import { LineChart } from '../../shared/LineChart';
+import { Sparkline } from '../../shared/Sparkline';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinoNome: string;

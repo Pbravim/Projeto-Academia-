@@ -1,5 +1,5 @@
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
-import { translate, type AppLocale } from '../i18n/core';
+import { type AppLocale,translate } from '../i18n/core';
 import { formatFixedDecimal } from '../i18n/formatters';
 
 export interface SessionTableInputSet {

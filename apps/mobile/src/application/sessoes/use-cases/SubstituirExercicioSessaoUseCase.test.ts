@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
 import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
@@ -7,6 +8,7 @@ import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/In
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+
 import { SubstituirExercicioSessaoUseCase } from './SubstituirExercicioSessaoUseCase';
 
 function makeSessaoAtiva(id = 'sessao-1') {

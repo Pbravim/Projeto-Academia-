@@ -1,12 +1,12 @@
+import { Image } from 'expo-image';
 import { memo, useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 
-import type { ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+import type { ExerciseCardViewModel } from '../presenters/buildExerciseCatalogViewModel';
 
 // ── Header de seção (usado como renderSectionHeader da SectionList) ──
 // Visual idêntico ao antigo header interno do ExerciseSection; o estado de

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createTestDatabase } from '../../test/db-setup';
+
 import { calcularEstimativa1rm, estimativa1rmSql } from './estimativa1rm';
 
 /**

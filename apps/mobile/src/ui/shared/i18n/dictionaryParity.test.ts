@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { ptBR } from './translations/pt-BR';
 import { enUS } from './translations/en-US';
+import { ptBR } from './translations/pt-BR';
 
 function isPluralObject(value: object): boolean {
   return 'one' in value || 'other' in value;

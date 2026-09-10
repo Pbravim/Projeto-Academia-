@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
+import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
 import type { AddExercicioASessaoUseCase } from '../../../application/sessoes/use-cases/AddExercicioASessaoUseCase';
 import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cases/CancelarSessaoUseCase';
 import type { DeleteSerieUseCase } from '../../../application/sessoes/use-cases/DeleteSerieUseCase';
-import type { UpdateSerieInput, UpdateSerieUseCase } from '../../../application/sessoes/use-cases/UpdateSerieUseCase';
 import type { FinalizarSessaoUseCase } from '../../../application/sessoes/use-cases/FinalizarSessaoUseCase';
 import type { GetSessaoDetalheUseCase, SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { RegistrarSerieInput, RegistrarSerieUseCase } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
-import type { ToggleExercicioRealizadoUseCase } from '../../../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
-import type { SugestaoProgressao, SugerirProgressaoUseCase } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
-import type { SugerirSubstitutosUseCase, CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import type { SubstituirExercicioSessaoUseCase } from '../../../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
-import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
+import type { SugerirProgressaoUseCase,SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
+import type { CandidatoSubstituto,SugerirSubstitutosUseCase } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
+import type { ToggleExercicioRealizadoUseCase } from '../../../application/sessoes/use-cases/ToggleExercicioRealizadoUseCase';
+import type { UpdateSerieInput, UpdateSerieUseCase } from '../../../application/sessoes/use-cases/UpdateSerieUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import type { SessaoExercicioPrimitives,SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
-import type { SubstituicaoMotivo, SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';

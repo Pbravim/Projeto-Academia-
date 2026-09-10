@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DashboardRepository } from '../../../domain/dashboard/repositories/DashboardRepository';
-import { InMemoryPlanoSemanalRepository } from '../../../infrastructure/plano/InMemoryPlanoSemanalRepository';
 import { diaSemanaHoje } from '../../../domain/plano/entities/DiaSemana';
+import { InMemoryPlanoSemanalRepository } from '../../../infrastructure/plano/InMemoryPlanoSemanalRepository';
+
 import { SugerirTreinoUseCase } from './SugerirTreinoUseCase';
 
 const treinoRow = (id: string, ultimaSessao: string | null) => ({

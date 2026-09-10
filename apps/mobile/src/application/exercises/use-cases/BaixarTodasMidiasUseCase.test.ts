@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+
+import type { BaixarMidiaExercicioUseCase } from './BaixarMidiaExercicioUseCase';
+import { BaixarTodasMidiasUseCase } from './BaixarTodasMidiasUseCase';
+
 // BaixarMidiaExercicioUseCase (importado transitivamente por BaixarTodasMidiasUseCase)
 // importa expo-file-system, que puxa react-native — mockado para rodar no ambiente node.
 vi.mock('expo-file-system', () => ({
@@ -7,11 +13,6 @@ vi.mock('expo-file-system', () => ({
   Directory: vi.fn(),
   Paths: { document: 'file:///docs/' },
 }));
-
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { Exercise } from '../../../domain/exercises/entities/Exercise';
-import type { BaixarMidiaExercicioUseCase } from './BaixarMidiaExercicioUseCase';
-import { BaixarTodasMidiasUseCase } from './BaixarTodasMidiasUseCase';
 
 function makeExercise(id: string, mediaOnline: string | null, mediaLocal: string | null) {
   return Exercise.create({

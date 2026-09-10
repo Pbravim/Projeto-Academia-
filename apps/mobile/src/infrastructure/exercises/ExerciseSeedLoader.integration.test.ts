@@ -1,10 +1,11 @@
 /// <reference types="vite/client" />
 import { describe, expect, it } from 'vitest';
 
-import { createTestDatabase } from '../../test/db-setup';
-import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
-import { ExerciseSeedLoader, type SeedFile } from './ExerciseSeedLoader';
 import { normalizeText } from '../../shared/utils/normalizeText';
+import { createTestDatabase } from '../../test/db-setup';
+
+import { ExerciseSeedLoader, type SeedFile } from './ExerciseSeedLoader';
+import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
 
 // Todos os seeds reais do catálogo — o mesmo conjunto carregado no boot.
 const seedModules = import.meta.glob('./seeds/*.json', { eager: true }) as Record<

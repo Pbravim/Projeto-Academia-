@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { type ReactNode,useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -12,19 +13,18 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
-import type { PerfilControllerState } from '../hooks/usePerfilController';
 import type { PesoControllerState } from '../../peso/hooks/usePesoController';
-import type { StatsControllerState } from '../hooks/useStatsController';
 import { AderenciaCard } from '../../shared/components/AderenciaCard';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { LineChart, type LineChartPoint } from '../../shared/LineChart';
-import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
-import { useLocale, useLocalePreference, useT } from '../../shared/i18n';
-import { SUPPORTED_LANGUAGES } from '../../shared/i18n/languages';
 import { LanguagePickerModal } from '../../shared/components/LanguagePickerModal';
+import { useLocale, useLocalePreference, useT } from '../../shared/i18n';
 import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
+import { SUPPORTED_LANGUAGES } from '../../shared/i18n/languages';
+import { LineChart, type LineChartPoint } from '../../shared/LineChart';
+import { type ThemePreference,useTheme, useThemePreference } from '../../shared/theme';
+import type { PerfilControllerState } from '../hooks/usePerfilController';
+import type { StatsControllerState } from '../hooks/useStatsController';
 
 // ─── Metric abstraction ──────────────────────────────────────────────────────
 // To add a new metric (arm, height, body fat…), push a MetricSeries into the

@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { Exercise } from '../../domain/exercises/entities/Exercise';
-import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
 import type { SQLiteBindParams, SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
+import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
 
 interface ExerciseRow {
   id: string;
@@ -21,7 +22,7 @@ class FakeSQLiteDatabaseClient implements SQLiteDatabaseClient {
   private readonly rows = new Map<string, ExerciseRow>();
 
   async exec(): Promise<void> {
-    return;
+    
   }
 
   async run(_statement: string, params: SQLiteBindParams = []): Promise<void> {

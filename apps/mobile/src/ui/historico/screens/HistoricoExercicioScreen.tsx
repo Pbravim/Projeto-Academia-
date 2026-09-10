@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
-import { LineChart } from '../../shared/LineChart';
 import { SessionSeriesTable } from '../../shared/components/SessionSeriesTable';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { LineChart } from '../../shared/LineChart';
+import { useTheme } from '../../shared/theme';
+import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
 
 export function HistoricoExercicioScreen({
   viewModel,

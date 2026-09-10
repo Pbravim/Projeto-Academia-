@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import type { GetHistoricoExercicioUseCase } from '../../../application/historico/use-cases/GetHistoricoExercicioUseCase';
 import type { ExecucaoExercicio } from '../../../domain/historico/repositories/HistoricoRepository';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { translate, useLocale } from '../../shared/i18n';
 import {
   buildHistoricoExercicioViewModel,
   type HistoricoExercicioViewModel,
 } from '../presenters/buildHistoricoExercicioViewModel';
-import { translate, useLocale } from '../../shared/i18n';
 
 export interface HistoricoExercicioControllerDependencies {
   getHistoricoExercicio: GetHistoricoExercicioUseCase;

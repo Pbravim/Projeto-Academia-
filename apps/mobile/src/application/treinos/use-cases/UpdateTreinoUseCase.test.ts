@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { Treino } from '../../../domain/treinos/entities/Treino';
-import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { DuplicateTreinoError } from '../errors/DuplicateTreinoError';
+import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+
 import { UpdateTreinoUseCase } from './UpdateTreinoUseCase';
 
 function makeUseCase(repo: InMemoryTreinoRepository) {

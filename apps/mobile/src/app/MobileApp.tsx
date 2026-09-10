@@ -1,21 +1,21 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Storage } from 'expo-sqlite/kv-store';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Storage } from 'expo-sqlite/kv-store';
-import { Ionicons } from '@expo/vector-icons';
 
 import { mobileDependencies } from '../bootstrap/mobileDependencies';
 import { registerGlobalErrorHandler } from '../infrastructure/logging/registerGlobalErrorHandler';
-import { ExerciseCatalogFeature } from '../ui/exercises/ExerciseCatalogFeature';
-import { PerfilFeature } from '../ui/perfil/PerfilFeature';
-import { PERFIL_NOME_KEY, PERFIL_FOTO_KEY } from '../ui/perfil/hooks/usePerfilController';
-import { TreinoFeature } from '../ui/treinos/TreinoFeature';
-import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 import { DashboardFeature } from '../ui/dashboard/DashboardFeature';
-import { ThemeContext, useTheme, useThemeProvider } from '../ui/shared/theme';
-import { TabActivityContext } from '../ui/shared/tabActivity';
+import { ExerciseCatalogFeature } from '../ui/exercises/ExerciseCatalogFeature';
+import { PERFIL_FOTO_KEY,PERFIL_NOME_KEY } from '../ui/perfil/hooks/usePerfilController';
+import { PerfilFeature } from '../ui/perfil/PerfilFeature';
+import { SessaoFeature } from '../ui/sessao/SessaoFeature';
 import { LocaleProvider, useT } from '../ui/shared/i18n';
+import { TabActivityContext } from '../ui/shared/tabActivity';
+import { ThemeContext, useTheme, useThemeProvider } from '../ui/shared/theme';
+import { TreinoFeature } from '../ui/treinos/TreinoFeature';
 
 type ActiveModule = 'sessao' | 'exercicios' | 'treinos' | 'evolucao' | 'perfil';
 type TabModule = Exclude<ActiveModule, 'perfil'>;

@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
 
 function makeMockDb(): SQLiteDatabaseClient {

@@ -1,28 +1,28 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
-  ActivityIndicator, Pressable, ScrollView, SectionList, StyleSheet, Text, TextInput, View,
-  type SectionListData, type SectionListRenderItem,
+  ActivityIndicator, Pressable, ScrollView, SectionList,   type SectionListData, type SectionListRenderItem,
+StyleSheet, Text, TextInput, View,
 } from 'react-native';
 
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { normalizeText } from '../../../shared/utils/normalizeText';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
+import { useLocale, useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+import {
+  CATEGORIES, ChipPicker, EQUIPMENTS, EXECUTION_TYPES,   Field, MediaFields,
+MOVEMENT_PATTERNS, MultiChipPicker, PRIMARY_EQUIPMENTS,
+} from '../components/ExerciseFormFields';
+import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
+import { ExerciseCardRow, ExerciseSectionHeader } from '../components/ExerciseSection';
+import { metadataLabel } from '../exerciseMetadataLabels';
+import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
 import {
   buildExerciseCatalogViewModel,
   type CatalogSortMode,
   type ExerciseCardViewModel,
   type ExerciseSectionViewModel,
 } from '../presenters/buildExerciseCatalogViewModel';
-import type { ExerciseCatalogControllerState } from '../hooks/useExerciseCatalogController';
-import { ExerciseCardRow, ExerciseSectionHeader } from '../components/ExerciseSection';
-import {
-  Field, MultiChipPicker, ChipPicker, MediaFields,
-  CATEGORIES, EQUIPMENTS, MOVEMENT_PATTERNS, EXECUTION_TYPES, PRIMARY_EQUIPMENTS,
-} from '../components/ExerciseFormFields';
-import { ExerciseMediaViewer } from '../components/ExerciseMediaViewer';
-import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { metadataLabel } from '../exerciseMetadataLabels';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
-import { normalizeText } from '../../../shared/utils/normalizeText';
-import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 
 // Seção da SectionList: `data` vazio quando o grupo está colapsado, então só
 // os cards de grupos expandidos (e visíveis) montam suas thumbs de GIF.

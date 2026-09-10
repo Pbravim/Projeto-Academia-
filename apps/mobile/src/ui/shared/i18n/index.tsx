@@ -2,9 +2,10 @@ import { getLocales } from 'expo-localization';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { databaseClient } from '../../../bootstrap/databaseClient';
-import { translate, type AppLocale, type LocalePreference } from './core';
 
-export { translate, type AppLocale, type LocalePreference };
+import { type AppLocale, type LocalePreference,translate } from './core';
+
+export { type AppLocale, type LocalePreference,translate };
 
 const SETTING_KEY = 'locale_preference';
 

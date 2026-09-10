@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { ExerciseSeedLoader, type SeedExerciseEntry } from './ExerciseSeedLoader';
-import { InMemoryExerciseRepository } from './InMemoryExerciseRepository';
+import { beforeEach,describe, expect, it } from 'vitest';
+
 import { Exercise } from '../../domain/exercises/entities/Exercise';
 import { normalizeText } from '../../shared/utils/normalizeText';
+
+import { ExerciseSeedLoader, type SeedExerciseEntry } from './ExerciseSeedLoader';
+import { InMemoryExerciseRepository } from './InMemoryExerciseRepository';
 
 function legacyExercise(id: string, name: string, isCustom = false): Exercise {
   return Exercise.restore({

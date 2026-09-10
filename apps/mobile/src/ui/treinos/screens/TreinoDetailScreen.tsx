@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
-import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { normalizeText } from '../../../shared/utils/normalizeText';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
+import { useLocale, useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
 import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
 import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
-import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
-import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { normalizeText } from '../../../shared/utils/normalizeText';
-import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
+import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
+import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
 
 const GROUP_ORDER = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',

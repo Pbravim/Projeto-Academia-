@@ -1,16 +1,16 @@
+import { Ionicons } from '@expo/vector-icons';
 import { memo, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+
+import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
+import { useLocale, useT } from '../../shared/i18n';
+import { formatCompactDate, formatNumber,formatShortDate } from '../../shared/i18n/formatters';
+import { LineChart } from '../../shared/LineChart';
+import { useTheme } from '../../shared/theme';
+import type { DashboardControllerState } from '../hooks/useDashboardController';
 
 type DashboardChartMode = 'orm' | 'volume';
-
-import type { DashboardControllerState } from '../hooks/useDashboardController';
-import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
-import { LineChart } from '../../shared/LineChart';
-import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
-import { formatShortDate, formatCompactDate, formatNumber } from '../../shared/i18n/formatters';
 
 export function DashboardScreen({
   stats,

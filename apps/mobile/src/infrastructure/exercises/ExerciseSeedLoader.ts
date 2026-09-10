@@ -1,6 +1,6 @@
 import { Exercise } from '../../domain/exercises/entities/Exercise';
-import { normalizeText } from '../../shared/utils/normalizeText';
 import type { ExerciseRepository } from '../../domain/exercises/repositories/ExerciseRepository';
+import { normalizeText } from '../../shared/utils/normalizeText';
 
 export interface SeedExerciseEntry {
   id: string;

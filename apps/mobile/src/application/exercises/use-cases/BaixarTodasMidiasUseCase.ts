@@ -1,4 +1,5 @@
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+
 import { BaixarMidiaExercicioUseCase, isDownloadableUrl } from './BaixarMidiaExercicioUseCase';
 
 interface BaixarTodasMidiasDependencies {

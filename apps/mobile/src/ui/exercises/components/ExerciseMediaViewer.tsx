@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
-import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { File } from 'expo-file-system';
 import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { File } from 'expo-file-system';
+import { useMemo } from 'react';
+import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+
 import { gifAssets } from './gifAssets';
 
 interface Props {

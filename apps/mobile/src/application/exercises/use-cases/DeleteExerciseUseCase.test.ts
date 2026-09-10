@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
-import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
+
 import { CreateExerciseUseCase } from './CreateExerciseUseCase';
 import { DeleteExerciseUseCase } from './DeleteExerciseUseCase';
 

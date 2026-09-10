@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { SerieRegistrada } from '../../domain/sessoes/entities/SerieRegistrada';
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteSerieRegistradaRepository } from './SQLiteSerieRegistradaRepository';
-import { SerieRegistrada } from '../../domain/sessoes/entities/SerieRegistrada';
 
 let db: SQLiteDatabaseClient;
 let repo: SQLiteSerieRegistradaRepository;

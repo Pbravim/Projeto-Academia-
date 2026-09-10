@@ -1,11 +1,13 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { createTestDatabase } from '../../../test/db-setup';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
-import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTreinoRepository';
-import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
+import { beforeEach,describe, expect, it } from 'vitest';
+
 import { Treino } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
-import { ReordenarExerciciosUseCase, ReordenacaoIncompletaError } from './ReordenarExerciciosUseCase';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
+import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTreinoRepository';
+import { createTestDatabase } from '../../../test/db-setup';
+
+import { ReordenacaoIncompletaError,ReordenarExerciciosUseCase } from './ReordenarExerciciosUseCase';
 
 describe('ReordenarExerciciosUseCase - P1 Regression Tests', () => {
   let database: SQLiteDatabaseClient;

@@ -1,10 +1,10 @@
-import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
-import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
-import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
+import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
+import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
 // Todas as dependências são obrigatórias de propósito: a versão com deps opcionais

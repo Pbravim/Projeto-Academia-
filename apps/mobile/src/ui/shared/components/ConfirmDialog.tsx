@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
 import { useT } from '../i18n';
+import { useTheme } from '../theme';
 
 interface Props {
   visible: boolean;

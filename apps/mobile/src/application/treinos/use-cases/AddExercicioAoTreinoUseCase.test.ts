@@ -7,8 +7,9 @@ import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemo
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
-import { CreateTreinoUseCase } from './CreateTreinoUseCase';
+
 import { AddExercicioAoTreinoUseCase } from './AddExercicioAoTreinoUseCase';
+import { CreateTreinoUseCase } from './CreateTreinoUseCase';
 
 function makeRepos() {
   return {

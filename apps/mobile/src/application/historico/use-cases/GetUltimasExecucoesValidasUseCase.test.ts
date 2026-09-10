@@ -4,6 +4,7 @@ import type {
   HistoricoRepository,
   UltimaExecucaoValida,
 } from '../../../domain/historico/repositories/HistoricoRepository';
+
 import { GetUltimasExecucoesValidasUseCase } from './GetUltimasExecucoesValidasUseCase';
 
 describe('GetUltimasExecucoesValidasUseCase', () => {

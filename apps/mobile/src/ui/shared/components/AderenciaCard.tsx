@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { DiaAderencia } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
-import { useTheme } from '../theme';
 import { useT } from '../i18n';
+import { useTheme } from '../theme';
 
 type AderenciaMode = 'semanal' | 'mensal' | 'anual';
 

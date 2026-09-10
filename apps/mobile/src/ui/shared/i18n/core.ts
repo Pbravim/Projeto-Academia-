@@ -1,7 +1,7 @@
 import { I18n } from 'i18n-js';
 
-import { ptBR } from './translations/pt-BR';
 import { enUS } from './translations/en-US';
+import { ptBR } from './translations/pt-BR';
 
 export type LocalePreference = 'system' | 'pt-BR' | 'en-US';
 export type AppLocale = 'pt-BR' | 'en-US';

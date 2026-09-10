@@ -1,15 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+import type { DashboardStats } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { act,renderHook } from '../../../test/renderHook';
+
+import {
+  type DashboardControllerDependencies,
+  useDashboardController,
+} from './useDashboardController';
 
 // The i18n module pulls expo-localization and the SQLite database client
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
-
-import { renderHook, act } from '../../../test/renderHook';
-import {
-  useDashboardController,
-  type DashboardControllerDependencies,
-} from './useDashboardController';
-import type { DashboardStats } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 
 const statsBase: DashboardStats = {
   totalSessoes: 10,

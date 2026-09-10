@@ -1,13 +1,13 @@
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { SessaoTreino, type SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
-import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { TreinoNotFoundError } from '../../treinos/errors/TreinoNotFoundError';
 import { SessaoJaAtivaError } from '../errors/SessaoJaAtivaError';

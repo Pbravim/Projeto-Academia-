@@ -1,7 +1,7 @@
 import { Treino, type TreinoPrimitives } from '../../domain/treinos/entities/Treino';
 import type { TreinoRepository } from '../../domain/treinos/repositories/TreinoRepository';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface TreinoRow {
   id: string;

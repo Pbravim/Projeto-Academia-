@@ -1,6 +1,6 @@
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
@@ -8,9 +8,9 @@ import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaVie
 import { metadataLabel } from '../../exercises/exerciseMetadataLabels';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
+import { useLocale, useT } from '../../shared/i18n';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
 
 interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;

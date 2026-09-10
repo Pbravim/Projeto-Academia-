@@ -1,6 +1,6 @@
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { AppLocale } from '../../shared/i18n';
-import { formatNumber, formatFixedDecimal } from '../../shared/i18n/formatters';
+import { formatFixedDecimal,formatNumber } from '../../shared/i18n/formatters';
 
 export interface SerieResumoItem {
   label: string;

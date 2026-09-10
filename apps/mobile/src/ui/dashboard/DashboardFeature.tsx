@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 
-import type { DashboardControllerDependencies } from './hooks/useDashboardController';
-import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoController';
-import { useDashboardController } from './hooks/useDashboardController';
-import { useTreinoEvolucaoController } from './hooks/useTreinoEvolucaoController';
 import { useTabActive } from '../shared/tabActivity';
+
+import type { DashboardControllerDependencies } from './hooks/useDashboardController';
+import { useDashboardController } from './hooks/useDashboardController';
+import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoController';
+import { useTreinoEvolucaoController } from './hooks/useTreinoEvolucaoController';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { GerenciarSessoesScreen } from './screens/GerenciarSessoesScreen';
 import { RecordesPessoaisScreen } from './screens/RecordesPessoaisScreen';

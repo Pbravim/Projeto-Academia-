@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { Treino } from '../../domain/treinos/entities/Treino';
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { SQLiteTreinoRepository } from '../treinos/SQLiteTreinoRepository';
-import { Treino } from '../../domain/treinos/entities/Treino';
 
 /**
  * Regressão P0 (auditoria rodada 3, 2026-07-06): não existe clearDirty — o flag

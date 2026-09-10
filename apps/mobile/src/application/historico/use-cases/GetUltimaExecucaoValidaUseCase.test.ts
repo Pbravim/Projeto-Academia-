@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InMemoryHistoricoRepository } from '../../../infrastructure/historico/InMemoryHistoricoRepository';
+
 import { GetUltimaExecucaoValidaUseCase } from './GetUltimaExecucaoValidaUseCase';
 
 function makeDeps() {

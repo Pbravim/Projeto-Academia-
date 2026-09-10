@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InMemoryHistoricoRepository } from '../../../infrastructure/historico/InMemoryHistoricoRepository';
+
 import { GetHistoricoExercicioUseCase } from './GetHistoricoExercicioUseCase';
 
 function makeDeps() {

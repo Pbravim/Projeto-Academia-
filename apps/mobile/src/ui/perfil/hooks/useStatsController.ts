@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { GetDashboardStatsUseCase, DashboardStats } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 
+import type { DashboardStats,GetDashboardStatsUseCase } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { useTabActive } from '../../shared/tabActivity';
 
 export interface StatsControllerState {

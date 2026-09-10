@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemoryRegistroPesoRepository } from '../../../infrastructure/peso/InMemoryRegistroPesoRepository';
 import { RegistroPeso } from '../../../domain/peso/entities/RegistroPeso';
+import { InMemoryRegistroPesoRepository } from '../../../infrastructure/peso/InMemoryRegistroPesoRepository';
+
 import { ListRegistrosPesoUseCase } from './ListRegistrosPesoUseCase';
 
 function makeDeps() {

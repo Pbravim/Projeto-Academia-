@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthApiClient, AuthApiError } from '../../infrastructure/auth/AuthApiClient';
 import type { StoredTokens, TokenStore } from '../../infrastructure/auth/TokenStore';
+
 import { AuthSession, NotAuthenticatedError } from './AuthSession';
 
 /** Build a JWT-shaped string whose payload carries the given exp (seconds). */

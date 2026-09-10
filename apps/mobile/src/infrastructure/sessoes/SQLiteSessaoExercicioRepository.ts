@@ -1,8 +1,8 @@
 import { SessaoExercicio, type SessaoExercicioPrimitives, type SubstituicaoMotivo } from '../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoExercicioRepository } from '../../domain/sessoes/repositories/SessaoExercicioRepository';
 import { METODOS_EXERCICIO } from '../../domain/treinos/entities/TreinoExercicio';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface SessaoExercicioRow {
   id: string;

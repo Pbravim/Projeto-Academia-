@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { SerieRegistrada } from './SerieRegistrada';
 import { SessaoValidationError } from '../errors/SessaoValidationError';
+
+import { SerieRegistrada } from './SerieRegistrada';
 
 const base = {
   id: 'serie_1',

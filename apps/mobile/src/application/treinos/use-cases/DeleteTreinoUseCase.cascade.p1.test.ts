@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createTestDatabase } from '../../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
-import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTreinoRepository';
-import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
-import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
-import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
-import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
 import { SQLitePlanoSemanalRepository } from '../../../infrastructure/plano/SQLitePlanoSemanalRepository';
+import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
+import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
+import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
+import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
+import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTreinoRepository';
+import { createTestDatabase } from '../../../test/db-setup';
+
 import { DeleteTreinoUseCase } from './DeleteTreinoUseCase';
 
 /**

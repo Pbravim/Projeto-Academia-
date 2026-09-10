@@ -5,6 +5,18 @@ import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
+import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
+import { useLocale, useT } from '../../shared/i18n';
+import { formatNumber } from '../../shared/i18n/formatters';
+import { metodoDescricao,metodoLabel } from '../../shared/metodoPresentation';
+import { useTheme } from '../../shared/theme';
+import { PickerCarousel } from '../components/PickerCarousel';
+import { RestTimerBanner } from '../components/RestTimerBanner';
 
 type MetodoSessao = SessaoExercicioPrimitives['metodo'];
 
@@ -13,18 +25,6 @@ const TECNICAS: { value: Exclude<MetodoSessao, 'normal'>; color: string }[] = [
   { value: 'piramide',   color: '#d97706' },
   { value: 'rest_pause', color: '#e11d48' },
 ];
-import { PickerCarousel } from '../components/PickerCarousel';
-import { RestTimerBanner } from '../components/RestTimerBanner';
-import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
-import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
-import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
-import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
-import { metodoLabel, metodoDescricao } from '../../shared/metodoPresentation';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
-import { formatNumber } from '../../shared/i18n/formatters';
 
 interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;

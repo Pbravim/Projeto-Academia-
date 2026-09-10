@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 
+import type { TreinoPrimitives } from '../../domain/treinos/entities/Treino';
 import { useTabActive } from '../shared/tabActivity';
 
-import type { TreinoPrimitives } from '../../domain/treinos/entities/Treino';
+import type { PlanoControllerDependencies } from './hooks/usePlanoController';
+import { usePlanoController } from './hooks/usePlanoController';
 import type { TreinoDetailControllerDependencies } from './hooks/useTreinoDetailController';
 import { useTreinoDetailController } from './hooks/useTreinoDetailController';
 import type { TreinoListControllerDependencies } from './hooks/useTreinoListController';
 import { useTreinoListController } from './hooks/useTreinoListController';
-import type { PlanoControllerDependencies } from './hooks/usePlanoController';
-import { usePlanoController } from './hooks/usePlanoController';
 import { TreinoDetailScreen } from './screens/TreinoDetailScreen';
 import { TreinoListScreen } from './screens/TreinoListScreen';
 

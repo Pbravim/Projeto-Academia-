@@ -1,9 +1,9 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useEffect,useMemo, useRef } from 'react';
 import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
-import { useT, type AppLocale } from '../i18n';
+import { type AppLocale,useT } from '../i18n';
 import { SUPPORTED_LANGUAGES } from '../i18n/languages';
+import { useTheme } from '../theme';
 
 interface Props {
   visible: boolean;

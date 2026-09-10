@@ -1,9 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '../../../test/renderHook';
+import { describe, expect, it, vi } from 'vitest';
+
+import { act,renderHook } from '../../../test/renderHook';
+
+import { useHistoricoExercicioController } from './useHistoricoExercicioController';
 
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
-import { useHistoricoExercicioController } from './useHistoricoExercicioController';
 
 /**
  * Regressão P2 (rodada 3, apêndice E): erro de load era só logado e a tela caía

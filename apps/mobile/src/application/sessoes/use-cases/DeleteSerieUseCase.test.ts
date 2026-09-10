@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
 import { SerieNotFoundError } from '../errors/SerieNotFoundError';
+
 import { DeleteSerieUseCase } from './DeleteSerieUseCase';
 
 describe('DeleteSerieUseCase', () => {

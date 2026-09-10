@@ -10,14 +10,14 @@ import {
   View,
 } from 'react-native';
 
-import type { TreinoListControllerState } from '../hooks/useTreinoListController';
-import type { PlanoControllerState } from '../hooks/usePlanoController';
-import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
-import { PlanoPickerModal } from '../components/PlanoPickerModal';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
-import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+import { PlanoPickerModal } from '../components/PlanoPickerModal';
+import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
+import type { PlanoControllerState } from '../hooks/usePlanoController';
+import type { TreinoListControllerState } from '../hooks/useTreinoListController';
+import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
 
 interface TreinoListScreenProps extends TreinoListControllerState {
   plano: PlanoControllerState;

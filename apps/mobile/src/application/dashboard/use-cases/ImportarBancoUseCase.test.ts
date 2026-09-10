@@ -1,4 +1,8 @@
+import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ImportarBancoUseCase } from './ImportarBancoUseCase';
 
 vi.mock('expo-file-system', () => {
   const join = (...parts: unknown[]) =>
@@ -38,10 +42,6 @@ vi.mock('expo-file-system', () => {
 });
 
 vi.mock('expo-document-picker', () => ({ getDocumentAsync: vi.fn() }));
-
-import { File } from 'expo-file-system';
-import * as DocumentPicker from 'expo-document-picker';
-import { ImportarBancoUseCase } from './ImportarBancoUseCase';
 
 const FakeFile = File as unknown as {
   store: Map<string, Uint8Array>;

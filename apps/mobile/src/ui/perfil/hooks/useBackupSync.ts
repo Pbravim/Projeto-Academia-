@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 
 import type { AuthSession } from '../../../application/auth/AuthSession';
 import type { SyncResult } from '../../../application/sync/BackupSyncService';
-import { translate, useLocale, type AppLocale } from '../../shared/i18n';
+import { type AppLocale,translate, useLocale } from '../../shared/i18n';
 
 export interface BackupSyncDependencies {
   session: Pick<AuthSession, 'isAuthenticated' | 'email' | 'login' | 'register' | 'logout' | 'restore'>;

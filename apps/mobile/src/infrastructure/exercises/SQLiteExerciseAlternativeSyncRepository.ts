@@ -1,4 +1,5 @@
 import type { ExerciseAlternativeSyncRow } from '@academia/contracts';
+
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 /**

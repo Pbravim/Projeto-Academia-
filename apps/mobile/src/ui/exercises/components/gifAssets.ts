@@ -1,5 +1,5 @@
 // Auto-generated — do not edit manually. Run scripts/copy_gifs.py and then regenerate to refresh.
-/* eslint-disable */
+ 
 // prettier-ignore
 export const gifAssets: Record<string, ReturnType<typeof require>> = {
   'ABDOMEN CORE (1)/ABS alternando pernas.gif': require('../../../../assets/gifs/ABDOMEN CORE (1)/ABS alternando pernas.gif'),

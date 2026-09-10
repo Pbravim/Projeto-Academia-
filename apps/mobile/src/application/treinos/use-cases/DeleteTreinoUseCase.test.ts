@@ -9,6 +9,7 @@ import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+
 import { CreateTreinoUseCase } from './CreateTreinoUseCase';
 import { DeleteTreinoUseCase } from './DeleteTreinoUseCase';
 

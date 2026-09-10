@@ -1,3 +1,7 @@
+import type { SessaoDetalhe } from '../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { SessaoTreinoPrimitives } from '../../domain/sessoes/entities/SessaoTreino';
+import { LoadingScreen } from '../shared/LoadingScreen';
+
 import type { SessaoAtivaControllerDependencies } from './hooks/useSessaoAtivaController';
 import { useSessaoAtivaController } from './hooks/useSessaoAtivaController';
 import type { SessaoFeatureControllerDependencies } from './hooks/useSessaoFeatureController';
@@ -5,9 +9,6 @@ import { useSessaoFeatureController } from './hooks/useSessaoFeatureController';
 import { SessaoAtivaScreen } from './screens/SessaoAtivaScreen';
 import { SessaoInicioScreen } from './screens/SessaoInicioScreen';
 import { SessaoResumoScreen } from './screens/SessaoResumoScreen';
-import type { SessaoDetalhe } from '../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
-import type { SessaoTreinoPrimitives } from '../../domain/sessoes/entities/SessaoTreino';
-import { LoadingScreen } from '../shared/LoadingScreen';
 
 export interface SessaoFeatureDependencies {
   feature: SessaoFeatureControllerDependencies;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+
 import { buildSessaoResumoViewModel } from './buildSessaoResumoViewModel';
 
 function makeSessao(inicio: string, fim: string | null = null) {

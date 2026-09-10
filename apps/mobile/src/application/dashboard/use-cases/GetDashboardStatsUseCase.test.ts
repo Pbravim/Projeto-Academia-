@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { DashboardRepository, DashboardStats } from '../../../domain/dashboard/repositories/DashboardRepository';
+
 import { GetDashboardStatsUseCase } from './GetDashboardStatsUseCase';
 
 describe('GetDashboardStatsUseCase', () => {

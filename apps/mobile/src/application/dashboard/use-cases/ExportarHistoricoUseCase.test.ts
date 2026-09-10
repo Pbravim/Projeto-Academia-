@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import { ExportarHistoricoUseCase } from './ExportarHistoricoUseCase';
 
 vi.mock('expo-file-system', () => {

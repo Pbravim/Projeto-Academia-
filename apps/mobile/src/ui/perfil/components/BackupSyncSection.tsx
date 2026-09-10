@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
-import { useBackupSync, type BackupSyncDependencies } from '../hooks/useBackupSync';
+import { useTheme } from '../../shared/theme';
+import { type BackupSyncDependencies,useBackupSync } from '../hooks/useBackupSync';
 
 export function BackupSyncSection({ backup }: { backup: BackupSyncDependencies }) {
   const c = useTheme();

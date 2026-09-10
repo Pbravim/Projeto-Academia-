@@ -1,10 +1,10 @@
-import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
-import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
-import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
-import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
-import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
-import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
+import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
+import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
+import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
+import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
 
 export interface SessaoExercicioComSeries {

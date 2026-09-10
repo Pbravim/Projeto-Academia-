@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { SugerirTreinoUseCase } from './SugerirTreinoUseCase';
+
 import type { DashboardRepository } from '../../../domain/dashboard/repositories/DashboardRepository';
+
+import { SugerirTreinoUseCase } from './SugerirTreinoUseCase';
 
 function makeDashboardRepo(overrides: Partial<DashboardRepository> = {}): DashboardRepository {
   return {

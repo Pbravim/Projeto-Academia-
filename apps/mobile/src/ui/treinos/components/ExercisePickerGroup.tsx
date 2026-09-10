@@ -1,6 +1,6 @@
+import { Image } from 'expo-image';
 import { memo, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';

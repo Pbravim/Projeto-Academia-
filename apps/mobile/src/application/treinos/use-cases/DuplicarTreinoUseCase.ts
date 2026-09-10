@@ -1,8 +1,8 @@
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { Treino, type TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
-import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
-import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
 interface DuplicarTreinoDependencies {
@@ -70,8 +70,8 @@ export class DuplicarTreinoUseCase {
 
     if (this.deps.database) {
       return await this.deps.database.withTransaction(duplicateOperation);
-    } else {
+    } 
       return await duplicateOperation();
-    }
+    
   }
 }

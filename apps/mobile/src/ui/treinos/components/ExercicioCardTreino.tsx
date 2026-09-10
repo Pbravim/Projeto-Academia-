@@ -1,12 +1,12 @@
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Image } from 'expo-image';
 
-import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 function useTecnicas(): { value: Exclude<MetodoExercicio, 'normal'>; label: string; color: string }[] {
   const t = useT();

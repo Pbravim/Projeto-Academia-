@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { SessionTableRowVM } from './sessionSeriesTableModel';
-import { useTheme } from '../theme';
 import { useT } from '../i18n';
+import { useTheme } from '../theme';
+
+import type { SessionTableRowVM } from './sessionSeriesTableModel';
 
 interface Props {
   rows: SessionTableRowVM[];

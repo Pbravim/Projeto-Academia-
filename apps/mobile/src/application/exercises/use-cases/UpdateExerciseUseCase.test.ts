@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
 import { DuplicateExerciseError } from '../errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
+
 import { CreateExerciseUseCase } from './CreateExerciseUseCase';
 import { UpdateExerciseUseCase } from './UpdateExerciseUseCase';
 

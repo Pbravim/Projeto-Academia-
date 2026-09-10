@@ -1,7 +1,7 @@
 import { RegistroPeso, type RegistroPesoPrimitives } from '../../domain/peso/entities/RegistroPeso';
 import type { RegistroPesoRepository } from '../../domain/peso/repositories/RegistroPesoRepository';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface RegistroPesoRow {
   id: string;

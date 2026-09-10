@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
-import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
-import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
-import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
+
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+
 import { GetSessaoDetalheUseCase } from './GetSessaoDetalheUseCase';
 
 function makeSessao(id = 's1') {

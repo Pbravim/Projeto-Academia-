@@ -1,13 +1,13 @@
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
+import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
-import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
-import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
-import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
-import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 
 export interface SubstituirExercicioInput {
   sessaoExercicioId: string;

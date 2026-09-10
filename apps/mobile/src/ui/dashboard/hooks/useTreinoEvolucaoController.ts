@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { GetTreinoEvolucaoUseCase, ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
+import type { ExercicioEvolucao,GetTreinoEvolucaoUseCase } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
 

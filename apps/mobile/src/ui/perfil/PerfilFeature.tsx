@@ -1,19 +1,21 @@
 import { useState } from 'react';
-import { ConfirmDialog } from '../shared/components/ConfirmDialog';
-import { useT } from '../shared/i18n';
-import type { PesoControllerDependencies } from '../peso/hooks/usePesoController';
-import { usePesoController } from '../peso/hooks/usePesoController';
-import { usePerfilController } from './hooks/usePerfilController';
-import { useStatsController } from './hooks/useStatsController';
-import { PerfilScreen } from './screens/PerfilScreen';
-import { BackupSyncSection } from './components/BackupSyncSection';
-import type { BackupSyncDependencies } from './hooks/useBackupSync';
-import type { GetDashboardStatsUseCase } from '../../application/dashboard/use-cases/GetDashboardStatsUseCase';
-import type { ExportarHistoricoUseCase } from '../../application/dashboard/use-cases/ExportarHistoricoUseCase';
+
 import type { ExportarBancoUseCase } from '../../application/dashboard/use-cases/ExportarBancoUseCase';
+import type { ExportarHistoricoUseCase } from '../../application/dashboard/use-cases/ExportarHistoricoUseCase';
+import type { GetDashboardStatsUseCase } from '../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import type { ImportarBancoUseCase } from '../../application/dashboard/use-cases/ImportarBancoUseCase';
 import type { ResetHistoricoUseCase } from '../../application/dashboard/use-cases/ResetHistoricoUseCase';
 import type { AppLogger } from '../../infrastructure/logging/AppLogger';
+import type { PesoControllerDependencies } from '../peso/hooks/usePesoController';
+import { usePesoController } from '../peso/hooks/usePesoController';
+import { ConfirmDialog } from '../shared/components/ConfirmDialog';
+import { useT } from '../shared/i18n';
+
+import { BackupSyncSection } from './components/BackupSyncSection';
+import type { BackupSyncDependencies } from './hooks/useBackupSync';
+import { usePerfilController } from './hooks/usePerfilController';
+import { useStatsController } from './hooks/useStatsController';
+import { PerfilScreen } from './screens/PerfilScreen';
 
 export interface PerfilDependencies {
   peso: PesoControllerDependencies;

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
 import { DuplicateExerciseError } from '../errors/DuplicateExerciseError';
+
 import { CreateExerciseUseCase } from './CreateExerciseUseCase';
 
 describe('CreateExerciseUseCase', () => {

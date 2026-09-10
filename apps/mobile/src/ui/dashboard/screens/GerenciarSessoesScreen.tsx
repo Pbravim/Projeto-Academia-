@@ -4,9 +4,9 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT, type AppLocale } from '../../shared/i18n';
+import { type AppLocale,useLocale, useT } from '../../shared/i18n';
 import { formatMediumDate, formatNumber } from '../../shared/i18n/formatters';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinoNome: string;

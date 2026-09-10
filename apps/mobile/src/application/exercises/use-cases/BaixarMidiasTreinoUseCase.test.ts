@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
+import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+
 // Mock expo-file-system before importing anything that depends on it
 vi.mock('expo-file-system', () => ({
   File: class {},
   Paths: { document: '/mock' },
   Directory: class {},
 }));
-
-import { Exercise } from '../../../domain/exercises/entities/Exercise';
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
-import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 
 function makeExercise(id: string, opts: { mediaOnline?: string; mediaLocal?: string } = {}) {
   return Exercise.create({

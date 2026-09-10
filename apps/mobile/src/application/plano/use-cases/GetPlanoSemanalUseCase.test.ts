@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InMemoryPlanoSemanalRepository } from '../../../infrastructure/plano/InMemoryPlanoSemanalRepository';
+
 import { GetPlanoSemanalUseCase } from './GetPlanoSemanalUseCase';
 
 describe('GetPlanoSemanalUseCase', () => {

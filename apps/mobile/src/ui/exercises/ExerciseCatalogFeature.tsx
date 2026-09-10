@@ -5,6 +5,7 @@ import type { AppLogger } from '../../infrastructure/logging/AppLogger';
 import type { HistoricoExercicioControllerDependencies } from '../historico/hooks/useHistoricoExercicioController';
 import { useHistoricoExercicioController } from '../historico/hooks/useHistoricoExercicioController';
 import { HistoricoExercicioScreen } from '../historico/screens/HistoricoExercicioScreen';
+
 import type { ExerciseCatalogControllerDependencies } from './hooks/useExerciseCatalogController';
 import { useExerciseCatalogController } from './hooks/useExerciseCatalogController';
 import { ExerciseCatalogScreen } from './screens/ExerciseCatalogScreen';
