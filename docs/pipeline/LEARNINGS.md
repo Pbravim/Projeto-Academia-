@@ -54,3 +54,64 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
 - **`main` NÃO tem branch protection**: repo privado em plano GitHub free
   (recurso exige Pro ou repo público) — a proteção é disciplina de processo
   até lá. Se o repo virar público ou o plano subir, ativar a proteção.
+
+## Sessão de correção de bugs (2026-09-09/10)
+
+- **O typecheck da API não cobria `test/`** — `apps/api/tsconfig.json` tem
+  `"exclude": [..., "test"]`, e o CI não roda e2e (precisa de Postgres). Resultado:
+  a suíte e2e ficou **quebrada em compilação** por tempo indeterminado, sem nenhum
+  sinal. Corrigido com `apps/api/tsconfig.spec.json` (`src` + `test`, `noEmit`), que o
+  script `typecheck` agora usa; `nest build` segue em `tsconfig.json`, então nada de
+  `test/` vaza para o `dist`. **Armadilha:** `exclude` VENCE `include`, e é herdado
+  por `extends` — a primeira versão da correção só acrescentou `test/**/*` ao
+  `include` e ficou **inerte**. Ao mexer em config de guarda, prove nos dois sentidos
+  (quebre de propósito e veja falhar).
+- **`||=` não substitui valor curto porém truthy.** O e2e faz
+  `process.env.JWT_ACCESS_SECRET ||= <valor de 39 chars>`, mas o **Prisma Client
+  carrega `apps/api/.env` ao ser importado**. Com um `.env` de secret curto, o valor
+  ruim vence e o erro é `"must be set and at least 32 chars"` — mensagem que sugere
+  variável AUSENTE quando o caso é o oposto. Se vir esse erro, cheque o TAMANHO do
+  valor no `.env`, não a presença.
+- **Template de ambiente não deve trazer valor com cara de credencial.** Ao corrigir
+  secrets curtos no `.env.example`, valores longos foram escolhidos para satisfazer o
+  boot check — e o **GitGuardian reprovou o PR** ("1 secret uncovered"), corretamente:
+  string longa em variável `JWT_*_SECRET` é indistinguível de credencial vazada. O
+  certo é **valor vazio + instrução de geração**. E o scanner varre TODOS os commits
+  do PR: corrigir no commit seguinte não limpa o histórico.
+- **`npm audit fix` sem `--force` passou limpo** (2026-09-09), contrariando a nota de
+  2026-08-15 deste arquivo. O `ERESOLVE` da árvore do Expo sumiu depois que o
+  `bcrypt` subiu para 6 e levou embora o galho `@mapbox/node-pre-gyp` (27 pacotes).
+  Baseline: **49 vulns / 1 crítica → 43 / 0 críticas / 17 high**. As restantes exigem
+  major (`expo@57`, `@nestjs/platform-express@12`, `@nestjs/swagger@12`).
+- **`eslint-plugin-react-native-a11y` não suporta eslint 9** — todas as versões
+  publicadas (última: 3.5.1) declaram `peerDependencies.eslint` até `^8`. Instalar com
+  `--legacy-peer-deps` seria fingir suporte que o autor não declara. A dívida de a11y
+  precisa primeiro de um plugin compatível, não só de ligar a regra.
+- **`npm exec` resolve o eslint 8 içado na raiz.** `npm --prefix apps/mobile exec --
+  eslint` morre em flat config com `Unexpected top-level property`. Use
+  `npm --prefix apps/mobile run lint -- --fix`, que passa pelo bin local do workspace.
+- **Suíte verde não prova que a tela abre.** Ao mover estilos inline para a fábrica
+  `makeStyles`, dois subcomponentes (`MobileApp.TabButton`,
+  `ExerciseMediaViewer.VideoPlayer`) ficaram referenciando um `styles` fora de escopo.
+  **Lint passou. Os 515 testes passaram.** Só `tsc --noEmit` acusou (`TS2304`). Telas
+  não têm teste — o typecheck é a única rede delas.
+- **Duplicata de use case sobrevive a suíte verde.** Existiam duas cópias do
+  `SugerirTreinoUseCase` (`application/sessoes` e `application/sugestoes`), cada uma
+  com o próprio teste — por isso nada denunciava. O app importava uma; o `TODO` do
+  `pendencias.md` apontava para a **outra**, morta. Ao investigar um TODO, confirme
+  primeiro qual arquivo o app realmente carrega.
+- **Auditoria que lê índice herda o atraso do índice.** A auditoria de 2026-08-28
+  listou 3 itens como abertos que já estavam fechados no código havia meses. Item de
+  débito só entra em auditoria depois de conferido na fonte.
+
+### Portões de qualidade — duas limitações medidas (incidentes registrados)
+
+- **O ratchet de cobertura é chaveado por `base_ref`, não por branch.** Rodar `tier 2`
+  numa branch que SOBE a cobertura grava aquele valor como baseline de
+  `origin/development`, mesmo sem merge — e todas as branches irmãs passam a ser
+  reprovadas contra um número que não existe na base delas. Na queda o baseline não
+  abaixa, então nem rodar o portão na própria `development` corrige.
+- **O ratchet pune remoção de código duplicado bem coberto.** Apagar um arquivo com
+  ~100% de cobertura baixa a média global (77,6% → 77,5%), e o portão lê como
+  "cobertura caiu". Não distingue "apagou código coberto" de "adicionou código
+  descoberto".
