@@ -104,7 +104,15 @@
 - [x] **`docker-compose.yml` com credenciais hardcoded** ✅ `2026-06-23` — parametrizado com
   `${POSTGRES_USER:-academia}` etc. + `.env.example` na raiz + `.env` no `.gitignore`; removido o
   `version` obsoleto.
-- [ ] **TODO** em `SugerirTreinoUseCase.ts:26` — avaliar `SugestaoRepository` dedicado.
+- [x] **TODO** em `SugerirTreinoUseCase.ts:26` ✅ `2026-09-09` — resolvido, e no caminho
+  apareceu um problema maior: existiam **duas cópias** do use case
+  (`application/sessoes/` e `application/sugestoes/`), idênticas fora do docblock, cada
+  uma com seu teste — a suíte ficava verde com a duplicata e o TODO vivia na cópia
+  **morta** (só o próprio teste a importava). Deduplicado: o app passou a importar a de
+  `sugestoes/` (intenção já escrita no docblock dela) e a de `sessoes/` saiu.
+  Criada a porta `SugestaoRepository` (`domain/sugestoes/repositories`) com os 2 métodos
+  que o use case usa, dos 7 do `DashboardRepository` — segregação de interface; o
+  `SqliteDashboardRepository` já a satisfaz estruturalmente, nada muda em runtime.
 
 ---
 
