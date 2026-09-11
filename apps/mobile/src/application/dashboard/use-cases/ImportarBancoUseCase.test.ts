@@ -7,7 +7,7 @@ import { ImportarBancoUseCase } from './ImportarBancoUseCase';
 vi.mock('expo-file-system', () => {
   const join = (...parts: unknown[]) =>
     parts.map((p) => (typeof p === 'string' ? p : (p as { path: string }).path)).join('/');
-  class File {
+  class MockFile {
     static store = new Map<string, Uint8Array>();
     static failCopyFrom = new Set<string>();
     path: string;
@@ -15,17 +15,17 @@ vi.mock('expo-file-system', () => {
       this.path = join(...parts);
     }
     get exists() {
-      return File.store.has(this.path);
+      return MockFile.store.has(this.path);
     }
     async bytes() {
-      return File.store.get(this.path)!;
+      return MockFile.store.get(this.path)!;
     }
-    copy(dest: File) {
-      if (File.failCopyFrom.has(this.path)) throw new Error('copy failed');
-      File.store.set(dest.path, File.store.get(this.path)!);
+    copy(dest: MockFile) {
+      if (MockFile.failCopyFrom.has(this.path)) throw new Error('copy failed');
+      MockFile.store.set(dest.path, MockFile.store.get(this.path)!);
     }
     delete() {
-      File.store.delete(this.path);
+      MockFile.store.delete(this.path);
     }
   }
   class Directory {
@@ -38,7 +38,7 @@ vi.mock('expo-file-system', () => {
     }
     create() {}
   }
-  return { File, Directory, Paths: { document: 'DOC', cache: 'CACHE' } };
+  return { File: MockFile, Directory, Paths: { document: 'DOC', cache: 'CACHE' } };
 });
 
 vi.mock('expo-document-picker', () => ({ getDocumentAsync: vi.fn() }));

@@ -145,7 +145,6 @@ describe('ExerciseSeedLoader', () => {
   });
 
   it('never overwrites user-created exercises (isCustom = true)', async () => {
-    const { Exercise } = await import('../../domain/exercises/entities/Exercise');
     const userEx = Exercise.create({
       id: 'test-seed-001',
       name: 'Meu Supino Custom',

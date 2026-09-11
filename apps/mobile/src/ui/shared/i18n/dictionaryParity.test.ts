@@ -25,9 +25,6 @@ describe('paridade de dicionários', () => {
   it('reporta chaves pt-BR sem tradução en-US (cobertas por fallback)', () => {
     const en = new Set(keyPaths(enUS));
     const missing = keyPaths(ptBR).filter((k) => !en.has(k) && k !== 'common.onlyInPt');
-    if (missing.length > 0) {
-      console.warn(`chaves pt-BR sem en-US (usam fallback): ${missing.join(', ')}`);
-    }
     expect(missing).toEqual([]);
   });
 });
