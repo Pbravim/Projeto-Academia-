@@ -14,10 +14,13 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
-process.env.JWT_ACCESS_SECRET ||= 'e2e-access-secret-0123456789-abcdefghij';
-process.env.JWT_REFRESH_SECRET ||= 'e2e-refresh-secret-0123456789-abcdefghij';
-process.env.JWT_ACCESS_EXPIRES_IN ||= '15m';
-process.env.JWT_REFRESH_EXPIRES_IN ||= '30d';
+// Segredos FIXOS (=, não ||=): o e2e não pode depender do .env da máquina.
+// `||=` não substitui valor curto porém truthy, e o resultado passava a
+// depender da ordem de carga do dotenv do Prisma (ver LEARNINGS, jest 30).
+process.env.JWT_ACCESS_SECRET = 'e2e-access-secret-0123456789-abcdefghij';
+process.env.JWT_REFRESH_SECRET = 'e2e-refresh-secret-0123456789-abcdefghij';
+process.env.JWT_ACCESS_EXPIRES_IN = '15m';
+process.env.JWT_REFRESH_EXPIRES_IN = '30d';
 process.env.DATABASE_URL ||= 'postgresql://academia:academia@localhost:5433/academia_db';
 
 const emptyChanges = (): SyncRequest['changes'] => ({
