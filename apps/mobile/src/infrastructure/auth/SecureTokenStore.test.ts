@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { SecureTokenStore } from './SecureTokenStore';
+import type { StoredTokens } from './TokenStore';
+
 const secureStore = vi.hoisted(() => ({
   getItemAsync: vi.fn(),
   setItemAsync: vi.fn(),
@@ -7,9 +10,6 @@ const secureStore = vi.hoisted(() => ({
 }));
 
 vi.mock('expo-secure-store', () => secureStore);
-
-import { SecureTokenStore } from './SecureTokenStore';
-import type { StoredTokens } from './TokenStore';
 
 /** Chave literal do keychain — renomeá-la invalida as sessões já salvas. */
 const KEY = 'auth.session';

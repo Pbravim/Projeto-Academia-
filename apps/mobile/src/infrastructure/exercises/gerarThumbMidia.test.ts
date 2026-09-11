@@ -1,4 +1,7 @@
+import { createVideoPlayer } from 'expo-video';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { gerarThumbMidia } from './gerarThumbMidia';
 
 const { released, generateThumbnailsAsync, manipulate, resize, saveAsync } = vi.hoisted(() => {
   const released = vi.fn();
@@ -31,9 +34,6 @@ vi.mock('expo-file-system', () => {
   class Directory extends File { create() {} }
   return { File, Directory, Paths: { document: 'DOC' } };
 });
-
-import { gerarThumbMidia } from './gerarThumbMidia';
-import { createVideoPlayer } from 'expo-video';
 
 describe('gerarThumbMidia — vídeo usa expo-video (não expo-video-thumbnails)', () => {
   beforeEach(() => vi.clearAllMocks());

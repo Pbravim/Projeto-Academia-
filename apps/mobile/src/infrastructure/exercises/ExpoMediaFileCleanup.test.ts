@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { AppLogger } from '../logging/AppLogger';
+
+import { ExpoMediaFileCleanup } from './ExpoMediaFileCleanup';
+
 // Estado controlado pelo teste: o que o `File` nativo devolve/faz em cada caso.
 const nativeFile = vi.hoisted(() => ({
   exists: true,
@@ -13,10 +17,6 @@ const FileCtor = vi.hoisted(() => vi.fn());
 vi.mock('expo-file-system', () => ({
   File: FileCtor,
 }));
-
-import type { AppLogger } from '../logging/AppLogger';
-
-import { ExpoMediaFileCleanup } from './ExpoMediaFileCleanup';
 
 describe('ExpoMediaFileCleanup', () => {
   const logger: AppLogger = { info: vi.fn(), error: vi.fn() };

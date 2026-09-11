@@ -2,6 +2,8 @@ import { createElement, type ReactNode } from 'react';
 import TestRenderer, { act, type ReactTestRenderer } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { MobileApp } from './MobileApp';
+
 /**
  * O shell do app: abas keep-alive, botão de perfil, back de hardware e os dois
  * efeitos de boot. Nada o executava — regressões aqui só apareciam no device.
@@ -102,8 +104,6 @@ vi.mock('../ui/shared/i18n', () => ({
   LocaleProvider: ({ children }: { children: ReactNode }) => children,
   useT: () => (key: string) => key,
 }));
-
-import { MobileApp } from './MobileApp';
 
 const FEATURES = {
   sessao: 'SessaoFeature',
