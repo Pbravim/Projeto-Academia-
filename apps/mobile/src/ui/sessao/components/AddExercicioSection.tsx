@@ -1,11 +1,11 @@
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { resolveFullMediaSource, resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 const GROUP_ORDER = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',

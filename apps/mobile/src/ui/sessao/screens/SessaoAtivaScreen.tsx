@@ -1,24 +1,24 @@
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
 import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
-import { Image } from 'expo-image';
-
-import { ExercicioCard } from '../components/ExercicioCard';
-import { AddExercicioSection } from '../components/AddExercicioSection';
-import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
-import { BiSetDetalheScreen } from './BiSetDetalheScreen';
-import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { metadataLabel } from '../../exercises/exerciseMetadataLabels';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
+import { useLocale, useT } from '../../shared/i18n';
+import { type AppLocale,translate } from '../../shared/i18n/core';
+import { formatTime } from '../../shared/i18n/formatters';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
-import { translate, type AppLocale } from '../../shared/i18n/core';
-import { formatTime } from '../../shared/i18n/formatters';
-import { metadataLabel } from '../../exercises/exerciseMetadataLabels';
+import { AddExercicioSection } from '../components/AddExercicioSection';
+import { ExercicioCard } from '../components/ExercicioCard';
+import { SubstituirExercicioModal } from '../components/SubstituirExercicioModal';
+import type { SessaoAtivaControllerState } from '../hooks/useSessaoAtivaController';
+
+import { BiSetDetalheScreen } from './BiSetDetalheScreen';
+import { ExercicioDetalheScreen } from './ExercicioDetalheScreen';
 
 function grupoLabelFor(metodo: string, count: number, locale: AppLocale): string {
   if (count === 2) return translate(locale, 'sessao.grupo.biSet');

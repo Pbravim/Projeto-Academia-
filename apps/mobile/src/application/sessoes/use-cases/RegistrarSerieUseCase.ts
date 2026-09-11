@@ -1,10 +1,10 @@
 import { SerieRegistrada, type SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
 import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
-import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
-import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 

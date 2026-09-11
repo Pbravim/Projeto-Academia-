@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { Treino } from './Treino';
 import { TreinoValidationError } from '../errors/TreinoValidationError';
+
+import { Treino } from './Treino';
 
 describe('Treino', () => {
   it('creates a valid treino', () => {

@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
-import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { File } from 'expo-file-system';
 import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { File } from 'expo-file-system';
+import { useMemo } from 'react';
+import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+
 import { gifAssets } from './gifAssets';
 
 interface Props {
@@ -30,12 +31,16 @@ function isImageUri(uri: string): boolean {
   return lower.endsWith('.gif') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.png') || lower.endsWith('.webp');
 }
 
+// Estilo do player: independente de tema, por isso constante de módulo em vez de
+// fábrica makeStyles (VideoPlayer não chama useTheme).
+const videoStyles = StyleSheet.create({ mediaBox: { width: '100%', height: 280 } });
+
 function VideoPlayer({ uri }: { uri: string }) {
   const player = useVideoPlayer(uri, (p) => { p.loop = true; void p.play(); });
   return (
     <VideoView
       player={player}
-      style={{ width: '100%', height: 280 }}
+      style={videoStyles.mediaBox}
       contentFit="contain"
       nativeControls
     />

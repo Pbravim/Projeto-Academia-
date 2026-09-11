@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
-import { useTheme } from '../../shared/theme';
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinos: TreinoPrimitives[];

@@ -1,9 +1,10 @@
+import type { ExerciseSyncRow } from '@academia/contracts';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
-import type { ExerciseSyncRow } from '@academia/contracts';
 
 /**
  * Regressão P2 (auditoria rodada 3, apêndice C): devices A e B criam cada um

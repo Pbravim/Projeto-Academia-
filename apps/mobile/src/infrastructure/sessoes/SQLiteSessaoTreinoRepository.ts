@@ -1,7 +1,7 @@
-import { SessaoTreino, type SessaoTreinoPrimitives, type SessaoStatus } from '../../domain/sessoes/entities/SessaoTreino';
+import { type SessaoStatus,SessaoTreino, type SessaoTreinoPrimitives } from '../../domain/sessoes/entities/SessaoTreino';
 import type { SessaoTreinoRepository } from '../../domain/sessoes/repositories/SessaoTreinoRepository';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface SessaoTreinoRow {
   id: string;

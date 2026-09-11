@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SyncEngine } from './SyncEngine';
 import type { SyncResponse } from '@academia/contracts';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { SyncEngine } from './SyncEngine';
 
 const emptyChanges = () => ({
   exercises: [],

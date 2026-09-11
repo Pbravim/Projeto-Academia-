@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  formatShortDate,
+  formatCompactDate,
+  formatFixedDecimal,
   formatFullDate,
   formatMediumDate,
-  formatCompactDate,
-  formatTime,
   formatNumber,
-  formatFixedDecimal,
+  formatShortDate,
+  formatTime,
 } from './formatters';
 
 const ISO = '2026-07-04T10:00:00.000Z';

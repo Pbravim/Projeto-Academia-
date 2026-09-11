@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
+
 import { SetDiaPlanoUseCase } from './SetDiaPlanoUseCase';
 
 describe('SetDiaPlanoUseCase', () => {

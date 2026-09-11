@@ -1,4 +1,4 @@
-import { File, Paths, Directory } from 'expo-file-system';
+import { Directory,File, Paths } from 'expo-file-system';
 
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 

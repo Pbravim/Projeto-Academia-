@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+
 import { GetSessaoAtivaUseCase } from './GetSessaoAtivaUseCase';
 
 function makeSessaoAtiva(id = 's1') {

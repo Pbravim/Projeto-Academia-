@@ -1,10 +1,11 @@
 import * as SQLite from 'expo-sqlite';
 
-import type { AppLogger } from '../../logging/AppLogger';
 import type { DatabaseExportPort } from '../../../domain/dashboard/ports/DatabaseExportPort';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
-import type { SQLiteBindParams, SQLiteDatabaseClient } from './SQLiteDatabaseClient';
+import type { AppLogger } from '../../logging/AppLogger';
+
 import { migrations, splitSqlStatements } from './migrations';
+import type { SQLiteBindParams, SQLiteDatabaseClient } from './SQLiteDatabaseClient';
 
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {

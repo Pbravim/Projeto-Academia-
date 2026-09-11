@@ -1,10 +1,10 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useEffect,useMemo, useRef } from 'react';
 import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { DiaSemana } from '../../../domain/plano/entities/DiaSemana';
-import { useTheme } from '../../shared/theme';
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   dia: DiaSemana | null;
@@ -27,7 +27,9 @@ export function PlanoPickerModal({ dia, treinos, treinosVazios, treinoAtualId, o
 
   useEffect(() => {
     if (dia) translateY.setValue(0);
-  }, [dia]);
+    // translateY vem de useRef(...).current: identidade estável por toda a vida
+    // do componente, então incluí-lo não muda quando o efeito roda.
+  }, [dia, translateY]);
 
   const panResponder = useRef(
     PanResponder.create({

@@ -1,6 +1,6 @@
+import type { ComponentProps,ReactNode } from 'react';
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import type { ReactNode, ComponentProps } from 'react';
 
 import { useTheme } from '../theme';
 

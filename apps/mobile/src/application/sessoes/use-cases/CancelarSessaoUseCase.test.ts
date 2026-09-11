@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
+import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
-import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
-import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
+
 import { CancelarSessaoUseCase } from './CancelarSessaoUseCase';
 
 function makeDeps() {

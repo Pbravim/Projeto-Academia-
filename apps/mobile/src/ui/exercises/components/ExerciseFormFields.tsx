@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Directory, File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { Directory, File, Paths } from 'expo-file-system';
+import React, { useMemo, useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { isYouTubeUrl } from '../../../application/exercises/use-cases/BaixarMidiaExercicioUseCase';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 function isImageMediaUri(uri: string): boolean {
   const lower = uri.split('?')[0]!.toLowerCase();
@@ -137,7 +137,7 @@ export function MultiChipPicker({
   }
 
   function removeCustom(item: string) {
-    onChange(buildValue(predefined, custom.filter((c) => c !== item)));
+    onChange(buildValue(predefined, custom.filter((entry) => entry !== item)));
   }
 
   return (

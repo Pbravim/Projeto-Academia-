@@ -1,16 +1,15 @@
 import { startTransition, useEffect, useRef, useState } from 'react';
 
-import type { MetodoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
+import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
 import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { RemoveExercicioDoTreinoUseCase } from '../../../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import type { ReordenarExerciciosUseCase } from '../../../application/treinos/use-cases/ReordenarExerciciosUseCase';
 import type { UpdateTreinoUseCase } from '../../../application/treinos/use-cases/UpdateTreinoUseCase';
-import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
+import type { MetodoExercicio , TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
 
@@ -104,6 +103,7 @@ export function useTreinoDetailController(
 
   useEffect(() => {
     void loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadData é recriada a cada render; este efeito deve recarregar só quando o treino muda
   }, [treino.id]);
 
   // Guard por exercício: double-tap não duplica (o domínio rejeita), mas exibia

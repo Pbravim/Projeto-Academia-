@@ -1,6 +1,6 @@
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { AppLocale } from '../../shared/i18n';
 import { translate } from '../../shared/i18n/core';
 

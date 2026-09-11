@@ -1,6 +1,6 @@
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 

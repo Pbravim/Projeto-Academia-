@@ -1,9 +1,9 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useEffect,useMemo, useRef } from 'react';
 import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
-import { useT, type AppLocale } from '../i18n';
+import { type AppLocale,useT } from '../i18n';
 import { SUPPORTED_LANGUAGES } from '../i18n/languages';
+import { useTheme } from '../theme';
 
 interface Props {
   visible: boolean;
@@ -24,7 +24,9 @@ export function LanguagePickerModal({ visible, activeLocale, onSelect, onClose }
 
   useEffect(() => {
     if (visible) translateY.setValue(0);
-  }, [visible]);
+    // translateY vem de useRef(...).current: identidade estável por toda a vida
+    // do componente, então incluí-lo não muda quando o efeito roda.
+  }, [visible, translateY]);
 
   const panResponder = useRef(
     PanResponder.create({

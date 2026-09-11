@@ -1,13 +1,15 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { createTestDatabase } from '../../../test/db-setup';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
-import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
-import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
-import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
-import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
-import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { beforeEach,describe, expect, it } from 'vitest';
+
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
+import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
+import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
+import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
+import { createTestDatabase } from '../../../test/db-setup';
+
 import { RegistrarSerieUseCase } from './RegistrarSerieUseCase';
 
 describe('RegistrarSerieUseCase - P1 Regression Tests', () => {

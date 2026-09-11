@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { TreinoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteTreinoExercicioRepository } from './SQLiteTreinoExercicioRepository';
-import { TreinoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 
 let db: SQLiteDatabaseClient;
 let repo: SQLiteTreinoExercicioRepository;

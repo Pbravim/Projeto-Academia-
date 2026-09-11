@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { GetDashboardStatsUseCase, DashboardStats } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 
+import type { DashboardStats,GetDashboardStatsUseCase } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import { useTabActive } from '../../shared/tabActivity';
 
 export interface StatsControllerState {
@@ -22,6 +22,7 @@ export function useStatsController(
     void getDashboardStats.execute()
       .then(setStats)
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getDashboardStats é injetado uma vez por tela (DI); o efeito deve rodar só quando a aba (des)ativa
   }, [tabActive]);
 
   return { stats, isLoading };

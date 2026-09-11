@@ -10,14 +10,14 @@ import {
   View,
 } from 'react-native';
 
-import type { TreinoListControllerState } from '../hooks/useTreinoListController';
-import type { PlanoControllerState } from '../hooks/usePlanoController';
-import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
-import { PlanoPickerModal } from '../components/PlanoPickerModal';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
-import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
+import { PlanoPickerModal } from '../components/PlanoPickerModal';
+import { PlanoSemanalCard } from '../components/PlanoSemanalCard';
+import type { PlanoControllerState } from '../hooks/usePlanoController';
+import type { TreinoListControllerState } from '../hooks/useTreinoListController';
+import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel';
 
 interface TreinoListScreenProps extends TreinoListControllerState {
   plano: PlanoControllerState;
@@ -159,7 +159,7 @@ export function TreinoListScreen({
             <Pressable
               key={card.id}
               onPress={() =>
-                onSelectTreino(treinos.find((t) => t.id === card.id)!)
+                onSelectTreino(treinos.find((treino) => treino.id === card.id)!)
               }
               style={({ pressed }) => [
                 styles.treinoCard,
@@ -294,13 +294,13 @@ function ObjetivoPicker({
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>
         {t('treinos.list.objetivoPicker.label')}{' '}
-        <Text style={{ color: c.textSecondary, fontWeight: '400' }}>
+        <Text style={[styles.weightRegular, { color: c.textSecondary }]}>
           {t('treinos.list.objetivoPicker.opcional')}
         </Text>
       </Text>
       <Pressable
         onPress={() => editable && setOpen(true)}
-        style={[styles.selectTrigger, !editable ? { opacity: 0.6 } : null]}
+        style={[styles.selectTrigger, !editable ? styles.dimmedSoft : null]}
       >
         <Text
           style={[
@@ -635,5 +635,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteButtonPressed: { opacity: 0.75 },
     deleteButtonLoading: { opacity: 0.5 },
     deleteButtonText: { color: c.error, fontSize: 13, fontWeight: '700' },
+    weightRegular: { fontWeight: '400' },
+    dimmedSoft: { opacity: 0.6 },
   });
 }

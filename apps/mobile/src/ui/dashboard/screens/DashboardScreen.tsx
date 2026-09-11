@@ -1,16 +1,16 @@
+import { Ionicons } from '@expo/vector-icons';
 import { memo, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+
+import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
+import { useLocale, useT } from '../../shared/i18n';
+import { formatCompactDate, formatNumber,formatShortDate } from '../../shared/i18n/formatters';
+import { LineChart } from '../../shared/LineChart';
+import { useTheme } from '../../shared/theme';
+import type { DashboardControllerState } from '../hooks/useDashboardController';
 
 type DashboardChartMode = 'orm' | 'volume';
-
-import type { DashboardControllerState } from '../hooks/useDashboardController';
-import type { EvolucaoPorTreino, SessaoComVolume } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
-import { LineChart } from '../../shared/LineChart';
-import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
-import { formatShortDate, formatCompactDate, formatNumber } from '../../shared/i18n/formatters';
 
 export function DashboardScreen({
   stats,
@@ -85,7 +85,7 @@ export function DashboardScreen({
           {stats.recordesPessoais.length > 0 ? (
             <View style={styles.card}>
               <View style={styles.recordesHeader}>
-                <View style={{ flex: 1 }}>
+                <View style={styles.flex1}>
                   <Text style={styles.sectionTitle}>{t('dashboard.home.recordesTitle')}</Text>
                   <Text style={styles.helperText}>{t('dashboard.home.recordesHelper')}</Text>
                 </View>
@@ -400,9 +400,9 @@ function SessaoRow({
   return (
     <View style={[styles.sessaoRow, isFirst ? styles.sessaoRowFirst : null, sessao.arquivado ? styles.sessaoRowArquivada : null]}>
       <View style={styles.sessaoMainRow}>
-        <Text style={[styles.sessaoDataText, { flex: 2 }, sessao.arquivado ? styles.sessaoTextArquivada : null]}>{dataStr}</Text>
+        <Text style={[styles.sessaoDataText, styles.flex2, sessao.arquivado ? styles.sessaoTextArquivada : null]}>{dataStr}</Text>
         {temVolume ? (
-          <View style={[styles.volCell, { flex: 2 }]}>
+          <View style={[styles.volCell, styles.flex2]}>
             <Text style={[styles.sessaoVolText, sessao.arquivado ? styles.sessaoTextArquivada : null]}>
               {sessao.volumeTotal > 0 ? `${formatNumber(sessao.volumeTotal, locale)}kg` : '—'}
             </Text>
@@ -413,7 +413,7 @@ function SessaoRow({
             ) : null}
           </View>
         ) : null}
-        <Text style={[styles.sessaoDurText, { flex: 1 }, sessao.arquivado ? styles.sessaoTextArquivada : null]}>{durStr}</Text>
+        <Text style={[styles.sessaoDurText, styles.flex1, sessao.arquivado ? styles.sessaoTextArquivada : null]}>{durStr}</Text>
       </View>
     </View>
   );
@@ -578,5 +578,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     verEvolucaoBtnPressed: { opacity: 0.7 },
     verEvolucaoBtnText: { color: c.accent, fontSize: 14, fontWeight: '700' },
+    flex1: { flex: 1 },
+    flex2: { flex: 2 },
   });
 }

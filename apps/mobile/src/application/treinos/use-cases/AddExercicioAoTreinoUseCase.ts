@@ -1,8 +1,8 @@
-import { TreinoExercicio, type TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import { TreinoExercicio, type TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
-import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';

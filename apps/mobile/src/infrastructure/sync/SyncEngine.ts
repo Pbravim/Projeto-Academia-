@@ -1,14 +1,14 @@
 import type {
+  ExerciseAlternativeSyncRow,
+  ExerciseSyncRow,
+  RegistroPesoSyncRow,
+  SerieRegistradaSyncRow,
+  SessaoExercicioSyncRow,
+  SessaoTreinoSyncRow,
   SyncRequest,
   SyncResponse,
-  ExerciseSyncRow,
-  TreinoSyncRow,
   TreinoExercicioSyncRow,
-  SessaoTreinoSyncRow,
-  SessaoExercicioSyncRow,
-  SerieRegistradaSyncRow,
-  RegistroPesoSyncRow,
-  ExerciseAlternativeSyncRow,
+  TreinoSyncRow,
 } from '@academia/contracts';
 
 export const SYNC_CURSOR_KEY = '@sync/cursor';

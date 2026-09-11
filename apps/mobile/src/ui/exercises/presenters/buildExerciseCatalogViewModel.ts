@@ -1,6 +1,6 @@
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
-import { translate, type AppLocale } from '../../shared/i18n/core';
+import { type AppLocale,translate } from '../../shared/i18n/core';
 import { metadataLabel } from '../exerciseMetadataLabels';
 
 export interface ExerciseCardViewModel {

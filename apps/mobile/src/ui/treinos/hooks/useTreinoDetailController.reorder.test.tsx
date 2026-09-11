@@ -1,12 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '../../../test/renderHook';
+import { describe, expect, it, vi } from 'vitest';
+
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
+import { act,renderHook } from '../../../test/renderHook';
+
+import { type TreinoDetailControllerDependencies,useTreinoDetailController } from './useTreinoDetailController';
 
 // O módulo de i18n puxa expo-localization e o database client do SQLite
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
-import { useTreinoDetailController, type TreinoDetailControllerDependencies } from './useTreinoDetailController';
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import type { TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
 
 /**
  * Regressão P2 (rodada 3, apêndice E): as setas ↑/↓ não tinham guard de

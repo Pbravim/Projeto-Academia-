@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
-import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
-import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+
 import { ToggleExercicioRealizadoUseCase } from './ToggleExercicioRealizadoUseCase';
 
 function makeSessao(id = 's1') {

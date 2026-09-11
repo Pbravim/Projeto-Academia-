@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+
 import { BaixarMidiaExercicioUseCase } from './BaixarMidiaExercicioUseCase';
 
 vi.mock('expo-file-system', () => {

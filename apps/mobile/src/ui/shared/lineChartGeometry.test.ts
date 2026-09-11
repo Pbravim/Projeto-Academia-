@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  CHART_PAD_V,
   buildChartGeometry,
   buildSmoothPath,
+  CHART_PAD_V,
   lastMaxIndex,
   nearestDotIndex,
   selectXLabelIndexes,

@@ -1,12 +1,12 @@
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 
 import type { CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { resolveFullMediaSource, resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   visible: boolean;
@@ -22,10 +22,10 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
 
   const [selecionado, setSelecionado] = useState<string | null>(null);
 
-  const predefinidos = candidatos.filter((c) => c.predefinido);
-  const quaseIguais = candidatos.filter((c) => !c.predefinido && c.similaridade === 'quase_igual');
-  const similares   = candidatos.filter((c) => !c.predefinido && c.similaridade === 'similar');
-  const mesmoGrupo  = candidatos.filter((c) => !c.predefinido && c.similaridade === 'mesmo_grupo');
+  const predefinidos = candidatos.filter((item) => item.predefinido);
+  const quaseIguais = candidatos.filter((item) => !item.predefinido && item.similaridade === 'quase_igual');
+  const similares   = candidatos.filter((item) => !item.predefinido && item.similaridade === 'similar');
+  const mesmoGrupo  = candidatos.filter((item) => !item.predefinido && item.similaridade === 'mesmo_grupo');
 
   const handleSelecionado = (id: string) => setSelecionado((prev) => (prev === id ? null : id));
 

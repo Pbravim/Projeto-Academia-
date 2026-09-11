@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemoryRegistroPesoRepository } from '../../../infrastructure/peso/InMemoryRegistroPesoRepository';
 import { PesoValidationError } from '../../../domain/peso/errors/PesoValidationError';
+import { InMemoryRegistroPesoRepository } from '../../../infrastructure/peso/InMemoryRegistroPesoRepository';
+
 import { RegistrarPesoUseCase } from './RegistrarPesoUseCase';
 
 const fixedDate = new Date('2026-05-03T10:00:00.000Z');

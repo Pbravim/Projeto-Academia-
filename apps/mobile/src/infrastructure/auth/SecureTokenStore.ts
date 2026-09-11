@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
-import type { StoredTokens, TokenStore } from './TokenStore';
 import type { KeyValueSettings } from './SettingsTokenStore';
+import type { StoredTokens, TokenStore } from './TokenStore';
 
 // SecureStore só aceita [A-Za-z0-9._-] em chaves — não reutilizar '@auth/session'.
 const KEY = 'auth.session';

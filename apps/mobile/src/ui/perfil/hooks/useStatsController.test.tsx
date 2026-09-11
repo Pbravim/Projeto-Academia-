@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { renderHook, act } from '../../../test/renderHook';
-import { useStatsController } from './useStatsController';
 import type { DashboardStats } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
+import { act,renderHook } from '../../../test/renderHook';
+
+import { useStatsController } from './useStatsController';
 
 const statsBase: DashboardStats = {
   totalSessoes: 10,

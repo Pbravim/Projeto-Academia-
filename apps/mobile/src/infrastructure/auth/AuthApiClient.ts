@@ -1,4 +1,4 @@
-import type { AuthTokensDto, LoginDto, RegisterDto, RefreshDto } from '@academia/contracts';
+import type { AuthTokensDto, LoginDto, RefreshDto,RegisterDto } from '@academia/contracts';
 
 export class AuthApiError extends Error {
   constructor(

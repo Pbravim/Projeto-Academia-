@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 
-import type { DashboardControllerDependencies } from './hooks/useDashboardController';
-import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoController';
-import { useDashboardController } from './hooks/useDashboardController';
-import { useTreinoEvolucaoController } from './hooks/useTreinoEvolucaoController';
 import { useTabActive } from '../shared/tabActivity';
+
+import type { DashboardControllerDependencies } from './hooks/useDashboardController';
+import { useDashboardController } from './hooks/useDashboardController';
+import type { TreinoEvolucaoControllerDeps } from './hooks/useTreinoEvolucaoController';
+import { useTreinoEvolucaoController } from './hooks/useTreinoEvolucaoController';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { GerenciarSessoesScreen } from './screens/GerenciarSessoesScreen';
 import { RecordesPessoaisScreen } from './screens/RecordesPessoaisScreen';
@@ -35,8 +36,8 @@ export function DashboardFeature({ dependencies, onGoToSessao }: Props) {
   useEffect(() => {
     // Keep-alive: aba oculta não registra handler (BackHandler é LIFO e ela
     // consumiria o back da aba visível).
-    if (!tabActive) return;
-    if (view.type === 'dashboard') return;
+    if (!tabActive) return undefined;
+    if (view.type === 'dashboard') return undefined;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       setView({ type: 'dashboard' });
       return true;

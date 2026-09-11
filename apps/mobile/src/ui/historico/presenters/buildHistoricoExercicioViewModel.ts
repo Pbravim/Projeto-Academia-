@@ -1,4 +1,3 @@
-import type { LineChartPoint } from '../../shared/LineChart';
 import type { ExecucaoExercicio } from '../../../domain/historico/repositories/HistoricoRepository';
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
 import {
@@ -8,6 +7,7 @@ import {
 import type { AppLocale } from '../../shared/i18n';
 import { translate } from '../../shared/i18n/core';
 import { formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
+import type { LineChartPoint } from '../../shared/LineChart';
 
 export interface PlateauInfo {
   sessoes: number;

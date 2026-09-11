@@ -1,14 +1,16 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { createTestDatabase } from '../../../test/db-setup';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
-import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
-import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
-import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
-import { SQLiteExerciseRepository } from '../../../infrastructure/exercises/SQLiteExerciseRepository';
-import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
-import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { beforeEach,describe, expect, it } from 'vitest';
+
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { SQLiteExerciseRepository } from '../../../infrastructure/exercises/SQLiteExerciseRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
+import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
+import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
+import { createTestDatabase } from '../../../test/db-setup';
+
 import { GetSessaoDetalheUseCase } from './GetSessaoDetalheUseCase';
 
 describe('GetSessaoDetalheUseCase - P2 Regression Tests', () => {

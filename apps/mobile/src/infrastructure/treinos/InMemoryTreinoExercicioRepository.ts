@@ -1,4 +1,4 @@
-import { TreinoExercicio, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
+import { type MetodoExercicio,TreinoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../domain/treinos/repositories/TreinoExercicioRepository';
 
 export class InMemoryTreinoExercicioRepository implements TreinoExercicioRepository {

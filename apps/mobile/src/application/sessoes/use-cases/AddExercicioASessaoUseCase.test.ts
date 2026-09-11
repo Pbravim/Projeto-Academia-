@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
-import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
-import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
-import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { ExerciseNotFoundError } from '../../exercises/errors/ExerciseNotFoundError';
 import { ExercicioJaNaSessaoError } from '../errors/ExercicioJaNaSessaoError';
+import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
+import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
+
 import { AddExercicioASessaoUseCase } from './AddExercicioASessaoUseCase';
 
 function makeSessao(id = 's1') {

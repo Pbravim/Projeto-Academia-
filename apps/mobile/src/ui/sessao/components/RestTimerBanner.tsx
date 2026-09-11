@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 
-import { useTheme } from '../../shared/theme';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 import { cancelRestNotification, startRestNotification } from '../restTimerNotification';
 
 interface Props {

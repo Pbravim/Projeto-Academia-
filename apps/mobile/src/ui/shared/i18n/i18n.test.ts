@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { translate } from './index';
+
 vi.mock('expo-localization', () => ({
   getLocales: () => [{ languageTag: 'pt-BR' }],
 }));
@@ -9,8 +11,6 @@ vi.mock('expo-localization', () => ({
 // esbuild/rolldown transform can't parse under the node test environment.
 // translate() never touches the database, so a stub is safe here.
 vi.mock('expo-sqlite', () => ({}));
-
-import { translate } from './index';
 
 describe('i18n translate', () => {
   it('resolve chave em pt-BR', () => {

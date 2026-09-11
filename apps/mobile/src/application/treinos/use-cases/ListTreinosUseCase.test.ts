@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
+
 import { Treino } from '../../../domain/treinos/entities/Treino';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
+
 import { ListTreinosUseCase } from './ListTreinosUseCase';
 
 function makeTreino(id: string, name: string) {

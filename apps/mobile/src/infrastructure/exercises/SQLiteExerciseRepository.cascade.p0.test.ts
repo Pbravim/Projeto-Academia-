@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { Exercise } from '../../domain/exercises/entities/Exercise';
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteExerciseRepository } from './SQLiteExerciseRepository';
-import { Exercise } from '../../domain/exercises/entities/Exercise';
 
 /**
  * Regressão P0 (auditoria rodada 3, 2026-07-06): save()/applyServerRows() usavam

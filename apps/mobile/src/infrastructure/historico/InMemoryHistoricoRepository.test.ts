@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { InMemoryHistoricoRepository } from './InMemoryHistoricoRepository';
+
 import type { ExecucaoExercicio } from '../../domain/historico/repositories/HistoricoRepository';
+
+import { InMemoryHistoricoRepository } from './InMemoryHistoricoRepository';
 
 function makeExecucao(
   dataExecucao: string,

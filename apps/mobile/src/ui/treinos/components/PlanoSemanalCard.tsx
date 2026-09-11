@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import type { PlanoSemanal } from '../../../domain/plano/repositories/PlanoSemanalRepository';
 import type { DiaSemana } from '../../../domain/plano/entities/DiaSemana';
 import { DIAS_SEMANA, diaSemanaHoje } from '../../../domain/plano/entities/DiaSemana';
-import { useTheme } from '../../shared/theme';
+import type { PlanoSemanal } from '../../../domain/plano/repositories/PlanoSemanalRepository';
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   plano: PlanoSemanal;

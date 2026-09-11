@@ -1,7 +1,7 @@
-import { TreinoExercicio, METODOS_EXERCICIO, type TreinoExercicioPrimitives, type MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
+import { type MetodoExercicio,METODOS_EXERCICIO, TreinoExercicio, type TreinoExercicioPrimitives } from '../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../domain/treinos/repositories/TreinoExercicioRepository';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface TreinoExercicioRow {
   id: string;

@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { DashboardRepository } from '../../../domain/dashboard/repositories/DashboardRepository';
+
 import { ArquivarSessaoUseCase } from './ArquivarSessaoUseCase';
 
 describe('ArquivarSessaoUseCase', () => {

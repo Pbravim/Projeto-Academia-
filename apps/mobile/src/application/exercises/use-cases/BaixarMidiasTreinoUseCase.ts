@@ -1,5 +1,6 @@
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
+
 import { BaixarMidiaExercicioUseCase, isDownloadableUrl } from './BaixarMidiaExercicioUseCase';
 
 export interface ProgressoBaixarMidias {

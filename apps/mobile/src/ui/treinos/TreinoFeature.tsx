@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 
+import type { TreinoPrimitives } from '../../domain/treinos/entities/Treino';
 import { useTabActive } from '../shared/tabActivity';
 
-import type { TreinoPrimitives } from '../../domain/treinos/entities/Treino';
+import type { PlanoControllerDependencies } from './hooks/usePlanoController';
+import { usePlanoController } from './hooks/usePlanoController';
 import type { TreinoDetailControllerDependencies } from './hooks/useTreinoDetailController';
 import { useTreinoDetailController } from './hooks/useTreinoDetailController';
 import type { TreinoListControllerDependencies } from './hooks/useTreinoListController';
 import { useTreinoListController } from './hooks/useTreinoListController';
-import type { PlanoControllerDependencies } from './hooks/usePlanoController';
-import { usePlanoController } from './hooks/usePlanoController';
 import { TreinoDetailScreen } from './screens/TreinoDetailScreen';
 import { TreinoListScreen } from './screens/TreinoListScreen';
 
@@ -49,12 +49,13 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
   };
 
   useEffect(() => {
-    if (!selectedTreino) return;
+    if (!selectedTreino) return undefined;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       closeDetail();
       return true;
     });
     return () => sub.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- closeDetail é recriada a cada render; o listener deve ser (re)registrado só quando o treino selecionado muda
   }, [selectedTreino]);
 
   if (selectedTreino) {

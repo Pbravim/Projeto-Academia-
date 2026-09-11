@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildHistoricoExercicioViewModel } from './buildHistoricoExercicioViewModel';
 import type { ExecucaoExercicio } from '../../../domain/historico/repositories/HistoricoRepository';
+
+import { buildHistoricoExercicioViewModel } from './buildHistoricoExercicioViewModel';
 
 const serie = (
   id: string,

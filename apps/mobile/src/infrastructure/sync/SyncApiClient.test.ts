@@ -1,7 +1,7 @@
+import type { SyncRequest } from '@academia/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SyncApiClient } from './SyncApiClient';
-import type { SyncRequest } from '@academia/contracts';
 
 // Buraco de teste apontado na rodada 3 (F): o client HTTP do sync não tinha
 // nenhuma cobertura — contrato do POST, auth header e propagação de status.

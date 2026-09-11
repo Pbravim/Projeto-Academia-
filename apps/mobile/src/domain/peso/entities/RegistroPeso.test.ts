@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { PesoValidationError } from '../errors/PesoValidationError';
+
 import { RegistroPeso } from './RegistroPeso';
 
 const baseDate = new Date('2026-05-03T10:00:00.000Z');

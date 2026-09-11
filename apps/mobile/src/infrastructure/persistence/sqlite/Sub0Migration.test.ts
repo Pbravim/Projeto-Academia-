@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { createTestDatabase } from '../../../test/db-setup';
 
 const SYNC_TABLES = [

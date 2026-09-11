@@ -1,17 +1,17 @@
-import { calcularEstimativa1rm, estimativa1rmSql } from '../../shared/utils/estimativa1rm';
-import { nowIso } from '../../shared/utils/syncStamp';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import type {
   DashboardRepository,
   DashboardStats,
   DiaAderencia,
   EvolucaoPorTreino,
   ExercicioEvolucao,
+  SerieEvolucao,
   SessaoComVolume,
   SessaoExercicioEvolucao,
-  SerieEvolucao,
   TreinoComUltimaSessao,
 } from '../../domain/dashboard/repositories/DashboardRepository';
+import { calcularEstimativa1rm, estimativa1rmSql } from '../../shared/utils/estimativa1rm';
+import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 /**
  * Chave de data no fuso LOCAL do device (YYYY-MM-DD). O banco guarda ISO-UTC;
@@ -157,10 +157,10 @@ export class SqliteDashboardRepository implements DashboardRepository {
 
     const evolucaoPorTreino: EvolucaoPorTreino[] = Array.from(byTreino.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([treinoNome, { treinoId, sessoes, sessoesArquivadas }]) => ({
+      .map(([treinoNome, { treinoId, sessoes: sessoesDoTreino, sessoesArquivadas }]) => ({
         treinoId,
         treinoNome,
-        sessoes: sessoes.slice(0, 10),
+        sessoes: sessoesDoTreino.slice(0, 10),
         sessoesArquivadas,
       }));
 
@@ -233,12 +233,12 @@ export class SqliteDashboardRepository implements DashboardRepository {
       [treinoId]
     );
 
-    type ExAccum = {
+    interface ExAccum {
       nome: string;
       group: string;
       sessaoOrder: string[];
       sessoes: Map<string, { dataHoraInicio: string; series: SerieEvolucao[] }>;
-    };
+    }
 
     const byExercicio = new Map<string, ExAccum>();
 
@@ -315,7 +315,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
   }
 
   async findSugestaoRotacao(): Promise<TreinoComUltimaSessao | null> {
-    type Row = { id: string; name: string; objetivo: string | null; created_at: string; updated_at: string; ultima_sessao: string | null };
+    interface Row { id: string; name: string; objetivo: string | null; created_at: string; updated_at: string; ultima_sessao: string | null }
     const row = await this.database.getFirst<Row>(
       `SELECT t.id, t.name, t.objetivo, t.created_at, t.updated_at, s.ultima_sessao
        FROM treinos t
@@ -336,7 +336,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
   }
 
   async findTreinoComUltimaSessao(treinoId: string): Promise<TreinoComUltimaSessao | null> {
-    type Row = { id: string; name: string; objetivo: string | null; created_at: string; updated_at: string; ultima_sessao: string | null };
+    interface Row { id: string; name: string; objetivo: string | null; created_at: string; updated_at: string; ultima_sessao: string | null }
     const row = await this.database.getFirst<Row>(
       `SELECT t.id, t.name, t.objetivo, t.created_at, t.updated_at, s.ultima_sessao
        FROM treinos t

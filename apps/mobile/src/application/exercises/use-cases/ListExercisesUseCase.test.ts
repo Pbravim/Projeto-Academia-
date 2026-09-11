@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
+
 import { ListExercisesUseCase } from './ListExercisesUseCase';
 
 function makeExercise(id: string, name: string) {

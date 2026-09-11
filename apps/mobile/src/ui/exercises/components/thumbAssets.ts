@@ -1,6 +1,6 @@
 // Auto-generated — do not edit manually. Run scripts/generate_thumbs.py to refresh.
 // Thumbs estaticas (1o frame, JPEG) dos GIFs do catalogo — mesmas chaves do gifAssets.
-/* eslint-disable */
+ 
 // prettier-ignore
 export const thumbAssets: Record<string, ReturnType<typeof require>> = {
   'ABDOMEN CORE (1)/ABS alternando pernas.gif': require('../../../../assets/thumbs/ABDOMEN CORE (1)/ABS alternando pernas.jpg'),

@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
-import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { PickerCarousel } from '../components/PickerCarousel';
-import { RestTimerBanner } from '../components/RestTimerBanner';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
+import { useLocale, useT } from '../../shared/i18n';
+import { type AppLocale,translate } from '../../shared/i18n/core';
 import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
-import { translate, type AppLocale } from '../../shared/i18n/core';
+import { PickerCarousel } from '../components/PickerCarousel';
+import { RestTimerBanner } from '../components/RestTimerBanner';
 
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
 
@@ -259,7 +259,7 @@ export function BiSetDetalheScreen({
   const formatRepsItem = useCallback((idx: number) => String(idx + 1), []);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
@@ -730,5 +730,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     setMetric: { color: c.textPrimary, fontSize: 13, fontVariant: ['tabular-nums'] },
     deleteBtn: { padding: 4 },
     deleteBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
+    flex1: { flex: 1 },
   });
 }

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
+
 import { FinalizarSessaoUseCase } from './FinalizarSessaoUseCase';
 
 function makeRepo() {

@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import type { GestureResponderEvent } from 'react-native';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions,View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { buildChartGeometry, clamp, nearestDotIndex } from './lineChartGeometry';

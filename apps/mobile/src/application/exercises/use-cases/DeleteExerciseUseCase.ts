@@ -1,8 +1,8 @@
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
-import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
-import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import { ExerciseNotFoundError } from '../errors/ExerciseNotFoundError';
 
 export interface MediaFileCleanup {

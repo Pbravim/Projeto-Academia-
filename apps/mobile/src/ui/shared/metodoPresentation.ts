@@ -1,5 +1,6 @@
 import type { MetodoExercicio } from '../../domain/treinos/entities/TreinoExercicio';
-import { translate, type AppLocale } from './i18n/core';
+
+import { type AppLocale,translate } from './i18n/core';
 
 export interface MetodoVisual {
   color: string;

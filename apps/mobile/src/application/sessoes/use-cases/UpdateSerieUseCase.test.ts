@@ -7,6 +7,7 @@ import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sesso
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
+
 import { UpdateSerieUseCase } from './UpdateSerieUseCase';
 
 function makeDeps() {

@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { GetSessaoAtivaUseCase } from '../../../application/sessoes/use-cases/GetSessaoAtivaUseCase';
-import type { IniciarSessaoUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoUseCase';
-import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
-import type { SugerirTreinoUseCase, SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
-import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
-import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
-import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJaAtivaError';
 import { TreinoSemExerciciosError } from '../../../application/sessoes/errors/TreinoSemExerciciosError';
+import type { GetSessaoAtivaUseCase } from '../../../application/sessoes/use-cases/GetSessaoAtivaUseCase';
+import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { IniciarSessaoUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoUseCase';
+import type { SugerirTreinoUseCase, SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
+import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
+import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
+import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
 import { useTabActive } from '../../shared/tabActivity';
@@ -55,6 +55,7 @@ export function useSessaoFeatureController(
 
   useEffect(() => {
     void checkSessaoAtiva();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- checkSessaoAtiva é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   // Keep-alive: recarrega lista de treinos/sugestão ao reativar a aba (ex.:
@@ -70,6 +71,7 @@ export function useSessaoFeatureController(
     }
     if (view !== 'inicio') return;
     void checkSessaoAtiva();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 'view' é só guarda de leitura (não deve reexecutar ao mudar) e checkSessaoAtiva é recriada a cada render; o efeito deve rodar só ao (des)ativar a aba
   }, [tabActive]);
 
   const checkSessaoAtiva = async () => {

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+
+import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
 import { InMemoryHistoricoRepository } from '../../../infrastructure/historico/InMemoryHistoricoRepository';
-import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
-import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+
 import { SugerirSubstitutosUseCase } from './SugerirSubstitutosUseCase';
 
 function makeSE(

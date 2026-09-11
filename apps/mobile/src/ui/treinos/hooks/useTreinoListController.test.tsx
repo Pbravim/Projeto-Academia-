@@ -1,12 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '../../../test/renderHook';
+import { describe, expect, it, vi } from 'vitest';
+
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
+import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
+import { act,renderHook } from '../../../test/renderHook';
+
+import { type TreinoListControllerDependencies,useTreinoListController } from './useTreinoListController';
 
 // The i18n module pulls expo-localization and the SQLite database client
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
-import { useTreinoListController, type TreinoListControllerDependencies } from './useTreinoListController';
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
 
 const treinoA: TreinoPrimitives = {
   id: 't1',

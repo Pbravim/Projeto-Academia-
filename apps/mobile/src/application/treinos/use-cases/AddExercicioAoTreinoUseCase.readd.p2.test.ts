@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createTestDatabase } from '../../../test/db-setup';
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
-import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTreinoRepository';
-import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
-import { SQLiteExerciseRepository } from '../../../infrastructure/exercises/SQLiteExerciseRepository';
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
 import { Treino } from '../../../domain/treinos/entities/Treino';
+import { SQLiteExerciseRepository } from '../../../infrastructure/exercises/SQLiteExerciseRepository';
+import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
+import { SQLiteTreinoRepository } from '../../../infrastructure/treinos/SQLiteTreinoRepository';
+import { createTestDatabase } from '../../../test/db-setup';
+
 import { AddExercicioAoTreinoUseCase } from './AddExercicioAoTreinoUseCase';
 
 /**

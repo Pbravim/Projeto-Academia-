@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+
 import { ListTreinoExerciciosUseCase } from './ListTreinoExerciciosUseCase';
 
 function makeTE(id: string, treinoId: string, ordem: number) {

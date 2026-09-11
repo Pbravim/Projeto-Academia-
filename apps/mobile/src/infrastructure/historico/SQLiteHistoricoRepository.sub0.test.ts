@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteHistoricoRepository } from './SQLiteHistoricoRepository';
 
 let db: SQLiteDatabaseClient;

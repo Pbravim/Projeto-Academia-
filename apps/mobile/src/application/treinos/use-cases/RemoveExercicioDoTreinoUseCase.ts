@@ -1,5 +1,5 @@
-import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
 
 interface RemoveExercicioDoTreinoUseCaseDependencies {

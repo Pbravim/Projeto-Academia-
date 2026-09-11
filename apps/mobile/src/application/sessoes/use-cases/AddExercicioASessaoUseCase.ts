@@ -1,5 +1,5 @@
-import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
+import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';

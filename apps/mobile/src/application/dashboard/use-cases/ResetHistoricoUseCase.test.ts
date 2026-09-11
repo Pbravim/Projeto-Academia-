@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createTestDatabase } from '../../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import { createTestDatabase } from '../../../test/db-setup';
+
 import { ResetHistoricoUseCase } from './ResetHistoricoUseCase';
 
 /**

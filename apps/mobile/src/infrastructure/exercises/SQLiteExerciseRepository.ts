@@ -1,7 +1,7 @@
 import { Exercise, type ExercisePrimitives } from '../../domain/exercises/entities/Exercise';
 import type { ExerciseRepository, ListExercisesOptions } from '../../domain/exercises/repositories/ExerciseRepository';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { nowIso } from '../../shared/utils/syncStamp';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface ExerciseRow {
   id: string;

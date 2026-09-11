@@ -1,18 +1,19 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
+import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
+import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
+import { act,renderHook } from '../../../test/renderHook';
+
+import {
+  type SessaoAtivaControllerDependencies,
+  useSessaoAtivaController,
+} from './useSessaoAtivaController';
 
 // The i18n module pulls expo-localization and the SQLite database client
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
-
-import { renderHook, act } from '../../../test/renderHook';
-import {
-  useSessaoAtivaController,
-  type SessaoAtivaControllerDependencies,
-} from './useSessaoAtivaController';
-import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
-import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
-import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
-import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/ExercicioJaNaSessaoError';
 
 const sessao: SessaoTreinoPrimitives = {
   id: 's1',

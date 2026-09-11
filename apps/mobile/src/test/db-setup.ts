@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
-import type { SQLiteDatabaseClient, SQLiteBindParams } from '../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+
 import { migrations, splitSqlStatements } from '../infrastructure/persistence/sqlite/migrations';
+import type { SQLiteBindParams,SQLiteDatabaseClient } from '../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 
 /**
  * Creates an in-memory SQLite database suitable for testing.

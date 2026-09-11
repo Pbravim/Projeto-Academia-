@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
+
 import { CreateTreinoUseCase } from './CreateTreinoUseCase';
 
 function makeUseCase(repo = new InMemoryTreinoRepository()) {

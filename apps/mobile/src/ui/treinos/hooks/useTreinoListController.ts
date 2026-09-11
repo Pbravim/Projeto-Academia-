@@ -1,11 +1,11 @@
 import { startTransition, useEffect, useState } from 'react';
 
+import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
 import type { CreateTreinoUseCase } from '../../../application/treinos/use-cases/CreateTreinoUseCase';
 import type { DeleteTreinoUseCase } from '../../../application/treinos/use-cases/DeleteTreinoUseCase';
 import type { DuplicarTreinoUseCase } from '../../../application/treinos/use-cases/DuplicarTreinoUseCase';
 import type { ListTreinosUseCase } from '../../../application/treinos/use-cases/ListTreinosUseCase';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
 import { TreinoValidationError } from '../../../domain/treinos/errors/TreinoValidationError';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
@@ -80,6 +80,7 @@ export function useTreinoListController(
 
   useEffect(() => {
     void loadTreinos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTreinos é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   const onChangeField = (field: keyof TreinoDraft, value: string) => {

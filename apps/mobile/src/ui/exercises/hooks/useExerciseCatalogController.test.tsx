@@ -1,10 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '../../../test/renderHook';
-import { useExerciseCatalogController, type ExerciseCatalogControllerDependencies } from './useExerciseCatalogController';
-import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
+import { describe, expect, it, vi } from 'vitest';
+
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../../../application/exercises/errors/ExerciseNotFoundError';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
+import { act,renderHook } from '../../../test/renderHook';
+
+import { type ExerciseCatalogControllerDependencies,useExerciseCatalogController } from './useExerciseCatalogController';
 
 // The controller imports { File, Paths } from 'expo-file-system' (new API), which pulls in
 // react-native (Flow) and breaks the Vitest/Rolldown parser. Mock it so the suite can load.

@@ -1,7 +1,7 @@
 import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
-import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
+import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 
 export interface UpdateSerieInput {

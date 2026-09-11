@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+
+import { RegistroPeso } from '../../domain/peso/entities/RegistroPeso';
+import { SessaoExercicio } from '../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoTreino } from '../../domain/sessoes/entities/SessaoTreino';
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
-import { SQLiteSessaoTreinoRepository } from './SQLiteSessaoTreinoRepository';
-import { SQLiteSessaoExercicioRepository } from './SQLiteSessaoExercicioRepository';
 import { SQLiteRegistroPesoRepository } from '../peso/SQLiteRegistroPesoRepository';
-import { SessaoTreino } from '../../domain/sessoes/entities/SessaoTreino';
-import { SessaoExercicio } from '../../domain/sessoes/entities/SessaoExercicio';
-import { RegistroPeso } from '../../domain/peso/entities/RegistroPeso';
+
+import { SQLiteSessaoExercicioRepository } from './SQLiteSessaoExercicioRepository';
+import { SQLiteSessaoTreinoRepository } from './SQLiteSessaoTreinoRepository';
 
 /**
  * Regressão P0 (auditoria rodada 3, 2026-07-06): getDirty/applyServerRows de

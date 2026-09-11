@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { Treino } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+
 import { DuplicarTreinoUseCase } from './DuplicarTreinoUseCase';
 
 describe('DuplicarTreinoUseCase', () => {

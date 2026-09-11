@@ -1,5 +1,5 @@
-import { startTransition, useCallback, useEffect, useRef, useState } from 'react';
 import { File, Paths } from 'expo-file-system';
+import { startTransition, useCallback, useEffect, useRef, useState } from 'react';
 
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { ExerciseNotFoundError } from '../../../application/exercises/errors/ExerciseNotFoundError';
@@ -8,12 +8,12 @@ import type { DeleteExerciseUseCase } from '../../../application/exercises/use-c
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import type { UpdateExerciseUseCase } from '../../../application/exercises/use-cases/UpdateExerciseUseCase';
 import type { GetUltimasExecucoesValidasUseCase } from '../../../application/historico/use-cases/GetUltimasExecucoesValidasUseCase';
-import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { ExerciseValidationError } from '../../../domain/exercises/errors/ExerciseValidationError';
+import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { UltimaExecucaoValida } from '../../../domain/historico/repositories/HistoricoRepository';
-import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { gerarThumbMidia } from '../../../infrastructure/exercises/gerarThumbMidia';
+import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { invalidateMediaCache } from '../../shared/exerciseMedia';
 import { translate, useLocale } from '../../shared/i18n';
 import { useTabActive } from '../../shared/tabActivity';
@@ -129,6 +129,7 @@ export function useExerciseCatalogController(
 
   useEffect(() => {
     void loadExercises();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadExercises é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   // Keep-alive: a aba fica montada oculta; recarrega ao reativar para refletir
@@ -142,6 +143,7 @@ export function useExerciseCatalogController(
       return;
     }
     void loadExercises();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadExercises é recriada a cada render; incluí-la recarregaria a cada render, não só ao reativar a aba
   }, [tabActive]);
 
   const onChangeField = (field: keyof ExerciseDraft, value: string) => {

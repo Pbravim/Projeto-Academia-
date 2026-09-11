@@ -1,12 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '../../../test/renderHook';
+import { describe, expect, it, vi } from 'vitest';
+
+import { act,renderHook } from '../../../test/renderHook';
+
+import { type BackupSyncDependencies,useBackupSync } from './useBackupSync';
 
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
 vi.mock('react-native', () => ({
   AppState: { addEventListener: vi.fn(() => ({ remove: vi.fn() })) },
 }));
-import { useBackupSync, type BackupSyncDependencies } from './useBackupSync';
 
 // Buraco de teste da rodada 3 (F) + regressão do fix da frente 7: sync() sem
 // catch virava unhandled rejection no auto-sync de foreground e o usuário não

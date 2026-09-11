@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { DashboardRepository, ExercicioEvolucao } from '../../../domain/dashboard/repositories/DashboardRepository';
+
 import { GetTreinoEvolucaoUseCase } from './GetTreinoEvolucaoUseCase';
 
 describe('GetTreinoEvolucaoUseCase', () => {

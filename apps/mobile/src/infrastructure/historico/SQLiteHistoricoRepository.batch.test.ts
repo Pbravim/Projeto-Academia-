@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { SQLiteBindParams, SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
 import { SQLiteHistoricoRepository } from './SQLiteHistoricoRepository';
 
 function makeIds(count: number): string[] {

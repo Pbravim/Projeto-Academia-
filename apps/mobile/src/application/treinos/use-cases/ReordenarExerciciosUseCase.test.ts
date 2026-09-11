@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { Treino } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
-import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoExercicioNotFoundError } from '../errors/TreinoExercicioNotFoundError';
-import { ReordenarExerciciosUseCase, ReordenacaoIncompletaError } from './ReordenarExerciciosUseCase';
+import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
+
+import { ReordenacaoIncompletaError,ReordenarExerciciosUseCase } from './ReordenarExerciciosUseCase';
 
 function makeRepos() {
   return {

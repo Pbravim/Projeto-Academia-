@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
-import { LineChart } from '../../shared/LineChart';
-import { Sparkline } from '../../shared/Sparkline';
 import { SessionSeriesTable } from '../../shared/components/SessionSeriesTable';
 import {
   buildSessionTableRows,
@@ -11,9 +9,11 @@ import {
   formatKgDelta,
 } from '../../shared/components/sessionSeriesTableModel';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
 import { formatShortDate } from '../../shared/i18n/formatters';
+import { LineChart } from '../../shared/LineChart';
+import { Sparkline } from '../../shared/Sparkline';
+import { useTheme } from '../../shared/theme';
 
 interface Props {
   treinoNome: string;
@@ -127,7 +127,7 @@ function ExercicioEvolucaoCard({ exercicio }: { exercicio: ExercicioEvolucao }) 
         onPress={() => setExpanded((v) => !v)}
         style={({ pressed }) => [styles.cardHeader, pressed ? { opacity: 0.7 } : null]}
       >
-        <View style={{ flex: 1 }}>
+        <View style={styles.flex1}>
           <Text style={styles.exercicioNome}>{exercicio.exercicioNome}</Text>
           <Text style={styles.exercicioMeta}>{exercicio.groupMuscle}</Text>
           {!expanded && !(temDados && ormValues.length >= 2) ? (
@@ -310,5 +310,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     segmentActive: { backgroundColor: c.hero },
     segmentText: { color: c.textSecondary, fontSize: 13, fontWeight: '700' },
     segmentTextActive: { color: c.heroText },
+    flex1: { flex: 1 },
   });
 }

@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
-import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
+import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { normalizeText } from '../../../shared/utils/normalizeText';
+import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
+import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
+import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
+import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
+import { useLocale, useT } from '../../shared/i18n';
+import { useTheme } from '../../shared/theme';
 import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
 import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
 import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
-import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
-import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
-import { normalizeText } from '../../../shared/utils/normalizeText';
-import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
-import { useTheme } from '../../shared/theme';
-import { useLocale, useT } from '../../shared/i18n';
+import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
+import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
 
 const GROUP_ORDER = [
   'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
@@ -253,7 +253,7 @@ export function TreinoDetailScreen({
 
   return (
     <>
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
@@ -374,14 +374,14 @@ export function TreinoDetailScreen({
                       disabled={bi === 0 || isReordering}
                       accessibilityRole="button"
                       accessibilityLabel={t('treinos.detail.moverBlocoCima')}
-                      style={[styles.grupoArrowBtn, bi === 0 || isReordering ? { opacity: 0.3 } : null]}>
+                      style={[styles.grupoArrowBtn, bi === 0 || isReordering ? styles.dimmed : null]}>
                       <Text style={styles.grupoArrowText}>↑</Text>
                     </Pressable>
                     <Pressable onPress={() => { void onMoveDown(bloco.exercicios[0].id); }}
                       disabled={bi === blocos.length - 1 || isReordering}
                       accessibilityRole="button"
                       accessibilityLabel={t('treinos.detail.moverBlocoBaixo')}
-                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 || isReordering ? { opacity: 0.3 } : null]}>
+                      style={[styles.grupoArrowBtn, bi === blocos.length - 1 || isReordering ? styles.dimmed : null]}>
                       <Text style={styles.grupoArrowText}>↓</Text>
                     </Pressable>
                     <Pressable
@@ -779,5 +779,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     grupoDivider: { height: 2, opacity: 0.35, marginVertical: 6, marginHorizontal: 4 },
     vincularAoGrupoBtn: { marginTop: 8, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderStyle: 'dashed', alignItems: 'center' },
     vincularAoGrupoBtnText: { fontSize: 12, fontWeight: '700' },
+    flex1: { flex: 1 },
+    dimmed: { opacity: 0.3 },
   });
 }

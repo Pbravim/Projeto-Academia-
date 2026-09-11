@@ -37,7 +37,7 @@ function getNotifee(): NotifeeModule | null {
   try {
     // require dinâmico: no Expo Go o módulo nativo não existe e o import
     // estático quebraria o app inteiro; aqui só desativa este backend.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     const mod = require('@notifee/react-native') as { default?: NotifeeModule };
     notifeeCache = mod.default ?? null;
   } catch {

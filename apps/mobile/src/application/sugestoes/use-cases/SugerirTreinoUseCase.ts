@@ -1,7 +1,7 @@
 import type { DashboardRepository } from '../../../domain/dashboard/repositories/DashboardRepository';
-import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
 import { diaSemanaHoje } from '../../../domain/plano/entities/DiaSemana';
+import type { PlanoSemanalRepository } from '../../../domain/plano/repositories/PlanoSemanalRepository';
+import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 
 export type SugestaoFonte = 'plano' | 'rotacao';
 

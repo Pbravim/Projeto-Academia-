@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { InMemoryHistoricoRepository } from '../../../infrastructure/historico/InMemoryHistoricoRepository';
+
 import { INCREMENTO_CARGA_KG, SugerirProgressaoUseCase } from './SugerirProgressaoUseCase';
 
 function makeExecucao(dataExecucao: string, series: { cargaKg: number; repeticoes: number; tipoSerie: 'valida' | 'aquecimento' }[]) {

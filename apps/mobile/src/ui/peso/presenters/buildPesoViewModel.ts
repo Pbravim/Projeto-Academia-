@@ -1,5 +1,5 @@
 import type { RegistroPesoPrimitives } from '../../../domain/peso/entities/RegistroPeso';
-import { translate, type AppLocale } from '../../shared/i18n/core';
+import { type AppLocale,translate } from '../../shared/i18n/core';
 import { formatFixedDecimal, formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
 
 export interface RegistroPesoCardViewModel {

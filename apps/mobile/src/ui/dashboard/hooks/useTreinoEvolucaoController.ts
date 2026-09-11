@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { GetTreinoEvolucaoUseCase, ExercicioEvolucao } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
+import type { ExercicioEvolucao,GetTreinoEvolucaoUseCase } from '../../../application/dashboard/use-cases/GetTreinoEvolucaoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
 
@@ -41,6 +41,7 @@ export function useTreinoEvolucaoController(
       }
     });
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps é injetado uma vez por tela (DI); incluir getTreinoEvolucao/logger recarregaria a cada render sem motivo
   }, [treinoId, locale]);
 
   return { exercicios, isLoading, errorMessage };

@@ -1,7 +1,7 @@
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import type { DiaSemana } from '../../domain/plano/entities/DiaSemana';
 import { DIAS_SEMANA } from '../../domain/plano/entities/DiaSemana';
 import type { PlanoSemanal, PlanoSemanalRepository } from '../../domain/plano/repositories/PlanoSemanalRepository';
+import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 export class SQLitePlanoSemanalRepository implements PlanoSemanalRepository {
   constructor(private readonly db: SQLiteDatabaseClient) {}

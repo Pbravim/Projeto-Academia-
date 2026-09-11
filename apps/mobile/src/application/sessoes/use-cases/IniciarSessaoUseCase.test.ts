@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
-import { UpdateExerciseUseCase } from '../../exercises/use-cases/UpdateExerciseUseCase';
 import { Treino } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
-import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
-import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
-import { SessaoJaAtivaError } from '../errors/SessaoJaAtivaError';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
+import { UpdateExerciseUseCase } from '../../exercises/use-cases/UpdateExerciseUseCase';
 import { TreinoNotFoundError } from '../../treinos/errors/TreinoNotFoundError';
+import { SessaoJaAtivaError } from '../errors/SessaoJaAtivaError';
+
 import { IniciarSessaoUseCase } from './IniciarSessaoUseCase';
 
 function makeRepos() {
