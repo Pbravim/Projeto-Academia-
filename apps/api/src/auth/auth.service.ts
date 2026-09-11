@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -55,7 +55,9 @@ export class AuthService {
     const payload = { sub: userId, email };
     const accessToken = this.jwtService.sign(payload, {
       secret,
-      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
+      // jsonwebtoken 9.0.3 (via @nestjs/jwt 12) estreitou `expiresIn` para o template
+      // literal `StringValue` do `ms`; um `string` vindo de env não casa em compilação.
+      expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN ?? '15m') as JwtSignOptions['expiresIn'],
     });
     const rawRefresh = randomUUID();
     const tokenHash = createHash('sha256').update(rawRefresh).digest('hex');

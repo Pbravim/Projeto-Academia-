@@ -154,3 +154,46 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   que adicione dependência o faz crescer e reprova o portão, mesmo sem tocar um módulo
   de verdade. O `exempt` do `.orca-quality.json` já isenta `**/generated/**`, mas não
   lockfile. Enquanto não for decidido, fatia de dependência não passa no `loc`.
+
+## Majors, portões e ambiente (2026-09-10, madrugada)
+
+- **`npm ci` interrompido corrompe a árvore em SILÊNCIO.** Ele apaga `node_modules`
+  antes de instalar; abortado no meio, deixa uma árvore parcial que o npm considera
+  em dia — o `npm install` seguinte sai **exit 0 sem reparar nada** (aconteceu com
+  `node_modules/@types/` inteiro ausente). O sintoma engana: `test`/`build`/`lint`
+  falham por binário ou typings faltando, o que parece defeito de código. Só um
+  `npm ci` COMPLETO conserta, e depois dele o `prisma generate` precisa ser refeito —
+  senão o `$transaction(tx)` vira `any` e o build quebra com TS7006.
+- **Aprovação `test-edit:` só casa com glob ABSOLUTO.** O matcher do harness removeu
+  o fallback de caminho relativo (era um fail-open). Linha com glob relativo
+  (`test-edit:*Foo.test.ts:...`) fica **inerte, sem aviso nenhum** — o hook segue
+  bloqueando como se não houvesse concessão. Use o caminho absoluto completo, no
+  mesmo formato que o próprio hook sugere quando bloqueia.
+- **Teste não deve depender do `.env` da máquina.** O e2e fixava os secrets com
+  `process.env.X ||= <valor longo>`, e `||=` não substitui valor curto porém truthy.
+  Com jest 29 o default do spec rodava ANTES de o dotenv do Prisma carregar e
+  mascarava um `.env` inválido; com jest 30 a ordem inverteu e o mesmo `.env` passou
+  a derrubar o teste. O resultado dependia da ordem de carga — ou seja, da máquina.
+  Fixe com `=`, não com `||=`.
+- **O portão `loc` media o `package-lock.json` como se fosse um módulo** e reprovava
+  qualquer fatia de dependência por construção; como `loc` é tier 1, o
+  `check-quality-preflight` nem deixava abrir o PR. Corrigido acrescentando lockfiles
+  ao `exempt` do `.orca-quality.json` — mesma razão pela qual `**/generated/**` já
+  estava lá: o critério do portão é "módulo grande demais para revisar", e ninguém
+  revisa um lock.
+- **Worktree de agente nasce de um `development` congelado.** A fatia do Nest 12
+  partiu de um HEAD anterior à entrega que removeu o `passport`; a correção mais séria
+  do agente — restaurar o `@Optional()` que o Nest 12 deixou de herdar no `AuthGuard`
+  do passport — ficou **sem objeto** na integração. Ao integrar trabalho de agente,
+  confira se as premissas dele ainda valem, em vez de só resolver conflito de texto.
+- **Nest 12 arrasta o jest junto.** Todos os `@nestjs/*` viraram ESM puro; o jest 29
+  morre em "Must use import to load ES Module". O jest 30.5 faz `require(esm)` em
+  Node ≥ 24.9, mas só com `--experimental-vm-modules` — flag de processo, que não
+  cabe no `jest.config` e não é portável via `NODE_OPTIONS=` inline no Windows. Daí o
+  lançador em `scripts/api-jest.mjs`.
+- **`@nestjs/throttler` não tem release `^12`.** Sem `overrides`, o npm instala uma
+  cópia ANINHADA do Nest 10 só para ele e a app roda com **duas instâncias do
+  framework** — o `DynamicModule` do `ThrottlerModule` deixa de ser atribuível e nem
+  compila. O override é dívida declarada: remover quando sair o `^12`.
+- **O npm não aplica `overrides` novos sobre um lock existente.** Ele mantém a
+  resolução antiga (e chega a dar ERESOLVE). Só regenerando o lockfile do zero.
