@@ -37,3 +37,6 @@ Tomorrow
 
 # personal/binary files not part of the project
 GIFS/
+
+# backups de ambiente (contem segredos)
+*.env.bak
