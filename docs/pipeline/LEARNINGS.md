@@ -231,3 +231,19 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   compila. O override é dívida declarada: remover quando sair o `^12`.
 - **O npm não aplica `overrides` novos sobre um lock existente.** Ele mantém a
   resolução antiga (e chega a dar ERESOLVE). Só regenerando o lockfile do zero.
+- **`xcode@3.0.1` (via `@expo/config-plugins`, ferramenta de prebuild) usa
+  `uuid@<11.1.1` (só `uuid.v4()`, API que existe igual no uuid 11) — 13
+  `moderate` do audit. Override estreito em `overrides` da raiz:
+  `"xcode": {"uuid": "^11.1.1"}`. Remover quando o `xcode` subir o próprio
+  `uuid`. Confirmado: `npm audit` caiu de 13 moderate para 0 depois do
+  override + lockfile regenerado.
+- **Apagar só o `package-lock.json` não bastou para aplicar o override
+  acima** — com `node_modules` ainda presente, `npm install` reconhece a
+  árvore existente como "up to date" e escreve um lockfile novo que
+  preserva a resolução ANTIGA (uuid continuou em 7.0.3). Só depois de
+  apagar `node_modules` (raiz e dos workspaces) e reinstalar do zero o
+  override pegou. Reinstalo do zero também reordenou ~260 pacotes
+  transitivos (metro 0.84.6→0.84.5, `ws` 7.5.13→8.21.3 na raiz, eslint
+  aninhado diferente) sem quebrar nada — `mobile:test`, `mobile:typecheck`,
+  `lint:mobile`, `lint:api`, `apps/api test`, `expo-doctor` (21/21) e
+  `expo export --platform android` todos verdes depois.
