@@ -23,7 +23,7 @@ export class ExportarBancoUseCase {
     const destName = `academia-backup-${timestamp}.db`;
     const dest = new File(Paths.cache, destName);
     if (dest.exists) dest.delete();
-    source.copy(dest);
+    await source.copy(dest);
 
     const canShare = await Sharing.isAvailableAsync();
     if (!canShare) throw new Error('Compartilhamento nao disponivel neste dispositivo.');

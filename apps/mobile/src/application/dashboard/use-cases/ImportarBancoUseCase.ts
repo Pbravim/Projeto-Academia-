@@ -68,7 +68,7 @@ export class ImportarBancoUseCase {
     if (dest.exists) {
       backupFile = new File(Paths.document, 'academia-pre-import.db');
       if (backupFile.exists) backupFile.delete();
-      dest.copy(backupFile);
+      await dest.copy(backupFile);
       dest.delete();
     }
 
@@ -79,10 +79,10 @@ export class ImportarBancoUseCase {
     }
 
     try {
-      pickedFile.copy(dest);
+      await pickedFile.copy(dest);
     } catch (err) {
       if (backupFile?.exists) {
-        backupFile.copy(dest);
+        await backupFile.copy(dest);
       }
       throw err;
     }

@@ -510,7 +510,7 @@ export function MediaFields({ exercicioId, mediaOnline, mediaLocal, onChangeOnli
       const destFile = new File(exercisesDir, `${id}_local.${ext}`);
       deleteFileIfLocal(currentLocalRef.current);
       const sourceFile = new File(asset.uri);
-      sourceFile.copy(destFile);
+      await sourceFile.copy(destFile);
       onChangeLocal(destFile.uri);
     } finally {
       setPicking(false);
