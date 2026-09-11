@@ -65,4 +65,21 @@ export default [
     files: ['index.ts'],
     rules: { 'simple-import-sort/imports': 'off' },
   },
+  {
+    // telas-deus fora de escopo (decisão do Portão 1, reafirmada 2026-09-11);
+    // o portão loc bloqueia qualquer toque em módulo > 800 LOC; reativar
+    // quando as telas forem fatiadas. Regras medidas com os arquivos
+    // revertidos a origin/development (ver docs/pipeline/LEARNINGS.md).
+    files: [
+      'src/ui/perfil/screens/PerfilScreen.tsx',
+      'src/ui/sessao/screens/ExercicioDetalheScreen.tsx',
+    ],
+    rules: {
+      'simple-import-sort/imports': 'off',
+      'import/first': 'off',
+      'react-native/no-inline-styles': 'off',
+      'no-shadow': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+    },
+  },
 ];

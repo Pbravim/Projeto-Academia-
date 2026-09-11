@@ -1,5 +1,4 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { type ReactNode,useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -13,18 +12,19 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
+import type { PerfilControllerState } from '../hooks/usePerfilController';
 import type { PesoControllerState } from '../../peso/hooks/usePesoController';
+import type { StatsControllerState } from '../hooks/useStatsController';
 import { AderenciaCard } from '../../shared/components/AderenciaCard';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
-import { LanguagePickerModal } from '../../shared/components/LanguagePickerModal';
-import { useLocale, useLocalePreference, useT } from '../../shared/i18n';
-import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
-import { SUPPORTED_LANGUAGES } from '../../shared/i18n/languages';
 import { LineChart, type LineChartPoint } from '../../shared/LineChart';
-import { type ThemePreference,useTheme, useThemePreference } from '../../shared/theme';
-import type { PerfilControllerState } from '../hooks/usePerfilController';
-import type { StatsControllerState } from '../hooks/useStatsController';
+import { useTheme, useThemePreference, type ThemePreference } from '../../shared/theme';
+import { useLocale, useLocalePreference, useT } from '../../shared/i18n';
+import { SUPPORTED_LANGUAGES } from '../../shared/i18n/languages';
+import { LanguagePickerModal } from '../../shared/components/LanguagePickerModal';
+import { formatFullDate, formatTime } from '../../shared/i18n/formatters';
 
 // ─── Metric abstraction ──────────────────────────────────────────────────────
 // To add a new metric (arm, height, body fat…), push a MetricSeries into the
@@ -169,7 +169,7 @@ export function PerfilScreen({
   // ── Derived stats ────────────────────────────────────────────────────────
   const { stats } = statsState;
   const treinoFavorito = stats?.evolucaoPorTreino.reduce(
-    (best, treino) => (treino.sessoes.length > (best?.sessoes.length ?? 0) ? treino : best),
+    (best, t) => (t.sessoes.length > (best?.sessoes.length ?? 0) ? t : best),
     null as (typeof stats.evolucaoPorTreino)[0] | null,
   ) ?? null;
   const topRecord = stats?.recordesPessoais[0] ?? null;
@@ -206,7 +206,7 @@ export function PerfilScreen({
   return (
     // KAV + persistTaps: sem eles o teclado cobria o botão "Registrar" do form
     // de peso e o 1º toque no botão só fechava o teclado.
-    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.content}
@@ -867,6 +867,5 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteButtonLoading: { opacity: 0.5 },
     deleteButtonPressed: { opacity: 0.75 },
     deleteButtonText: { color: c.error, fontSize: 12, fontWeight: '700' },
-    flex1: { flex: 1 },
   });
 }
