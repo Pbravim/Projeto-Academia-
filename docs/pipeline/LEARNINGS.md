@@ -115,3 +115,42 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   ~100% de cobertura baixa a média global (77,6% → 77,5%), e o portão lê como
   "cobertura caiu". Não distingue "apagou código coberto" de "adicionou código
   descoberto".
+
+## Sessão de entrega da fila (2026-09-10, noite)
+
+- **O achado do GitGuardian só é legível no comentário do bot no PR.** O check-run
+  devolve `details_url = dashboard.gitguardian.com` e nada mais; `GET
+  /commits/<sha>/status` volta **vazio**. Quem carrega id do incidente, arquivo, linha
+  e commit é o comentário que o bot posta na conversa do PR:
+  `gh pr view <n> --json comments`. Ir direto lá economiza várias chamadas.
+- **O GitGuardian varre TODOS os commits do PR, não a árvore final.** Corrigir o
+  literal num commit posterior **não** limpa o PR. Aconteceu duas vezes na mesma noite
+  (fatia auth e fatia do `.env.example`), com a árvore final já correta nas duas.
+  Como reescrever histórico depende de force-push (negado neste ambiente), o padrão de
+  saída é: **branch nova a partir de `development`, árvore final num commit só, PR novo,
+  fechar o antigo explicando**. Confira a equivalência com
+  `git diff <branch-nova> <branch-antiga> --stat` — saída vazia = idênticas — ANTES de
+  fechar o antigo. O repo já usara esse padrão no #7→#8.
+- **`git checkout <branch> -- .` não apaga arquivos deletados na origem.** Ao montar a
+  branch limpa acima, as duas strategies do passport (removidas na fatia) reapareceram
+  e o PR teria reintroduzido código morto. Sempre confirme com
+  `git diff <branch-origem> --stat` e remova as sobras à mão.
+- **Literal em chave `password` dentro de teste é marcado como "Generic Password".**
+  `password: 'errada'` num fixture com `validateUser` mockado reprovou a CI. Nos testes,
+  gere o valor (`const senhaFake = (n) => 'x'.repeat(n)`) em vez de escrevê-lo — custa
+  uma linha e evita falso positivo recorrente.
+- **Escrita em arquivo de teste por linha de comando é bloqueada por desenho.** `sed
+  -i`, heredoc, redirecionamento e `mv/cp` não passam pelo `check-test-integrity`, que
+  só enxerga Edit/Write — por isso existe o `check-quality-bypass`. Use Edit/Write:
+  **inserir teste novo continua livre**, e só a reescrita de teste consolidado pede
+  aprovação do usuário.
+- **A saída legítima do ratchet contaminado é a FILA DE MERGE, não o estado do
+  portão.** Uma fatia sem uma única linha executável no diff foi reprovada por
+  "cobertura caiu" porque o baseline tinha sido elevado por uma medição numa branch
+  irmã não mergeada. Entregar a branch que produziu o número (fazendo o valor virar
+  real na base) destrava as outras. Editar `.orca/quality-state.json` é gesto de
+  fraude e o classificador barra — corretamente.
+- **O portão `loc` mede o `package-lock.json` como se fosse um módulo.** Qualquer fatia
+  que adicione dependência o faz crescer e reprova o portão, mesmo sem tocar um módulo
+  de verdade. O `exempt` do `.orca-quality.json` já isenta `**/generated/**`, mas não
+  lockfile. Enquanto não for decidido, fatia de dependência não passa no `loc`.
