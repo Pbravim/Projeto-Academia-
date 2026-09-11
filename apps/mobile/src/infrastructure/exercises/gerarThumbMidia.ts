@@ -36,7 +36,7 @@ export async function gerarThumbMidia(exercicioId: string, mediaUri: string): Pr
 
     const dest = new File(thumbsDir, `${exercicioId}.jpg`);
     try { if (dest.exists) dest.delete(); } catch { /* substitui */ }
-    new File(saved.uri).move(dest);
+    await new File(saved.uri).move(dest);
     return dest.uri;
   } catch {
     return null;

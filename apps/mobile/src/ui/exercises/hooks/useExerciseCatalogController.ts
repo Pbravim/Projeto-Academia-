@@ -256,7 +256,7 @@ export function useExerciseCatalogController(
             const ext = cleanDraft.mediaLocal.split('.').pop() ?? 'mp4';
             const srcFile = new File(cleanDraft.mediaLocal);
             const destFile = new File(Paths.document, 'exercises', `${created.id}.${ext}`);
-            srcFile.move(destFile);
+            await srcFile.move(destFile);
             await dependencies.exerciseRepository.updateMedia(created.id, created.mediaOnline, destFile.uri);
             void gerarThumbMidia(created.id, destFile.uri).then((u) => { if (u) invalidateMediaCache(u); });
           } catch (error) {

@@ -64,7 +64,7 @@ export class BaixarMidiaExercicioUseCase {
     let finalLocalUri = downloadedFile.uri;
     if (downloadedFileName !== `${exercicioId}.${ext}`) {
       try {
-        downloadedFile.move(localFile);
+        await downloadedFile.move(localFile);
         finalLocalUri = localFile.uri;
       } catch {
         // Renomear falhou (ex.: destino já existe): usa a URI real baixada —
