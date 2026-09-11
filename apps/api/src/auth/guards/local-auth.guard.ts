@@ -1,10 +1,24 @@
-import { Injectable, Optional } from '@nestjs/common';
-import { AuthGuard, AuthModuleOptions } from '@nestjs/passport';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 
-/** Construtor opcional redeclarado pelo mesmo motivo do JwtAuthGuard (ver comentário lá). */
+import { AuthService } from '../auth.service';
+
+/**
+ * Valida email/senha do body no POST /auth/login (substitui passport-local).
+ * Sempre 401 — body malformado e senha errada são indistinguíveis de fora.
+ */
 @Injectable()
-export class LocalAuthGuard extends AuthGuard('local') {
-  constructor(@Optional() options?: AuthModuleOptions) {
-    super(options);
+export class LocalAuthGuard implements CanActivate {
+  constructor(private readonly authService: AuthService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const { email, password } = (request.body ?? {}) as { email?: unknown; password?: unknown };
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const user = await this.authService.validateUser(email, password);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+    request.user = user;
+    return true;
   }
 }

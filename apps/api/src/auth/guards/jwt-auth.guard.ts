@@ -1,19 +1,36 @@
-import { Injectable, Optional } from '@nestjs/common';
-import { AuthGuard, AuthModuleOptions } from '@nestjs/passport';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+import { UsersService } from '../../users/users.service';
+import { assertJwtSecret } from '../jwt.config';
 
 /**
- * O `AuthGuard()` do passport declara `@Optional() @Inject(AuthModuleOptions)` no
- * construtor da classe mixin. Até o Nest 11 essa marcação de opcional era herdada
- * pela subclasse; no Nest 12 não é mais — o injetor lê o `design:paramtypes` do pai
- * e passa a exigir `AuthModuleOptions` em TODO módulo que use o guard (ExercisesModule,
- * SyncModule, TreinosModule não importam PassportModule, então a app nem sobe).
- *
- * Redeclarar o construtor opcional aqui restaura o comportamento anterior sem espalhar
- * `PassportModule.register({})` por todos os módulos.
+ * Guard JWT puro (substitui passport-jwt): extrai o Bearer, verifica assinatura
+ * e expiração e carrega o usuário do banco — request.user é o usuário Prisma
+ * completo, como o JwtStrategy.validate devolvia.
  */
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(@Optional() options?: AuthModuleOptions) {
-    super(options);
+export class JwtAuthGuard implements CanActivate {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const [scheme, token] = String(request.headers['authorization'] ?? '').split(' ');
+    if (scheme !== 'Bearer' || !token) throw new UnauthorizedException();
+
+    let payload: { sub: string };
+    try {
+      payload = await this.jwtService.verifyAsync<{ sub: string }>(token, { secret: assertJwtSecret() });
+    } catch {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.usersService.findById(payload.sub);
+    if (!user) throw new UnauthorizedException();
+    request.user = user;
+    return true;
   }
 }

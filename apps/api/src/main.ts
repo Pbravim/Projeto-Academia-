@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { assertJwtSecret } from './auth/jwt.config';
 import { AppModule } from './app.module';
 import { buildValidationPipe } from './validation';
 
 async function bootstrap() {
+  assertJwtSecret();
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(buildValidationPipe());
   app.setGlobalPrefix('api/v1');
