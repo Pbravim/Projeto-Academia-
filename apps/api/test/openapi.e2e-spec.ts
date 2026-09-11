@@ -13,8 +13,9 @@ import { Test } from '@nestjs/testing';
 
 import { AppModule } from '../src/app.module';
 
-process.env.JWT_ACCESS_SECRET ||= 'e2e-access-secret-0123456789-abcdefghij';
-process.env.JWT_REFRESH_SECRET ||= 'e2e-refresh-secret-0123456789-abcdefghij';
+// Segredos FIXOS (=, não ||=): ver app.e2e-spec.ts — o e2e não depende do .env.
+process.env.JWT_ACCESS_SECRET = 'e2e-access-secret-0123456789-abcdefghij';
+process.env.JWT_REFRESH_SECRET = 'e2e-refresh-secret-0123456789-abcdefghij';
 process.env.DATABASE_URL ||= 'postgresql://academia:academia@localhost:5433/academia_db';
 
 describe('OpenAPI (e2e)', () => {
