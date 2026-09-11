@@ -4,13 +4,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { gerarThumbMidia } from './gerarThumbMidia';
 
 const { released, generateThumbnailsAsync, manipulate, resize, saveAsync } = vi.hoisted(() => {
-  const released = vi.fn();
-  const generateThumbnailsAsync = vi.fn().mockResolvedValue([{ __sharedRef: 'frame0' }]);
-  const saveAsync = vi.fn().mockResolvedValue({ uri: 'file:///cache/manip.jpg' });
-  const renderAsync = vi.fn().mockResolvedValue({ saveAsync });
-  const resize = vi.fn().mockReturnValue({ renderAsync });
-  const manipulate = vi.fn(() => ({ resize, renderAsync }));
-  return { released, generateThumbnailsAsync, manipulate, resize, saveAsync };
+  const releasedFn = vi.fn();
+  const generateThumbnailsAsyncFn = vi.fn().mockResolvedValue([{ __sharedRef: 'frame0' }]);
+  const saveAsyncFn = vi.fn().mockResolvedValue({ uri: 'file:///cache/manip.jpg' });
+  const renderAsync = vi.fn().mockResolvedValue({ saveAsync: saveAsyncFn });
+  const resizeFn = vi.fn().mockReturnValue({ renderAsync });
+  const manipulateFn = vi.fn(() => ({ resize: resizeFn, renderAsync }));
+  return {
+    released: releasedFn,
+    generateThumbnailsAsync: generateThumbnailsAsyncFn,
+    manipulate: manipulateFn,
+    resize: resizeFn,
+    saveAsync: saveAsyncFn,
+  };
 });
 
 vi.mock('expo-video', () => ({
