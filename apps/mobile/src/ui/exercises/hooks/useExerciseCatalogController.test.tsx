@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { describe, expect, it, vi } from 'vitest';
 
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
@@ -287,5 +288,44 @@ describe('useExerciseCatalogController', () => {
 
     expect(result.current.errorMessage).toBeDefined();
     expect(result.current.errorMessage).toBe('Não foi possível excluir o exercício.');
+  });
+
+  it('ao criar com mídia tmp_, aguarda o move assíncrono antes de gravar o caminho canônico', async () => {
+    // O mock de módulo usa arrow function (não aceita `new`); este teste é o
+    // único que chega ao construtor de File, então redefine a implementação.
+    let moved = false;
+    const move = vi.fn(async () => {
+      await Promise.resolve();
+      moved = true;
+    });
+    vi.mocked(File).mockImplementation(function (this: unknown, ...segments: unknown[]) {
+      return { uri: segments.filter((s) => typeof s === 'string').join('/'), move } as unknown as InstanceType<typeof File>;
+    });
+    let movedAoGravar: boolean | null = null;
+    const updateMedia = vi.fn(async () => {
+      movedAoGravar = moved;
+    });
+    const dependencies = createMockDependencies({
+      exerciseRepository: { updateMedia } as never,
+    });
+
+    const { result } = await renderHook(() =>
+      useExerciseCatalogController(dependencies, vi.fn())
+    );
+    await flush();
+
+    await act(async () => {
+      result.current.onChangeField('name', 'Agachamento');
+      result.current.onChangeField('groupMuscle', 'Perna');
+      result.current.onChangeMediaLocal('file:///documents/exercises/tmp_123_local.mp4');
+    });
+    await act(async () => {
+      await result.current.onSubmit();
+    });
+
+    expect(move).toHaveBeenCalledTimes(1);
+    expect(movedAoGravar).toBe(true);
+    expect(updateMedia).toHaveBeenCalledWith('e1', null, expect.stringContaining('exercises/e1.mp4'));
+    expect(dependencies.logger.error).not.toHaveBeenCalled();
   });
 });
