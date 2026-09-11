@@ -9,8 +9,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.spec.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
-    "test": "node scripts/jest.mjs",
-    "test:e2e": "node scripts/jest.mjs --config ./test/jest-e2e.json"
+    "test": "node ../../scripts/api-jest.mjs",
+    "test:e2e": "node ../../scripts/api-jest.mjs --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@academia/contracts": "*",

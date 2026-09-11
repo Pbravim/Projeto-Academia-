@@ -8,7 +8,7 @@
  * não dá para declará-la no jest.config — e `NODE_OPTIONS=...` inline no script
  * do package.json não é portável para o shell do Windows. Daí este wrapper.
  *
- * Repassa argv e propaga o exit code, então `node scripts/jest.mjs --config X`
+ * Repassa argv e propaga o exit code, então `node ../../scripts/api-jest.mjs --config X`
  * se comporta como `jest --config X`.
  */
 import { spawnSync } from 'node:child_process';
