@@ -5,7 +5,7 @@
   "commands": {
     "test": "npm --prefix apps/api test && npm --prefix apps/mobile run test",
     "build": "npm --prefix apps/api run build && npm --prefix apps/mobile run typecheck",
-    "lint": "npm run lint:api && npm run api:typecheck && npm run mobile:typecheck",
+    "lint": "npm run lint:api && npm run lint:mobile && npm run api:typecheck && npm run mobile:typecheck",
     "coverage": "node scripts/coverage-merge.mjs",
     "coverage_report": "coverage/lcov.info",
     "e2e": "npm --prefix apps/api run test:e2e",
@@ -33,6 +33,7 @@
     "scripts/**",
     "**/package-lock.json",
     "**/*.lock",
-    "**/pnpm-lock.yaml"
+    "**/pnpm-lock.yaml",
+    "**/eslint.config.*"
   ]
 }

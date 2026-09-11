@@ -29,13 +29,47 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   check-library OK; está no npm público, mas com ~83 downloads/mês o hook de
   supply-chain pede aprovação — registrada). A **API** linta com
   `npm run lint:api` (`inovatecjp lint --stack=node`), zerada em 2026-08-15
-  via `lint:fix`. O **mobile NÃO linta ainda**: os stacks `react-native` e
-  `react` do CLI crasham com eslint 9 (`context.getSource is not a function`
-  — plugins react-native/hooks desatualizados no pacote; reportar à org) e o
-  stack `node` acha 418 erros legados. Até resolver, o gate usa
-  `tsc --noEmit` como stand-in do mobile. Use SEMPRE `npm run lint:api` (ou
-  o bin local) — `npx inovatecjp` é bloqueado pelo hook de pacotes porque o
-  nome sem escopo não existe no registry.
+  via `lint:fix`. Use SEMPRE `npm run lint:api` (ou o bin local) — `npx
+  inovatecjp` é bloqueado pelo hook de pacotes porque o nome sem escopo não
+  existe no registry.
+  O **mobile linta com config flat própria** em `apps/mobile/eslint.config.mjs`
+  (`npm run lint:mobile`, `--max-warnings=0`, portão desde a fatia 5 —
+  2026-09-11). Causa raiz do crash do CLI da org nos stacks `react-native`/
+  `react`: **não** são os stacks em si, é **um único plugin**,
+  `eslint-plugin-react-hooks@4.6.2`, que chama `context.getSource()` — API
+  removida no eslint 9 (`context.getSource is not a function`). A config
+  própria reusa `@inovatecjp/eslint-config/base` e reimplementa só a camada
+  react-native com `eslint-plugin-react-hooks@^5.2` (API antiga de flat
+  config, compatível com eslint 9; `^7` renomeia regras — não usar). Três
+  desvios de regra da base da org, documentados também no arquivo de config:
+  1. `react-native/no-unused-styles` → `'off'`: 1183 falsos positivos
+     medidos (`Unused style detected: undefined.<chave>`) — o plugin não
+     rastrea `StyleSheet.create` dentro da fábrica de tema `makeStyles(theme)`
+     usada em 42 arquivos do app.
+  2. `eqeqeq` → `['error','always',{null:'ignore'}]`: 99/99 achados eram o
+     idioma `x == null` (null OU undefined); trocar por `===` mudaria
+     comportamento.
+  3. `no-duplicate-imports` → `'off'` + `import/no-duplicates: 'error'`: a
+     regra core não entende `import type`; 20/20 achados eram
+     `import {X}` + `import type {Y}` do mesmo módulo — a do plugin `import`
+     resolve com 0 achados.
+  **Dívida diferida** (decisão do supervisor em 2026-08-16, Opção A do
+  `plan-mobile-lint.md`): `react-native/no-color-literals` (62 achados / 24
+  arquivos — exige tokens de tema novos) e
+  `react-native-a11y/has-accessibility-hint` (15 / 7 — exige copy nova em
+  pt-BR e en-US) ficam `'off'` com `TODO(mobile-lint-debt)` na config; nenhum
+  dos dois tem cobertura de teste (pixels e copy). Entram numa operação
+  própria de follow-up.
+  **Telas-deus** (decisão do usuário em 2026-09-11): o portão `loc`
+  (`module_loc_block: 800`) bloqueia qualquer commit que toque um módulo
+  acima do teto, mesmo que a mudança seja só reordenar imports ou mover
+  estilo inline para `makeStyles` — por isso os achados de lint nas telas
+  maiores que 800 LOC usam override de regra **por caminho** no
+  `eslint.config.mjs`, em vez de editar o arquivo.
+  **Alvo futuro**: quando a org publicar uma versão do preset
+  `react-native.js` compatível com `eslint-plugin-react-hooks@^5`/`^7`, esta
+  config vira um `extends` fino (só os 3 desvios) ou é apagada — ver
+  `docs/pipeline/conformidade-especificacoes/plan-mobile-lint.md`.
 - **CI existente** (`ci.yml`): typecheck + testes dos dois apps. Não roda
   `nest build` nem validação de contrato OpenAPI — completar quando a API
   ganhar contrato (critério de conclusão de tarefas de API do pipeline).
