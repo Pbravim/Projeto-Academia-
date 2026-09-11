@@ -1,7 +1,7 @@
 import { createVideoPlayer } from 'expo-video';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { gerarThumbMidia } from './gerarThumbMidia';
+import { extrairFrameZero, gerarThumbMidia } from './gerarThumbMidia';
 
 const { released, generateThumbnailsAsync, manipulate, resize, saveAsync } = vi.hoisted(() => {
   const releasedFn = vi.fn();
@@ -78,6 +78,35 @@ describe('gerarThumbMidia — vídeo usa expo-video (não expo-video-thumbnails)
     const result = await gerarThumbMidia('ex-4', 'file:///media/video.mp4');
 
     expect(result).toBeNull();
+    expect(released).toHaveBeenCalled();
+  });
+});
+
+describe('extrairFrameZero', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('extrai o frame 0 via createVideoPlayer + generateThumbnailsAsync e libera o player', async () => {
+    const result = await extrairFrameZero('file:///media/video.mp4');
+
+    expect(createVideoPlayer).toHaveBeenCalledWith('file:///media/video.mp4');
+    expect(generateThumbnailsAsync).toHaveBeenCalledWith(0);
+    expect(released).toHaveBeenCalled();
+    expect(result).toEqual({ __sharedRef: 'frame0' });
+  });
+
+  it('lista de frames vazia -> retorna null e libera o player', async () => {
+    generateThumbnailsAsync.mockResolvedValueOnce([]);
+
+    const result = await extrairFrameZero('file:///media/video.mp4');
+
+    expect(result).toBeNull();
+    expect(released).toHaveBeenCalled();
+  });
+
+  it('generateThumbnailsAsync rejeitando -> propaga o erro e libera o player no finally', async () => {
+    generateThumbnailsAsync.mockRejectedValueOnce(new Error('falha nativa'));
+
+    await expect(extrairFrameZero('file:///media/video.mp4')).rejects.toThrow('falha nativa');
     expect(released).toHaveBeenCalled();
   });
 });
