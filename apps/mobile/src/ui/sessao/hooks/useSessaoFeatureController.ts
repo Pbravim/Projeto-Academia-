@@ -55,6 +55,7 @@ export function useSessaoFeatureController(
 
   useEffect(() => {
     void checkSessaoAtiva();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- checkSessaoAtiva é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   // Keep-alive: recarrega lista de treinos/sugestão ao reativar a aba (ex.:
@@ -70,6 +71,7 @@ export function useSessaoFeatureController(
     }
     if (view !== 'inicio') return;
     void checkSessaoAtiva();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 'view' é só guarda de leitura (não deve reexecutar ao mudar) e checkSessaoAtiva é recriada a cada render; o efeito deve rodar só ao (des)ativar a aba
   }, [tabActive]);
 
   const checkSessaoAtiva = async () => {

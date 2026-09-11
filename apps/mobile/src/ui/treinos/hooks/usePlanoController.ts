@@ -45,6 +45,7 @@ export function usePlanoController(deps: PlanoControllerDependencies): PlanoCont
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- reload é recriada a cada render; este efeito é só de montagem (roda 1x)
   useEffect(() => { void reload(); }, []);
 
   const onSelectDia = (dia: DiaSemana) => setDiaSelecionado(dia);

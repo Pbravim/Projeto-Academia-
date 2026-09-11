@@ -129,6 +129,7 @@ export function useExerciseCatalogController(
 
   useEffect(() => {
     void loadExercises();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadExercises é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   // Keep-alive: a aba fica montada oculta; recarrega ao reativar para refletir
@@ -142,6 +143,7 @@ export function useExerciseCatalogController(
       return;
     }
     void loadExercises();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadExercises é recriada a cada render; incluí-la recarregaria a cada render, não só ao reativar a aba
   }, [tabActive]);
 
   const onChangeField = (field: keyof ExerciseDraft, value: string) => {

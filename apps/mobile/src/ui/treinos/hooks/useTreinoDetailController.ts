@@ -103,6 +103,7 @@ export function useTreinoDetailController(
 
   useEffect(() => {
     void loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadData é recriada a cada render; este efeito deve recarregar só quando o treino muda
   }, [treino.id]);
 
   // Guard por exercício: double-tap não duplica (o domínio rejeita), mas exibia

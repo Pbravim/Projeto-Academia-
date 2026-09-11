@@ -41,6 +41,7 @@ export function useTreinoEvolucaoController(
       }
     });
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps é injetado uma vez por tela (DI); incluir getTreinoEvolucao/logger recarregaria a cada render sem motivo
   }, [treinoId, locale]);
 
   return { exercicios, isLoading, errorMessage };

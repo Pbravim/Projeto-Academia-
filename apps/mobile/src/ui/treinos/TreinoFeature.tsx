@@ -55,6 +55,7 @@ export function TreinoFeature({ dependencies, onGoToSessao }: Props) {
       return true;
     });
     return () => sub.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- closeDetail é recriada a cada render; o listener deve ser (re)registrado só quando o treino selecionado muda
   }, [selectedTreino]);
 
   if (selectedTreino) {

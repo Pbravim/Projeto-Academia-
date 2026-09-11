@@ -64,6 +64,7 @@ export function usePesoController(dependencies: PesoControllerDependencies): Pes
 
   useEffect(() => {
     void loadRegistros();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadRegistros é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   const onChangePesoKg = (value: string) => {

@@ -22,6 +22,7 @@ export function useStatsController(
     void getDashboardStats.execute()
       .then(setStats)
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- getDashboardStats é injetado uma vez por tela (DI); o efeito deve rodar só quando a aba (des)ativa
   }, [tabActive]);
 
   return { stats, isLoading };

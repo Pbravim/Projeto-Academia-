@@ -80,6 +80,7 @@ export function useTreinoListController(
 
   useEffect(() => {
     void loadTreinos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTreinos é recriada a cada render; este efeito é só de montagem (roda 1x)
   }, []);
 
   const onChangeField = (field: keyof TreinoDraft, value: string) => {

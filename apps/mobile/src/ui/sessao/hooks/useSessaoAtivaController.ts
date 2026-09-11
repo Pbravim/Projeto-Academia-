@@ -114,6 +114,7 @@ export function useSessaoAtivaController(
       dependencies.logger.error('sessao_ativa.load_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.load'));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dependencies é um objeto novo a cada render do pai; incluí-lo recriaria loadDetalhe e refaria o fetch a cada render, apagando o que o usuário digitou na série em andamento
   }, [sessao.id, locale]);
 
   useEffect(() => {

@@ -36,6 +36,7 @@ export function useHistoricoExercicioController(
 
   useEffect(() => {
     void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load é recriada a cada render; este efeito deve recarregar só quando o exercício muda
   }, [exercicioId]);
 
   const load = async () => {

@@ -58,6 +58,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     } finally {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dependencies é injetado uma vez por tela (DI); incluir getDashboardStats/logger recriaria load a cada render sem motivo
   }, [locale]);
 
   useEffect(() => {
@@ -75,6 +76,7 @@ export function useDashboardController(dependencies: DashboardControllerDependen
       return;
     }
     void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load muda a cada troca de locale; incluí-lo recarregaria ao trocar idioma, não só ao reativar a aba
   }, [tabActive]);
 
   const onReset = async () => {
