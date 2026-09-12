@@ -2,6 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { act, renderHook } from '../../../test/renderHook';
 
+import {
+  REST_TIMER_CORNER_KEY,
+  snapToNearest,
+  useRestTimerCorner,
+} from './useRestTimerCorner';
+
 // Mock expo-sqlite kv-store
 const kvStore: Record<string, string> = {};
 vi.mock('expo-sqlite/kv-store', () => ({
@@ -56,12 +62,6 @@ vi.mock('react-native', () => ({
   },
   useWindowDimensions: () => ({ width: 400, height: 800 }),
 }));
-
-import {
-  REST_TIMER_CORNER_KEY,
-  snapToNearest,
-  useRestTimerCorner,
-} from './useRestTimerCorner';
 
 async function flush() {
   await act(async () => { await Promise.resolve(); });

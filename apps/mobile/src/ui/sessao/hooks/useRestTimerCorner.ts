@@ -1,7 +1,7 @@
 import { Storage } from 'expo-sqlite/kv-store';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Keyboard, PanResponder, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
+import { type EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
+import { Animated, AppState, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 
 import { useT } from '../../shared/i18n';
 import { useTheme } from '../../shared/theme';
+import { useRestTimerCorner } from '../hooks/useRestTimerCorner';
 import { cancelRestNotification, startRestNotification } from '../restTimerNotification';
 
 interface Props {
@@ -26,6 +27,7 @@ export function RestTimerBanner({ nome, total, runId, minimized, onToggleMinimiz
   const c = useTheme();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const { panHandlers, animatedStyle, positionStyle } = useRestTimerCorner();
 
   const [restante, setRestante] = useState(total);
   const onDoneRef = useRef(onDone);
@@ -80,44 +82,58 @@ export function RestTimerBanner({ nome, total, runId, minimized, onToggleMinimiz
 
   if (minimized) {
     return (
-      <Pressable onPress={onToggleMinimized} style={styles.pill}>
-        <Text style={styles.pillText}>⏱ {label}</Text>
-      </Pressable>
+      <Animated.View style={[styles.anchor, positionStyle, animatedStyle]} {...panHandlers}>
+        <Pressable onPress={onToggleMinimized} style={styles.pill}>
+          <Text style={styles.pillText}>⏱ {label}</Text>
+        </Pressable>
+      </Animated.View>
     );
   }
 
+  // Card expandido fica full-width (alterna só top/bottom com o arrasto);
+  // só o pill minimizado ocupa os 4 cantos — evita o card colar na lateral.
+  const cardVerticalPosition = 'top' in positionStyle ? { top: positionStyle.top } : { bottom: positionStyle.bottom };
+
   return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View>
-          <Text style={styles.eyebrow}>{t('sessao.common.descanso')}</Text>
-          <Text style={styles.exercicioLabel} numberOfLines={1}>{nome}</Text>
+    <Animated.View style={[styles.anchor, styles.cardAnchor, cardVerticalPosition, animatedStyle]} {...panHandlers}>
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View>
+            <Text style={styles.eyebrow}>{t('sessao.common.descanso')}</Text>
+            <Text style={styles.exercicioLabel} numberOfLines={1}>{nome}</Text>
+          </View>
+          <Pressable onPress={onToggleMinimized} style={({ pressed }) => [styles.iconBtn, pressed ? { opacity: 0.6 } : null]}>
+            <Text style={styles.iconBtnText}>−</Text>
+          </Pressable>
         </View>
-        <Pressable onPress={onToggleMinimized} style={({ pressed }) => [styles.iconBtn, pressed ? { opacity: 0.6 } : null]}>
-          <Text style={styles.iconBtnText}>−</Text>
+
+        <Text style={styles.countdown}>{label}</Text>
+
+        <View style={styles.barTrack}>
+          <View style={[styles.barFill, { width: `${progress * 100}%` as `${number}%` }]} />
+        </View>
+
+        <Pressable onPress={onSkip} style={({ pressed }) => [styles.skipBtn, pressed ? { opacity: 0.8 } : null]}>
+          <Text style={styles.skipBtnText}>{t('sessao.timer.pular')}</Text>
         </Pressable>
       </View>
-
-      <Text style={styles.countdown}>{label}</Text>
-
-      <View style={styles.barTrack}>
-        <View style={[styles.barFill, { width: `${progress * 100}%` as `${number}%` }]} />
-      </View>
-
-      <Pressable onPress={onSkip} style={({ pressed }) => [styles.skipBtn, pressed ? { opacity: 0.8 } : null]}>
-        <Text style={styles.skipBtnText}>{t('sessao.timer.pular')}</Text>
-      </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
-    // Minimised pill — bottom-right corner
-    pill: {
+    // Posicionamento (top/bottom/left/right) vem de useRestTimerCorner — arrastável para os 4 cantos.
+    anchor: {
       position: 'absolute',
-      bottom: 32,
-      right: 20,
+    },
+    cardAnchor: {
+      left: 16,
+      right: 16,
+    },
+
+    // Minimised pill
+    pill: {
       backgroundColor: c.accent,
       borderRadius: 24,
       paddingHorizontal: 16,
@@ -130,12 +146,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     pillText: { color: c.accentText, fontSize: 15, fontWeight: '800' },
 
-    // Expanded card — bottom of screen
+    // Expanded card
     card: {
-      position: 'absolute',
-      bottom: 24,
-      left: 16,
-      right: 16,
       backgroundColor: c.accent,
       borderRadius: 20,
       padding: 18,
