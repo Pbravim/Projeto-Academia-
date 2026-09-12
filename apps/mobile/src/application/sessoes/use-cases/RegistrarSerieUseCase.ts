@@ -7,6 +7,7 @@ import type { SessaoExercicioRepository } from '../../../domain/sessoes/reposito
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
+import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
@@ -59,6 +60,13 @@ export class RegistrarSerieUseCase {
       sessaoExercicio.toPrimitives().sessaoTreinoId
     );
     if (!sessao?.isAtiva()) throw new SessaoEncerradaError();
+
+    // Segmentos (degraus) so existem para reps_load — mesma invariante de
+    // RegistrarSegmentoUseCase. Falha antes de abrir a transacao: nenhuma serie
+    // deve ser gravada sob uma mae que nao aceita degrau (achado #3, revisao 1).
+    if ((input.segmentos?.length ?? 0) > 0 && sessaoExercicio.toPrimitives().trackingTypeSnapshot !== 'reps_load') {
+      throw new SessaoValidationError('Segmentos so existem para exercicios de carga x repeticoes.');
+    }
 
     let serie!: SerieRegistrada;
 

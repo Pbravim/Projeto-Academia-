@@ -193,6 +193,22 @@ describe('RegistrarSerieUseCase', () => {
 
     expect(await deps.serieSegmentoRepository.listBySerieId(serie.id)).toHaveLength(0);
   });
+
+  it('rejects segmentos when the exercicio is not reps_load, and writes nothing (achado #3, revisao 1)', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps, 'cardio');
+
+    await expect(
+      deps.useCase.execute({
+        sessaoExercicioId: 'se_1',
+        duracaoSegundos: 600,
+        segmentos: [{ cargaKg: 50, repeticoes: 6 }],
+      })
+    ).rejects.toThrow(SessaoValidationError);
+
+    // Transacional: nem a serie-mae deve ter sido gravada.
+    expect(await deps.serieRegistradaRepository.listBySessaoExercicioId('se_1')).toHaveLength(0);
+  });
 });
 
 describe('RegistrarSerieUseCase — atualização automática de carga (fronteira)', () => {
