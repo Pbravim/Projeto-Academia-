@@ -1,7 +1,7 @@
 import { SerieRegistrada, type SerieRegistradaPrimitives } from '../../domain/sessoes/entities/SerieRegistrada';
 import type { SerieRegistradaRepository } from '../../domain/sessoes/repositories/SerieRegistradaRepository';
 import { nowIso } from '../../shared/utils/syncStamp';
-import type { SQLiteBindParams,SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+import type { SQLiteBindParams, SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface SerieRegistradaRow {
   id: string;
