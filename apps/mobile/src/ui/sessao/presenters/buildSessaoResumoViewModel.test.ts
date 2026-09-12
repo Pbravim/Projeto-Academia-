@@ -59,6 +59,19 @@ function makeSerie(id: string, tipo: 'aquecimento' | 'valida', cargaKg: number, 
   };
 }
 
+function comSegmentos(serie: ReturnType<typeof makeSerie>, segmentos: { cargaKg: number | null; repeticoes: number | null }[]) {
+  return {
+    ...serie,
+    segmentos: segmentos.map((s, i) => ({
+      id: `${serie.id}_seg${i + 2}`,
+      serieId: serie.id,
+      ordem: i + 2,
+      descansoSegundos: null,
+      ...s,
+    })),
+  };
+}
+
 function makeExercicioComSeries(id: string, series: ReturnType<typeof makeSerie>[], realizado = true) {
   return { sessaoExercicio: makeSessaoExercicio(id, realizado), series, mediaOnline: null, mediaLocal: null };
 }
@@ -122,6 +135,39 @@ describe('buildSessaoResumoViewModel', () => {
         })
       );
       expect(vm.volumeTotal).toContain('t');
+    });
+
+    it('soma os degraus (drop set) ao volume da serie-mae', () => {
+      const vm = buildSessaoResumoViewModel(
+        makeDetalhe({
+          exercicios: [
+            makeExercicioComSeries('se_1', [
+              // mae 60x8=480 + degraus 50x6=300, 40x7=280 -> 1060
+              comSegmentos(makeSerie('s1', 'valida', 60, 8), [
+                { cargaKg: 50, repeticoes: 6 },
+                { cargaKg: 40, repeticoes: 7 },
+              ]),
+            ]),
+          ],
+        })
+      );
+
+      expect(vm.exercicios[0].volume).toBe(1060);
+      expect(vm.exercicios[0].totalSeriesValidas).toBe(1);
+    });
+
+    it('e1RM/melhorSerie ignoram os degraus (so a serie-mae conta)', () => {
+      const vm = buildSessaoResumoViewModel(
+        makeDetalhe({
+          exercicios: [
+            makeExercicioComSeries('se_1', [
+              comSegmentos(makeSerie('s1', 'valida', 60, 8), [{ cargaKg: 90, repeticoes: 10 }]),
+            ]),
+          ],
+        })
+      );
+
+      expect(vm.exercicios[0].melhorSerie).toBe('60kg × 8');
     });
   });
 

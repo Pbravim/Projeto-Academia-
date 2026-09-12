@@ -78,7 +78,10 @@ export class SqliteDashboardRepository implements DashboardRepository {
            st.data_hora_inicio,
            st.data_hora_fim,
            st.arquivado,
-           COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes END), 0) AS volume_total,
+           COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes + COALESCE((
+             SELECT SUM(sg.carga_kg * sg.repeticoes) FROM serie_segmentos sg
+             WHERE sg.serie_id = sr.id AND sg.deleted_at IS NULL
+           ), 0) END), 0) AS volume_total,
            COALESCE(MAX(CASE WHEN sr.tipo_serie = 'valida' THEN ${estimativa1rmSql()} END), 0) AS melhor_orm
          FROM sessao_treinos st
          LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id AND se.deleted_at IS NULL
