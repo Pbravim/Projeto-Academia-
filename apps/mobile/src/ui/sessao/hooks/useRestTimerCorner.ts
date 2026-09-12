@@ -1,6 +1,6 @@
 import { Storage } from 'expo-sqlite/kv-store';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Keyboard, PanResponder, useWindowDimensions } from 'react-native';
+import { Animated, PanResponder, useWindowDimensions } from 'react-native';
 
 export type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -44,10 +44,15 @@ export function snapToNearest(x: number, y: number, width: number, height: numbe
 // MobileApp — essas duas já absorvem o insets.top/insets.bottom. Somar de
 // novo aqui só afasta o pill mais do que o necessário das bordas do tabPage
 // (achado #4, review-a-1.md: safe area contada duas vezes).
-function computePositionStyle(corner: Corner, keyboardHeight: number): RestTimerPositionStyle {
-  const vertical = corner.startsWith('top')
-    ? { top: TOP_EXTRA }
-    : { bottom: EDGE_MARGIN + keyboardHeight };
+//
+// Sem offset de teclado: as duas telas consumidoras renderizam o banner como
+// filho direto de `KeyboardAvoidingView` (behavior padding/height) e no
+// Android o `softwareKeyboardLayoutMode` é o default `resize` — o container
+// já encolhe pela altura do teclado. Somar de novo aqui empurrava o pill
+// ~1× a altura do teclado para cima, cobrindo a lista (achado #1,
+// review-a-1.md: offset de teclado duplicado).
+function computePositionStyle(corner: Corner): RestTimerPositionStyle {
+  const vertical = corner.startsWith('top') ? { top: TOP_EXTRA } : { bottom: EDGE_MARGIN };
   const horizontal = corner.endsWith('left') ? { left: SIDE_MARGIN } : { right: SIDE_MARGIN };
   return { ...vertical, ...horizontal };
 }
@@ -57,7 +62,6 @@ export function useRestTimerCorner(): RestTimerCornerState {
   const pan = useRef(new Animated.ValueXY()).current;
 
   const [corner, setCorner] = useState<Corner>('bottom-right');
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
     void Storage.getItem(REST_TIMER_CORNER_KEY)
@@ -67,15 +71,6 @@ export function useRestTimerCorner(): RestTimerCornerState {
       .catch(() => {
         // canto persistido é cosmético — mantém o default em caso de falha do kv-store
       });
-  }, []);
-
-  useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', (e) => setKeyboardHeight(e.endCoordinates.height));
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
   }, []);
 
   const panResponder = useMemo(
@@ -97,10 +92,7 @@ export function useRestTimerCorner(): RestTimerCornerState {
     [pan, width, height],
   );
 
-  const positionStyle = useMemo(
-    () => computePositionStyle(corner, keyboardHeight),
-    [corner, keyboardHeight],
-  );
+  const positionStyle = useMemo(() => computePositionStyle(corner), [corner]);
 
   return {
     corner,

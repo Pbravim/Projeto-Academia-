@@ -29,8 +29,6 @@ let capturedConfig: {
   onPanResponderTerminationRequest?: () => boolean;
 } = {};
 
-const keyboardListeners: Record<string, (e: { endCoordinates: { height: number } }) => void> = {};
-
 vi.mock('react-native', () => ({
   PanResponder: {
     create: (config: typeof capturedConfig) => {
@@ -49,12 +47,6 @@ vi.mock('react-native', () => ({
     },
     spring: () => ({ start: (cb?: () => void) => cb?.() }),
   },
-  Keyboard: {
-    addListener: vi.fn((event: string, handler: (e: { endCoordinates: { height: number } }) => void) => {
-      keyboardListeners[event] = handler;
-      return { remove: vi.fn() };
-    }),
-  },
   useWindowDimensions: () => ({ width: 400, height: 800 }),
 }));
 
@@ -65,7 +57,6 @@ async function flush() {
 
 beforeEach(() => {
   Object.keys(kvStore).forEach((k) => delete kvStore[k]);
-  Object.keys(keyboardListeners).forEach((k) => delete keyboardListeners[k]);
   vi.clearAllMocks();
 });
 
@@ -141,26 +132,14 @@ describe('useRestTimerCorner', () => {
     expect(Storage.setItem).toHaveBeenCalledWith(REST_TIMER_CORNER_KEY, 'top-left');
   });
 
-  it('applies keyboard height offset only to bottom corners', async () => {
+  it('does not offset position for the keyboard (KeyboardAvoidingView on the screens already handles it)', async () => {
+    // Achado #1 (review-a-1.md): as telas consumidoras já são
+    // KeyboardAvoidingView; somar aqui empurrava o pill acima do teclado
+    // e cobria a lista. O hook não escuta mais Keyboard.
     const { result } = await renderHook(() => useRestTimerCorner());
     await flush();
 
-    await act(async () => {
-      keyboardListeners.keyboardDidShow?.({ endCoordinates: { height: 300 } });
-    });
-    await flush();
-
-    expect(result.current.corner).toBe('bottom-right');
-    expect(result.current.positionStyle).toEqual({ bottom: 24 + 300, right: 16 });
-
-    await act(async () => {
-      capturedConfig.onPanResponderRelease?.({}, { moveX: 50, moveY: 50 });
-      await Promise.resolve();
-    });
-    await flush();
-
-    expect(result.current.corner).toBe('top-left');
-    expect(result.current.positionStyle).toEqual({ top: 16, left: 16 });
+    expect(result.current.positionStyle).toEqual({ bottom: 24, right: 16 });
   });
 
   it('only starts the pan responder past the 8px drag threshold', async () => {
