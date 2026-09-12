@@ -165,12 +165,38 @@ describe('useRestTimerCorner', () => {
     expect(result.current.positionStyle).toEqual({ bottom: 24, right: 16 });
   });
 
-  it('only starts the pan responder past the 8px drag threshold', async () => {
-    await renderHook(() => useRestTimerCorner());
-    await flush();
+  describe('onMoveShouldSetPanResponder (8px threshold, either axis)', () => {
+    // Achado #3 (sev2, review-a-1.md): o teste original só exercitava dx,
+    // então a mutação preguiçosa que removesse o ramo `dy` sobreviveria — e
+    // arrasto vertical é justamente o que leva o pill de baixo para cima.
+    it('only starts the pan responder past the 8px drag threshold', async () => {
+      await renderHook(() => useRestTimerCorner());
+      await flush();
 
-    expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: 3, dy: 2 })).toBe(false);
-    expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: 10, dy: 0 })).toBe(true);
-    expect(capturedConfig.onPanResponderTerminationRequest?.()).toBe(false);
+      expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: 3, dy: 2 })).toBe(false);
+      expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: 10, dy: 0 })).toBe(true);
+      expect(capturedConfig.onPanResponderTerminationRequest?.()).toBe(false);
+    });
+
+    it('starts on a vertical-only drag past the threshold', async () => {
+      await renderHook(() => useRestTimerCorner());
+      await flush();
+
+      expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: 0, dy: 10 })).toBe(true);
+    });
+
+    it('starts on a negative horizontal drag past the threshold', async () => {
+      await renderHook(() => useRestTimerCorner());
+      await flush();
+
+      expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: -9, dy: 0 })).toBe(true);
+    });
+
+    it('stays inert exactly at the threshold on both axes', async () => {
+      await renderHook(() => useRestTimerCorner());
+      await flush();
+
+      expect(capturedConfig.onMoveShouldSetPanResponder?.({}, { dx: 8, dy: 8 })).toBe(false);
+    });
   });
 });
