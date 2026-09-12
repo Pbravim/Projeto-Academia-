@@ -166,5 +166,75 @@ describe('SeriesRegistradasList', () => {
     await act(async () => { metricPressable.props.onLongPress(); });
     const texts = renderer.root.findAllByType('Text' as never).map((t) => t.props.children);
     expect(texts.flat()).toContain('sessao.detalhe.editandoSerie');
+
+    await act(async () => { renderer.root.findAllByType('PickerCarousel' as never)[0].props.onChangeIndex(10); });
+    const saveBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => String((p.props.children as { props?: { children?: unknown } })?.props?.children) === 'common.save')!;
+    await act(async () => { await saveBtn.props.onPress(); });
+    expect(onUpdateSerie).toHaveBeenCalledWith(expect.objectContaining({ serieId: 'sr1' }));
+
+    // reabre e cancela
+    await act(async () => { renderer.root.findAllByType('Pressable' as never)[0].props.onLongPress(); });
+    const cancelBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => String((p.props.children as { props?: { children?: unknown } })?.props?.children) === 'common.cancel')!;
+    await act(async () => { cancelBtn.props.onPress(); });
+  });
+
+  it('opens the inline editor in text mode for an off-grid carga', async () => {
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SeriesRegistradasList, {
+          series: [serie({ cargaKg: 61 })],
+          trackingType: 'reps_load',
+          realizado: false,
+          bestSerieId: null,
+          locale: 'pt-BR',
+          onDeleteSerie: vi.fn(),
+          onUpdateSerie: vi.fn(),
+          onRegistrarSegmento: vi.fn(),
+          onRemoverSegmento: vi.fn(),
+        }),
+      );
+    });
+    const metricPressable = renderer.root.findAllByType('Pressable' as never)[0];
+    await act(async () => { metricPressable.props.onLongPress(); });
+    const editInput = renderer.root.findAllByType('TextInput' as never)[0];
+    await act(async () => { editInput.props.onChangeText('61.5'); });
+    expect(editInput.props.value).toBe('61.5');
+  });
+
+  it('confirms an inline "+ degrau" and calls onRegistrarSegmento', async () => {
+    const onRegistrarSegmento = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SeriesRegistradasList, {
+          series: [serie()],
+          trackingType: 'reps_load',
+          realizado: false,
+          bestSerieId: null,
+          locale: 'pt-BR',
+          onDeleteSerie: vi.fn(),
+          onUpdateSerie: vi.fn(),
+          onRegistrarSegmento,
+          onRemoverSegmento: vi.fn(),
+        }),
+      );
+    });
+    const addBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => p.props.accessibilityLabel === 'sessao.degrau.adicionar')!;
+    await act(async () => { addBtn.props.onPress(); });
+    const inputs = renderer.root.findAllByType('TextInput' as never);
+    await act(async () => { inputs[0].props.onChangeText('50'); });
+    await act(async () => { inputs[1].props.onChangeText('6'); });
+    const confirmBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => String((p.props.children as { props?: { children?: unknown } })?.props?.children) === 'common.ok')!;
+    await act(async () => { await confirmBtn.props.onPress(); });
+    expect(onRegistrarSegmento).toHaveBeenCalledWith({ serieId: 'sr1', cargaKg: 50, repeticoes: 6, descansoSegundos: undefined });
   });
 });
