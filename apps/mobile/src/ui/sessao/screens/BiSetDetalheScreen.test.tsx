@@ -313,6 +313,50 @@ describe('BiSetDetalheScreen', () => {
     expect(onDeleteSeries).toHaveBeenCalledWith(['sr1', 'sr2']);
   });
 
+  it('switches carga/reps between carousel and text mode and adjusts carga', async () => {
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(createElement(BiSetDetalheScreen, baseProps()));
+    });
+    const digitarBtns = renderer.root.findAll((n) => n.type === 'Pressable' && extractText(n.props.children).includes('sessao.common.digitar'));
+    await act(async () => { digitarBtns[0].props.onPress(); });
+    const cargaInput = renderer.root.findAllByType('TextInput' as never)[0];
+    await act(async () => { cargaInput.props.onChangeText('55'); });
+    const plusBtn = pressableWithText(renderer, '+2.5')!;
+    await act(async () => { plusBtn.props.onPress(); });
+    const rolarBtn = renderer.root.findAll((n) => n.type === 'Pressable' && extractText(n.props.children).includes('sessao.common.rolar'))[0];
+    await act(async () => { rolarBtn.props.onPress(); });
+
+    const repsDigitar = renderer.root.findAll((n) => n.type === 'Pressable' && extractText(n.props.children).includes('sessao.common.digitar'))[0];
+    await act(async () => { repsDigitar.props.onPress(); });
+    const repsInput = renderer.root.findAllByType('TextInput' as never)[0];
+    await act(async () => { repsInput.props.onChangeText('7'); });
+    const repsRolar = renderer.root.findAll((n) => n.type === 'Pressable' && extractText(n.props.children).includes('sessao.common.rolar'))[0];
+    await act(async () => { repsRolar.props.onPress(); });
+  });
+
+  it('submits the batch including a filled Degrau 2 for a drop_set item', async () => {
+    const onRegistrarSeriesEmLote = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(BiSetDetalheScreen, baseProps({
+          grupoItens: [item({ id: 'se1', metodo: 'drop_set' }), item({ id: 'se2' })],
+          onRegistrarSeriesEmLote,
+        })),
+      );
+    });
+    const degrau2Inputs = renderer.root.findAllByType('TextInput' as never);
+    // primeiros dois TextInput pertencem ao formulario do Degrau 2 do se1 (carga/reps)
+    await act(async () => { degrau2Inputs[0].props.onChangeText('50'); });
+    await act(async () => { degrau2Inputs[1].props.onChangeText('6'); });
+    await act(async () => { await pressableWithText(renderer, 'sessao.biset.registrarBtn')!.props.onPress(); });
+    expect(onRegistrarSeriesEmLote).toHaveBeenCalledWith([
+      expect.objectContaining({ sessaoExercicioId: 'se1', segmentos: [{ cargaKg: 50, repeticoes: 6, descansoSegundos: undefined }] }),
+      expect.objectContaining({ sessaoExercicioId: 'se2', segmentos: undefined }),
+    ]);
+  });
+
   it('opens and confirms the inline "+ degrau" for a paired set row', async () => {
     const onRegistrarSegmento = vi.fn().mockResolvedValue(undefined);
     let renderer!: ReactTestRenderer;

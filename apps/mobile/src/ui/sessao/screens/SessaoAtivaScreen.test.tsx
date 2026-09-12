@@ -246,6 +246,139 @@ describe('SessaoAtivaScreen', () => {
     expect(renderer.root.findAllByType('AddExercicioSection' as never)).toHaveLength(1);
   });
 
+  it('completes a solo exercicio via the card checkbox, auto-filling missing series', async () => {
+    const onRegistrarSeriesEmLote = vi.fn().mockResolvedValue(undefined);
+    const onToggleRealizado = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoAtivaScreen, baseState({
+          detalhe: {
+            sessao: { id: 's1', treinoId: 't1', treinoNomeSnapshot: 'Treino A', dataHoraInicio: '2026-05-21T10:00:00.000Z', dataHoraFim: null, status: 'em_andamento' } as never,
+            exercicios: [exercicioItem('se1', { seriesRecomendadas: 2 })],
+          },
+          onRegistrarSeriesEmLote,
+          onToggleRealizado,
+        })),
+      );
+    });
+    const card = renderer.root.findByType('ExercicioCard' as never);
+    await act(async () => { await card.props.onToggleRealizado(); });
+    expect(onRegistrarSeriesEmLote).toHaveBeenCalled();
+    expect(onToggleRealizado).toHaveBeenCalledWith('se1');
+  });
+
+  it('completes a bi-set group via the group checkbox and confirm dialog', async () => {
+    const onRegistrarSeriesEmLote = vi.fn().mockResolvedValue(undefined);
+    const onToggleRealizadoGrupo = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoAtivaScreen, baseState({
+          detalhe: {
+            sessao: { id: 's1', treinoId: 't1', treinoNomeSnapshot: 'Treino A', dataHoraInicio: '2026-05-21T10:00:00.000Z', dataHoraFim: null, status: 'em_andamento' } as never,
+            exercicios: [
+              exercicioItem('se1', { grupoId: 'g1', metodo: 'drop_set', seriesRecomendadas: 1 }),
+              exercicioItem('se2', { grupoId: 'g1', metodo: 'drop_set', seriesRecomendadas: 1 }),
+            ],
+          },
+          onRegistrarSeriesEmLote,
+          onToggleRealizadoGrupo,
+        })),
+      );
+    });
+    const checkbox = renderer.root.find((n) => n.type === 'Pressable' && n.props.accessibilityRole === 'checkbox');
+    await act(async () => { checkbox.props.onPress(); });
+    const confirmDialog = renderer.root
+      .findAllByType('ConfirmDialog' as never)
+      .find((d) => typeof d.props.title === 'string' && d.props.title.length > 0)!;
+    await act(async () => { await confirmDialog.props.onConfirm(); });
+    expect(onRegistrarSeriesEmLote).toHaveBeenCalled();
+    expect(onToggleRealizadoGrupo).toHaveBeenCalledWith(['se1', 'se2']);
+  });
+
+  it('toggles an already-realizado group back via the checkbox without a confirm dialog', async () => {
+    const onToggleRealizadoGrupo = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoAtivaScreen, baseState({
+          detalhe: {
+            sessao: { id: 's1', treinoId: 't1', treinoNomeSnapshot: 'Treino A', dataHoraInicio: '2026-05-21T10:00:00.000Z', dataHoraFim: null, status: 'em_andamento' } as never,
+            exercicios: [
+              exercicioItem('se1', { grupoId: 'g1', metodo: 'drop_set', realizado: true }),
+              exercicioItem('se2', { grupoId: 'g1', metodo: 'drop_set', realizado: true }),
+            ],
+          },
+          onToggleRealizadoGrupo,
+        })),
+      );
+    });
+    const checkbox = renderer.root.find((n) => n.type === 'Pressable' && n.props.accessibilityRole === 'checkbox');
+    await act(async () => { await checkbox.props.onPress(); });
+    expect(onToggleRealizadoGrupo).toHaveBeenCalledWith(['se1', 'se2']);
+  });
+
+  it('exercises the solo detalhe callbacks (finalizar, back, confirmar substituicao)', async () => {
+    const onFinalizar = vi.fn().mockResolvedValue(undefined);
+    const onConfirmarSubstituicao = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoAtivaScreen, baseState({ onFinalizar, onConfirmarSubstituicao })),
+      );
+    });
+    const card = renderer.root.findByType('ExercicioCard' as never);
+    await act(async () => { card.props.onPress(); });
+    const detalhe = renderer.root.findByType('ExercicioDetalheScreen' as never);
+    await act(async () => { detalhe.props.onFinalizarSessao(); });
+    expect(onFinalizar).toHaveBeenCalled();
+    await act(async () => { detalhe.props.onBack(); });
+    expect(renderer.root.findAllByType('ExercicioDetalheScreen' as never)).toHaveLength(0);
+
+    const card2 = renderer.root.findByType('ExercicioCard' as never);
+    await act(async () => { card2.props.onPress(); });
+    const modal = renderer.root.findByType('SubstituirExercicioModal' as never);
+    await act(async () => { modal.props.onConfirmar('ex9', null); });
+    expect(onConfirmarSubstituicao).toHaveBeenCalledWith('ex9', null);
+  });
+
+  it('exercises the bi-set detalhe callbacks (finalizar, back, confirmar substituicao)', async () => {
+    const onFinalizar = vi.fn().mockResolvedValue(undefined);
+    const onConfirmarSubstituicao = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoAtivaScreen, baseState({
+          onFinalizar,
+          onConfirmarSubstituicao,
+          detalhe: {
+            sessao: { id: 's1', treinoId: 't1', treinoNomeSnapshot: 'Treino A', dataHoraInicio: '2026-05-21T10:00:00.000Z', dataHoraFim: null, status: 'em_andamento' } as never,
+            exercicios: [
+              exercicioItem('se1', { grupoId: 'g1', metodo: 'drop_set' }),
+              exercicioItem('se2', { grupoId: 'g1', metodo: 'drop_set' }),
+            ],
+          },
+        })),
+      );
+    });
+    const grupoCard = renderer.root
+      .findAll((n) => n.type === 'Pressable' && extractText(n.props.children).includes('Exercicio se1'))[0];
+    await act(async () => { grupoCard.props.onPress(); });
+    const detalhe = renderer.root.findByType('BiSetDetalheScreen' as never);
+    await act(async () => { detalhe.props.onFinalizarSessao(); });
+    expect(onFinalizar).toHaveBeenCalled();
+    await act(async () => { detalhe.props.onBack(); });
+    expect(renderer.root.findAllByType('BiSetDetalheScreen' as never)).toHaveLength(0);
+
+    const grupoCard2 = renderer.root
+      .findAll((n) => n.type === 'Pressable' && extractText(n.props.children).includes('Exercicio se1'))[0];
+    await act(async () => { grupoCard2.props.onPress(); });
+    const modal = renderer.root.findByType('SubstituirExercicioModal' as never);
+    await act(async () => { modal.props.onConfirmar('ex9', 'variacao'); });
+    expect(onConfirmarSubstituicao).toHaveBeenCalledWith('ex9', 'variacao');
+  });
+
   it('shows an error message when present', async () => {
     let renderer!: ReactTestRenderer;
     await act(async () => {
