@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { Exercise } from '../../../domain/exercises/entities/Exercise';
 import { SerieRegistrada } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { SerieSegmento } from '../../../domain/sessoes/entities/SerieSegmento';
 import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemorySerieSegmentoRepository } from '../../../infrastructure/sessoes/InMemorySerieSegmentoRepository';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 
@@ -76,6 +78,7 @@ describe('GetSessaoDetalheUseCase', () => {
       sessaoTreinoRepository: new InMemorySessaoTreinoRepository(),
       sessaoExercicioRepository: new InMemorySessaoExercicioRepository(),
       serieRegistradaRepository: new InMemorySerieRegistradaRepository(),
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
       exerciseRepository: new InMemoryExerciseRepository(),
     };
     await expect(new GetSessaoDetalheUseCase(deps).execute('nonexistent')).rejects.toThrow();
@@ -101,6 +104,7 @@ describe('GetSessaoDetalheUseCase', () => {
       sessaoTreinoRepository: sessaoRepo,
       sessaoExercicioRepository: seRepo,
       serieRegistradaRepository: serieRepo,
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
       exerciseRepository: exRepo,
     }).execute('s1');
 
@@ -118,6 +122,7 @@ describe('GetSessaoDetalheUseCase', () => {
       sessaoTreinoRepository: sessaoRepo,
       sessaoExercicioRepository: new InMemorySessaoExercicioRepository(),
       serieRegistradaRepository: new InMemorySerieRegistradaRepository(),
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
       exerciseRepository: new InMemoryExerciseRepository(),
     }).execute('s1');
 
@@ -147,6 +152,7 @@ describe('GetSessaoDetalheUseCase', () => {
       sessaoTreinoRepository: sessaoRepo,
       sessaoExercicioRepository: seRepo,
       serieRegistradaRepository: serieRepo,
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
       exerciseRepository: exRepo,
     }).execute('s1');
 
@@ -168,6 +174,7 @@ describe('GetSessaoDetalheUseCase', () => {
       sessaoTreinoRepository: sessaoRepo,
       sessaoExercicioRepository: seRepo,
       serieRegistradaRepository: serieRepo,
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
       exerciseRepository: exRepo,
     }).execute('s1');
 
@@ -193,6 +200,7 @@ describe('GetSessaoDetalheUseCase', () => {
       sessaoTreinoRepository: sessaoRepo,
       sessaoExercicioRepository: seRepo,
       serieRegistradaRepository: serieRepo,
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
       exerciseRepository: exRepo,
     }).execute('s1');
 
@@ -205,5 +213,54 @@ describe('GetSessaoDetalheUseCase', () => {
     expect(se2?.series).toHaveLength(1);
     expect(se1?.series[0].cargaKg).toBe(40);
     expect(se2?.series[0].cargaKg).toBe(60);
+  });
+
+  it('preserva ordem e descanso dos segmentos ao reabrir a sessao (serie com 3 degraus)', async () => {
+    const sessaoRepo = new InMemorySessaoTreinoRepository();
+    const seRepo = new InMemorySessaoExercicioRepository();
+    const serieRepo = new InMemorySerieRegistradaRepository();
+    const segmentoRepo = new InMemorySerieSegmentoRepository();
+    const exRepo = new InMemoryExerciseRepository();
+
+    await sessaoRepo.save(makeSessao('s1'));
+    await seRepo.save(makeSE('se1', 's1', 'ex1'));
+    await serieRepo.save(makeSerie('sr1', 'se1'));
+    await segmentoRepo.save(SerieSegmento.create({ id: 'sg2', serieId: 'sr1', ordem: 2, cargaKg: 40, repeticoes: 8, descansoSegundos: 0 }));
+    await segmentoRepo.save(SerieSegmento.create({ id: 'sg3', serieId: 'sr1', ordem: 3, cargaKg: 30, repeticoes: 6, descansoSegundos: 15 }));
+
+    const result = await new GetSessaoDetalheUseCase({
+      sessaoTreinoRepository: sessaoRepo,
+      sessaoExercicioRepository: seRepo,
+      serieRegistradaRepository: serieRepo,
+      serieSegmentoRepository: segmentoRepo,
+      exerciseRepository: exRepo,
+    }).execute('s1');
+
+    const [serie] = result.exercicios[0].series;
+    expect(serie.segmentos).toEqual([
+      { id: 'sg2', serieId: 'sr1', ordem: 2, cargaKg: 40, repeticoes: 8, descansoSegundos: 0 },
+      { id: 'sg3', serieId: 'sr1', ordem: 3, cargaKg: 30, repeticoes: 6, descansoSegundos: 15 },
+    ]);
+  });
+
+  it('series sem segmentos saem com `segmentos` undefined (nao um array vazio)', async () => {
+    const sessaoRepo = new InMemorySessaoTreinoRepository();
+    const seRepo = new InMemorySessaoExercicioRepository();
+    const serieRepo = new InMemorySerieRegistradaRepository();
+    const exRepo = new InMemoryExerciseRepository();
+
+    await sessaoRepo.save(makeSessao('s1'));
+    await seRepo.save(makeSE('se1', 's1', 'ex1'));
+    await serieRepo.save(makeSerie('sr1', 'se1'));
+
+    const result = await new GetSessaoDetalheUseCase({
+      sessaoTreinoRepository: sessaoRepo,
+      sessaoExercicioRepository: seRepo,
+      serieRegistradaRepository: serieRepo,
+      serieSegmentoRepository: new InMemorySerieSegmentoRepository(),
+      exerciseRepository: exRepo,
+    }).execute('s1');
+
+    expect(result.exercicios[0].series[0].segmentos).toBeUndefined();
   });
 });

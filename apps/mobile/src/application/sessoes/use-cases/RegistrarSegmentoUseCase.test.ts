@@ -48,6 +48,7 @@ async function seedAtiva(deps: ReturnType<typeof makeDeps>, trackingTypeSnapshot
     sessaoTreinoRepository: deps.sessaoTreinoRepository,
     sessaoExercicioRepository: deps.sessaoExercicioRepository,
     serieRegistradaRepository: deps.serieRegistradaRepository,
+    serieSegmentoRepository: deps.serieSegmentoRepository,
     treinoExercicioRepository: new InMemoryTreinoExercicioRepository(),
     idGenerator: () => `serie_${++idCounter}`,
   });

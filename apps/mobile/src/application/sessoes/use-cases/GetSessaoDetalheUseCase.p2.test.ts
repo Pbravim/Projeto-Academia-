@@ -7,6 +7,7 @@ import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { SQLiteExerciseRepository } from '../../../infrastructure/exercises/SQLiteExerciseRepository';
 import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
+import { SQLiteSerieSegmentoRepository } from '../../../infrastructure/sessoes/SQLiteSerieSegmentoRepository';
 import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
 import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
 import { createTestDatabase } from '../../../test/db-setup';
@@ -18,6 +19,7 @@ describe('GetSessaoDetalheUseCase - P2 Regression Tests', () => {
   let sessaoRepository: SQLiteSessaoTreinoRepository;
   let sessaoExercicioRepository: SQLiteSessaoExercicioRepository;
   let serieRepository: SQLiteSerieRegistradaRepository;
+  let serieSegmentoRepository: SQLiteSerieSegmentoRepository;
   let exerciseRepository: SQLiteExerciseRepository;
   let useCase: GetSessaoDetalheUseCase;
 
@@ -26,12 +28,14 @@ describe('GetSessaoDetalheUseCase - P2 Regression Tests', () => {
     sessaoRepository = new SQLiteSessaoTreinoRepository(database);
     sessaoExercicioRepository = new SQLiteSessaoExercicioRepository(database);
     serieRepository = new SQLiteSerieRegistradaRepository(database);
+    serieSegmentoRepository = new SQLiteSerieSegmentoRepository(database);
     exerciseRepository = new SQLiteExerciseRepository(database);
 
     useCase = new GetSessaoDetalheUseCase({
       sessaoTreinoRepository: sessaoRepository,
       sessaoExercicioRepository: sessaoExercicioRepository,
       serieRegistradaRepository: serieRepository,
+      serieSegmentoRepository: serieSegmentoRepository,
       exerciseRepository: exerciseRepository,
     });
   });

@@ -32,7 +32,9 @@ import { FinalizarSessaoUseCase } from '../application/sessoes/use-cases/Finaliz
 import { GetSessaoAtivaUseCase } from '../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import { GetSessaoDetalheUseCase } from '../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { IniciarSessaoUseCase } from '../application/sessoes/use-cases/IniciarSessaoUseCase';
+import { RegistrarSegmentoUseCase } from '../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import { RegistrarSerieUseCase } from '../application/sessoes/use-cases/RegistrarSerieUseCase';
+import { RemoverSegmentoUseCase } from '../application/sessoes/use-cases/RemoverSegmentoUseCase';
 import { SubstituirExercicioSessaoUseCase } from '../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
 import { SugerirProgressaoUseCase } from '../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import { SugerirSubstitutosUseCase } from '../application/sessoes/use-cases/SugerirSubstitutosUseCase';
@@ -92,6 +94,7 @@ import { ConsoleAppLogger } from '../infrastructure/logging/AppLogger';
 import { SQLiteRegistroPesoRepository } from '../infrastructure/peso/SQLiteRegistroPesoRepository';
 import { SQLitePlanoSemanalRepository } from '../infrastructure/plano/SQLitePlanoSemanalRepository';
 import { SQLiteSerieRegistradaRepository } from '../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
+import { SQLiteSerieSegmentoRepository } from '../infrastructure/sessoes/SQLiteSerieSegmentoRepository';
 import { SQLiteSessaoExercicioRepository } from '../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
 import { SQLiteSessaoTreinoRepository } from '../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
 import { SettingsStorageAdapter } from '../infrastructure/sync/SettingsStorageAdapter';
@@ -182,6 +185,7 @@ const treinoExercicioRepository = new SQLiteTreinoExercicioRepository(databaseCl
 const sessaoTreinoRepository = new SQLiteSessaoTreinoRepository(databaseClient);
 const sessaoExercicioRepository = new SQLiteSessaoExercicioRepository(databaseClient);
 const serieRegistradaRepository = new SQLiteSerieRegistradaRepository(databaseClient);
+const serieSegmentoRepository = new SQLiteSerieSegmentoRepository(databaseClient);
 const historicoRepository = new SQLiteHistoricoRepository(databaseClient);
 const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
 const dashboardRepository = new SqliteDashboardRepository(databaseClient);
@@ -391,15 +395,30 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         sessaoExercicioRepository,
         serieRegistradaRepository,
+        serieSegmentoRepository,
         exerciseRepository,
       }),
       registrarSerie: new RegistrarSerieUseCase({
         sessaoTreinoRepository,
         sessaoExercicioRepository,
         serieRegistradaRepository,
+        serieSegmentoRepository,
         treinoExercicioRepository,
         idGenerator: () => generateId('serie'),
         database: databaseClient,
+      }),
+      registrarSegmento: new RegistrarSegmentoUseCase({
+        serieRegistradaRepository,
+        serieSegmentoRepository,
+        sessaoExercicioRepository,
+        sessaoTreinoRepository,
+        idGenerator: () => generateId('segmento'),
+      }),
+      removerSegmento: new RemoverSegmentoUseCase({
+        serieSegmentoRepository,
+        serieRegistradaRepository,
+        sessaoExercicioRepository,
+        sessaoTreinoRepository,
       }),
       deleteSerie: new DeleteSerieUseCase({ serieRegistradaRepository }),
       updateSerie: new UpdateSerieUseCase({

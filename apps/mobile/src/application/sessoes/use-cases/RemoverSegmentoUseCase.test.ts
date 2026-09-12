@@ -45,6 +45,7 @@ async function seedComSegmento(deps: ReturnType<typeof makeDeps>): Promise<strin
     sessaoTreinoRepository: deps.sessaoTreinoRepository,
     sessaoExercicioRepository: deps.sessaoExercicioRepository,
     serieRegistradaRepository: deps.serieRegistradaRepository,
+    serieSegmentoRepository: deps.serieSegmentoRepository,
     treinoExercicioRepository: new InMemoryTreinoExercicioRepository(),
     idGenerator: () => 'serie_1',
   });

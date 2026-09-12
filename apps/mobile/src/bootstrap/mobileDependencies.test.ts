@@ -262,6 +262,8 @@ describe('mobileDependencies — montagem do grafo', () => {
 
     expectClass(sessao.ativa.getSessaoDetalhe, 'GetSessaoDetalheUseCase');
     expectClass(sessao.ativa.registrarSerie, 'RegistrarSerieUseCase');
+    expectClass(sessao.ativa.registrarSegmento, 'RegistrarSegmentoUseCase');
+    expectClass(sessao.ativa.removerSegmento, 'RemoverSegmentoUseCase');
     expectClass(sessao.ativa.deleteSerie, 'DeleteSerieUseCase');
     expectClass(sessao.ativa.updateSerie, 'UpdateSerieUseCase');
     expectClass(sessao.ativa.toggleExercicioRealizado, 'ToggleExercicioRealizadoUseCase');

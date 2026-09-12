@@ -1,12 +1,20 @@
 import { SerieRegistrada, type SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
+import { SerieSegmento } from '../../../domain/sessoes/entities/SerieSegmento';
 import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SerieSegmentoRepository } from '../../../domain/sessoes/repositories/SerieSegmentoRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import { SessaoEncerradaError } from '../errors/SessaoEncerradaError';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
+
+export interface RegistrarSerieSegmentoInput {
+  cargaKg: number;
+  repeticoes: number;
+  descansoSegundos?: number;
+}
 
 export interface RegistrarSerieInput {
   sessaoExercicioId: string;
@@ -17,12 +25,15 @@ export interface RegistrarSerieInput {
   intensidade?: number;
   tipoSerie?: 'valida' | 'aquecimento';
   observacao?: string;
+  /** Degraus (drop set/rest-pause/piramide) criados junto com a serie-mae, ordem 2..n. */
+  segmentos?: RegistrarSerieSegmentoInput[];
 }
 
 interface RegistrarSerieUseCaseDependencies {
   sessaoTreinoRepository: SessaoTreinoRepository;
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
+  serieSegmentoRepository: SerieSegmentoRepository;
   treinoExercicioRepository: TreinoExercicioRepository;
   idGenerator: () => string;
   database?: TransactionPort;
@@ -72,6 +83,18 @@ export class RegistrarSerieUseCase {
         trackingType: sePrimitives.trackingTypeSnapshot as 'reps_load' | 'cardio' | 'hold' | 'reps_only',
       });
       await this.dependencies.serieRegistradaRepository.save(serie);
+
+      for (const [index, segmentoInput] of (input.segmentos ?? []).entries()) {
+        const segmento = SerieSegmento.create({
+          id: this.dependencies.idGenerator(),
+          serieId: serie.toPrimitives().id,
+          ordem: index + 2,
+          cargaKg: segmentoInput.cargaKg,
+          repeticoes: segmentoInput.repeticoes,
+          descansoSegundos: segmentoInput.descansoSegundos,
+        });
+        await this.dependencies.serieSegmentoRepository.save(segmento);
+      }
 
       // Move atualizarCargaSeNecessario inside transaction for atomicity
       await this.atualizarCargaSeNecessario(input, sePrimitives, sessao.toPrimitives().treinoId);
