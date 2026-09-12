@@ -94,7 +94,7 @@ describe('SugerirSubstitutosUseCase', () => {
     });
 
     const result = await useCase.execute('se1');
-    const ids = result.map((r) => r.exercicio.id);
+    const ids = result.filter((r) => r.similaridade !== 'catalogo').map((r) => r.exercicio.id);
     expect(ids).toContain('ex2');
     expect(ids).not.toContain('ex1');
     expect(ids).not.toContain('ex3');
@@ -139,7 +139,7 @@ describe('SugerirSubstitutosUseCase', () => {
     });
 
     const result = await useCase.execute('se1');
-    const ids = result.map((r) => r.exercicio.id);
+    const ids = result.filter((r) => r.similaridade !== 'catalogo').map((r) => r.exercicio.id);
     expect(ids).not.toContain('ex2');
   });
 
@@ -194,5 +194,31 @@ describe('SugerirSubstitutosUseCase', () => {
     const result = await useCase.execute('se1');
     expect(result.map((r) => r.exercicio.id)).toContain('ex2');
     expect(result[0].similaridade).toBe('mesmo_grupo');
+  });
+
+  it('layer catalogo: exercises with no pattern/group overlap still appear, ranked last', async () => {
+    const seRepo = new InMemorySessaoExercicioRepository();
+    const exRepo = new InMemoryExerciseRepository();
+
+    await seRepo.save(makeSE('se1', 'ex1', 'Peito', ['peitoral_medio'], 'Horizontal Push'));
+    await exRepo.save(makeExerciseWithPattern('ex1', 'Peito', ['peitoral_medio'], 'Horizontal Push'));
+    await exRepo.save(makeExerciseWithPattern('ex2', 'Peito', ['peitoral_medio'], 'Vertical Push')); // mesmo_grupo
+    await exRepo.save(makeExercise('ex3', 'Costas')); // catalogo — sem overlap de padrao/grupo
+
+    const useCase = new SugerirSubstitutosUseCase({
+      sessaoExercicioRepository: seRepo,
+      exerciseRepository: exRepo,
+      historicoRepository: new InMemoryHistoricoRepository(),
+    });
+
+    const result = await useCase.execute('se1');
+    const ex2 = result.find((r) => r.exercicio.id === 'ex2');
+    const ex3 = result.find((r) => r.exercicio.id === 'ex3');
+
+    expect(ex3?.similaridade).toBe('catalogo');
+    expect(ex3?.predefinido).toBe(false);
+
+    const ids = result.map((r) => r.exercicio.id);
+    expect(ids.indexOf('ex2')).toBeLessThan(ids.indexOf('ex3'));
   });
 });
