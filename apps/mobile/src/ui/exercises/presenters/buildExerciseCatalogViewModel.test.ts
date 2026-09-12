@@ -45,6 +45,9 @@ describe('buildExerciseCatalogViewModel', () => {
       meta: 'Equipamento: Barra reta',
       ultimoPeso: null,
       nameVariations: [],
+      equipment: 'Barra reta',
+      primaryEquipment: null,
+      secondaryEquipment: null,
     });
   });
 

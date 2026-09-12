@@ -5,6 +5,7 @@ StyleSheet, Text, TextInput, View,
 } from 'react-native';
 
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
+import { matchesExerciseQuery } from '../../../domain/exercises/matchesExerciseQuery';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useLocale, useT } from '../../shared/i18n';
@@ -124,14 +125,18 @@ export function ExerciseCatalogScreen({
   const hasAnyFilter = activeSearch.length > 0 || !!filterCategory || !!filterEquipment;
   const filteredSections = useMemo(() => {
     if (activeSearch.length === 0) return viewModel.sections;
-    const q = normalizeText(activeSearch);
     return viewModel.sections
       .map((section) => ({
         ...section,
         cards: section.cards.filter((card) =>
-          normalizeText(card.title).includes(q) ||
-          normalizeText(section.groupMuscle).includes(q) ||
-          card.nameVariations.some((v) => normalizeText(v).includes(q))
+          matchesExerciseQuery(activeSearch, {
+            name: card.title,
+            nameVariations: card.nameVariations,
+            groupMuscles: [section.groupMuscle],
+            equipment: card.equipment,
+            primaryEquipment: card.primaryEquipment,
+            secondaryEquipment: card.secondaryEquipment,
+          })
         ),
       }))
       .filter((section) => section.cards.length > 0);

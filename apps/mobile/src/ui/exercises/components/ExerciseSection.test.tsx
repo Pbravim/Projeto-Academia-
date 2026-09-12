@@ -60,6 +60,9 @@ const card: Parameters<typeof ExerciseCardRow>[0]['card'] = {
   meta: '3 séries',
   ultimoPeso: null,
   nameVariations: [],
+  equipment: null,
+  primaryEquipment: null,
+  secondaryEquipment: null,
 };
 
 describe('ExerciseSectionHeader', () => {

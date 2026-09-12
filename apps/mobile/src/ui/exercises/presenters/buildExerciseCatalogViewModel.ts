@@ -10,6 +10,9 @@ export interface ExerciseCardViewModel {
   meta: string;
   ultimoPeso: string | null;
   nameVariations: string[];
+  equipment: string | null;
+  primaryEquipment: string | null;
+  secondaryEquipment: string | null;
 }
 
 export interface ExerciseSectionViewModel {
@@ -80,6 +83,9 @@ export function buildExerciseCatalogViewModel(
         ? translate(locale, 'exercises.catalog.ultimoLabel', { carga: ultima.cargaKg, reps: ultima.repeticoes })
         : null,
       nameVariations: exercise.nameVariations,
+      equipment: exercise.equipment,
+      primaryEquipment: exercise.primaryEquipment,
+      secondaryEquipment: exercise.secondaryEquipment,
     };
     for (const group of groups) {
       const list = byGroup.get(group) ?? [];
