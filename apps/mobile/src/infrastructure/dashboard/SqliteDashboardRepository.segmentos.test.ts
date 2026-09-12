@@ -44,7 +44,9 @@ beforeEach(async () => {
      VALUES ('sr-1', 'se-1', 'valida', 1, 80, 8, ?, 0)`,
     [T],
   );
-  // Degraus (drop set) 60kg×6 + 50kg×7 -- somam volume mas nao entram no 1RM.
+  // Degraus (drop set) 60kg×6 + 100kg×3 -- somam volume mas nao entram no 1RM.
+  // sg-2 e DE PROPOSITO mais pesado que a mae (Epley 110 > 101.3 da mae): um MAX(e1RM)
+  // que incluisse os degraus por engano mudaria o resultado (achado #2, revisao 1).
   await db.run(
     `INSERT INTO serie_segmentos (id, serie_id, ordem, carga_kg, repeticoes, created_at, dirty)
      VALUES ('sg-1', 'sr-1', 2, 60, 6, ?, 0)`,
@@ -52,24 +54,24 @@ beforeEach(async () => {
   );
   await db.run(
     `INSERT INTO serie_segmentos (id, serie_id, ordem, carga_kg, repeticoes, created_at, dirty)
-     VALUES ('sg-2', 'sr-1', 3, 50, 7, ?, 0)`,
+     VALUES ('sg-2', 'sr-1', 3, 100, 3, ?, 0)`,
     [T],
   );
 });
 
 describe('dashboard — volume da sessao inclui degraus; e1RM ignora', () => {
-  it('volumeTotal da sessao soma mae (640) + degraus (360 + 350) = 1350', async () => {
+  it('volumeTotal da sessao soma mae (640) + degraus (360 + 300) = 1300', async () => {
     const stats = await repo.getStats();
     const sessao = stats.evolucaoPorTreino[0]!.sessoes[0]!;
 
-    expect(sessao.volumeTotal).toBe(1350);
+    expect(sessao.volumeTotal).toBe(1300);
   });
 
-  it('melhorOrm/recorde pessoal olham so a serie-mae (ignora os degraus)', async () => {
+  it('melhorOrm/recorde pessoal olham so a serie-mae, mesmo com degrau MAIS PESADO (Epley 110 > 101.3)', async () => {
     const stats = await repo.getStats();
     const sessao = stats.evolucaoPorTreino[0]!.sessoes[0]!;
 
-    expect(sessao.melhorOrm).toBe(101.3); // Epley de 80x8, nao dos degraus mais leves
+    expect(sessao.melhorOrm).toBe(101.3); // Epley de 80x8 -- NAO 110 (o do degrau sg-2)
     expect(stats.recordesPessoais[0]?.melhorOrmKg).toBe(101.3);
   });
 
@@ -79,6 +81,6 @@ describe('dashboard — volume da sessao inclui degraus; e1RM ignora', () => {
     const stats = await repo.getStats();
     const sessao = stats.evolucaoPorTreino[0]!.sessoes[0]!;
 
-    expect(sessao.volumeTotal).toBe(1000); // 640 + 360 (sg-1), sem os 350 de sg-2
+    expect(sessao.volumeTotal).toBe(1000); // 640 + 360 (sg-1), sem os 300 de sg-2
   });
 });

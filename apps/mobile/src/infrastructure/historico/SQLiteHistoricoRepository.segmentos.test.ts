@@ -39,9 +39,11 @@ beforeEach(async () => {
      VALUES ('sg1', 'sr1', 2, 50, 6, 0, ?, 0)`,
     [T]
   );
+  // sg2 e DE PROPOSITO mais pesado que a mae (60x8, Epley 76): 70x8 -> Epley 88.67.
+  // Um PR/e1RM que olhasse os degraus por engano mudaria de resultado (achado #2, revisao 1).
   await db.run(
     `INSERT INTO serie_segmentos (id, serie_id, ordem, carga_kg, repeticoes, descanso_segundos, created_at, dirty)
-     VALUES ('sg2', 'sr1', 3, 40, 7, 15, ?, 0)`,
+     VALUES ('sg2', 'sr1', 3, 70, 8, 15, ?, 0)`,
     [T]
   );
 });
@@ -52,7 +54,7 @@ describe('SQLiteHistoricoRepository — degraus', () => {
 
     expect(historico[0].series[0].segmentos).toEqual([
       { ordem: 2, cargaKg: 50, repeticoes: 6, descansoSegundos: 0 },
-      { ordem: 3, cargaKg: 40, repeticoes: 7, descansoSegundos: 15 },
+      { ordem: 3, cargaKg: 70, repeticoes: 8, descansoSegundos: 15 },
     ]);
   });
 
@@ -82,9 +84,7 @@ describe('SQLiteHistoricoRepository — degraus', () => {
     expect(historico[0].series[0].segmentos).toBeUndefined();
   });
 
-  it('getUltimaExecucaoValida (PR) ignora completamente os degraus', async () => {
-    // O degrau mais pesado (50x6) tem 1RM maior que a mae isolada nao teria,
-    // mas o PR so olha series_registradas — nunca serie_segmentos.
+  it('getUltimaExecucaoValida (PR) ignora completamente os degraus, mesmo o mais pesado (sg2, Epley 88.67 > 76 da mae)', async () => {
     const pr = await repo.getUltimaExecucaoValida('ex1');
 
     expect(pr).toEqual({ cargaKg: 60, repeticoes: 8, dataExecucao: T });

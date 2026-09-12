@@ -137,23 +137,28 @@ describe('buildSessaoResumoViewModel', () => {
       expect(vm.volumeTotal).toContain('t');
     });
 
-    it('soma os degraus (drop set) ao volume da serie-mae', () => {
+    it('soma os degraus (drop set) ao volume da serie-mae, mesmo com um degrau MAIS PESADO', () => {
       const vm = buildSessaoResumoViewModel(
         makeDetalhe({
           exercicios: [
             makeExercicioComSeries('se_1', [
-              // mae 60x8=480 + degraus 50x6=300, 40x7=280 -> 1060
+              // mae 60x8=480 (Epley 76) + degraus 50x6=300, 100x3=300 -> volume 1080.
+              // sg2 (100x3, Epley 110) e DE PROPOSITO mais pesado que a mae: um
+              // MAX(e1RM)/melhorSerie que olhasse os degraus por engano mudaria de
+              // resultado (achado #2, revisao 1) -- por isso a mesma fixture tambem
+              // prende melhorSerie abaixo, na mae.
               comSegmentos(makeSerie('s1', 'valida', 60, 8), [
                 { cargaKg: 50, repeticoes: 6 },
-                { cargaKg: 40, repeticoes: 7 },
+                { cargaKg: 100, repeticoes: 3 },
               ]),
             ]),
           ],
         })
       );
 
-      expect(vm.exercicios[0].volume).toBe(1060);
+      expect(vm.exercicios[0].volume).toBe(1080);
       expect(vm.exercicios[0].totalSeriesValidas).toBe(1);
+      expect(vm.exercicios[0].melhorSerie).toBe('60kg × 8'); // nao '100kg × 3', mesmo tendo Epley maior
     });
 
     it('e1RM/melhorSerie ignoram os degraus (so a serie-mae conta)', () => {
