@@ -172,6 +172,75 @@ describe('ExercicioDetalheScreen', () => {
     expect(texts.flat()).toContain('sessao.degrau.prescrito');
   });
 
+  it('does not show the Degrau 2 prescrito form for non reps_load exercises (achado #7)', async () => {
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(ExercicioDetalheScreen, baseProps({
+          sessaoExercicio: sessaoExercicio({ metodo: 'drop_set', trackingTypeSnapshot: 'reps_only' }),
+        })),
+      );
+    });
+    const texts = renderer.root.findAllByType('Text' as never).map((t) => t.props.children);
+    expect(texts.flat()).not.toContain('sessao.degrau.prescrito');
+  });
+
+  it('prefills the Degrau 2 reps on mount when the template already opens in drop_set (achado #2)', async () => {
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(ExercicioDetalheScreen, baseProps({
+          sessaoExercicio: sessaoExercicio({ metodo: 'drop_set', execucoesRecomendadas: 10 }),
+        })),
+      );
+    });
+    const degrauInputs = renderer.root.findAllByType('TextInput' as never).slice(-2);
+    expect(degrauInputs[0].props.value).toBe(''); // carga vazia — sem inferir
+    expect(degrauInputs[1].props.value).toBe('10'); // reps do template
+  });
+
+  it('resets the Degrau 2 text when switching to another exercicio (achado #2)', async () => {
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(ExercicioDetalheScreen, baseProps({
+          sessaoExercicio: sessaoExercicio({ id: 'se1', metodo: 'drop_set' }),
+        })),
+      );
+    });
+    const cargaInput = renderer.root.findAllByType('TextInput' as never).slice(-2)[0];
+    await act(async () => { cargaInput.props.onChangeText('50'); });
+    expect(renderer.root.findAllByType('TextInput' as never).slice(-2)[0].props.value).toBe('50');
+
+    await act(async () => {
+      renderer.update(
+        createElement(ExercicioDetalheScreen, baseProps({
+          sessaoExercicio: sessaoExercicio({ id: 'se2', metodo: 'drop_set' }),
+        })),
+      );
+    });
+    const cargaInputDepois = renderer.root.findAllByType('TextInput' as never).slice(-2)[0];
+    expect(cargaInputDepois.props.value).toBe('');
+  });
+
+  it('blocks registering when Degrau 2 is filled but invalid (achado #1)', async () => {
+    const onRegistrarSerie = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(ExercicioDetalheScreen, baseProps({
+          sessaoExercicio: sessaoExercicio({ metodo: 'drop_set' }),
+          onRegistrarSerie,
+        })),
+      );
+    });
+    const [cargaInput, repsInput] = renderer.root.findAllByType('TextInput' as never).slice(-2);
+    await act(async () => { cargaInput.props.onChangeText('50'); });
+    await act(async () => { repsInput.props.onChangeText('0'); });
+    await act(async () => { await pressableWithText(renderer, 'sessao.detalhe.registrarSerieBtn')!.props.onPress(); });
+    expect(onRegistrarSerie).not.toHaveBeenCalled();
+  });
+
   it('renders the "done" navigation card when realizado', async () => {
     let renderer!: ReactTestRenderer;
     await act(async () => {

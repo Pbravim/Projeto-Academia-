@@ -35,7 +35,10 @@ export interface DegrauParseResult {
 export function parseDegrauInput(fields: DegrauFormFields, locale: AppLocale): DegrauParseResult {
   const { cargaText, repsText, descansoText } = fields;
 
-  if (cargaText.trim() === '' && repsText.trim() === '') {
+  // Carga vazia = convite recusado, mesmo com reps pré-preenchido pelo template
+  // (`prefillFrom` deixa reps com o valor recomendado e a carga em branco — é a
+  // carga que sinaliza "quero um degrau", nunca inferida).
+  if (cargaText.trim() === '') {
     return { input: null, error: null };
   }
 

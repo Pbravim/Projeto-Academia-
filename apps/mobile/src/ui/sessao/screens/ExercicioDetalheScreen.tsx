@@ -14,7 +14,7 @@ import { RestTimerBanner } from '../components/RestTimerBanner';
 import { MetodoSelector } from '../components/MetodoSelector';
 import { DegrauForm } from '../components/DegrauForm';
 import { SeriesRegistradasList } from '../components/SeriesRegistradasList';
-import { useDegrauForm } from '../hooks/useDegrauForm';
+import { parseDegrauInput, useDegrauForm } from '../hooks/useDegrauForm';
 import { precisaDegrauPrescrito, mostraDescanso, formatSerieMetric } from '../presenters/segmentosPresentation';
 import { formatDuracao } from '../../shared/degrauFormatters';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
@@ -189,6 +189,13 @@ export function ExercicioDetalheScreen({
     setFormError(null);
     setTimer(null);
     setTimerMinimized(false);
+    // Degrau 2 prescrito: prefill quando o template já abre em drop_set/rest_pause
+    // (achado #2) e reset ao trocar de exercício, para não vazar texto do anterior.
+    if (precisaDegrauPrescrito(sessaoExercicio.metodo)) {
+      degrau2.prefillFrom(sessaoExercicio, sessaoExercicio.metodo);
+    } else {
+      degrau2.reset();
+    }
   }, [sessaoExercicio.id]);
 
   const startTimer = (segundos: number) => {
@@ -365,6 +372,14 @@ export function ExercicioDetalheScreen({
       }
 
       const degrau2Input = precisaDegrauPrescrito(metodo) ? degrau2.toInput() : null;
+      if (precisaDegrauPrescrito(metodo) && !degrau2Input) {
+        // Degrau 2 preenchido porém inválido bloqueia o registro (vazio = convite, sem bloqueio) — achado #1.
+        const { error: degrau2Error } = parseDegrauInput(
+          { cargaText: degrau2.cargaText, repsText: degrau2.repsText, descansoText: degrau2.descansoText },
+          locale,
+        );
+        if (degrau2Error) return;
+      }
 
       await onRegistrarSerie({
         sessaoExercicioId: sessaoExercicio.id,
@@ -995,8 +1010,8 @@ export function ExercicioDetalheScreen({
             }}
           />
 
-          {/* Degrau 2 prescrito — convite, não obrigação */}
-          {precisaDegrauPrescrito(metodo) ? (
+          {/* Degrau 2 prescrito — convite, não obrigação; só reps_load tem degrau (achado #7) */}
+          {trackingType === 'reps_load' && precisaDegrauPrescrito(metodo) ? (
             <DegrauForm
               titulo={t('sessao.degrau.prescrito')}
               form={degrau2}

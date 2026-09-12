@@ -15,6 +15,15 @@ describe('parseDegrauInput', () => {
     });
   });
 
+  it('input null, error null quando carga vazia mesmo com reps pré-preenchido pelo template', () => {
+    // Reprodução do estado pós-prefillFrom: reps já vem preenchido do template,
+    // carga fica vazia até o aluno decidir usar o degrau. Não deve bloquear.
+    expect(parseDegrauInput({ cargaText: '', repsText: '8', descansoText: '' }, 'pt-BR')).toEqual({
+      input: null,
+      error: null,
+    });
+  });
+
   it('input válido a partir de carga e reps', () => {
     expect(parseDegrauInput({ cargaText: '50', repsText: '6', descansoText: '' }, 'pt-BR')).toEqual({
       input: { cargaKg: 50, repeticoes: 6, descansoSegundos: undefined },
