@@ -120,6 +120,16 @@ describe('useRestTimerCorner', () => {
     expect(result.current.corner).toBe('bottom-right');
   });
 
+  it('falls back to the default when the kv-store read rejects', async () => {
+    const { Storage } = await import('expo-sqlite/kv-store');
+    (Storage.getItem as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('kv-store indisponível'));
+
+    const { result } = await renderHook(() => useRestTimerCorner());
+    await flush();
+
+    expect(result.current.corner).toBe('bottom-right');
+  });
+
   it('persists the snapped corner on release', async () => {
     const { result } = await renderHook(() => useRestTimerCorner());
     await flush();

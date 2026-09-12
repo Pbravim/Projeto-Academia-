@@ -57,9 +57,13 @@ export function useRestTimerCorner(): RestTimerCornerState {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
-    void Storage.getItem(REST_TIMER_CORNER_KEY).then((value) => {
-      if (isCorner(value)) setCorner(value);
-    });
+    void Storage.getItem(REST_TIMER_CORNER_KEY)
+      .then((value) => {
+        if (isCorner(value)) setCorner(value);
+      })
+      .catch(() => {
+        // canto persistido é cosmético — mantém o default em caso de falha do kv-store
+      });
   }, []);
 
   useEffect(() => {
