@@ -1,12 +1,15 @@
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { CandidatoSubstituto } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
+import { matchesExerciseQuery } from '../../../domain/exercises/matchesExerciseQuery';
 import type { SubstituicaoMotivo } from '../../../domain/sessoes/entities/SessaoExercicio';
 import { resolveFullMediaSource, resolveThumbSource, resolveThumbSourceOrPlaceholder } from '../../shared/exerciseMedia';
 import { useT } from '../../shared/i18n';
 import { useTheme } from '../../shared/theme';
+
+const LIMITE_CATALOGO = 30;
 
 interface Props {
   visible: boolean;
@@ -21,11 +24,37 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
   const styles = useMemo(() => makeStyles(c), [c]);
 
   const [selecionado, setSelecionado] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
 
-  const predefinidos = candidatos.filter((item) => item.predefinido);
-  const quaseIguais = candidatos.filter((item) => !item.predefinido && item.similaridade === 'quase_igual');
-  const similares   = candidatos.filter((item) => !item.predefinido && item.similaridade === 'similar');
-  const mesmoGrupo  = candidatos.filter((item) => !item.predefinido && item.similaridade === 'mesmo_grupo');
+  const temBusca = query.trim().length > 0;
+
+  const naoCatalogo = useMemo(() => candidatos.filter((item) => item.similaridade !== 'catalogo'), [candidatos]);
+
+  const { predefinidos, quaseIguais, similares, mesmoGrupo, catalogo } = useMemo(() => {
+    const candidatoCasa = (item: CandidatoSubstituto) =>
+      matchesExerciseQuery(query, {
+        name: item.exercicio.name,
+        nameVariations: item.exercicio.nameVariations,
+        groupMuscles: item.exercicio.groupMuscles,
+        equipment: item.exercicio.equipment,
+        primaryEquipment: item.exercicio.primaryEquipment,
+        secondaryEquipment: item.exercicio.secondaryEquipment,
+      });
+
+    const candidatosFiltrados = temBusca ? naoCatalogo.filter(candidatoCasa) : naoCatalogo;
+
+    return {
+      predefinidos: candidatosFiltrados.filter((item) => item.predefinido),
+      quaseIguais: candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'quase_igual'),
+      similares: candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'similar'),
+      mesmoGrupo: candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'mesmo_grupo'),
+      catalogo: temBusca
+        ? candidatos.filter((item) => item.similaridade === 'catalogo').filter(candidatoCasa).slice(0, LIMITE_CATALOGO)
+        : [],
+    };
+  }, [candidatos, naoCatalogo, query, temBusca]);
+
+  const totalVisivel = predefinidos.length + quaseIguais.length + similares.length + mesmoGrupo.length + catalogo.length;
 
   const handleSelecionado = (id: string) => setSelecionado((prev) => (prev === id ? null : id));
 
@@ -33,10 +62,12 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
     if (!selecionado) return;
     onConfirmar(selecionado, motivo);
     setSelecionado(null);
+    setQuery('');
   };
 
   const fechar = () => {
     setSelecionado(null);
+    setQuery('');
     onFechar();
   };
 
@@ -49,6 +80,18 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
             <Pressable onPress={fechar} style={({ pressed }) => [styles.closeBtn, pressed ? { opacity: 0.6 } : null]}>
               <Text style={styles.closeBtnText}>✕</Text>
             </Pressable>
+          </View>
+
+          <View style={styles.buscaWrap}>
+            <TextInput
+              style={styles.buscaInput}
+              placeholder={t('sessao.substituir.buscar')}
+              placeholderTextColor={c.inputPlaceholder}
+              value={query}
+              onChangeText={setQuery}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
@@ -116,8 +159,28 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
               </>
             ) : null}
 
-            {candidatos.length === 0 ? (
+            {catalogo.length > 0 ? (
+              <>
+                <Text style={styles.sectionLabel}>{t('sessao.substituir.catalogo')}</Text>
+                {catalogo.map((cand) => (
+                  <CandidatoRow
+                    key={cand.exercicio.id}
+                    candidato={cand}
+                    selected={selecionado === cand.exercicio.id}
+                    onPress={() => handleSelecionado(cand.exercicio.id)}
+                    styles={styles}
+                    theme={c}
+                  />
+                ))}
+              </>
+            ) : null}
+
+            {!temBusca && naoCatalogo.length === 0 ? (
               <Text style={styles.emptyText}>{t('sessao.substituir.vazio')}</Text>
+            ) : null}
+
+            {temBusca && totalVisivel === 0 ? (
+              <Text style={styles.emptyText}>{t('sessao.substituir.semResultado')}</Text>
             ) : null}
           </ScrollView>
 
@@ -215,6 +278,17 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     title: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     closeBtn: { padding: 6 },
     closeBtnText: { color: c.textSecondary, fontSize: 18 },
+    buscaWrap: { paddingHorizontal: 16, paddingTop: 12 },
+    buscaInput: {
+      backgroundColor: c.cardAlt,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      color: c.textPrimary,
+      fontSize: 14,
+    },
     list: { padding: 16, gap: 8 },
     sectionLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 8, marginBottom: 4 },
     sectionLabelPredefinido: { color: c.accent },

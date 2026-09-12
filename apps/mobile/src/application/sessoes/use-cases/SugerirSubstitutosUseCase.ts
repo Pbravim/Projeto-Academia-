@@ -4,7 +4,7 @@ import type { HistoricoRepository, UltimaExecucaoValida } from '../../../domain/
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import { SessaoExercicioNotFoundError } from '../errors/SessaoExercicioNotFoundError';
 
-export type SimilaridadeNivel = 'quase_igual' | 'similar' | 'mesmo_grupo';
+export type SimilaridadeNivel = 'quase_igual' | 'similar' | 'mesmo_grupo' | 'catalogo';
 
 export interface CandidatoSubstituto {
   exercicio: ExercisePrimitives;
@@ -70,6 +70,7 @@ export class SugerirSubstitutosUseCase {
     const camada1: CandidatoSubstituto[] = [];
     const camada2: CandidatoSubstituto[] = [];
     const camada3: CandidatoSubstituto[] = [];
+    const camadaCatalogo: CandidatoSubstituto[] = [];
 
     for (const ex of todosExercicios) {
       const ep = ex.toPrimitives();
@@ -90,9 +91,11 @@ export class SugerirSubstitutosUseCase {
         camada2.push({ ...base, similaridade: 'similar' });
       } else if (temIntersecaoDeGrupo(ep.groupMuscles, grupo)) {
         camada3.push({ ...base, similaridade: 'mesmo_grupo' });
+      } else {
+        camadaCatalogo.push({ ...base, similaridade: 'catalogo' });
       }
     }
 
-    return [...camada0, ...camada1, ...camada2, ...camada3];
+    return [...camada0, ...camada1, ...camada2, ...camada3, ...camadaCatalogo];
   }
 }
