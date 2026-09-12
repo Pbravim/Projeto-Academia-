@@ -48,18 +48,24 @@ function SerieMetricContent({ serie, trackingType, isBest, locale, styles }: Ser
   );
 }
 
-interface DegrauChipProps {
+export interface DegrauChipProps {
   segmento: SerieSegmentoPrimitives;
   ordemExibicao: number;
   realizado: boolean;
   locale: AppLocale;
   onRemoverSegmento: (segmentoId: string) => void;
-  styles: Styles;
 }
 
-/** Um degrau como chip próprio "50×6 ✕" — distinguível do ✕ que apaga a série-mãe (achado #5). */
-function DegrauChip({ segmento, ordemExibicao, realizado, locale, onRemoverSegmento, styles }: DegrauChipProps) {
+/**
+ * Um degrau como chip próprio "50×6 ✕" — distinguível do ✕ que apaga a série-mãe
+ * (achado #5, r1). Auto-contido (própria `useTheme`) para ser reusável fora de
+ * `SerieRow` — usado também no BiSet (achado #2, r2), onde antes os ✕ ficavam
+ * soltos após a pilha textual em vez de colados a cada degrau.
+ */
+export function DegrauChip({ segmento, ordemExibicao, realizado, locale, onRemoverSegmento }: DegrauChipProps) {
+  const c = useTheme();
   const t = useT();
+  const styles = useMemo(() => makeChipStyles(c), [c]);
   return (
     <View style={styles.degrauChip}>
       <Text style={styles.degrauChipText}>
@@ -208,7 +214,6 @@ export function SerieRow({
               realizado={realizado}
               locale={locale}
               onRemoverSegmento={onRemoverSegmento}
-              styles={styles}
             />
           ))}
         </View>
@@ -252,6 +257,13 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     deleteSerieBtn: { padding: 4 },
     deleteSerieBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
     degrausRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingLeft: 36 },
+    addDegrauBtn: { alignSelf: 'flex-start', marginLeft: 36, paddingHorizontal: 10, paddingVertical: 4 },
+    addDegrauBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+  });
+}
+
+function makeChipStyles(c: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
     degrauChip: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -266,7 +278,5 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     degrauChipText: { color: c.textSecondary, fontSize: 12, fontVariant: ['tabular-nums'] },
     degrauChipRemove: { padding: 2 },
     degrauChipRemoveText: { color: c.error, fontSize: 11, fontWeight: '700' },
-    addDegrauBtn: { alignSelf: 'flex-start', marginLeft: 36, paddingHorizontal: 10, paddingVertical: 4 },
-    addDegrauBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
   });
 }

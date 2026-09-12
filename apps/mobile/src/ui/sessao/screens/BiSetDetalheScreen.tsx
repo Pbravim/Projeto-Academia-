@@ -16,8 +16,9 @@ import { DegrauForm } from '../components/DegrauForm';
 import { MetodoSelector } from '../components/MetodoSelector';
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
+import { DegrauChip } from '../components/SerieRow';
 import { parseDegrauInput, useDegrauForm } from '../hooks/useDegrauForm';
-import { formatDegrausStack, mostraDescanso,precisaDegrauPrescrito } from '../presenters/segmentosPresentation';
+import { mostraDescanso, precisaDegrauPrescrito } from '../presenters/segmentosPresentation';
 
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
 
@@ -187,6 +188,8 @@ export function BiSetDetalheScreen({
         descansoText: degrau2DescansoTexts[i] ?? '',
       },
       locale,
+      // Degrau 2 prescrito: reps já vem do template, só a carga sinaliza convite (achado #1, r2).
+      { cargaVaziaEhConvite: true },
     );
     updateArr<string | null>(setDegrau2Errors, i, result.error);
     return result;
@@ -647,28 +650,22 @@ export function BiSetDetalheScreen({
                         const serie = validSeriesPerExercicio[exIdx][setIdx];
                         if (!serie) return null;
                         const firstName = item.sessaoExercicio.nomeSnapshot.split(' ')[0];
-                        const degrausLabel = formatDegrausStack(serie, serie.segmentos, locale);
                         const isDegrauAberto = degrauAberto?.exIdx === exIdx && degrauAberto?.setIdx === setIdx;
                         return (
                           <View key={item.sessaoExercicio.id}>
                             <View style={styles.setLine}>
                               <Text style={styles.setExercicioNome} numberOfLines={1}>{firstName}</Text>
-                              <Text style={styles.setMetric}>{degrausLabel ?? `${serie.cargaKg}kg × ${serie.repeticoes}`}</Text>
-                              {!allRealizado ? [...(serie.segmentos ?? [])].sort((a, b) => a.ordem - b.ordem).map((segmento, idx) => (
-                                <Pressable
+                              <Text style={styles.setMetric}>{`${serie.cargaKg}kg × ${serie.repeticoes}`}</Text>
+                              {[...(serie.segmentos ?? [])].sort((a, b) => a.ordem - b.ordem).map((segmento, idx) => (
+                                <DegrauChip
                                   key={segmento.id}
-                                  accessibilityRole="button"
-                                  accessibilityLabel={t('sessao.degrau.removerN', {
-                                    n: idx + 2,
-                                    carga: segmento.cargaKg ?? 0,
-                                    reps: segmento.repeticoes ?? 0,
-                                  })}
-                                  onPress={() => { void onRemoverSegmento(segmento.id); }}
-                                  style={({ pressed }) => [styles.degrauRemoveBtn, pressed ? { opacity: 0.5 } : null]}
-                                >
-                                  <Text style={styles.degrauRemoveBtnText}>✕</Text>
-                                </Pressable>
-                              )) : null}
+                                  segmento={segmento}
+                                  ordemExibicao={idx + 2}
+                                  realizado={allRealizado}
+                                  locale={locale}
+                                  onRemoverSegmento={(id) => { void onRemoverSegmento(id); }}
+                                />
+                              ))}
                               {!allRealizado ? (
                                 <Pressable
                                   onPress={() => { degrauInline.reset(); setDegrauAberto(isDegrauAberto ? null : { exIdx, setIdx }); }}
@@ -838,8 +835,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     addDegrauBtnText: { color: c.accent, fontSize: 11, fontWeight: '700' },
     deleteBtn: { padding: 4 },
     deleteBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
-    degrauRemoveBtn: { padding: 2 },
-    degrauRemoveBtnText: { color: c.error, fontSize: 11, fontWeight: '700' },
     flex1: { flex: 1 },
   });
 }
