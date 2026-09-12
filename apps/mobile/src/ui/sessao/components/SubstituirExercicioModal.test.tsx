@@ -114,6 +114,52 @@ describe('SubstituirExercicioModal', () => {
     expect(texts).toContain('sessao.substituir.catalogo');
   });
 
+  it('mostra estado vazio quando so ha candidatos "catalogo" e nao ha busca (achado #1, review-b-1)', async () => {
+    const candidatos: CandidatoSubstituto[] = [
+      makeCandidato('ex1', 'Remada curvada', 'catalogo', { groupMuscles: ['Costas'] }),
+    ];
+
+    const renderer = await render(
+      createElement(SubstituirExercicioModal, {
+        visible: true,
+        candidatos,
+        onConfirmar: vi.fn(),
+        onFechar: vi.fn(),
+      }),
+    );
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('sessao.substituir.vazio');
+    expect(texts).not.toContain('sessao.substituir.semResultado');
+    expect(texts).not.toContain('Remada curvada');
+  });
+
+  it('limita a secao "Todo o catalogo" a 30 candidatos, na ordem recebida (achado #2, review-b-1)', async () => {
+    const catalogoCandidatos = Array.from({ length: 35 }, (_, i) =>
+      makeCandidato(`cat${i}`, `Exercicio catalogo ${i}`, 'catalogo', { groupMuscles: ['Costas'] }),
+    );
+
+    const renderer = await render(
+      createElement(SubstituirExercicioModal, {
+        visible: true,
+        candidatos: catalogoCandidatos,
+        onConfirmar: vi.fn(),
+        onFechar: vi.fn(),
+      }),
+    );
+
+    const input = renderer.root.findByType('TextInput');
+    await act(async () => {
+      (input.props as { onChangeText: (v: string) => void }).onChangeText('exercicio catalogo');
+    });
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    const mostrados = catalogoCandidatos.filter((c) => texts.includes(c.exercicio.name));
+
+    expect(mostrados).toHaveLength(30);
+    expect(mostrados.map((c) => c.exercicio.id)).toEqual(catalogoCandidatos.slice(0, 30).map((c) => c.exercicio.id));
+  });
+
   it('mostra mensagem de nenhum resultado quando a busca nao casa nada', async () => {
     const candidatos: CandidatoSubstituto[] = [makeCandidato('ex1', 'Supino reto', 'mesmo_grupo')];
 
@@ -135,7 +181,7 @@ describe('SubstituirExercicioModal', () => {
     expect(texts).toContain('sessao.substituir.semResultado');
   });
 
-  it('seleciona um candidato, confirma e reseta a busca', async () => {
+  it('seleciona um candidato, confirma e reseta a busca (achado #3, review-b-1)', async () => {
     const candidatos: CandidatoSubstituto[] = [makeCandidato('ex1', 'Supino reto', 'mesmo_grupo')];
     const onConfirmar = vi.fn();
 
@@ -147,6 +193,12 @@ describe('SubstituirExercicioModal', () => {
         onFechar: vi.fn(),
       }),
     );
+
+    const input = renderer.root.findByType('TextInput');
+    await act(async () => {
+      (input.props as { onChangeText: (v: string) => void }).onChangeText('sup');
+    });
+    expect(renderer.root.findByType('TextInput').props.value).toBe('sup');
 
     const row = renderer.root
       .findAllByType('Pressable')
@@ -163,9 +215,10 @@ describe('SubstituirExercicioModal', () => {
     });
 
     expect(onConfirmar).toHaveBeenCalledWith('ex1', null);
+    expect(renderer.root.findByType('TextInput').props.value).toBe('');
   });
 
-  it('fecha o modal e chama onFechar', async () => {
+  it('fecha o modal, chama onFechar e reseta a busca (achado #3, review-b-1)', async () => {
     const onFechar = vi.fn();
     const renderer = await render(
       createElement(SubstituirExercicioModal, {
@@ -176,6 +229,12 @@ describe('SubstituirExercicioModal', () => {
       }),
     );
 
+    const input = renderer.root.findByType('TextInput');
+    await act(async () => {
+      (input.props as { onChangeText: (v: string) => void }).onChangeText('busca qualquer');
+    });
+    expect(renderer.root.findByType('TextInput').props.value).toBe('busca qualquer');
+
     const closeBtn = renderer.root
       .findAllByType('Pressable')
       .find((p) => p.findAllByType('Text').some((t) => t.props.children === '✕'));
@@ -184,5 +243,6 @@ describe('SubstituirExercicioModal', () => {
     });
 
     expect(onFechar).toHaveBeenCalled();
+    expect(renderer.root.findByType('TextInput').props.value).toBe('');
   });
 });

@@ -27,27 +27,32 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
   const [query, setQuery] = useState('');
 
   const temBusca = query.trim().length > 0;
-  const candidatoCasa = (item: CandidatoSubstituto) =>
-    matchesExerciseQuery(query, {
-      name: item.exercicio.name,
-      nameVariations: item.exercicio.nameVariations,
-      groupMuscles: item.exercicio.groupMuscles,
-      equipment: item.exercicio.equipment,
-      primaryEquipment: item.exercicio.primaryEquipment,
-      secondaryEquipment: item.exercicio.secondaryEquipment,
-    });
 
-  const naoCatalogo = candidatos.filter((item) => item.similaridade !== 'catalogo');
-  const candidatosFiltrados = temBusca ? naoCatalogo.filter(candidatoCasa) : naoCatalogo;
+  const naoCatalogo = useMemo(() => candidatos.filter((item) => item.similaridade !== 'catalogo'), [candidatos]);
 
-  const predefinidos = candidatosFiltrados.filter((item) => item.predefinido);
-  const quaseIguais = candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'quase_igual');
-  const similares   = candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'similar');
-  const mesmoGrupo  = candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'mesmo_grupo');
+  const { predefinidos, quaseIguais, similares, mesmoGrupo, catalogo } = useMemo(() => {
+    const candidatoCasa = (item: CandidatoSubstituto) =>
+      matchesExerciseQuery(query, {
+        name: item.exercicio.name,
+        nameVariations: item.exercicio.nameVariations,
+        groupMuscles: item.exercicio.groupMuscles,
+        equipment: item.exercicio.equipment,
+        primaryEquipment: item.exercicio.primaryEquipment,
+        secondaryEquipment: item.exercicio.secondaryEquipment,
+      });
 
-  const catalogo = temBusca
-    ? candidatos.filter((item) => item.similaridade === 'catalogo').filter(candidatoCasa).slice(0, LIMITE_CATALOGO)
-    : [];
+    const candidatosFiltrados = temBusca ? naoCatalogo.filter(candidatoCasa) : naoCatalogo;
+
+    return {
+      predefinidos: candidatosFiltrados.filter((item) => item.predefinido),
+      quaseIguais: candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'quase_igual'),
+      similares: candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'similar'),
+      mesmoGrupo: candidatosFiltrados.filter((item) => !item.predefinido && item.similaridade === 'mesmo_grupo'),
+      catalogo: temBusca
+        ? candidatos.filter((item) => item.similaridade === 'catalogo').filter(candidatoCasa).slice(0, LIMITE_CATALOGO)
+        : [],
+    };
+  }, [candidatos, naoCatalogo, query, temBusca]);
 
   const totalVisivel = predefinidos.length + quaseIguais.length + similares.length + mesmoGrupo.length + catalogo.length;
 
@@ -81,7 +86,7 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
             <TextInput
               style={styles.buscaInput}
               placeholder={t('sessao.substituir.buscar')}
-              placeholderTextColor={c.textSecondary}
+              placeholderTextColor={c.inputPlaceholder}
               value={query}
               onChangeText={setQuery}
               autoCapitalize="none"
@@ -170,11 +175,11 @@ export function SubstituirExercicioModal({ visible, candidatos, onConfirmar, onF
               </>
             ) : null}
 
-            {candidatos.length === 0 ? (
+            {!temBusca && naoCatalogo.length === 0 ? (
               <Text style={styles.emptyText}>{t('sessao.substituir.vazio')}</Text>
             ) : null}
 
-            {candidatos.length > 0 && temBusca && totalVisivel === 0 ? (
+            {temBusca && totalVisivel === 0 ? (
               <Text style={styles.emptyText}>{t('sessao.substituir.semResultado')}</Text>
             ) : null}
           </ScrollView>
