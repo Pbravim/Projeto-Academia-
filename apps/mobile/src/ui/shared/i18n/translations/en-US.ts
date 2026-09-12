@@ -135,6 +135,15 @@ export const enUS = {
       concluirTitle: 'Complete exercise',
       concluirMessage: 'Mark "%{nome}" as complete?',
     },
+    degrau: {
+      adicionar: '+ drop',
+      titulo: 'Step %{n}',
+      prescrito: 'Step 2 — prescribed by the workout',
+      descansoLabel: 'Rest (s)',
+      remover: 'Remove step',
+      erroInvalido: 'Invalid step load/reps',
+      registrarFalhou: 'Could not record the step.',
+    },
     biset: {
       setsRegistrados: 'Sets recorded',
       cargaInvalidaPara: 'Invalid load for %{nome}.',
@@ -196,6 +205,8 @@ export const enUS = {
       carregarSubstitutos: 'Could not load substitutes.',
       substituir: 'Could not swap the exercise.',
       atualizarTecnica: 'Could not update the technique.',
+      registrarSegmento: 'Could not record the step.',
+      removerSegmento: 'Could not remove the step.',
     },
   },
   dashboard: {

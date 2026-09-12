@@ -63,6 +63,26 @@ describe('buildHistoricoExercicioViewModel', () => {
       expect(vm.sessionRows[0].volumeLabel).toBe('640 kg');
     });
 
+    it('repassa os segmentos (degraus) ordenados e soma o volume da pilha', () => {
+      const execucaoComSegmentos: ExecucaoExercicio = {
+        sessaoTreinoId: 's1',
+        dataExecucao: '2026-05-03T10:00:00.000Z',
+        nomeSnapshot: 'Supino reto',
+        series: [
+          {
+            id: 'sr1', tipoSerie: 'valida', cargaKg: 60, repeticoes: 5, observacao: null, ordem: 1,
+            segmentos: [
+              { ordem: 3, cargaKg: 40, repeticoes: 3, descansoSegundos: null },
+              { ordem: 2, cargaKg: 50, repeticoes: 4, descansoSegundos: null },
+            ],
+          },
+        ],
+      };
+      const vm = buildHistoricoExercicioViewModel('Supino reto', [execucaoComSegmentos]);
+      expect(vm.sessionRows[0].sets[0].degrausLabel).toBe('60×5 → 50×4 → 40×3');
+      expect(vm.sessionRows[0].volumeLabel).toBe(`${60 * 5 + 50 * 4 + 40 * 3} kg`);
+    });
+
     it('ordena sets pela ordem registrada', () => {
       const vm = buildHistoricoExercicioViewModel('Supino reto', [
         execucao('s1', [

@@ -46,10 +46,14 @@ export function SessionSeriesTable({ rows, showVolume = false }: Props) {
                   style={[styles.setChip, s.isBest ? styles.setChipBest : null]}
                 >
                   <Text style={[styles.set, s.muted ? styles.setMuted : null, s.isBest ? styles.setBest : null]}>
-                    {s.cargaLabel}
-                    <Text style={styles.setUnit}>kg</Text>
-                    <Text style={styles.setTimes}> × </Text>
-                    {s.repsLabel}
+                    {s.degrausLabel ?? (
+                      <>
+                        {s.cargaLabel}
+                        <Text style={styles.setUnit}>kg</Text>
+                        <Text style={styles.setTimes}> × </Text>
+                        {s.repsLabel}
+                      </>
+                    )}
                   </Text>
                 </View>
               ))}

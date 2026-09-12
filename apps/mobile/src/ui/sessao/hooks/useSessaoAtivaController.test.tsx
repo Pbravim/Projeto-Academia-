@@ -56,6 +56,8 @@ function makeDeps(overrides?: Partial<SessaoAtivaControllerDependencies>): Sessa
   return {
     getSessaoDetalhe: { execute: vi.fn().mockResolvedValue(detalheBase) } as never,
     registrarSerie: { execute: vi.fn().mockResolvedValue(undefined) } as never,
+    registrarSegmento: { execute: vi.fn().mockResolvedValue(undefined) } as never,
+    removerSegmento: { execute: vi.fn().mockResolvedValue(undefined) } as never,
     deleteSerie: { execute: vi.fn().mockResolvedValue(undefined) } as never,
     updateSerie: { execute: vi.fn().mockResolvedValue(undefined) } as never,
     toggleExercicioRealizado: { execute: vi.fn().mockResolvedValue(undefined) } as never,
@@ -265,5 +267,126 @@ describe('useSessaoAtivaController', () => {
     await flush();
     expect(deps.listExercises.execute).toHaveBeenCalledTimes(1);
     expect(result.current.availableExercises.map((e) => e.id)).toEqual(['ex2']);
+  });
+
+  it('onRegistrarSeriesEmLote appends the series incrementally without reloading the session', async () => {
+    const novaSerie = {
+      id: 'sr-lote', sessaoExercicioId: 'se1', ordem: 1, tipoSerie: 'valida',
+      cargaKg: 60, repeticoes: 8, observacao: null,
+      duracaoSegundos: null, distanciaMetros: null, intensidade: null,
+    };
+    const deps = makeDeps({
+      registrarSerie: { execute: vi.fn().mockResolvedValue(novaSerie) } as never,
+    });
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => {
+      await result.current.onRegistrarSeriesEmLote([
+        { sessaoExercicioId: 'se1', cargaKg: 60, repeticoes: 8 } as never,
+      ]);
+    });
+    expect(deps.registrarSerie.execute).toHaveBeenCalled();
+    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(1);
+    expect(result.current.detalhe?.exercicios[0].series).toContainEqual(novaSerie);
+  });
+
+  it('onRegistrarSeriesEmLote with segmentos reloads the detalhe', async () => {
+    const deps = makeDeps();
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => {
+      await result.current.onRegistrarSeriesEmLote([
+        { sessaoExercicioId: 'se1', cargaKg: 60, repeticoes: 8, segmentos: [{ cargaKg: 50, repeticoes: 6 }] } as never,
+      ]);
+    });
+    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
+  });
+
+  it('onRegistrarSeriesEmLote surfaces a translated error on failure', async () => {
+    const deps = makeDeps({
+      registrarSerie: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => {
+      await result.current.onRegistrarSeriesEmLote([
+        { sessaoExercicioId: 'se1', cargaKg: 60, repeticoes: 8 } as never,
+      ]);
+    });
+    expect(result.current.errorMessage).toBe('Não foi possível registrar as séries.');
+  });
+
+  it('onRegistrarSerie with segmentos reloads the detalhe (segmentos vêm hidratados do use case)', async () => {
+    const deps = makeDeps();
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => {
+      await result.current.onRegistrarSerie({
+        sessaoExercicioId: 'se1',
+        cargaKg: 60,
+        repeticoes: 8,
+        segmentos: [{ cargaKg: 50, repeticoes: 6 }],
+      } as never);
+    });
+    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
+  });
+
+  it('onRegistrarSegmento recarrega o detalhe on success', async () => {
+    const deps = makeDeps();
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => {
+      await result.current.onRegistrarSegmento({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
+    });
+    expect(deps.registrarSegmento.execute).toHaveBeenCalledWith({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
+    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
+    expect(result.current.errorMessage).toBeNull();
+  });
+
+  it('onRegistrarSegmento surfaces a translated error on failure', async () => {
+    const deps = makeDeps({
+      registrarSegmento: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => {
+      await result.current.onRegistrarSegmento({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
+    });
+    expect(result.current.errorMessage).toBe('Não foi possível registrar o degrau.');
+  });
+
+  it('onRemoverSegmento recarrega o detalhe on success', async () => {
+    const deps = makeDeps();
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => { await result.current.onRemoverSegmento('seg1'); });
+    expect(deps.removerSegmento.execute).toHaveBeenCalledWith('seg1');
+    expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
+  });
+
+  it('onRemoverSegmento surfaces a translated error on failure', async () => {
+    const deps = makeDeps({
+      removerSegmento: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
+    );
+    await flush();
+    await act(async () => { await result.current.onRemoverSegmento('seg1'); });
+    expect(result.current.errorMessage).toBe('Não foi possível remover o degrau.');
   });
 });

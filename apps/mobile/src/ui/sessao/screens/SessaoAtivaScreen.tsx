@@ -85,6 +85,8 @@ export function SessaoAtivaScreen({
   onConfirmarSubstituicao,
   onFecharSubstituicao,
   onAtualizarMetodo,
+  onRegistrarSegmento,
+  onRemoverSegmento,
 }: SessaoAtivaControllerState) {
   const c = useTheme();
   const locale = useLocale();
@@ -211,6 +213,8 @@ export function SessaoAtivaScreen({
               onToggleRealizadoGrupo={onToggleRealizadoGrupo}
               onAbrirSubstituicao={onAbrirSubstituicao}
               onAtualizarMetodo={onAtualizarMetodo}
+              onRegistrarSegmento={onRegistrarSegmento}
+              onRemoverSegmento={onRemoverSegmento}
               onProximoExercicio={handleProximoExercicio}
               onFinalizarSessao={() => { void onFinalizar(); }}
               onBack={() => setSelectedExercicioId(null)}
@@ -245,6 +249,8 @@ export function SessaoAtivaScreen({
             onToggleRealizado={onToggleRealizado}
             onAbrirSubstituicao={onAbrirSubstituicao}
             onAtualizarMetodo={onAtualizarMetodo}
+            onRegistrarSegmento={onRegistrarSegmento}
+            onRemoverSegmento={onRemoverSegmento}
             onProximoExercicio={handleProximoExercicio}
             onFinalizarSessao={() => { void onFinalizar(); }}
             onBack={() => setSelectedExercicioId(null)}

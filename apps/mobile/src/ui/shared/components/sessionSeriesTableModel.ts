@@ -7,6 +7,8 @@ export interface SessionTableInputSet {
   repeticoes: number;
   /** Ex.: aquecimento — exibido esmaecido e fora de melhor set/1RM/volume. */
   muted?: boolean;
+  /** Degraus (drop set/rest-pause/piramide) sobre esta série-mãe, já em ordem de exibição. */
+  segmentos?: { cargaKg: number; repeticoes: number }[];
 }
 
 export interface SessionTableInputSession {
@@ -23,6 +25,8 @@ export interface SessionTableSetVM {
   repsLabel: string;
   isBest: boolean;
   muted: boolean;
+  /** Pilha "60×8 → 50×6" da série-mãe + degraus. `null` quando não há degraus. */
+  degrausLabel: string | null;
 }
 
 export interface SessionTableRowVM {
@@ -82,15 +86,24 @@ export function buildSessionTableRows(
         !bestMarked &&
         calcularEstimativa1rm(x.cargaKg, x.repeticoes) === best;
       if (isBest) bestMarked = true;
+      const degrausLabel = x.segmentos && x.segmentos.length > 0
+        ? [
+            `${formatCarga(x.cargaKg, locale)}×${x.repeticoes}`,
+            ...x.segmentos.map((seg) => `${formatCarga(seg.cargaKg, locale)}×${seg.repeticoes}`),
+          ].join(' → ')
+        : null;
       return {
         cargaLabel: formatCarga(x.cargaKg, locale),
         repsLabel: String(x.repeticoes),
         isBest,
         muted: x.muted ?? false,
+        degrausLabel,
       };
     });
 
-    const volume = valid.reduce((acc, x) => acc + x.cargaKg * x.repeticoes, 0);
+    const volumeDegraus = (x: SessionTableInputSet) =>
+      (x.segmentos ?? []).reduce((sum, seg) => sum + seg.cargaKg * seg.repeticoes, 0);
+    const volume = valid.reduce((acc, x) => acc + x.cargaKg * x.repeticoes + volumeDegraus(x), 0);
     const prevBest = bestOrms[i + 1];
     const trend =
       prevBest == null || prevBest === 0 || best === 0
