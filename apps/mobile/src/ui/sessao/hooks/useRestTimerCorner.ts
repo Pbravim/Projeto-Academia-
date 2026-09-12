@@ -90,7 +90,12 @@ export function useRestTimerCorner(): RestTimerCornerState {
           const nextCorner = snapToNearest(gestureState.moveX, gestureState.moveY, width, height);
           setCorner(nextCorner);
           void Storage.setItem(REST_TIMER_CORNER_KEY, nextCorner);
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+          // Reset instantâneo, sem spring (achado #2, review-a-1.md: salto
+          // visual no release). `positionStyle` já re-ancora no canto novo
+          // no mesmo render; animar de (dx,dy) de volta a zero pintaria o
+          // elemento fora da tela por um frame ao cruzar de canto (ex.:
+          // bottom-right → top-left cai em topLeft + (−300,−600)).
+          pan.setValue({ x: 0, y: 0 });
         },
       }),
     [pan, width, height],

@@ -29,6 +29,11 @@ let capturedConfig: {
   onPanResponderTerminationRequest?: () => boolean;
 } = {};
 
+// setValue espiado para o achado #2 (salto visual no release): confirma que o
+// reset usa `pan.setValue` direto, não `Animated.spring`.
+const setValueSpy = vi.hoisted(() => vi.fn());
+const springSpy = vi.hoisted(() => vi.fn());
+
 vi.mock('react-native', () => ({
   PanResponder: {
     create: (config: typeof capturedConfig) => {
@@ -38,14 +43,17 @@ vi.mock('react-native', () => ({
   },
   Animated: {
     ValueXY: class {
-      setValue() {
-        // no-op: only the returned positionStyle/corner matter to tests
+      setValue(value: { x: number; y: number }) {
+        setValueSpy(value);
       }
       getTranslateTransform() {
         return [{ translateX: 0 }, { translateY: 0 }];
       }
     },
-    spring: () => ({ start: (cb?: () => void) => cb?.() }),
+    spring: (...args: unknown[]) => {
+      springSpy(...args);
+      return { start: (cb?: () => void) => cb?.() };
+    },
   },
   useWindowDimensions: () => ({ width: 400, height: 800 }),
 }));
@@ -130,6 +138,21 @@ describe('useRestTimerCorner', () => {
 
     const { Storage } = await import('expo-sqlite/kv-store');
     expect(Storage.setItem).toHaveBeenCalledWith(REST_TIMER_CORNER_KEY, 'top-left');
+  });
+
+  it('resets pan instantly on release, without an Animated.spring (no visual jump)', async () => {
+    await renderHook(() => useRestTimerCorner());
+    await flush();
+
+    await act(async () => {
+      capturedConfig.onPanResponderMove?.({}, { dx: -300, dy: -600 });
+      capturedConfig.onPanResponderRelease?.({}, { moveX: 50, moveY: 50 });
+      await Promise.resolve();
+    });
+    await flush();
+
+    expect(setValueSpy).toHaveBeenLastCalledWith({ x: 0, y: 0 });
+    expect(springSpy).not.toHaveBeenCalled();
   });
 
   it('does not offset position for the keyboard (KeyboardAvoidingView on the screens already handles it)', async () => {
