@@ -192,7 +192,29 @@ model SerieRegistrada {
   serverRev        String?   @map("server_rev")
   serverUpdatedAt  DateTime? @map("server_updated_at") @db.Timestamptz
 
+  segmentos SerieSegmento[]
+
   @@map("series_registradas")
+}
+
+model SerieSegmento {
+  id               String    @id
+  serieId          String    @map("serie_id")
+  serie            SerieRegistrada @relation(fields: [serieId], references: [id], onDelete: Cascade)
+  ordem            Int
+  cargaKg          Float?    @map("carga_kg")
+  repeticoes       Int?
+  descansoSegundos Int?      @map("descanso_segundos")
+  createdAt        String    @map("created_at")
+  updatedAt        String    @map("updated_at")
+  deletedAt        String?   @map("deleted_at")
+  dirty            Boolean   @default(true)
+  serverRev        String?   @map("server_rev")
+  serverUpdatedAt  DateTime? @map("server_updated_at") @db.Timestamptz
+
+  @@index([serieId])
+  @@index([serverUpdatedAt])
+  @@map("serie_segmentos")
 }
 
 model RegistroPeso {

@@ -16,6 +16,13 @@ const emptyChanges = () => ({
   exerciseAlternatives: [],
 });
 
+const now = '2026-09-12T10:00:00.000Z';
+const validSegmento = () => ({
+  id: 'seg-1', serieId: 'serie-1', ordem: 2,
+  cargaKg: 60, repeticoes: 8, descansoSegundos: 90,
+  createdAt: now, updatedAt: now, deletedAt: null,
+});
+
 describe('SyncRequestDto validation', () => {
   it('accepts a valid empty sync payload', async () => {
     const result = await asBody({ since: null, changes: emptyChanges() });
@@ -99,6 +106,56 @@ describe('SyncRequestDto validation', () => {
         },
       }),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('accepts a valid serieSegmento row', async () => {
+    const result = await asBody({
+      since: null,
+      changes: { ...emptyChanges(), serieSegmentos: [validSegmento()] },
+    });
+    expect(result.changes.serieSegmentos[0]).toMatchObject({ id: 'seg-1', ordem: 2 });
+  });
+
+  it('accepts a body without serieSegmentos (cliente anterior ao campo)', async () => {
+    const changes = emptyChanges();
+    const result = await asBody({ since: null, changes });
+    expect(result.changes.serieSegmentos).toBeUndefined();
+  });
+
+  it('rejects a serieSegmento with ordem menor que 2 (degrau 1 é a série-mãe)', async () => {
+    await expect(
+      asBody({
+        since: null,
+        changes: { ...emptyChanges(), serieSegmentos: [{ ...validSegmento(), ordem: 1 }] },
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('rejects a serieSegmento com descansoSegundos negativo', async () => {
+    await expect(
+      asBody({
+        since: null,
+        changes: { ...emptyChanges(), serieSegmentos: [{ ...validSegmento(), descansoSegundos: -1 }] },
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('accepts metodo legado bi_set/circuito (@IsString mantido, sem @IsIn)', async () => {
+    const result = await asBody({
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        treinoExercicios: [{
+          id: 'te1', treinoId: 't1', exercicioId: 'ex1', ordem: 1,
+          seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null,
+          tempoDescansoSegundos: null, metodo: 'bi_set', grupoId: null,
+          duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null,
+          intensidadeRecomendada: null,
+          updatedAt: now, deletedAt: null,
+        }],
+      },
+    });
+    expect(result.changes.treinoExercicios[0].metodo).toBe('bi_set');
   });
 
   it('is the metatype of the controller @Body param (route actually validates)', () => {
