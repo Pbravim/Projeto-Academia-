@@ -16,11 +16,11 @@ const emptyChanges = () => ({
   exerciseAlternatives: [],
 });
 
-const now = '2026-09-12T10:00:00.000Z';
+const SEGMENTO_NOW = '2026-09-12T10:00:00.000Z';
 const validSegmento = () => ({
   id: 'seg-1', serieId: 'serie-1', ordem: 2,
   cargaKg: 60, repeticoes: 8, descansoSegundos: 90,
-  createdAt: now, updatedAt: now, deletedAt: null,
+  createdAt: SEGMENTO_NOW, updatedAt: SEGMENTO_NOW, deletedAt: null,
 });
 
 describe('SyncRequestDto validation', () => {
@@ -151,7 +151,7 @@ describe('SyncRequestDto validation', () => {
           tempoDescansoSegundos: null, metodo: 'bi_set', grupoId: null,
           duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null,
           intensidadeRecomendada: null,
-          updatedAt: now, deletedAt: null,
+          updatedAt: SEGMENTO_NOW, deletedAt: null,
         }],
       },
     });

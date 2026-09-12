@@ -433,7 +433,7 @@ describe('mobileDependencies — backup & sync', () => {
     expect(state.secure.has('auth.session')).toBe(false);
   });
 
-  it('troca de conta limpa o dirty das 8 tabelas que participam do push', async () => {
+  it('troca de conta limpa o dirty das 9 tabelas que participam do push', async () => {
     skipSeeding();
     state.secure.set('auth.session', JSON.stringify(TOKENS));
     state.settings.set(ACCOUNT_KEY, 'outra-conta@academia.app');
@@ -453,6 +453,7 @@ describe('mobileDependencies — backup & sync', () => {
       'sessao_treinos',
       'sessao_exercicios',
       'series_registradas',
+      'serie_segmentos',
       'registros_peso',
       'exercise_alternatives',
     ]);
