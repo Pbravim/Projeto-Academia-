@@ -88,9 +88,12 @@ describe('SeriesRegistradasList', () => {
       );
     });
     const texts = renderer.root.findAllByType('Text' as never).map((t) => t.props.children).flat();
-    expect(texts).toContain('60×8 → 50×6');
+    // achado #5: cada degrau é um chip próprio "50×6" (não mais a pilha "60×8 → 50×6" concatenada)
+    expect(texts).toContain('50×6');
     const pressables = renderer.root.findAllByType('Pressable' as never);
-    const removeDegrauBtn = pressables.find((p) => p.props.accessibilityLabel === 'sessao.degrau.remover');
+    const removeDegrauBtn = pressables.find(
+      (p) => typeof p.props.accessibilityLabel === 'string' && p.props.accessibilityLabel.startsWith('sessao.degrau.removerN'),
+    );
     expect(removeDegrauBtn).toBeDefined();
     await act(async () => { removeDegrauBtn!.props.onPress(); });
     expect(onRemoverSegmento).toHaveBeenCalledWith('seg1');
@@ -275,5 +278,37 @@ describe('SeriesRegistradasList', () => {
     const inputsAfter = renderer.root.findAllByType('TextInput' as never);
     expect(inputsAfter[0].props.value).toBe('50');
     expect(inputsAfter[1].props.value).toBe('6');
+  });
+
+  it('deletes a série via its ✕, disabling the button while the promise is pending (achado #6)', async () => {
+    let resolveDelete!: () => void;
+    const onDeleteSerie = vi.fn(() => new Promise<void>((resolve) => { resolveDelete = resolve; }));
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SeriesRegistradasList, {
+          series: [serie()],
+          trackingType: 'reps_load',
+          realizado: false,
+          bestSerieId: null,
+          locale: 'pt-BR',
+          onDeleteSerie,
+          onUpdateSerie: vi.fn(),
+          onRegistrarSegmento: vi.fn(),
+          onRemoverSegmento: vi.fn(),
+        }),
+      );
+    });
+    const findDeleteBtn = () =>
+      renderer.root
+        .findAllByType('Pressable' as never)
+        .find((p) => typeof p.props.accessibilityLabel === 'string' && p.props.accessibilityLabel.startsWith('sessao.a11y.removerSerie'))!;
+
+    act(() => { findDeleteBtn().props.onPress(); });
+    expect(onDeleteSerie).toHaveBeenCalledWith('sr1');
+    expect(findDeleteBtn().props.disabled).toBe(true);
+
+    await act(async () => { resolveDelete(); });
+    expect(findDeleteBtn().props.disabled).toBe(false);
   });
 });

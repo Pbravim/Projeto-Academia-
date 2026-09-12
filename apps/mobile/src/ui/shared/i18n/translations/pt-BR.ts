@@ -27,6 +27,7 @@ export const ptBR = {
       verMidia: 'Ver demonstração do exercício',
       concluirExercicio: 'Concluir exercício',
       concluirGrupo: 'Concluir grupo de exercícios',
+      removerSerie: 'Remover série %{n}',
     },
     common: {
       concluir: 'Concluir',
@@ -142,6 +143,7 @@ export const ptBR = {
       prescrito: 'Degrau 2 — prescrito no treino',
       descansoLabel: 'Descanso (s)',
       remover: 'Remover degrau',
+      removerN: 'Remover degrau %{n} (%{carga}kg × %{reps})',
       erroInvalido: 'Carga e repetições do degrau inválidas',
     },
     biset: {

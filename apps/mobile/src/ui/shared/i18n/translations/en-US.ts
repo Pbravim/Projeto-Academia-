@@ -26,6 +26,7 @@ export const enUS = {
       verMidia: 'View exercise demo',
       concluirExercicio: 'Complete exercise',
       concluirGrupo: 'Complete exercise group',
+      removerSerie: 'Remove set %{n}',
     },
     common: {
       concluir: 'Complete',
@@ -141,6 +142,7 @@ export const enUS = {
       prescrito: 'Step 2 — prescribed by the workout',
       descansoLabel: 'Rest (s)',
       remover: 'Remove step',
+      removerN: 'Remove step %{n} (%{carga}kg × %{reps})',
       erroInvalido: 'Invalid step load/reps',
     },
     biset: {

@@ -186,7 +186,7 @@ describe('BiSetDetalheScreen', () => {
     });
     const removeDegrauBtn = renderer.root
       .findAllByType('Pressable' as never)
-      .find((p) => p.props.accessibilityLabel === 'sessao.degrau.remover');
+      .find((p) => p.props.accessibilityLabel === 'sessao.degrau.removerN');
     expect(removeDegrauBtn).toBeDefined();
     await act(async () => { removeDegrauBtn!.props.onPress(); });
     expect(onRemoverSegmento).toHaveBeenCalledWith('seg1');
@@ -307,7 +307,12 @@ describe('BiSetDetalheScreen', () => {
     });
     const deleteBtn = renderer.root
       .findAllByType('Pressable' as never)
-      .find((p) => extractText(p.props.children) === '✕' && !p.props.accessibilityLabel);
+      .find(
+        (p) =>
+          extractText(p.props.children) === '✕' &&
+          typeof p.props.accessibilityLabel === 'string' &&
+          p.props.accessibilityLabel.startsWith('sessao.a11y.removerSerie'),
+      );
     expect(deleteBtn).toBeDefined();
     await act(async () => { await deleteBtn!.props.onPress(); });
     expect(onDeleteSeries).toHaveBeenCalledWith(['sr1', 'sr2']);

@@ -654,15 +654,19 @@ export function BiSetDetalheScreen({
                             <View style={styles.setLine}>
                               <Text style={styles.setExercicioNome} numberOfLines={1}>{firstName}</Text>
                               <Text style={styles.setMetric}>{degrausLabel ?? `${serie.cargaKg}kg × ${serie.repeticoes}`}</Text>
-                              {!allRealizado ? (serie.segmentos ?? []).map((segmento) => (
+                              {!allRealizado ? [...(serie.segmentos ?? [])].sort((a, b) => a.ordem - b.ordem).map((segmento, idx) => (
                                 <Pressable
                                   key={segmento.id}
                                   accessibilityRole="button"
-                                  accessibilityLabel={t('sessao.degrau.remover')}
+                                  accessibilityLabel={t('sessao.degrau.removerN', {
+                                    n: idx + 2,
+                                    carga: segmento.cargaKg ?? 0,
+                                    reps: segmento.repeticoes ?? 0,
+                                  })}
                                   onPress={() => { void onRemoverSegmento(segmento.id); }}
-                                  style={({ pressed }) => [styles.deleteBtn, pressed ? { opacity: 0.5 } : null]}
+                                  style={({ pressed }) => [styles.degrauRemoveBtn, pressed ? { opacity: 0.5 } : null]}
                                 >
-                                  <Text style={styles.deleteBtnText}>✕</Text>
+                                  <Text style={styles.degrauRemoveBtnText}>✕</Text>
                                 </Pressable>
                               )) : null}
                               {!allRealizado ? (
@@ -698,6 +702,8 @@ export function BiSetDetalheScreen({
                     {!allRealizado ? (
                       <Pressable
                         disabled={isDeleting}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('sessao.a11y.removerSerie', { n: setIdx + 1 })}
                         onPress={() => { void handleDeleteSet(setIdx); }}
                         style={({ pressed }) => [styles.deleteBtn, (pressed || isDeleting) ? { opacity: 0.4 } : null]}
                       >
@@ -832,6 +838,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     addDegrauBtnText: { color: c.accent, fontSize: 11, fontWeight: '700' },
     deleteBtn: { padding: 4 },
     deleteBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
+    degrauRemoveBtn: { padding: 2 },
+    degrauRemoveBtnText: { color: c.error, fontSize: 11, fontWeight: '700' },
     flex1: { flex: 1 },
   });
 }
