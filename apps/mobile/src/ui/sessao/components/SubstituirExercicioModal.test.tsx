@@ -128,10 +128,30 @@ describe('SubstituirExercicioModal', () => {
       }),
     );
 
-    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    let texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
     expect(texts).toContain('sessao.substituir.vazio');
     expect(texts).not.toContain('sessao.substituir.semResultado');
     expect(texts).not.toContain('Remada curvada');
+
+    // achado #1 (review-b-2): a metade "!temBusca" do predicado do vazio
+    // precisa de teste — com busca que casa o candidato catalogo, "vazio"
+    // deve sumir e o candidato deve aparecer (nao so "semResultado" sumir).
+    const input = renderer.root.findByType('TextInput');
+    await act(async () => {
+      (input.props as { onChangeText: (v: string) => void }).onChangeText('remada');
+    });
+    texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).not.toContain('sessao.substituir.vazio');
+    expect(texts).toContain('Remada curvada');
+
+    // e com busca que nao casa nada, "vazio" continua ausente — quem deve
+    // aparecer e "semResultado".
+    await act(async () => {
+      (renderer.root.findByType('TextInput').props as { onChangeText: (v: string) => void }).onChangeText('zzz');
+    });
+    texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).not.toContain('sessao.substituir.vazio');
+    expect(texts).toContain('sessao.substituir.semResultado');
   });
 
   it('limita a secao "Todo o catalogo" a 30 candidatos, na ordem recebida (achado #2, review-b-1)', async () => {
