@@ -1,7 +1,7 @@
 import { SerieRegistrada, type SerieRegistradaPrimitives } from '../../domain/sessoes/entities/SerieRegistrada';
 import type { SerieRegistradaRepository } from '../../domain/sessoes/repositories/SerieRegistradaRepository';
 import { nowIso } from '../../shared/utils/syncStamp';
-import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+import type { SQLiteBindParams,SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 
 interface SerieRegistradaRow {
   id: string;
@@ -72,7 +72,24 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
     return row?.maxOrdem ?? 0;
   }
 
+  /**
+   * Tombstona os segmentos (serie_segmentos) das series que casam com `whereSeries` ANTES
+   * do UPDATE da mae: o sync de C3 nao pode empurrar filhos vivos de uma mae morta.
+   * ON DELETE CASCADE cobre so o DELETE fisico (rebuild de tabela); soft-delete precisa
+   * deste passo explicito porque splitSqlStatements nao entende BEGIN...END de trigger.
+   */
+  private async tombstoneSegmentosDe(whereSeries: string, params: SQLiteBindParams): Promise<void> {
+    await this.database.run(
+      `UPDATE serie_segmentos SET deleted_at = ?, updated_at = ?, dirty = 1
+       WHERE deleted_at IS NULL AND serie_id IN (
+         SELECT id FROM series_registradas WHERE ${whereSeries}
+       )`,
+      [nowIso(), nowIso(), ...params]
+    );
+  }
+
   async delete(id: string): Promise<void> {
+    await this.tombstoneSegmentosDe('id = ?', [id]);
     await this.database.run(
       'UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?',
       [nowIso(), nowIso(), id]
@@ -80,6 +97,7 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   }
 
   async deleteBySessaoExercicioId(sessaoExercicioId: string): Promise<void> {
+    await this.tombstoneSegmentosDe('sessao_exercicio_id = ? AND deleted_at IS NULL', [sessaoExercicioId]);
     await this.database.run(
       'UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE sessao_exercicio_id = ? AND deleted_at IS NULL',
       [nowIso(), nowIso(), sessaoExercicioId]
@@ -89,6 +107,7 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   async deleteBySessaoExercicioIds(ids: string[]): Promise<void> {
     if (ids.length === 0) return;
     const placeholders = ids.map(() => '?').join(', ');
+    await this.tombstoneSegmentosDe(`sessao_exercicio_id IN (${placeholders}) AND deleted_at IS NULL`, ids);
     await this.database.run(
       `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE sessao_exercicio_id IN (${placeholders}) AND deleted_at IS NULL`,
       [nowIso(), nowIso(), ...ids]
@@ -96,23 +115,27 @@ export class SQLiteSerieRegistradaRepository implements SerieRegistradaRepositor
   }
 
   async deleteByExercicioId(exercicioId: string): Promise<void> {
+    const whereSeries = `sessao_exercicio_id IN (
+         SELECT id FROM sessao_exercicios WHERE exercicio_id = ?
+       ) AND deleted_at IS NULL`;
+    await this.tombstoneSegmentosDe(whereSeries, [exercicioId]);
     await this.database.run(
       `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
-       WHERE sessao_exercicio_id IN (
-         SELECT id FROM sessao_exercicios WHERE exercicio_id = ?
-       ) AND deleted_at IS NULL`,
+       WHERE ${whereSeries}`,
       [nowIso(), nowIso(), exercicioId]
     );
   }
 
   async deleteByTreinoId(treinoId: string): Promise<void> {
-    await this.database.run(
-      `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
-       WHERE deleted_at IS NULL AND sessao_exercicio_id IN (
+    const whereSeries = `deleted_at IS NULL AND sessao_exercicio_id IN (
          SELECT se.id FROM sessao_exercicios se
          INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
          WHERE st.treino_id = ?
-       )`,
+       )`;
+    await this.tombstoneSegmentosDe(whereSeries, [treinoId]);
+    await this.database.run(
+      `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
+       WHERE ${whereSeries}`,
       [nowIso(), nowIso(), treinoId]
     );
   }

@@ -36,6 +36,11 @@ const seedSessao = async (id: string, status: string) => {
      VALUES (?, ?, 1, 80, 8, ?, 0)`,
     [`sr-${id}`, `se-${id}`, T],
   );
+  await db.run(
+    `INSERT INTO serie_segmentos (id, serie_id, ordem, carga_kg, repeticoes, created_at, updated_at, dirty)
+     VALUES (?, ?, 2, 60, 6, ?, ?, 0)`,
+    [`sg-${id}`, `sr-${id}`, T, T],
+  );
 };
 
 const getRow = (table: string, id: string) =>
@@ -59,6 +64,7 @@ describe('ResetHistoricoUseCase — tombstones, não DELETE físico', () => {
       ['sessao_treinos', 'st-fin'],
       ['sessao_exercicios', 'se-st-fin'],
       ['series_registradas', 'sr-st-fin'],
+      ['serie_segmentos', 'sg-st-fin'],
     ] as const) {
       const row = await getRow(table, id);
       expect(row, `${table}/${id} deve continuar existindo (tombstone)`).not.toBeNull();
@@ -72,6 +78,7 @@ describe('ResetHistoricoUseCase — tombstones, não DELETE físico', () => {
       ['sessao_treinos', 'st-can'],
       ['sessao_exercicios', 'se-st-can'],
       ['series_registradas', 'sr-st-can'],
+      ['serie_segmentos', 'sg-st-can'],
     ] as const) {
       const row = await getRow(table, id);
       expect(row, `${table}/${id} deve continuar existindo (tombstone)`).not.toBeNull();
@@ -85,6 +92,7 @@ describe('ResetHistoricoUseCase — tombstones, não DELETE físico', () => {
       ['sessao_treinos', 'st-and'],
       ['sessao_exercicios', 'se-st-and'],
       ['series_registradas', 'sr-st-and'],
+      ['serie_segmentos', 'sg-st-and'],
       ['treinos', 'tr-1'],
     ] as const) {
       const row = await getRow(table, id);
