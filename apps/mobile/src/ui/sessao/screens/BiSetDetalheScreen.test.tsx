@@ -357,6 +357,46 @@ describe('BiSetDetalheScreen', () => {
     ]);
   });
 
+  it('blocks the batch when Degrau 2 is filled but invalid (achado #1)', async () => {
+    const onRegistrarSeriesEmLote = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(BiSetDetalheScreen, baseProps({
+          grupoItens: [item({ id: 'se1', metodo: 'drop_set' }), item({ id: 'se2' })],
+          onRegistrarSeriesEmLote,
+        })),
+      );
+    });
+    const degrau2Inputs = renderer.root.findAllByType('TextInput' as never);
+    // só a carga preenchida, reps continua com o valor pre-fill do template -> ainda deveria
+    // ser válido; para invalidar de fato, zera reps também depois de preencher carga.
+    await act(async () => { degrau2Inputs[0].props.onChangeText('50'); });
+    await act(async () => { degrau2Inputs[1].props.onChangeText('0'); });
+    await act(async () => { await pressableWithText(renderer, 'sessao.biset.registrarBtn')!.props.onPress(); });
+    expect(onRegistrarSeriesEmLote).not.toHaveBeenCalled();
+  });
+
+  it('re-prefills Degrau 2 (carga vazia) after a successful batch (achado #8)', async () => {
+    const onRegistrarSeriesEmLote = vi.fn().mockResolvedValue(undefined);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(BiSetDetalheScreen, baseProps({
+          grupoItens: [item({ id: 'se1', metodo: 'drop_set' }), item({ id: 'se2' })],
+          onRegistrarSeriesEmLote,
+        })),
+      );
+    });
+    const degrau2Inputs = renderer.root.findAllByType('TextInput' as never);
+    await act(async () => { degrau2Inputs[0].props.onChangeText('50'); });
+    await act(async () => { degrau2Inputs[1].props.onChangeText('6'); });
+    await act(async () => { await pressableWithText(renderer, 'sessao.biset.registrarBtn')!.props.onPress(); });
+    expect(onRegistrarSeriesEmLote).toHaveBeenCalled();
+    const cargaInputAfter = renderer.root.findAllByType('TextInput' as never)[0];
+    expect(cargaInputAfter.props.value).toBe('');
+  });
+
   it('opens and confirms the inline "+ degrau" for a paired set row', async () => {
     const onRegistrarSegmento = vi.fn().mockResolvedValue(undefined);
     let renderer!: ReactTestRenderer;

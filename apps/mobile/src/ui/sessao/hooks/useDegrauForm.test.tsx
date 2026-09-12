@@ -2,10 +2,44 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { act, renderHook } from '../../../test/renderHook';
 
-import { useDegrauForm } from './useDegrauForm';
+import { parseDegrauInput, useDegrauForm } from './useDegrauForm';
 
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
+
+describe('parseDegrauInput', () => {
+  it('input null, error null quando vazio (convite)', () => {
+    expect(parseDegrauInput({ cargaText: '', repsText: '', descansoText: '' }, 'pt-BR')).toEqual({
+      input: null,
+      error: null,
+    });
+  });
+
+  it('input válido a partir de carga e reps', () => {
+    expect(parseDegrauInput({ cargaText: '50', repsText: '6', descansoText: '' }, 'pt-BR')).toEqual({
+      input: { cargaKg: 50, repeticoes: 6, descansoSegundos: undefined },
+      error: null,
+    });
+  });
+
+  it('input null, error traduzido quando preenchido porém inválido (só carga)', () => {
+    const result = parseDegrauInput({ cargaText: '50', repsText: '', descansoText: '' }, 'pt-BR');
+    expect(result.input).toBeNull();
+    expect(result.error).toBe('Carga e repetições do degrau inválidas');
+  });
+
+  it('input null, error traduzido quando reps é 0', () => {
+    const result = parseDegrauInput({ cargaText: '50', repsText: '0', descansoText: '' }, 'pt-BR');
+    expect(result.input).toBeNull();
+    expect(result.error).not.toBeNull();
+  });
+
+  it('descanso inválido também bloqueia', () => {
+    const result = parseDegrauInput({ cargaText: '50', repsText: '6', descansoText: '-1' }, 'pt-BR');
+    expect(result.input).toBeNull();
+    expect(result.error).not.toBeNull();
+  });
+});
 
 describe('useDegrauForm', () => {
   it('toInput returns null when the form is empty (convite, não obrigação)', async () => {

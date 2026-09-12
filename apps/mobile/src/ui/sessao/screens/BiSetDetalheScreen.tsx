@@ -16,7 +16,7 @@ import { DegrauForm } from '../components/DegrauForm';
 import { MetodoSelector } from '../components/MetodoSelector';
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
-import { useDegrauForm } from '../hooks/useDegrauForm';
+import { parseDegrauInput, useDegrauForm } from '../hooks/useDegrauForm';
 import { formatDegrausStack, mostraDescanso,precisaDegrauPrescrito } from '../presenters/segmentosPresentation';
 
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
@@ -179,31 +179,17 @@ export function BiSetDetalheScreen({
     updateArr(setCargaTexts, i, String(Math.max(0, Math.round((base + delta) * 10) / 10)));
   };
 
-  const parseDegrau2 = (i: number): { cargaKg: number; repeticoes: number; descansoSegundos?: number } | null => {
-    const cargaText = degrau2CargaTexts[i] ?? '';
-    const repsText = degrau2RepsTexts[i] ?? '';
-    if (cargaText.trim() === '' && repsText.trim() === '') {
-      updateArr<string | null>(setDegrau2Errors, i, null);
-      return null;
-    }
-    const cargaKg = parseDecimalInput(cargaText);
-    const repeticoes = parseInt(repsText, 10);
-    if (!Number.isFinite(cargaKg) || cargaKg < 0 || !Number.isInteger(repeticoes) || repeticoes < 1) {
-      updateArr<string | null>(setDegrau2Errors, i, translate(locale, 'sessao.degrau.erroInvalido'));
-      return null;
-    }
-    const descansoTexto = degrau2DescansoTexts[i] ?? '';
-    let descansoSegundos: number | undefined;
-    if (descansoTexto.trim() !== '') {
-      const descansoNum = parseInt(descansoTexto, 10);
-      if (!Number.isInteger(descansoNum) || descansoNum < 0) {
-        updateArr<string | null>(setDegrau2Errors, i, translate(locale, 'sessao.degrau.erroInvalido'));
-        return null;
-      }
-      descansoSegundos = descansoNum;
-    }
-    updateArr<string | null>(setDegrau2Errors, i, null);
-    return { cargaKg, repeticoes, descansoSegundos };
+  const parseDegrau2 = (i: number) => {
+    const result = parseDegrauInput(
+      {
+        cargaText: degrau2CargaTexts[i] ?? '',
+        repsText: degrau2RepsTexts[i] ?? '',
+        descansoText: degrau2DescansoTexts[i] ?? '',
+      },
+      locale,
+    );
+    updateArr<string | null>(setDegrau2Errors, i, result.error);
+    return result;
   };
 
   const handleAdd = async () => {
@@ -230,16 +216,34 @@ export function BiSetDetalheScreen({
           setIsSubmitting(false);
           return;
         }
-        const degrau2 = precisaDegrauPrescrito(item.sessaoExercicio.metodo) ? parseDegrau2(i) : null;
+        let degrau2Input: { cargaKg: number; repeticoes: number; descansoSegundos?: number } | null = null;
+        if (precisaDegrauPrescrito(item.sessaoExercicio.metodo)) {
+          const degrau2Result = parseDegrau2(i);
+          if (degrau2Result.error) {
+            // Degrau 2 preenchido porém inválido: bloqueia o registro (não é convite vazio) — achado #1.
+            setIsSubmitting(false);
+            return;
+          }
+          degrau2Input = degrau2Result.input;
+        }
         inputs.push({
           sessaoExercicioId: item.sessaoExercicio.id,
           cargaKg: cargaNum,
           repeticoes: repsNum,
           observacao: obs,
-          segmentos: degrau2 ? [degrau2] : undefined,
+          segmentos: degrau2Input ? [degrau2Input] : undefined,
         });
       }
       await onRegistrarSeriesEmLote(inputs);
+      // Re-prefila o Degrau 2 de cada exercício que o usou — mesmo comportamento
+      // de ExercicioDetalheScreen (achado #8): carga vazia, reps/descanso do template.
+      grupoItens.forEach((item, i) => {
+        if (!precisaDegrauPrescrito(item.sessaoExercicio.metodo)) return;
+        updateArr<string>(setDegrau2CargaTexts, i, '');
+        updateArr<string>(setDegrau2RepsTexts, i, String(item.sessaoExercicio.execucoesRecomendadas ?? 8));
+        updateArr<string>(setDegrau2DescansoTexts, i, item.sessaoExercicio.metodo === 'rest_pause' ? '15' : '');
+        updateArr<string | null>(setDegrau2Errors, i, null);
+      });
       if (descanso != null) startTimer(descanso);
       setObs('');
     } finally {
@@ -531,9 +535,6 @@ export function BiSetDetalheScreen({
                       setCargaText: (v) => updateArr(setDegrau2CargaTexts, i, v),
                       setRepsText: (v) => updateArr(setDegrau2RepsTexts, i, v),
                       setDescansoText: (v) => updateArr(setDegrau2DescansoTexts, i, v),
-                      reset: () => {},
-                      prefillFrom: () => {},
-                      toInput: () => parseDegrau2(i),
                     }}
                   />
                 ) : null}

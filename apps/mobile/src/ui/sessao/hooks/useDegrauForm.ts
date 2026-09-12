@@ -15,6 +15,48 @@ export interface DegrauFormInput {
   descansoSegundos?: number;
 }
 
+export interface DegrauFormFields {
+  cargaText: string;
+  repsText: string;
+  descansoText: string;
+}
+
+export interface DegrauParseResult {
+  input: DegrauFormInput | null;
+  /** Traduzido; `null` quando o formulário está vazio (convite, não erro). */
+  error: string | null;
+}
+
+/**
+ * Parse puro de um degrau — compartilhado entre `useDegrauForm` (um form por vez,
+ * ex. "+ degrau" inline) e telas que precisam de N forms em paralelo (BiSet: um
+ * Degrau 2 por exercício do grupo, onde usar o hook em loop não é viável).
+ */
+export function parseDegrauInput(fields: DegrauFormFields, locale: AppLocale): DegrauParseResult {
+  const { cargaText, repsText, descansoText } = fields;
+
+  if (cargaText.trim() === '' && repsText.trim() === '') {
+    return { input: null, error: null };
+  }
+
+  const cargaKg = parseDecimalInput(cargaText);
+  const repeticoes = parseInt(repsText, 10);
+  if (!Number.isFinite(cargaKg) || cargaKg < 0 || !Number.isInteger(repeticoes) || repeticoes < 1) {
+    return { input: null, error: translate(locale, 'sessao.degrau.erroInvalido') };
+  }
+
+  let descansoSegundos: number | undefined;
+  if (descansoText.trim() !== '') {
+    const descanso = parseInt(descansoText, 10);
+    if (!Number.isInteger(descanso) || descanso < 0) {
+      return { input: null, error: translate(locale, 'sessao.degrau.erroInvalido') };
+    }
+    descansoSegundos = descanso;
+  }
+
+  return { input: { cargaKg, repeticoes, descansoSegundos }, error: null };
+}
+
 export interface DegrauFormState {
   cargaText: string;
   repsText: string;
@@ -52,30 +94,9 @@ export function useDegrauForm(locale: AppLocale): DegrauFormState {
   };
 
   const toInput = (): DegrauFormInput | null => {
-    if (cargaText.trim() === '' && repsText.trim() === '') {
-      setError(null);
-      return null;
-    }
-
-    const cargaKg = parseDecimalInput(cargaText);
-    const repeticoes = parseInt(repsText, 10);
-    if (!Number.isFinite(cargaKg) || cargaKg < 0 || !Number.isInteger(repeticoes) || repeticoes < 1) {
-      setError(translate(locale, 'sessao.degrau.erroInvalido'));
-      return null;
-    }
-
-    let descansoSegundos: number | undefined;
-    if (descansoText.trim() !== '') {
-      const descanso = parseInt(descansoText, 10);
-      if (!Number.isInteger(descanso) || descanso < 0) {
-        setError(translate(locale, 'sessao.degrau.erroInvalido'));
-        return null;
-      }
-      descansoSegundos = descanso;
-    }
-
-    setError(null);
-    return { cargaKg, repeticoes, descansoSegundos };
+    const result = parseDegrauInput({ cargaText, repsText, descansoText }, locale);
+    setError(result.error);
+    return result.input;
   };
 
   return {

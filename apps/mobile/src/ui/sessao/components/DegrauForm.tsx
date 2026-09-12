@@ -5,9 +5,15 @@ import { useT } from '../../shared/i18n';
 import { useTheme } from '../../shared/theme';
 import type { DegrauFormState } from '../hooks/useDegrauForm';
 
+/** Só os campos/erro/setters — não exige `reset`/`prefillFrom`/`toInput` (chamados fora deste componente). */
+export type DegrauFormFieldsState = Pick<
+  DegrauFormState,
+  'cargaText' | 'repsText' | 'descansoText' | 'error' | 'setCargaText' | 'setRepsText' | 'setDescansoText'
+>;
+
 interface Props {
   titulo: string;
-  form: DegrauFormState;
+  form: DegrauFormFieldsState;
   showDescanso: boolean;
   onConfirm?: () => void;
   onCancel?: () => void;
