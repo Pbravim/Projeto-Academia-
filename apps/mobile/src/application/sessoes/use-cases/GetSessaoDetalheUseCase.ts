@@ -1,15 +1,19 @@
 import type { ExerciseRepository } from '../../../domain/exercises/repositories/ExerciseRepository';
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
+import type { SerieSegmentoPrimitives } from '../../../domain/sessoes/entities/SerieSegmento';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { SerieRegistradaRepository } from '../../../domain/sessoes/repositories/SerieRegistradaRepository';
+import type { SerieSegmentoRepository } from '../../../domain/sessoes/repositories/SerieSegmentoRepository';
 import type { SessaoExercicioRepository } from '../../../domain/sessoes/repositories/SessaoExercicioRepository';
 import type { SessaoTreinoRepository } from '../../../domain/sessoes/repositories/SessaoTreinoRepository';
 import { SessaoNotFoundError } from '../errors/SessaoNotFoundError';
 
+export type SerieComSegmentos = SerieRegistradaPrimitives & { segmentos?: SerieSegmentoPrimitives[] };
+
 export interface SessaoExercicioComSeries {
   sessaoExercicio: SessaoExercicioPrimitives;
-  series: SerieRegistradaPrimitives[];
+  series: SerieComSegmentos[];
   mediaOnline: string | null;
   mediaLocal: string | null;
 }
@@ -23,6 +27,7 @@ interface GetSessaoDetalheUseCaseDependencies {
   sessaoTreinoRepository: SessaoTreinoRepository;
   sessaoExercicioRepository: SessaoExercicioRepository;
   serieRegistradaRepository: SerieRegistradaRepository;
+  serieSegmentoRepository: SerieSegmentoRepository;
   exerciseRepository: ExerciseRepository;
 }
 
@@ -42,11 +47,15 @@ export class GetSessaoDetalheUseCase {
       this.dependencies.serieRegistradaRepository.listBySessaoExercicioIds(sessaoExercicioIds),
     ]);
 
-    const seriesPorSessaoExercicio = new Map<string, SerieRegistradaPrimitives[]>();
+    const serieIds = todasSeries.map((s) => s.toPrimitives().id);
+    const todosSegmentos = await this.dependencies.serieSegmentoRepository.listBySerieIds(serieIds);
+    const segmentosPorSerie = agruparSegmentosPorSerie(todosSegmentos);
+
+    const seriesPorSessaoExercicio = new Map<string, SerieComSegmentos[]>();
     for (const s of todasSeries) {
       const p = s.toPrimitives();
       const arr = seriesPorSessaoExercicio.get(p.sessaoExercicioId) ?? [];
-      arr.push(p);
+      arr.push({ ...p, segmentos: segmentosPorSerie.get(p.id) });
       seriesPorSessaoExercicio.set(p.sessaoExercicioId, arr);
     }
 
@@ -65,4 +74,17 @@ export class GetSessaoDetalheUseCase {
 
     return { sessao: sessao.toPrimitives(), exercicios: exerciciosComSeries };
   }
+}
+
+function agruparSegmentosPorSerie(
+  segmentos: Awaited<ReturnType<SerieSegmentoRepository['listBySerieIds']>>
+): Map<string, SerieSegmentoPrimitives[]> {
+  const porSerie = new Map<string, SerieSegmentoPrimitives[]>();
+  for (const segmento of segmentos) {
+    const p = segmento.toPrimitives();
+    const arr = porSerie.get(p.serieId) ?? [];
+    arr.push(p);
+    porSerie.set(p.serieId, arr);
+  }
+  return porSerie;
 }

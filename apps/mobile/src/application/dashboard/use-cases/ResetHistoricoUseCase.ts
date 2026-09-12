@@ -21,7 +21,20 @@ export class ResetHistoricoUseCase {
     const statuses = [...STATUS_RESETAVEIS];
 
     await this.deps.database.withTransaction(async () => {
-      // Children first: series -> sessao_exercicios -> sessao_treinos.
+      // Children first: serie_segmentos -> series -> sessao_exercicios -> sessao_treinos.
+      // serie_segmentos precisa vir antes: o sync de C3 nao pode empurrar filhos vivos
+      // de uma serie-mae ja tombstonada.
+      await this.deps.database.run(
+        `UPDATE serie_segmentos SET deleted_at = ?, updated_at = ?, dirty = 1
+         WHERE deleted_at IS NULL AND serie_id IN (
+           SELECT sr.id FROM series_registradas sr
+           INNER JOIN sessao_exercicios se ON sr.sessao_exercicio_id = se.id
+           INNER JOIN sessao_treinos st ON se.sessao_treino_id = st.id
+           WHERE st.status IN (?, ?)
+         )`,
+        [now, now, ...statuses],
+      );
+
       await this.deps.database.run(
         `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
          WHERE deleted_at IS NULL AND sessao_exercicio_id IN (

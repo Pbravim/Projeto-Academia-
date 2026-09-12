@@ -5,6 +5,7 @@ import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 import { SQLiteSerieRegistradaRepository } from '../../../infrastructure/sessoes/SQLiteSerieRegistradaRepository';
+import { SQLiteSerieSegmentoRepository } from '../../../infrastructure/sessoes/SQLiteSerieSegmentoRepository';
 import { SQLiteSessaoExercicioRepository } from '../../../infrastructure/sessoes/SQLiteSessaoExercicioRepository';
 import { SQLiteSessaoTreinoRepository } from '../../../infrastructure/sessoes/SQLiteSessaoTreinoRepository';
 import { SQLiteTreinoExercicioRepository } from '../../../infrastructure/treinos/SQLiteTreinoExercicioRepository';
@@ -17,6 +18,7 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
   let sessaoRepository: SQLiteSessaoTreinoRepository;
   let sessaoExercicioRepository: SQLiteSessaoExercicioRepository;
   let serieRepository: SQLiteSerieRegistradaRepository;
+  let serieSegmentoRepository: SQLiteSerieSegmentoRepository;
   let treinoExercicioRepository: SQLiteTreinoExercicioRepository;
   let useCase: RegistrarSerieUseCase;
 
@@ -34,12 +36,14 @@ describe('RegistrarSerieUseCase - P1 Regression Tests', () => {
     sessaoRepository = new SQLiteSessaoTreinoRepository(database);
     sessaoExercicioRepository = new SQLiteSessaoExercicioRepository(database);
     serieRepository = new SQLiteSerieRegistradaRepository(database);
+    serieSegmentoRepository = new SQLiteSerieSegmentoRepository(database);
     treinoExercicioRepository = new SQLiteTreinoExercicioRepository(database);
 
     useCase = new RegistrarSerieUseCase({
       sessaoTreinoRepository: sessaoRepository,
       sessaoExercicioRepository: sessaoExercicioRepository,
       serieRegistradaRepository: serieRepository,
+      serieSegmentoRepository: serieSegmentoRepository,
       treinoExercicioRepository: treinoExercicioRepository,
       idGenerator: (() => {
         let counter = 0;

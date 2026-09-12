@@ -4,6 +4,7 @@ import { SessaoExercicio } from '../../../domain/sessoes/entities/SessaoExercici
 import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
 import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemorySerieSegmentoRepository } from '../../../infrastructure/sessoes/InMemorySerieSegmentoRepository';
 import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
 import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
@@ -15,6 +16,7 @@ function makeDeps() {
   const sessaoTreinoRepository = new InMemorySessaoTreinoRepository();
   const sessaoExercicioRepository = new InMemorySessaoExercicioRepository();
   const serieRegistradaRepository = new InMemorySerieRegistradaRepository();
+  const serieSegmentoRepository = new InMemorySerieSegmentoRepository();
   const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
   let counter = 0;
 
@@ -22,11 +24,13 @@ function makeDeps() {
     sessaoTreinoRepository,
     sessaoExercicioRepository,
     serieRegistradaRepository,
+    serieSegmentoRepository,
     treinoExercicioRepository,
     useCase: new RegistrarSerieUseCase({
       sessaoTreinoRepository,
       sessaoExercicioRepository,
       serieRegistradaRepository,
+      serieSegmentoRepository,
       treinoExercicioRepository,
       idGenerator: () => `serie_${++counter}`,
     }),
@@ -158,6 +162,52 @@ describe('RegistrarSerieUseCase', () => {
 
     expect(serie.repeticoes).toBe(20);
     expect(serie.cargaKg).toBeNull();
+  });
+
+  it('creates the informed segmentos (ordem 2..n) alongside the serie-mae', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps);
+
+    const serie = await deps.useCase.execute({
+      sessaoExercicioId: 'se_1',
+      cargaKg: 60,
+      repeticoes: 8,
+      segmentos: [
+        { cargaKg: 50, repeticoes: 6 },
+        { cargaKg: 40, repeticoes: 7, descansoSegundos: 15 },
+      ],
+    });
+
+    const segmentos = await deps.serieSegmentoRepository.listBySerieId(serie.id);
+    expect(segmentos.map((s) => s.toPrimitives())).toEqual([
+      { id: expect.any(String), serieId: serie.id, ordem: 2, cargaKg: 50, repeticoes: 6, descansoSegundos: null },
+      { id: expect.any(String), serieId: serie.id, ordem: 3, cargaKg: 40, repeticoes: 7, descansoSegundos: 15 },
+    ]);
+  });
+
+  it('registers a serie with no segmentos when the field is omitted (existing callers keep working)', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps);
+
+    const serie = await deps.useCase.execute({ sessaoExercicioId: 'se_1', cargaKg: 60, repeticoes: 8 });
+
+    expect(await deps.serieSegmentoRepository.listBySerieId(serie.id)).toHaveLength(0);
+  });
+
+  it('rejects segmentos when the exercicio is not reps_load, and writes nothing (achado #3, revisao 1)', async () => {
+    const deps = makeDeps();
+    await seedAtiva(deps, 'cardio');
+
+    await expect(
+      deps.useCase.execute({
+        sessaoExercicioId: 'se_1',
+        duracaoSegundos: 600,
+        segmentos: [{ cargaKg: 50, repeticoes: 6 }],
+      })
+    ).rejects.toThrow(SessaoValidationError);
+
+    // Transacional: nem a serie-mae deve ter sido gravada.
+    expect(await deps.serieRegistradaRepository.listBySessaoExercicioId('se_1')).toHaveLength(0);
   });
 });
 

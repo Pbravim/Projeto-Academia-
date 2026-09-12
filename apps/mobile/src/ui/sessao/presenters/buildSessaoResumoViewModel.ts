@@ -40,7 +40,15 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe, locale: AppLo
       (s): s is typeof s & { cargaKg: number; repeticoes: number } =>
         s.cargaKg !== null && s.repeticoes !== null
     );
-    const volume = validasForca.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
+    const volumeMae = validasForca.reduce((acc, s) => acc + s.cargaKg * s.repeticoes, 0);
+    // Degraus (drop set/rest-pause/piramide) somam volume, mas nunca contam para
+    // e1RM/PR/melhorSerie — esses continuam olhando so a serie-mae.
+    const volumeDegraus = validas.reduce(
+      (acc, s) =>
+        acc + (s.segmentos ?? []).reduce((segAcc, seg) => segAcc + (seg.cargaKg ?? 0) * (seg.repeticoes ?? 0), 0),
+      0
+    );
+    const volume = volumeMae + volumeDegraus;
 
     totalSeriesValidas += validas.length;
     volumeTotalKg += volume;

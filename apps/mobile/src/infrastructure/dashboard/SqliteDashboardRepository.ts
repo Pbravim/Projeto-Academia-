@@ -78,7 +78,10 @@ export class SqliteDashboardRepository implements DashboardRepository {
            st.data_hora_inicio,
            st.data_hora_fim,
            st.arquivado,
-           COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes END), 0) AS volume_total,
+           COALESCE(SUM(CASE WHEN sr.tipo_serie = 'valida' THEN sr.carga_kg * sr.repeticoes + COALESCE((
+             SELECT SUM(sg.carga_kg * sg.repeticoes) FROM serie_segmentos sg
+             WHERE sg.serie_id = sr.id AND sg.deleted_at IS NULL
+           ), 0) END), 0) AS volume_total,
            COALESCE(MAX(CASE WHEN sr.tipo_serie = 'valida' THEN ${estimativa1rmSql()} END), 0) AS melhor_orm
          FROM sessao_treinos st
          LEFT JOIN sessao_exercicios se ON se.sessao_treino_id = st.id AND se.deleted_at IS NULL
@@ -295,6 +298,18 @@ export class SqliteDashboardRepository implements DashboardRepository {
     // sincronizado — sem tombstone o servidor a ressuscita no próximo pull.
     const now = nowIso();
     await this.database.withTransaction(async () => {
+      // serie_segmentos ANTES da mae: o sync de C3 nao pode empurrar filhos vivos
+      // de uma serie ja tombstonada (mesmo motivo de tombstoneSegmentosDe em
+      // SQLiteSerieRegistradaRepository; achado #1, revisao 1).
+      await this.database.run(
+        `UPDATE serie_segmentos SET deleted_at = ?, updated_at = ?, dirty = 1
+         WHERE deleted_at IS NULL AND serie_id IN (
+           SELECT id FROM series_registradas WHERE sessao_exercicio_id IN (
+             SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?
+           )
+         )`,
+        [now, now, sessaoId]
+      );
       await this.database.run(
         `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
          WHERE deleted_at IS NULL AND sessao_exercicio_id IN (

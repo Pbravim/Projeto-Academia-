@@ -617,6 +617,30 @@ export const migrations: string[] = [
    CREATE INDEX IF NOT EXISTS idx_sessao_exercicios_dirty ON sessao_exercicios (dirty) WHERE dirty = 1;
    CREATE INDEX IF NOT EXISTS idx_series_registradas_dirty ON series_registradas (dirty) WHERE dirty = 1;
    CREATE INDEX IF NOT EXISTS idx_registros_peso_dirty ON registros_peso (dirty) WHERE dirty = 1;`,
+
+  // v24: serie_segmentos (#27) — degraus de metodo (drop set/rest-pause/piramide) alem
+  // da serie-mae (degrau 1 = a propria series_registradas; aqui so ordem >= 2). tipo_serie
+  // da mae NUNCA muda para refletir o metodo — PR/e1RM/volume continuam olhando so a mae
+  // nos 10 sites existentes; o metodo executado e SessaoExercicio.metodo + presenca de
+  // segmentos. ON DELETE CASCADE cobre o caso feliz; a cascata de tombstone (soft delete)
+  // e explicita no repositorio porque splitSqlStatements nao entende BEGIN...END de trigger.
+  // Risco anotado: um rebuild futuro de series_registradas (padrao v22, DROP TABLE) apagaria
+  // os segmentos via CASCADE com foreign_keys=ON — desligar FK ou recriar serie_segmentos.
+  `CREATE TABLE IF NOT EXISTS serie_segmentos (
+     id TEXT PRIMARY KEY NOT NULL,
+     serie_id TEXT NOT NULL REFERENCES series_registradas(id) ON DELETE CASCADE,
+     ordem INTEGER NOT NULL CHECK (ordem >= 2),
+     carga_kg REAL,
+     repeticoes INTEGER,
+     descanso_segundos INTEGER,
+     created_at TEXT NOT NULL,
+     updated_at TEXT,
+     deleted_at TEXT,
+     dirty INTEGER NOT NULL DEFAULT 1,
+     server_rev INTEGER
+   );
+   CREATE INDEX IF NOT EXISTS idx_serie_segmentos_serie_id ON serie_segmentos (serie_id);
+   CREATE INDEX IF NOT EXISTS idx_serie_segmentos_dirty ON serie_segmentos (dirty) WHERE dirty = 1;`,
 ];
 
 /**
