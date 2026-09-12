@@ -26,13 +26,17 @@ vi.mock('react-native', () => ({
   Vibration: { vibrate: vi.fn() },
 }));
 
+const useRestTimerCornerSpy = vi.hoisted(() => vi.fn());
 vi.mock('../hooks/useRestTimerCorner', () => ({
-  useRestTimerCorner: () => ({
-    corner: 'bottom-right',
-    panHandlers: {},
-    animatedStyle: {},
-    positionStyle: {},
-  }),
+  useRestTimerCorner: (minimized: boolean) => {
+    useRestTimerCornerSpy(minimized);
+    return {
+      corner: 'bottom-right',
+      panHandlers: {},
+      animatedStyle: {},
+      positionStyle: {},
+    };
+  },
 }));
 
 vi.mock('../restTimerNotification', () => ({
@@ -85,6 +89,10 @@ describe('RestTimerBanner', () => {
       (pill.props as { onPress: () => void }).onPress();
     });
     expect(onToggleMinimized).toHaveBeenCalledTimes(1);
+
+    // Achado #7 (review-a-1.md): o hook precisa saber se está minimizado
+    // para decidir se preserva a metade horizontal do canto no release.
+    expect(useRestTimerCornerSpy).toHaveBeenCalledWith(true);
   });
 
   it('renders the expanded card and fires onSkip / onToggleMinimized', async () => {
@@ -114,5 +122,7 @@ describe('RestTimerBanner', () => {
       (minimizeBtn!.props as { onPress: () => void }).onPress();
     });
     expect(onToggleMinimized).toHaveBeenCalledTimes(1);
+
+    expect(useRestTimerCornerSpy).toHaveBeenCalledWith(false);
   });
 });

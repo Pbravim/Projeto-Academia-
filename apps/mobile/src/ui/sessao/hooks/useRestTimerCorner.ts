@@ -43,6 +43,19 @@ export function snapToNearest(x: number, y: number, width: number, height: numbe
   return isLeft ? 'bottom-left' : 'bottom-right';
 }
 
+/**
+ * Troca só a metade vertical de `corner`, preservando a horizontal de
+ * `reference` (achado #7, review-a-1.md: arrastar o card expandido também
+ * persistia a metade horizontal — invisível no card full-width, mas
+ * surpreendia ao minimizar depois).
+ */
+export function withHorizontalOf(corner: Corner, reference: Corner): Corner {
+  const isTop = corner.startsWith('top');
+  const isLeft = reference.endsWith('left');
+  if (isTop) return isLeft ? 'top-left' : 'top-right';
+  return isLeft ? 'bottom-left' : 'bottom-right';
+}
+
 // Margens fixas, não somadas ao safe-area-inset: o banner monta dentro do
 // `tabPage` (SessaoAtivaScreen), que já fica entre a `topBar`/`tabBar` do
 // MobileApp — essas duas já absorvem o insets.top/insets.bottom. Somar de
@@ -61,7 +74,12 @@ function computePositionStyle(corner: Corner): RestTimerPositionStyle {
   return { ...vertical, ...horizontal };
 }
 
-export function useRestTimerCorner(): RestTimerCornerState {
+/**
+ * @param minimized Estado do pill/card no chamador. `true` (default) libera
+ * o snap nos 4 cantos (pill). `false` (card expandido, full-width) preserva
+ * a metade horizontal do canto atual no release — ver `withHorizontalOf`.
+ */
+export function useRestTimerCorner(minimized: boolean = true): RestTimerCornerState {
   const { width, height } = useWindowDimensions();
   const pan = useRef(new Animated.ValueXY()).current;
 
@@ -87,7 +105,8 @@ export function useRestTimerCorner(): RestTimerCornerState {
           pan.setValue({ x: gestureState.dx, y: gestureState.dy });
         },
         onPanResponderRelease: (_, gestureState) => {
-          const nextCorner = snapToNearest(gestureState.moveX, gestureState.moveY, width, height);
+          const snapped = snapToNearest(gestureState.moveX, gestureState.moveY, width, height);
+          const nextCorner = minimized ? snapped : withHorizontalOf(snapped, corner);
           setCorner(nextCorner);
           void Storage.setItem(REST_TIMER_CORNER_KEY, nextCorner);
           // Reset instantâneo, sem spring (achado #2, review-a-1.md: salto
@@ -98,7 +117,7 @@ export function useRestTimerCorner(): RestTimerCornerState {
           pan.setValue({ x: 0, y: 0 });
         },
       }),
-    [pan, width, height],
+    [pan, width, height, corner, minimized],
   );
 
   const positionStyle = useMemo(() => computePositionStyle(corner), [corner]);

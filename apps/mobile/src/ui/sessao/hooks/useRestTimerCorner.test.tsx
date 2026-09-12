@@ -6,6 +6,7 @@ import {
   REST_TIMER_CORNER_KEY,
   snapToNearest,
   useRestTimerCorner,
+  withHorizontalOf,
 } from './useRestTimerCorner';
 
 // Mock expo-sqlite kv-store
@@ -86,6 +87,17 @@ describe('snapToNearest', () => {
   });
 });
 
+describe('withHorizontalOf', () => {
+  it('takes the vertical half of corner and the horizontal half of reference', () => {
+    expect(withHorizontalOf('top-right', 'bottom-left')).toBe('top-left');
+    expect(withHorizontalOf('bottom-left', 'top-right')).toBe('bottom-right');
+  });
+
+  it('is a no-op when both halves already match', () => {
+    expect(withHorizontalOf('top-left', 'bottom-left')).toBe('top-left');
+  });
+});
+
 describe('useRestTimerCorner', () => {
   it('defaults to bottom-right with no persisted value', async () => {
     const { result } = await renderHook(() => useRestTimerCorner());
@@ -124,8 +136,8 @@ describe('useRestTimerCorner', () => {
     expect(result.current.corner).toBe('bottom-right');
   });
 
-  it('persists the snapped corner on release', async () => {
-    const { result } = await renderHook(() => useRestTimerCorner());
+  it('persists the snapped corner on release (minimized: full 4-corner snap)', async () => {
+    const { result } = await renderHook(() => useRestTimerCorner(true));
     await flush();
 
     await act(async () => {
@@ -138,6 +150,29 @@ describe('useRestTimerCorner', () => {
 
     const { Storage } = await import('expo-sqlite/kv-store');
     expect(Storage.setItem).toHaveBeenCalledWith(REST_TIMER_CORNER_KEY, 'top-left');
+  });
+
+  it('when expanded (card), release only changes the vertical half, keeping the current side', async () => {
+    // Achado #7 (sev1, review-a-1.md): o card full-width não mostra o lado
+    // esquerdo/direito — recalculá-lo a partir do arrasto só surpreende o
+    // usuário quando o pill reaparece num canto diferente do esperado.
+    kvStore[REST_TIMER_CORNER_KEY] = 'bottom-right';
+    const { result } = await renderHook(() => useRestTimerCorner(false));
+    await flush();
+
+    expect(result.current.corner).toBe('bottom-right');
+
+    // Ponto de soltura no quadrante top-left, mas o card deve manter o lado "right".
+    await act(async () => {
+      capturedConfig.onPanResponderRelease?.({}, { moveX: 50, moveY: 50 });
+      await Promise.resolve();
+    });
+    await flush();
+
+    expect(result.current.corner).toBe('top-right');
+
+    const { Storage } = await import('expo-sqlite/kv-store');
+    expect(Storage.setItem).toHaveBeenCalledWith(REST_TIMER_CORNER_KEY, 'top-right');
   });
 
   it('resets pan instantly on release, without an Animated.spring (no visual jump)', async () => {

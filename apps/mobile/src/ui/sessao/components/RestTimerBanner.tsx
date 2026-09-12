@@ -27,7 +27,7 @@ export function RestTimerBanner({ nome, total, runId, minimized, onToggleMinimiz
   const c = useTheme();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const { panHandlers, animatedStyle, positionStyle } = useRestTimerCorner();
+  const { panHandlers, animatedStyle, positionStyle } = useRestTimerCorner(minimized);
 
   const [restante, setRestante] = useState(total);
   const onDoneRef = useRef(onDone);
