@@ -1,7 +1,6 @@
 import { Storage } from 'expo-sqlite/kv-store';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Keyboard, PanResponder, useWindowDimensions } from 'react-native';
-import { type EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -40,17 +39,21 @@ export function snapToNearest(x: number, y: number, width: number, height: numbe
   return isLeft ? 'bottom-left' : 'bottom-right';
 }
 
-function computePositionStyle(corner: Corner, insets: EdgeInsets, keyboardHeight: number): RestTimerPositionStyle {
+// Margens fixas, não somadas ao safe-area-inset: o banner monta dentro do
+// `tabPage` (SessaoAtivaScreen), que já fica entre a `topBar`/`tabBar` do
+// MobileApp — essas duas já absorvem o insets.top/insets.bottom. Somar de
+// novo aqui só afasta o pill mais do que o necessário das bordas do tabPage
+// (achado #4, review-a-1.md: safe area contada duas vezes).
+function computePositionStyle(corner: Corner, keyboardHeight: number): RestTimerPositionStyle {
   const vertical = corner.startsWith('top')
-    ? { top: insets.top + TOP_EXTRA }
-    : { bottom: insets.bottom + EDGE_MARGIN + keyboardHeight };
+    ? { top: TOP_EXTRA }
+    : { bottom: EDGE_MARGIN + keyboardHeight };
   const horizontal = corner.endsWith('left') ? { left: SIDE_MARGIN } : { right: SIDE_MARGIN };
   return { ...vertical, ...horizontal };
 }
 
 export function useRestTimerCorner(): RestTimerCornerState {
   const { width, height } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const pan = useRef(new Animated.ValueXY()).current;
 
   const [corner, setCorner] = useState<Corner>('bottom-right');
@@ -95,8 +98,8 @@ export function useRestTimerCorner(): RestTimerCornerState {
   );
 
   const positionStyle = useMemo(
-    () => computePositionStyle(corner, insets, keyboardHeight),
-    [corner, insets, keyboardHeight],
+    () => computePositionStyle(corner, keyboardHeight),
+    [corner, keyboardHeight],
   );
 
   return {

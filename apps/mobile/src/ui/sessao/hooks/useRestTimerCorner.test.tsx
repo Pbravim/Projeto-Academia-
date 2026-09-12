@@ -20,11 +20,6 @@ vi.mock('expo-sqlite/kv-store', () => ({
   },
 }));
 
-// Mock react-native-safe-area-context
-vi.mock('react-native-safe-area-context', () => ({
-  useSafeAreaInsets: () => ({ top: 40, bottom: 24, left: 0, right: 0 }),
-}));
-
 // Capture the PanResponder config so tests can drive onPanResponderRelease
 // directly, without simulating the native touch-responder tracking.
 let capturedConfig: {
@@ -98,7 +93,7 @@ describe('useRestTimerCorner', () => {
     await flush();
 
     expect(result.current.corner).toBe('bottom-right');
-    expect(result.current.positionStyle).toEqual({ bottom: 24 + 24, right: 16 });
+    expect(result.current.positionStyle).toEqual({ bottom: 24, right: 16 });
   });
 
   it('loads the persisted corner on mount', async () => {
@@ -108,7 +103,7 @@ describe('useRestTimerCorner', () => {
     await flush();
 
     expect(result.current.corner).toBe('top-left');
-    expect(result.current.positionStyle).toEqual({ top: 40 + 16, left: 16 });
+    expect(result.current.positionStyle).toEqual({ top: 16, left: 16 });
   });
 
   it('falls back to the default when the persisted value is invalid', async () => {
@@ -156,7 +151,7 @@ describe('useRestTimerCorner', () => {
     await flush();
 
     expect(result.current.corner).toBe('bottom-right');
-    expect(result.current.positionStyle).toEqual({ bottom: 24 + 24 + 300, right: 16 });
+    expect(result.current.positionStyle).toEqual({ bottom: 24 + 300, right: 16 });
 
     await act(async () => {
       capturedConfig.onPanResponderRelease?.({}, { moveX: 50, moveY: 50 });
@@ -165,7 +160,7 @@ describe('useRestTimerCorner', () => {
     await flush();
 
     expect(result.current.corner).toBe('top-left');
-    expect(result.current.positionStyle).toEqual({ top: 40 + 16, left: 16 });
+    expect(result.current.positionStyle).toEqual({ top: 16, left: 16 });
   });
 
   it('only starts the pan responder past the 8px drag threshold', async () => {
