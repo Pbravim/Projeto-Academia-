@@ -84,3 +84,19 @@ describe('dashboard — volume da sessao inclui degraus; e1RM ignora', () => {
     expect(sessao.volumeTotal).toBe(1000); // 640 + 360 (sg-1), sem os 300 de sg-2
   });
 });
+
+describe('dashboard — deletarSessao tombstona os segmentos (achado #1, revisao 1)', () => {
+  it('deletarSessao(st-1) tambem tombstona sg-1/sg-2, marcando dirty=1', async () => {
+    await repo.deletarSessao('st-1');
+
+    const rows = await db.getAll<{ id: string; deleted_at: string | null; dirty: number }>(
+      `SELECT id, deleted_at, dirty FROM serie_segmentos WHERE id IN ('sg-1', 'sg-2')`
+    );
+
+    expect(rows).toHaveLength(2);
+    for (const row of rows) {
+      expect(row.deleted_at, `${row.id} deve ter deleted_at`).not.toBeNull();
+      expect(row.dirty, `${row.id} deve estar dirty`).toBe(1);
+    }
+  });
+});

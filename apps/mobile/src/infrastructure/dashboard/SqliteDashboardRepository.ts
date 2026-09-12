@@ -298,6 +298,18 @@ export class SqliteDashboardRepository implements DashboardRepository {
     // sincronizado — sem tombstone o servidor a ressuscita no próximo pull.
     const now = nowIso();
     await this.database.withTransaction(async () => {
+      // serie_segmentos ANTES da mae: o sync de C3 nao pode empurrar filhos vivos
+      // de uma serie ja tombstonada (mesmo motivo de tombstoneSegmentosDe em
+      // SQLiteSerieRegistradaRepository; achado #1, revisao 1).
+      await this.database.run(
+        `UPDATE serie_segmentos SET deleted_at = ?, updated_at = ?, dirty = 1
+         WHERE deleted_at IS NULL AND serie_id IN (
+           SELECT id FROM series_registradas WHERE sessao_exercicio_id IN (
+             SELECT id FROM sessao_exercicios WHERE sessao_treino_id = ?
+           )
+         )`,
+        [now, now, sessaoId]
+      );
       await this.database.run(
         `UPDATE series_registradas SET deleted_at = ?, updated_at = ?, dirty = 1
          WHERE deleted_at IS NULL AND sessao_exercicio_id IN (
