@@ -31,7 +31,11 @@ function isCorner(value: unknown): value is Corner {
   return typeof value === 'string' && (CORNERS as readonly string[]).includes(value);
 }
 
-/** Escolhe o canto mais próximo do ponto (x, y) dentro de uma tela `width` x `height`. */
+/**
+ * Escolhe o canto mais próximo do ponto (x, y) — o PONTO DE SOLTURA DO DEDO
+ * (`gestureState.moveX/moveY`), não o centro do elemento — dentro de uma
+ * tela `width` x `height` (achado #5, review-a-1.md: prosa desalinhada).
+ */
 export function snapToNearest(x: number, y: number, width: number, height: number): Corner {
   const isTop = y < height / 2;
   const isLeft = x < width / 2;
