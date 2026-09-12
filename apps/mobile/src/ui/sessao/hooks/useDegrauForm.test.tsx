@@ -15,10 +15,13 @@ describe('parseDegrauInput', () => {
     });
   });
 
-  it('input null, error null quando carga vazia mesmo com reps pré-preenchido pelo template', () => {
-    // Reprodução do estado pós-prefillFrom: reps já vem preenchido do template,
-    // carga fica vazia até o aluno decidir usar o degrau. Não deve bloquear.
-    expect(parseDegrauInput({ cargaText: '', repsText: '8', descansoText: '' }, 'pt-BR')).toEqual({
+  it('com cargaVaziaEhConvite: input null, error null quando carga vazia mesmo com reps pré-preenchido pelo template', () => {
+    // Reprodução do estado pós-prefillFrom (Degrau 2 prescrito): reps já vem
+    // preenchido do template, carga fica vazia até o aluno decidir usar o degrau.
+    // Não deve bloquear — mas só quando o modo pede isso explicitamente.
+    expect(
+      parseDegrauInput({ cargaText: '', repsText: '8', descansoText: '' }, 'pt-BR', { cargaVaziaEhConvite: true }),
+    ).toEqual({
       input: null,
       error: null,
     });
@@ -47,6 +50,14 @@ describe('parseDegrauInput', () => {
     const result = parseDegrauInput({ cargaText: '50', repsText: '6', descansoText: '-1' }, 'pt-BR');
     expect(result.input).toBeNull();
     expect(result.error).not.toBeNull();
+  });
+
+  it('sem cargaVaziaEhConvite (form inline "+ degrau"): reps-só é erro, não convite silencioso (achado #1, r2)', () => {
+    // Regressão: abrir "+ degrau" (sem prefill, ambos vazios) e digitar só reps
+    // devia reprovar com erro visível, não devolver null silenciosamente.
+    const result = parseDegrauInput({ cargaText: '', repsText: '6', descansoText: '' }, 'pt-BR');
+    expect(result.input).toBeNull();
+    expect(result.error).toBe('Carga e repetições do degrau inválidas');
   });
 });
 
@@ -117,6 +128,45 @@ describe('useDegrauForm', () => {
     });
     expect(result.current.repsText).toBe('8');
     expect(result.current.descansoText).toBe('15');
+  });
+
+  it('toInput sets a translated error for reps-only input (default mode, no prefill) — achado #1, r2', async () => {
+    const { result } = await renderHook(() => useDegrauForm('pt-BR'));
+    await act(async () => {
+      result.current.setRepsText('6');
+    });
+    let input: ReturnType<typeof result.current.toInput> = null;
+    await act(async () => {
+      input = result.current.toInput();
+    });
+    expect(input).toBeNull();
+    expect(result.current.error).toBe('Carga e repetições do degrau inválidas');
+  });
+
+  it('with cargaVaziaEhConvite: leaving carga blank after prefill is a silent invite, not an error', async () => {
+    const { result } = await renderHook(() => useDegrauForm('pt-BR', { cargaVaziaEhConvite: true }));
+    await act(async () => {
+      result.current.prefillFrom({ execucoesRecomendadas: 8 }, 'drop_set');
+    });
+    let input: ReturnType<typeof result.current.toInput> = null;
+    await act(async () => {
+      input = result.current.toInput();
+    });
+    expect(input).toBeNull();
+    expect(result.current.error).toBeNull();
+  });
+
+  it('parse() returns {input, error} without needing a second call to read the error (achado #3, r2)', async () => {
+    const { result } = await renderHook(() => useDegrauForm('pt-BR'));
+    await act(async () => {
+      result.current.setCargaText('50');
+    });
+    let parsed: ReturnType<typeof result.current.parse> = { input: null, error: null };
+    await act(async () => {
+      parsed = result.current.parse();
+    });
+    expect(parsed).toEqual({ input: null, error: 'Carga e repetições do degrau inválidas' });
+    expect(result.current.error).toBe('Carga e repetições do degrau inválidas');
   });
 
   it('reset clears the form back to defaults', async () => {

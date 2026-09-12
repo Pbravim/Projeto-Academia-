@@ -14,7 +14,7 @@ import { RestTimerBanner } from '../components/RestTimerBanner';
 import { MetodoSelector } from '../components/MetodoSelector';
 import { DegrauForm } from '../components/DegrauForm';
 import { SeriesRegistradasList } from '../components/SeriesRegistradasList';
-import { parseDegrauInput, useDegrauForm } from '../hooks/useDegrauForm';
+import { useDegrauForm } from '../hooks/useDegrauForm';
 import { precisaDegrauPrescrito, mostraDescanso, formatSerieMetric } from '../presenters/segmentosPresentation';
 import { formatDuracao } from '../../shared/degrauFormatters';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
@@ -93,7 +93,7 @@ export function ExercicioDetalheScreen({
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
-  const degrau2 = useDegrauForm(locale);
+  const degrau2 = useDegrauForm(locale, { cargaVaziaEhConvite: true });
 
   const trackingType = sessaoExercicio.trackingTypeSnapshot;
 
@@ -371,15 +371,11 @@ export function ExercicioDetalheScreen({
         return;
       }
 
-      const degrau2Input = precisaDegrauPrescrito(metodo) ? degrau2.toInput() : null;
-      if (precisaDegrauPrescrito(metodo) && !degrau2Input) {
-        // Degrau 2 preenchido porém inválido bloqueia o registro (vazio = convite, sem bloqueio) — achado #1.
-        const { error: degrau2Error } = parseDegrauInput(
-          { cargaText: degrau2.cargaText, repsText: degrau2.repsText, descansoText: degrau2.descansoText },
-          locale,
-        );
-        if (degrau2Error) return;
-      }
+      // Degrau 2 preenchido porém inválido bloqueia o registro (vazio = convite, sem bloqueio) — achado #1 (r1).
+      const { input: degrau2Input, error: degrau2Error } = precisaDegrauPrescrito(metodo)
+        ? degrau2.parse()
+        : { input: null, error: null };
+      if (degrau2Error) return;
 
       await onRegistrarSerie({
         sessaoExercicioId: sessaoExercicio.id,

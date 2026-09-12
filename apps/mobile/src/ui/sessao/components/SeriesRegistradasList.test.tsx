@@ -246,6 +246,39 @@ describe('SeriesRegistradasList', () => {
     ).toBeDefined();
   });
 
+  it('shows an error and does not call onRegistrarSegmento for reps-only input in "+ degrau" (achado #1, r2)', async () => {
+    const onRegistrarSegmento = vi.fn().mockResolvedValue(true);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SeriesRegistradasList, {
+          series: [serie()],
+          trackingType: 'reps_load',
+          realizado: false,
+          bestSerieId: null,
+          locale: 'pt-BR',
+          onDeleteSerie: vi.fn(),
+          onUpdateSerie: vi.fn(),
+          onRegistrarSegmento,
+          onRemoverSegmento: vi.fn(),
+        }),
+      );
+    });
+    const addBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => p.props.accessibilityLabel === 'sessao.degrau.adicionar')!;
+    await act(async () => { addBtn.props.onPress(); });
+    const inputs = renderer.root.findAllByType('TextInput' as never);
+    await act(async () => { inputs[1].props.onChangeText('6'); }); // só reps; carga fica vazia
+    const confirmBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => String((p.props.children as { props?: { children?: unknown } })?.props?.children) === 'common.ok')!;
+    await act(async () => { await confirmBtn.props.onPress(); });
+    expect(onRegistrarSegmento).not.toHaveBeenCalled();
+    const texts = renderer.root.findAllByType('Text' as never).map((t) => t.props.children).flat();
+    expect(texts).toContain('Carga e repetições do degrau inválidas');
+  });
+
   it('keeps the inline "+ degrau" form open (does not lose input) when onRegistrarSegmento fails (achado #12)', async () => {
     const onRegistrarSegmento = vi.fn().mockResolvedValue(false);
     let renderer!: ReactTestRenderer;

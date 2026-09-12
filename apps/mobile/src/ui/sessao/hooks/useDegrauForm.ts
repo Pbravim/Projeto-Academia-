@@ -27,18 +27,34 @@ export interface DegrauParseResult {
   error: string | null;
 }
 
+export interface DegrauParseOptions {
+  /**
+   * `true`: carga vazia sozinha já é convite, mesmo com reps preenchido — o Degrau 2
+   * prescrito usa isso porque `prefillFrom` deixa reps com o valor do template e só a
+   * carga em branco (é ela que sinaliza "quero o degrau", nunca inferida).
+   * `false` (default): carga E reps vazios juntos são convite — o form inline "+ degrau"
+   * abre sem prefill (`reset()`), então reps preenchido sozinho é entrada real do aluno
+   * e deve reprovar (regressão do achado #1, r2: reps-só virava `null` sem `error`).
+   */
+  cargaVaziaEhConvite?: boolean;
+}
+
 /**
  * Parse puro de um degrau — compartilhado entre `useDegrauForm` (um form por vez,
  * ex. "+ degrau" inline) e telas que precisam de N forms em paralelo (BiSet: um
  * Degrau 2 por exercício do grupo, onde usar o hook em loop não é viável).
  */
-export function parseDegrauInput(fields: DegrauFormFields, locale: AppLocale): DegrauParseResult {
+export function parseDegrauInput(
+  fields: DegrauFormFields,
+  locale: AppLocale,
+  options: DegrauParseOptions = {},
+): DegrauParseResult {
   const { cargaText, repsText, descansoText } = fields;
 
-  // Carga vazia = convite recusado, mesmo com reps pré-preenchido pelo template
-  // (`prefillFrom` deixa reps com o valor recomendado e a carga em branco — é a
-  // carga que sinaliza "quero um degrau", nunca inferida).
-  if (cargaText.trim() === '') {
+  const vazio = options.cargaVaziaEhConvite
+    ? cargaText.trim() === ''
+    : cargaText.trim() === '' && repsText.trim() === '';
+  if (vazio) {
     return { input: null, error: null };
   }
 
@@ -74,9 +90,11 @@ export interface DegrauFormState {
   prefillFrom: (sessaoExercicio: { execucoesRecomendadas: number | null }, metodo: string) => void;
   /** `null` quando o formulário está vazio (convite, não obrigação) ou inválido (seta `error`). */
   toInput: () => DegrauFormInput | null;
+  /** Como `toInput`, mas devolve `{input, error}` inteiro — evita reparsear só para ler o erro (achado #3, r2). */
+  parse: () => DegrauParseResult;
 }
 
-export function useDegrauForm(locale: AppLocale): DegrauFormState {
+export function useDegrauForm(locale: AppLocale, options?: DegrauParseOptions): DegrauFormState {
   const [cargaText, setCargaText] = useState('');
   const [repsText, setRepsText] = useState('');
   const [descansoText, setDescansoText] = useState('');
@@ -96,11 +114,13 @@ export function useDegrauForm(locale: AppLocale): DegrauFormState {
     });
   };
 
-  const toInput = (): DegrauFormInput | null => {
-    const result = parseDegrauInput({ cargaText, repsText, descansoText }, locale);
+  const parse = (): DegrauParseResult => {
+    const result = parseDegrauInput({ cargaText, repsText, descansoText }, locale, options);
     setError(result.error);
-    return result.input;
+    return result;
   };
+
+  const toInput = (): DegrauFormInput | null => parse().input;
 
   return {
     cargaText,
@@ -113,5 +133,6 @@ export function useDegrauForm(locale: AppLocale): DegrauFormState {
     reset,
     prefillFrom,
     toInput,
+    parse,
   };
 }

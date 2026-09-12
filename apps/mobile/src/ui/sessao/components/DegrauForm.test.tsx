@@ -42,6 +42,7 @@ function makeForm(overrides?: Partial<DegrauFormState>): DegrauFormState {
     reset: vi.fn(),
     prefillFrom: vi.fn(),
     toInput: vi.fn(() => null),
+    parse: vi.fn(() => ({ input: null, error: null })),
     ...overrides,
   };
 }
