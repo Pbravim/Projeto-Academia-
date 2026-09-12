@@ -143,7 +143,6 @@ export const ptBR = {
       descansoLabel: 'Descanso (s)',
       remover: 'Remover degrau',
       erroInvalido: 'Carga e repetições do degrau inválidas',
-      registrarFalhou: 'Não foi possível registrar o degrau.',
     },
     biset: {
       setsRegistrados: 'Sets registrados',

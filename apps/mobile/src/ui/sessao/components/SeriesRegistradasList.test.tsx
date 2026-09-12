@@ -206,8 +206,8 @@ describe('SeriesRegistradasList', () => {
     expect(editInput.props.value).toBe('61.5');
   });
 
-  it('confirms an inline "+ degrau" and calls onRegistrarSegmento', async () => {
-    const onRegistrarSegmento = vi.fn().mockResolvedValue(undefined);
+  it('confirms an inline "+ degrau", calls onRegistrarSegmento and closes the form on success', async () => {
+    const onRegistrarSegmento = vi.fn().mockResolvedValue(true);
     let renderer!: ReactTestRenderer;
     await act(async () => {
       renderer = TestRenderer.create(
@@ -236,5 +236,44 @@ describe('SeriesRegistradasList', () => {
       .find((p) => String((p.props.children as { props?: { children?: unknown } })?.props?.children) === 'common.ok')!;
     await act(async () => { await confirmBtn.props.onPress(); });
     expect(onRegistrarSegmento).toHaveBeenCalledWith({ serieId: 'sr1', cargaKg: 50, repeticoes: 6, descansoSegundos: undefined });
+    // form fechado: volta a mostrar o botão "+ degrau" em vez dos inputs
+    expect(renderer.root.findAllByType('TextInput' as never)).toHaveLength(0);
+    expect(
+      renderer.root.findAllByType('Pressable' as never).find((p) => p.props.accessibilityLabel === 'sessao.degrau.adicionar'),
+    ).toBeDefined();
+  });
+
+  it('keeps the inline "+ degrau" form open (does not lose input) when onRegistrarSegmento fails (achado #12)', async () => {
+    const onRegistrarSegmento = vi.fn().mockResolvedValue(false);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SeriesRegistradasList, {
+          series: [serie()],
+          trackingType: 'reps_load',
+          realizado: false,
+          bestSerieId: null,
+          locale: 'pt-BR',
+          onDeleteSerie: vi.fn(),
+          onUpdateSerie: vi.fn(),
+          onRegistrarSegmento,
+          onRemoverSegmento: vi.fn(),
+        }),
+      );
+    });
+    const addBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => p.props.accessibilityLabel === 'sessao.degrau.adicionar')!;
+    await act(async () => { addBtn.props.onPress(); });
+    const inputs = renderer.root.findAllByType('TextInput' as never);
+    await act(async () => { inputs[0].props.onChangeText('50'); });
+    await act(async () => { inputs[1].props.onChangeText('6'); });
+    const confirmBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => String((p.props.children as { props?: { children?: unknown } })?.props?.children) === 'common.ok')!;
+    await act(async () => { await confirmBtn.props.onPress(); });
+    const inputsAfter = renderer.root.findAllByType('TextInput' as never);
+    expect(inputsAfter[0].props.value).toBe('50');
+    expect(inputsAfter[1].props.value).toBe('6');
   });
 });

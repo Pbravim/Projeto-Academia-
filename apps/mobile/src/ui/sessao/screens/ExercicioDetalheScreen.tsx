@@ -41,7 +41,7 @@ interface Props {
   onToggleRealizado: (id: string) => Promise<void>;
   onAbrirSubstituicao: (id: string) => Promise<void>;
   onAtualizarMetodo: (id: string, metodo: MetodoSessao) => Promise<void>;
-  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<void>;
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
   onRemoverSegmento: (id: string) => Promise<void>;
   onProximoExercicio: () => void;
   onFinalizarSessao: () => void;

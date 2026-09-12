@@ -55,7 +55,8 @@ export interface SessaoAtivaControllerState {
   sessaoExercicioSubstituindo: string | null;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onRegistrarSeriesEmLote: (inputs: RegistrarSerieInput[]) => Promise<void>;
-  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<void>;
+  /** `true` em sucesso — os chamadores (form inline de degrau) só fecham/limpam quando `true`. */
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
   onRemoverSegmento: (segmentoId: string) => Promise<void>;
   onDeleteSerie: (serieId: string) => Promise<void>;
   onDeleteSeries: (serieIds: string[]) => Promise<void>;
@@ -392,14 +393,16 @@ export function useSessaoAtivaController(
     setCandidatosSubstituicao([]);
   };
 
-  const onRegistrarSegmento = async (input: RegistrarSegmentoInput) => {
+  const onRegistrarSegmento = async (input: RegistrarSegmentoInput): Promise<boolean> => {
     setErrorMessage(null);
     try {
       await dependencies.registrarSegmento.execute(input);
       await loadDetalhe();
+      return true;
     } catch (error) {
       dependencies.logger.error('sessao_ativa.registrar_segmento_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.registrarSegmento'));
+      return false;
     }
   };
 

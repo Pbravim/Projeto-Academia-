@@ -322,7 +322,7 @@ describe('useSessaoAtivaController', () => {
     expect(result.current.errorMessage).toBe('Não foi possível registrar as séries.');
   });
 
-  it('onRegistrarSerie with segmentos reloads the detalhe (segmentos vêm hidratados do use case)', async () => {
+  it('onRegistrarSerie with segmentos reloads the detalhe (use case devolve só a mãe; ids dos degraus vêm do reload)', async () => {
     const deps = makeDeps();
     const { result } = await renderHook(() =>
       useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
@@ -339,21 +339,23 @@ describe('useSessaoAtivaController', () => {
     expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
   });
 
-  it('onRegistrarSegmento recarrega o detalhe on success', async () => {
+  it('onRegistrarSegmento recarrega o detalhe e resolve true on success', async () => {
     const deps = makeDeps();
     const { result } = await renderHook(() =>
       useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
     );
     await flush();
+    let ok = false;
     await act(async () => {
-      await result.current.onRegistrarSegmento({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
+      ok = await result.current.onRegistrarSegmento({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
     });
     expect(deps.registrarSegmento.execute).toHaveBeenCalledWith({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
     expect(deps.getSessaoDetalhe.execute).toHaveBeenCalledTimes(2);
     expect(result.current.errorMessage).toBeNull();
+    expect(ok).toBe(true);
   });
 
-  it('onRegistrarSegmento surfaces a translated error on failure', async () => {
+  it('onRegistrarSegmento surfaces a translated error and resolves false on failure (achado #12)', async () => {
     const deps = makeDeps({
       registrarSegmento: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
     });
@@ -361,10 +363,12 @@ describe('useSessaoAtivaController', () => {
       useSessaoAtivaController(sessao, deps, () => undefined, () => undefined),
     );
     await flush();
+    let ok = true;
     await act(async () => {
-      await result.current.onRegistrarSegmento({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
+      ok = await result.current.onRegistrarSegmento({ serieId: 'sr1', cargaKg: 50, repeticoes: 6 });
     });
     expect(result.current.errorMessage).toBe('Não foi possível registrar o degrau.');
+    expect(ok).toBe(false);
   });
 
   it('onRemoverSegmento recarrega o detalhe on success', async () => {

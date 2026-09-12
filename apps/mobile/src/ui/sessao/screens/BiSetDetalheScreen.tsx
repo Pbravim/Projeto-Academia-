@@ -54,7 +54,7 @@ interface Props {
   onToggleRealizadoGrupo: (sessaoExercicioIds: string[]) => Promise<void>;
   onAbrirSubstituicao: (sessaoExercicioId: string) => Promise<void>;
   onAtualizarMetodo: (sessaoExercicioId: string, metodo: SessaoExercicioPrimitives['metodo']) => Promise<void>;
-  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<void>;
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
   onRemoverSegmento: (id: string) => Promise<void>;
   onProximoExercicio: () => void;
   onFinalizarSessao: () => void;
@@ -684,7 +684,9 @@ export function BiSetDetalheScreen({
                                 onConfirm={() => {
                                   const input = degrauInline.toInput();
                                   if (!input) return;
-                                  void onRegistrarSegmento({ serieId: serie.id, ...input }).then(() => setDegrauAberto(null));
+                                  void onRegistrarSegmento({ serieId: serie.id, ...input }).then((ok) => {
+                                    if (ok) setDegrauAberto(null);
+                                  });
                                 }}
                                 onCancel={() => setDegrauAberto(null)}
                               />

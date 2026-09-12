@@ -93,7 +93,7 @@ function baseProps(overrides: Record<string, unknown> = {}) {
     onToggleRealizadoGrupo: vi.fn().mockResolvedValue(undefined),
     onAbrirSubstituicao: vi.fn().mockResolvedValue(undefined),
     onAtualizarMetodo: vi.fn().mockResolvedValue(undefined),
-    onRegistrarSegmento: vi.fn().mockResolvedValue(undefined),
+    onRegistrarSegmento: vi.fn().mockResolvedValue(true),
     onRemoverSegmento: vi.fn().mockResolvedValue(undefined),
     onProximoExercicio: vi.fn(),
     onFinalizarSessao: vi.fn(),
@@ -397,8 +397,8 @@ describe('BiSetDetalheScreen', () => {
     expect(cargaInputAfter.props.value).toBe('');
   });
 
-  it('opens and confirms the inline "+ degrau" for a paired set row', async () => {
-    const onRegistrarSegmento = vi.fn().mockResolvedValue(undefined);
+  it('opens and confirms the inline "+ degrau" for a paired set row, closing on success', async () => {
+    const onRegistrarSegmento = vi.fn().mockResolvedValue(true);
     let renderer!: ReactTestRenderer;
     await act(async () => {
       renderer = TestRenderer.create(
@@ -420,5 +420,35 @@ describe('BiSetDetalheScreen', () => {
     const confirmBtn = pressableWithText(renderer, 'common.ok')!;
     await act(async () => { await confirmBtn.props.onPress(); });
     expect(onRegistrarSegmento).toHaveBeenCalledWith({ serieId: 'sr1', cargaKg: 50, repeticoes: 6, descansoSegundos: undefined });
+    // form fechado: o "+ degrau" daquela linha volta a aparecer
+    expect(
+      renderer.root.findAllByType('Pressable' as never).find((p) => p.props.accessibilityLabel === 'sessao.degrau.adicionar'),
+    ).toBeDefined();
+  });
+
+  it('keeps the inline "+ degrau" form open when onRegistrarSegmento fails (achado #12)', async () => {
+    const onRegistrarSegmento = vi.fn().mockResolvedValue(false);
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(BiSetDetalheScreen, baseProps({
+          grupoItens: [item({ id: 'se1' }, [serieFixture()]), item({ id: 'se2' }, [])],
+          onRegistrarSegmento,
+        })),
+      );
+    });
+    const addDegrauBtn = renderer.root
+      .findAllByType('Pressable' as never)
+      .find((p) => p.props.accessibilityLabel === 'sessao.degrau.adicionar')!;
+    await act(async () => { addDegrauBtn.props.onPress(); });
+    const inputs = renderer.root.findAllByType('TextInput' as never);
+    const [cargaInput, repsInput] = inputs.slice(-2);
+    await act(async () => { cargaInput.props.onChangeText('50'); });
+    await act(async () => { repsInput.props.onChangeText('6'); });
+    const confirmBtn = pressableWithText(renderer, 'common.ok')!;
+    await act(async () => { await confirmBtn.props.onPress(); });
+    const inputsAfter = renderer.root.findAllByType('TextInput' as never).slice(-2);
+    expect(inputsAfter[0].props.value).toBe('50');
+    expect(inputsAfter[1].props.value).toBe('6');
   });
 });

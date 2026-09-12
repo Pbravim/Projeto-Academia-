@@ -29,7 +29,7 @@ interface Props {
   locale: AppLocale;
   onDeleteSerie: (id: string) => Promise<void>;
   onUpdateSerie: (input: { serieId: string; cargaKg: number; repeticoes: number }) => Promise<void>;
-  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<void>;
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
   onRemoverSegmento: (id: string) => Promise<void>;
 }
 
@@ -76,8 +76,9 @@ export function SeriesRegistradasList({
   const confirmarDegrau = (serieId: string) => {
     const input = degrauForm.toInput();
     if (!input) return;
-    void onRegistrarSegmento({ serieId, ...input }).then(() => {
-      setDegrauAbertoSerieId(null);
+    // Só fecha o form em sucesso — em erro o usuário não perde o que digitou (achado #12).
+    void onRegistrarSegmento({ serieId, ...input }).then((ok) => {
+      if (ok) setDegrauAbertoSerieId(null);
     });
   };
 

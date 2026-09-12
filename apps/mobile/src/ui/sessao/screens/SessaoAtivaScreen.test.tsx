@@ -122,7 +122,7 @@ function baseState(overrides: Partial<SessaoAtivaControllerState> = {}): SessaoA
     sessaoExercicioSubstituindo: null,
     onRegistrarSerie: vi.fn().mockResolvedValue(undefined),
     onRegistrarSeriesEmLote: vi.fn().mockResolvedValue(undefined),
-    onRegistrarSegmento: vi.fn().mockResolvedValue(undefined),
+    onRegistrarSegmento: vi.fn().mockResolvedValue(true),
     onRemoverSegmento: vi.fn().mockResolvedValue(undefined),
     onDeleteSerie: vi.fn().mockResolvedValue(undefined),
     onDeleteSeries: vi.fn().mockResolvedValue(undefined),

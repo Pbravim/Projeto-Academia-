@@ -99,7 +99,7 @@ function baseProps(overrides: Record<string, unknown> = {}) {
     onToggleRealizado: vi.fn().mockResolvedValue(undefined),
     onAbrirSubstituicao: vi.fn().mockResolvedValue(undefined),
     onAtualizarMetodo: vi.fn().mockResolvedValue(undefined),
-    onRegistrarSegmento: vi.fn().mockResolvedValue(undefined),
+    onRegistrarSegmento: vi.fn().mockResolvedValue(true),
     onRemoverSegmento: vi.fn().mockResolvedValue(undefined),
     onProximoExercicio: vi.fn(),
     onFinalizarSessao: vi.fn(),

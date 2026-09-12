@@ -142,7 +142,6 @@ export const enUS = {
       descansoLabel: 'Rest (s)',
       remover: 'Remove step',
       erroInvalido: 'Invalid step load/reps',
-      registrarFalhou: 'Could not record the step.',
     },
     biset: {
       setsRegistrados: 'Sets recorded',
