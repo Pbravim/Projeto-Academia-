@@ -1,11 +1,14 @@
 import type {
   ExecucaoExercicio,
+  ExecucaoExercicioSegmento,
   ExecucaoExercicioSerie,
   HistoricoRepository,
   UltimaExecucaoValida,
 } from '../../domain/historico/repositories/HistoricoRepository';
 import { estimativa1rmSql } from '../../shared/utils/estimativa1rm';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
+
+const CHUNK_SIZE = 999;
 
 interface UltimaRow {
   carga_kg: number;
@@ -26,6 +29,14 @@ interface HistoricoRow {
   observacao: string | null;
   ordem: number | null;
   tipo_serie: string | null;
+}
+
+interface SegmentoRow {
+  serie_id: string;
+  ordem: number;
+  carga_kg: number;
+  repeticoes: number;
+  descanso_segundos: number | null;
 }
 
 export class SQLiteHistoricoRepository implements HistoricoRepository {
@@ -92,13 +103,37 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
        ORDER BY st.data_hora_fim DESC, sr.ordem ASC`,
       [exercicioId]
     );
-    return groupBySession(rows);
+    const segmentosPorSerie = await this.fetchSegmentosPorSerie(serieIdsDe(rows));
+    return anexarSegmentos(groupBySession(rows), segmentosPorSerie);
+  }
+
+  private async fetchSegmentosPorSerie(serieIds: string[]): Promise<Map<string, ExecucaoExercicioSegmento[]>> {
+    const porSerie = new Map<string, ExecucaoExercicioSegmento[]>();
+    if (serieIds.length === 0) return porSerie;
+
+    for (let i = 0; i < serieIds.length; i += CHUNK_SIZE) {
+      const chunk = serieIds.slice(i, i + CHUNK_SIZE);
+      const placeholders = chunk.map(() => '?').join(', ');
+      const rows = await this.database.getAll<SegmentoRow>(
+        `SELECT serie_id, ordem, carga_kg, repeticoes, descanso_segundos
+         FROM serie_segmentos
+         WHERE serie_id IN (${placeholders}) AND deleted_at IS NULL
+           AND carga_kg IS NOT NULL AND repeticoes IS NOT NULL
+         ORDER BY ordem ASC`,
+        chunk
+      );
+      for (const row of rows) {
+        const arr = porSerie.get(row.serie_id) ?? [];
+        arr.push({ ordem: row.ordem, cargaKg: row.carga_kg, repeticoes: row.repeticoes, descansoSegundos: row.descanso_segundos });
+        porSerie.set(row.serie_id, arr);
+      }
+    }
+    return porSerie;
   }
 
   async getHistoricoExercicios(exercicioIds: string[]): Promise<Map<string, ExecucaoExercicio[]>> {
     if (exercicioIds.length === 0) return new Map();
 
-    const CHUNK_SIZE = 999;
     const allRows: HistoricoRow[] = [];
 
     for (let i = 0; i < exercicioIds.length; i += CHUNK_SIZE) {
@@ -132,12 +167,36 @@ export class SQLiteHistoricoRepository implements HistoricoRepository {
       byExercicio.set(row.exercicio_id, list);
     }
 
+    const segmentosPorSerie = await this.fetchSegmentosPorSerie(serieIdsDe(allRows));
+
     const result = new Map<string, ExecucaoExercicio[]>();
     for (const [id, idRows] of byExercicio) {
-      result.set(id, groupBySession(idRows));
+      result.set(id, anexarSegmentos(groupBySession(idRows), segmentosPorSerie));
     }
     return result;
   }
+}
+
+function serieIdsDe(rows: HistoricoRow[]): string[] {
+  const ids: string[] = [];
+  for (const row of rows) {
+    if (row.serie_id !== null) ids.push(row.serie_id);
+  }
+  return ids;
+}
+
+/** Anexa os degraus de cada serie (por id) sem crescer a complexidade de groupBySession. */
+function anexarSegmentos(
+  sessoes: ExecucaoExercicio[],
+  segmentosPorSerie: Map<string, ExecucaoExercicioSegmento[]>
+): ExecucaoExercicio[] {
+  for (const sessao of sessoes) {
+    for (const serie of sessao.series) {
+      const segmentos = segmentosPorSerie.get(serie.id);
+      if (segmentos) serie.segmentos = segmentos;
+    }
+  }
+  return sessoes;
 }
 
 function groupBySession(rows: HistoricoRow[]): ExecucaoExercicio[] {

@@ -4,6 +4,13 @@ export interface UltimaExecucaoValida {
   dataExecucao: string;
 }
 
+export interface ExecucaoExercicioSegmento {
+  ordem: number;
+  cargaKg: number;
+  repeticoes: number;
+  descansoSegundos: number | null;
+}
+
 export interface ExecucaoExercicioSerie {
   id: string;
   tipoSerie: 'valida' | 'aquecimento';
@@ -11,6 +18,7 @@ export interface ExecucaoExercicioSerie {
   repeticoes: number;
   observacao: string | null;
   ordem: number;
+  segmentos?: ExecucaoExercicioSegmento[];
 }
 
 export interface ExecucaoExercicio {
