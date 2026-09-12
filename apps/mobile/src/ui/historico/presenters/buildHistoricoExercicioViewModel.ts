@@ -61,6 +61,10 @@ export function buildHistoricoExercicioViewModel(
           cargaKg: s.cargaKg,
           repeticoes: s.repeticoes,
           muted: s.tipoSerie !== 'valida',
+          segmentos: s.segmentos
+            ?.slice()
+            .sort((a, b) => a.ordem - b.ordem)
+            .map((seg) => ({ cargaKg: seg.cargaKg, repeticoes: seg.repeticoes })),
         })),
     })),
     locale,

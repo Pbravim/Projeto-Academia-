@@ -1,12 +1,17 @@
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
+import { formatCarga, formatDegrausStack } from '../degrauFormatters';
 import { type AppLocale,translate } from '../i18n/core';
 import { formatFixedDecimal } from '../i18n/formatters';
+
+export { formatCarga } from '../degrauFormatters';
 
 export interface SessionTableInputSet {
   cargaKg: number;
   repeticoes: number;
   /** Ex.: aquecimento — exibido esmaecido e fora de melhor set/1RM/volume. */
   muted?: boolean;
+  /** Degraus (drop set/rest-pause/piramide) sobre esta série-mãe, já em ordem de exibição. */
+  segmentos?: { cargaKg: number; repeticoes: number }[];
 }
 
 export interface SessionTableInputSession {
@@ -23,6 +28,8 @@ export interface SessionTableSetVM {
   repsLabel: string;
   isBest: boolean;
   muted: boolean;
+  /** Pilha "60×8 → 50×6" da série-mãe + degraus. `null` quando não há degraus. */
+  degrausLabel: string | null;
 }
 
 export interface SessionTableRowVM {
@@ -35,12 +42,6 @@ export interface SessionTableRowVM {
   volumeLabel: string | null;
   trend: 'up' | 'down' | null;
   isLatest: boolean;
-}
-
-export function formatCarga(kg: number, locale: AppLocale = 'pt-BR'): string {
-  if (kg % 1 === 0) return String(kg);
-  const oneDecimal = Math.round(kg * 10) / 10;
-  return formatFixedDecimal(kg, locale, oneDecimal === kg ? 1 : 2);
 }
 
 export function formatVolume(kg: number, locale: AppLocale = 'pt-BR'): string {
@@ -82,15 +83,19 @@ export function buildSessionTableRows(
         !bestMarked &&
         calcularEstimativa1rm(x.cargaKg, x.repeticoes) === best;
       if (isBest) bestMarked = true;
+      const degrausLabel = formatDegrausStack({ cargaKg: x.cargaKg, repeticoes: x.repeticoes }, x.segmentos, locale);
       return {
         cargaLabel: formatCarga(x.cargaKg, locale),
         repsLabel: String(x.repeticoes),
         isBest,
         muted: x.muted ?? false,
+        degrausLabel,
       };
     });
 
-    const volume = valid.reduce((acc, x) => acc + x.cargaKg * x.repeticoes, 0);
+    const volumeDegraus = (x: SessionTableInputSet) =>
+      (x.segmentos ?? []).reduce((sum, seg) => sum + seg.cargaKg * seg.repeticoes, 0);
+    const volume = valid.reduce((acc, x) => acc + x.cargaKg * x.repeticoes + volumeDegraus(x), 0);
     const prevBest = bestOrms[i + 1];
     const trend =
       prevBest == null || prevBest === 0 || best === 0

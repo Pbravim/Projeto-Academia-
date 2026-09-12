@@ -13,6 +13,34 @@ const sessao = (id: string, sets: { cargaKg: number; repeticoes: number; muted?:
   sets,
 });
 
+describe('buildSessionTableRows degraus', () => {
+  it('degrausLabel is null when the set has no segmentos', () => {
+    const rows = buildSessionTableRows([sessao('s1', [{ cargaKg: 60, repeticoes: 8 }])]);
+    expect(rows[0].sets[0].degrausLabel).toBeNull();
+  });
+
+  it('degrausLabel stacks mãe + segmentos and volume sums them', () => {
+    const rows = buildSessionTableRows([
+      {
+        id: 's1',
+        dateLabel: '28/06',
+        sets: [
+          {
+            cargaKg: 60,
+            repeticoes: 5,
+            segmentos: [
+              { cargaKg: 50, repeticoes: 4 },
+              { cargaKg: 40, repeticoes: 3 },
+            ],
+          },
+        ],
+      },
+    ]);
+    expect(rows[0].sets[0].degrausLabel).toBe('60×5 → 50×4 → 40×3');
+    expect(rows[0].volumeLabel).toBe(`${60 * 5 + 50 * 4 + 40 * 3} kg`);
+  });
+});
+
 describe('formatCarga', () => {
   it('inteiro sem casas decimais', () => {
     expect(formatCarga(80)).toBe('80');

@@ -26,6 +26,7 @@ export const enUS = {
       verMidia: 'View exercise demo',
       concluirExercicio: 'Complete exercise',
       concluirGrupo: 'Complete exercise group',
+      removerSerie: 'Remove set %{n}',
     },
     common: {
       concluir: 'Complete',
@@ -135,6 +136,15 @@ export const enUS = {
       concluirTitle: 'Complete exercise',
       concluirMessage: 'Mark "%{nome}" as complete?',
     },
+    degrau: {
+      adicionar: '+ drop',
+      titulo: 'Step %{n}',
+      prescrito: 'Step 2 — prescribed by the workout',
+      descansoLabel: 'Rest (s)',
+      remover: 'Remove step',
+      removerN: 'Remove step %{n} (%{carga}kg × %{reps})',
+      erroInvalido: 'Invalid step load/reps',
+    },
     biset: {
       setsRegistrados: 'Sets recorded',
       cargaInvalidaPara: 'Invalid load for %{nome}.',
@@ -196,6 +206,8 @@ export const enUS = {
       carregarSubstitutos: 'Could not load substitutes.',
       substituir: 'Could not swap the exercise.',
       atualizarTecnica: 'Could not update the technique.',
+      registrarSegmento: 'Could not record the step.',
+      removerSegmento: 'Could not remove the step.',
     },
   },
   dashboard: {

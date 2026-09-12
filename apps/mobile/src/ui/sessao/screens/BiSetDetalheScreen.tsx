@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { SessaoExercicioComSeries } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { RegistrarSegmentoInput } from '../../../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
@@ -10,10 +11,14 @@ import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useLocale, useT } from '../../shared/i18n';
 import { type AppLocale,translate } from '../../shared/i18n/core';
-import { METODO_CONFIG, metodoLabel } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
+import { DegrauForm } from '../components/DegrauForm';
+import { MetodoSelector } from '../components/MetodoSelector';
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
+import { DegrauChip } from '../components/SerieRow';
+import { parseDegrauInput, useDegrauForm } from '../hooks/useDegrauForm';
+import { mostraDescanso, precisaDegrauPrescrito } from '../presenters/segmentosPresentation';
 
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
 
@@ -50,6 +55,8 @@ interface Props {
   onToggleRealizadoGrupo: (sessaoExercicioIds: string[]) => Promise<void>;
   onAbrirSubstituicao: (sessaoExercicioId: string) => Promise<void>;
   onAtualizarMetodo: (sessaoExercicioId: string, metodo: SessaoExercicioPrimitives['metodo']) => Promise<void>;
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
+  onRemoverSegmento: (id: string) => Promise<void>;
   onProximoExercicio: () => void;
   onFinalizarSessao: () => void;
   onBack: () => void;
@@ -66,6 +73,8 @@ export function BiSetDetalheScreen({
   onToggleRealizadoGrupo,
   onAbrirSubstituicao,
   onAtualizarMetodo,
+  onRegistrarSegmento,
+  onRemoverSegmento,
   onProximoExercicio,
   onFinalizarSessao,
   onBack,
@@ -101,10 +110,24 @@ export function BiSetDetalheScreen({
     grupoItens.map((item) => String(item.sessaoExercicio.execucoesRecomendadas ?? 8))
   );
 
+  // Degrau 2 prescrito por exercicio (drop_set/rest_pause) — convite, nao obrigacao.
+  const [degrau2CargaTexts, setDegrau2CargaTexts] = useState<string[]>(() => grupoItens.map(() => ''));
+  const [degrau2RepsTexts, setDegrau2RepsTexts] = useState<string[]>(() =>
+    grupoItens.map((item) => String(item.sessaoExercicio.execucoesRecomendadas ?? 8))
+  );
+  const [degrau2DescansoTexts, setDegrau2DescansoTexts] = useState<string[]>(() =>
+    grupoItens.map((item) => (item.sessaoExercicio.metodo === 'rest_pause' ? '15' : ''))
+  );
+  const [degrau2Errors, setDegrau2Errors] = useState<Array<string | null>>(() => grupoItens.map(() => null));
+
   const [descanso, setDescanso] = useState<number | null>(
     grupoItens[0]?.sessaoExercicio.tempoDescansoSegundos ?? null
   );
   const [obs, setObs] = useState('');
+
+  // "+ degrau" inline por linha do set pareado — um por vez.
+  const [degrauAberto, setDegrauAberto] = useState<{ exIdx: number; setIdx: number } | null>(null);
+  const degrauInline = useDegrauForm(locale);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingSetIndexes, setDeletingSetIndexes] = useState<Set<number>>(new Set());
@@ -157,6 +180,21 @@ export function BiSetDetalheScreen({
     updateArr(setCargaTexts, i, String(Math.max(0, Math.round((base + delta) * 10) / 10)));
   };
 
+  const parseDegrau2 = (i: number) => {
+    const result = parseDegrauInput(
+      {
+        cargaText: degrau2CargaTexts[i] ?? '',
+        repsText: degrau2RepsTexts[i] ?? '',
+        descansoText: degrau2DescansoTexts[i] ?? '',
+      },
+      locale,
+      // Degrau 2 prescrito: reps já vem do template, só a carga sinaliza convite (achado #1, r2).
+      { cargaVaziaEhConvite: true },
+    );
+    updateArr<string | null>(setDegrau2Errors, i, result.error);
+    return result;
+  };
+
   const handleAdd = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -181,9 +219,34 @@ export function BiSetDetalheScreen({
           setIsSubmitting(false);
           return;
         }
-        inputs.push({ sessaoExercicioId: item.sessaoExercicio.id, cargaKg: cargaNum, repeticoes: repsNum, observacao: obs });
+        let degrau2Input: { cargaKg: number; repeticoes: number; descansoSegundos?: number } | null = null;
+        if (precisaDegrauPrescrito(item.sessaoExercicio.metodo)) {
+          const degrau2Result = parseDegrau2(i);
+          if (degrau2Result.error) {
+            // Degrau 2 preenchido porém inválido: bloqueia o registro (não é convite vazio) — achado #1.
+            setIsSubmitting(false);
+            return;
+          }
+          degrau2Input = degrau2Result.input;
+        }
+        inputs.push({
+          sessaoExercicioId: item.sessaoExercicio.id,
+          cargaKg: cargaNum,
+          repeticoes: repsNum,
+          observacao: obs,
+          segmentos: degrau2Input ? [degrau2Input] : undefined,
+        });
       }
       await onRegistrarSeriesEmLote(inputs);
+      // Re-prefila o Degrau 2 de cada exercício que o usou — mesmo comportamento
+      // de ExercicioDetalheScreen (achado #8): carga vazia, reps/descanso do template.
+      grupoItens.forEach((item, i) => {
+        if (!precisaDegrauPrescrito(item.sessaoExercicio.metodo)) return;
+        updateArr<string>(setDegrau2CargaTexts, i, '');
+        updateArr<string>(setDegrau2RepsTexts, i, String(item.sessaoExercicio.execucoesRecomendadas ?? 8));
+        updateArr<string>(setDegrau2DescansoTexts, i, item.sessaoExercicio.metodo === 'rest_pause' ? '15' : '');
+        updateArr<string | null>(setDegrau2Errors, i, null);
+      });
       if (descanso != null) startTimer(descanso);
       setObs('');
     } finally {
@@ -334,11 +397,6 @@ export function BiSetDetalheScreen({
                     <Text style={styles.exercicioNome} numberOfLines={1}>{item.sessaoExercicio.nomeSnapshot}</Text>
                     <View style={styles.exercicioMetaRow}>
                       <Text style={styles.exercicioMuscle} numberOfLines={1}>{item.sessaoExercicio.grupoMuscularSnapshot}</Text>
-                      {item.sessaoExercicio.metodo !== 'normal' ? (
-                        <View style={[styles.tecnicaBadge, { backgroundColor: METODO_CONFIG[item.sessaoExercicio.metodo]?.color ?? '#666' }]}>
-                          <Text style={styles.tecnicaBadgeText}>{metodoLabel(item.sessaoExercicio.metodo, locale)}</Text>
-                        </View>
-                      ) : null}
                     </View>
                   </View>
                   {!item.sessaoExercicio.realizado ? (
@@ -461,23 +519,28 @@ export function BiSetDetalheScreen({
                 </View>
 
                 {/* Per-exercise technique selector */}
-                <View style={styles.tecnicaRow}>
-                  {(['normal', 'drop_set', 'piramide', 'rest_pause'] as const).map((metodoValue) => {
-                    const active = item.sessaoExercicio.metodo === metodoValue;
-                    const cfg = metodoValue !== 'normal' ? METODO_CONFIG[metodoValue] : null;
-                    return (
-                      <Pressable
-                        key={metodoValue}
-                        onPress={() => { void onAtualizarMetodo(item.sessaoExercicio.id, metodoValue); }}
-                        style={[styles.tecnicaChip, active ? (cfg ? { backgroundColor: cfg.color, borderColor: cfg.color } : styles.tecnicaChipNormal) : null]}
-                      >
-                        <Text style={[styles.tecnicaChipText, active ? styles.tecnicaChipTextActive : null]}>
-                          {metodoLabel(metodoValue, locale)}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
+                <MetodoSelector
+                  metodo={item.sessaoExercicio.metodo}
+                  locale={locale}
+                  onChange={(novoMetodo) => { void onAtualizarMetodo(item.sessaoExercicio.id, novoMetodo); }}
+                />
+
+                {/* Degrau 2 prescrito — convite, nao obrigacao */}
+                {precisaDegrauPrescrito(item.sessaoExercicio.metodo) ? (
+                  <DegrauForm
+                    titulo={t('sessao.degrau.prescrito')}
+                    showDescanso={mostraDescanso(item.sessaoExercicio.metodo)}
+                    form={{
+                      cargaText: degrau2CargaTexts[i] ?? '',
+                      repsText: degrau2RepsTexts[i] ?? '',
+                      descansoText: degrau2DescansoTexts[i] ?? '',
+                      error: degrau2Errors[i] ?? null,
+                      setCargaText: (v) => updateArr(setDegrau2CargaTexts, i, v),
+                      setRepsText: (v) => updateArr(setDegrau2RepsTexts, i, v),
+                      setDescansoText: (v) => updateArr(setDegrau2DescansoTexts, i, v),
+                    }}
+                  />
+                ) : null}
               </View>
             ))}
 
@@ -587,10 +650,48 @@ export function BiSetDetalheScreen({
                         const serie = validSeriesPerExercicio[exIdx][setIdx];
                         if (!serie) return null;
                         const firstName = item.sessaoExercicio.nomeSnapshot.split(' ')[0];
+                        const isDegrauAberto = degrauAberto?.exIdx === exIdx && degrauAberto?.setIdx === setIdx;
                         return (
-                          <View key={item.sessaoExercicio.id} style={styles.setLine}>
-                            <Text style={styles.setExercicioNome} numberOfLines={1}>{firstName}</Text>
-                            <Text style={styles.setMetric}>{`${serie.cargaKg}kg × ${serie.repeticoes}`}</Text>
+                          <View key={item.sessaoExercicio.id}>
+                            <View style={styles.setLine}>
+                              <Text style={styles.setExercicioNome} numberOfLines={1}>{firstName}</Text>
+                              <Text style={styles.setMetric}>{`${serie.cargaKg}kg × ${serie.repeticoes}`}</Text>
+                              {[...(serie.segmentos ?? [])].sort((a, b) => a.ordem - b.ordem).map((segmento, idx) => (
+                                <DegrauChip
+                                  key={segmento.id}
+                                  segmento={segmento}
+                                  ordemExibicao={idx + 2}
+                                  realizado={allRealizado}
+                                  locale={locale}
+                                  onRemoverSegmento={(id) => { void onRemoverSegmento(id); }}
+                                />
+                              ))}
+                              {!allRealizado ? (
+                                <Pressable
+                                  onPress={() => { degrauInline.reset(); setDegrauAberto(isDegrauAberto ? null : { exIdx, setIdx }); }}
+                                  accessibilityRole="button"
+                                  accessibilityLabel={t('sessao.degrau.adicionar')}
+                                  style={({ pressed }) => [styles.addDegrauBtn, pressed ? { opacity: 0.6 } : null]}
+                                >
+                                  <Text style={styles.addDegrauBtnText}>{t('sessao.degrau.adicionar')}</Text>
+                                </Pressable>
+                              ) : null}
+                            </View>
+                            {isDegrauAberto ? (
+                              <DegrauForm
+                                titulo={t('sessao.degrau.titulo', { n: (serie.segmentos?.length ?? 0) + 2 })}
+                                form={degrauInline}
+                                showDescanso={false}
+                                onConfirm={() => {
+                                  const input = degrauInline.toInput();
+                                  if (!input) return;
+                                  void onRegistrarSegmento({ serieId: serie.id, ...input }).then((ok) => {
+                                    if (ok) setDegrauAberto(null);
+                                  });
+                                }}
+                                onCancel={() => setDegrauAberto(null)}
+                              />
+                            ) : null}
                           </View>
                         );
                       })}
@@ -598,6 +699,8 @@ export function BiSetDetalheScreen({
                     {!allRealizado ? (
                       <Pressable
                         disabled={isDeleting}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('sessao.a11y.removerSerie', { n: setIdx + 1 })}
                         onPress={() => { void handleDeleteSet(setIdx); }}
                         style={({ pressed }) => [styles.deleteBtn, (pressed || isDeleting) ? { opacity: 0.4 } : null]}
                       >
@@ -728,6 +831,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     setLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     setExercicioNome: { color: c.textPrimary, fontSize: 13, fontWeight: '700', width: 92 },
     setMetric: { color: c.textPrimary, fontSize: 13, fontVariant: ['tabular-nums'] },
+    addDegrauBtn: { paddingHorizontal: 6, paddingVertical: 2 },
+    addDegrauBtnText: { color: c.accent, fontSize: 11, fontWeight: '700' },
     deleteBtn: { padding: 4 },
     deleteBtnText: { color: c.error, fontSize: 15, fontWeight: '700' },
     flex1: { flex: 1 },

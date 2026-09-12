@@ -1,34 +1,34 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import type { RegistrarSegmentoInput } from '../../../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import type { RegistrarSerieInput } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
 import type { SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
-import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
+import type { SerieComSegmentos } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 
 type MetodoSessao = SessaoExercicioPrimitives['metodo'];
 
-const TECNICAS: { value: Exclude<MetodoSessao, 'normal'>; color: string }[] = [
-  { value: 'drop_set',   color: '#9333ea' },
-  { value: 'piramide',   color: '#d97706' },
-  { value: 'rest_pause', color: '#e11d48' },
-];
 import { PickerCarousel } from '../components/PickerCarousel';
 import { RestTimerBanner } from '../components/RestTimerBanner';
+import { MetodoSelector } from '../components/MetodoSelector';
+import { DegrauForm } from '../components/DegrauForm';
+import { SeriesRegistradasList } from '../components/SeriesRegistradasList';
+import { useDegrauForm } from '../hooks/useDegrauForm';
+import { precisaDegrauPrescrito, mostraDescanso, formatSerieMetric } from '../presenters/segmentosPresentation';
+import { formatDuracao } from '../../shared/degrauFormatters';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
-import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
-import { metodoLabel, metodoDescricao } from '../../shared/metodoPresentation';
 import { useTheme } from '../../shared/theme';
 import { useLocale, useT } from '../../shared/i18n';
 import { formatNumber } from '../../shared/i18n/formatters';
 
 interface Props {
   sessaoExercicio: SessaoExercicioPrimitives;
-  series: SerieRegistradaPrimitives[];
+  series: SerieComSegmentos[];
   sugestao: SugestaoProgressao | null;
   isLastExercicio: boolean;
   canFinalizar?: boolean;
@@ -41,6 +41,8 @@ interface Props {
   onToggleRealizado: (id: string) => Promise<void>;
   onAbrirSubstituicao: (id: string) => Promise<void>;
   onAtualizarMetodo: (id: string, metodo: MetodoSessao) => Promise<void>;
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
+  onRemoverSegmento: (id: string) => Promise<void>;
   onProximoExercicio: () => void;
   onFinalizarSessao: () => void;
   onBack: () => void;
@@ -65,34 +67,6 @@ function kgIndexFor(kg: number): number {
   return Math.max(0, Math.min(Math.round(kg / 2.5), KG_VALUES.length - 1));
 }
 
-function formatDuracao(segundos: number): string {
-  const min = Math.floor(segundos / 60);
-  const sec = segundos % 60;
-  if (min > 0) return `${min}:${String(sec).padStart(2, '0')} min`;
-  return `${sec}s`;
-}
-
-/** Display label for a series row, adapted to the exercise's tracking_type. */
-function formatSerieMetric(serie: SerieRegistradaPrimitives, trackingType: string): string {
-  switch (trackingType) {
-    case 'cardio': {
-      const parts: string[] = [];
-      if (serie.duracaoSegundos != null) parts.push(formatDuracao(serie.duracaoSegundos));
-      if (serie.distanciaMetros != null) parts.push(`${serie.distanciaMetros}m`);
-      if (serie.intensidade != null) parts.push(`int. ${serie.intensidade}`);
-      return parts.join(' · ') || '-';
-    }
-    case 'hold':
-      return serie.duracaoSegundos != null ? formatDuracao(serie.duracaoSegundos) : '-';
-    case 'reps_only':
-      return serie.repeticoes != null ? `${serie.repeticoes} reps` : '-';
-    default:
-      return serie.cargaKg != null && serie.repeticoes != null
-        ? `${formatCarga(serie.cargaKg)} kg × ${serie.repeticoes}`
-        : '-';
-  }
-}
-
 export function ExercicioDetalheScreen({
   sessaoExercicio,
   series,
@@ -108,6 +82,8 @@ export function ExercicioDetalheScreen({
   onToggleRealizado,
   onAbrirSubstituicao,
   onAtualizarMetodo,
+  onRegistrarSegmento,
+  onRemoverSegmento,
   onProximoExercicio,
   onFinalizarSessao,
   onBack,
@@ -117,6 +93,7 @@ export function ExercicioDetalheScreen({
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
   useAndroidBack(onBack);
+  const degrau2 = useDegrauForm(locale, { cargaVaziaEhConvite: true });
 
   const trackingType = sessaoExercicio.trackingTypeSnapshot;
 
@@ -167,14 +144,7 @@ export function ExercicioDetalheScreen({
   const [obs, setObs] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmittingSerie, setIsSubmittingSerie] = useState(false);
-  const [deletingSerieIds, setDeletingSerieIds] = useState<Set<string>>(new Set());
-  const [editingSerieId, setEditingSerieId] = useState<string | null>(null);
   const [confirmConcluirVisible, setConfirmConcluirVisible] = useState(false);
-  const [editKg, setEditKg] = useState(0);
-  const [editReps, setEditReps] = useState(0);
-  // Carga fora da grade de 2.5kg (ex.: halter de 6kg): o carrossel arredondaria
-  // e o toque salvaria o valor errado — nesse caso o editor usa input de texto.
-  const [editKgText, setEditKgText] = useState<string | null>(null);
 
   // Melhor serie (maior 1RM estimado) — so destaca com 2+ series comparaveis.
   const bestSerieId = useMemo(() => {
@@ -219,6 +189,13 @@ export function ExercicioDetalheScreen({
     setFormError(null);
     setTimer(null);
     setTimerMinimized(false);
+    // Degrau 2 prescrito: prefill quando o template já abre em drop_set/rest_pause
+    // (achado #2) e reset ao trocar de exercício, para não vazar texto do anterior.
+    if (precisaDegrauPrescrito(sessaoExercicio.metodo)) {
+      degrau2.prefillFrom(sessaoExercicio, sessaoExercicio.metodo);
+    } else {
+      degrau2.reset();
+    }
   }, [sessaoExercicio.id]);
 
   const startTimer = (segundos: number) => {
@@ -394,13 +371,21 @@ export function ExercicioDetalheScreen({
         return;
       }
 
+      // Degrau 2 preenchido porém inválido bloqueia o registro (vazio = convite, sem bloqueio) — achado #1 (r1).
+      const { input: degrau2Input, error: degrau2Error } = precisaDegrauPrescrito(metodo)
+        ? degrau2.parse()
+        : { input: null, error: null };
+      if (degrau2Error) return;
+
       await onRegistrarSerie({
         sessaoExercicioId: sessaoExercicio.id,
         cargaKg: cargaNum,
         repeticoes: repsNum,
         observacao: obs,
+        segmentos: degrau2Input ? [degrau2Input] : undefined,
       });
 
+      if (degrau2Input) degrau2.prefillFrom(sessaoExercicio, metodo);
       if (descanso != null) startTimer(descanso);
       setObs('');
     } finally {
@@ -612,7 +597,7 @@ export function ExercicioDetalheScreen({
               <View style={styles.barLabelRow}>
                 {validSeries.map((serie, i) => (
                   <View key={serie.id} style={styles.barLabelCol}>
-                    <Text style={styles.chartBarBotLabel}>{formatSerieMetric(serie, trackingType)}</Text>
+                    <Text style={styles.chartBarBotLabel}>{formatSerieMetric(serie, trackingType, locale)}</Text>
                     <Text style={styles.chartBarXLabel}>S{i + 1}</Text>
                   </View>
                 ))}
@@ -1011,32 +996,24 @@ export function ExercicioDetalheScreen({
           />
 
           {/* Technique selector */}
-          <View style={styles.tecnicaSection}>
-            <Text style={styles.pickerLabel}>{t('sessao.detalhe.tecnicaLabel')}</Text>
-            <View style={styles.tecnicaChipsRow}>
-              <Pressable
-                onPress={() => { setMetodo('normal'); void onAtualizarMetodo(sessaoExercicio.id, 'normal'); }}
-                style={[styles.tecnicaChip, metodo === 'normal' ? styles.tecnicaChipNormal : null]}
-              >
-                <Text style={[styles.tecnicaChipText, metodo === 'normal' ? styles.tecnicaChipTextNormal : null]}>{t('sessao.metodo.normal')}</Text>
-              </Pressable>
-              {TECNICAS.map((tecnica) => {
-                const active = metodo === tecnica.value;
-                return (
-                  <Pressable
-                    key={tecnica.value}
-                    onPress={() => { setMetodo(tecnica.value); void onAtualizarMetodo(sessaoExercicio.id, tecnica.value); }}
-                    style={[styles.tecnicaChip, active ? { backgroundColor: tecnica.color, borderColor: tecnica.color } : null]}
-                  >
-                    <Text style={[styles.tecnicaChipText, active ? styles.tecnicaChipTextActive : null]}>{metodoLabel(tecnica.value, locale)}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            {metodo !== 'normal' ? (
-              <Text style={styles.tecnicaDescricao}>{metodoDescricao(metodo, locale)}</Text>
-            ) : null}
-          </View>
+          <MetodoSelector
+            metodo={metodo}
+            locale={locale}
+            onChange={(novoMetodo) => {
+              setMetodo(novoMetodo);
+              void onAtualizarMetodo(sessaoExercicio.id, novoMetodo);
+              if (precisaDegrauPrescrito(novoMetodo)) degrau2.prefillFrom(sessaoExercicio, novoMetodo);
+            }}
+          />
+
+          {/* Degrau 2 prescrito — convite, não obrigação; só reps_load tem degrau (achado #7) */}
+          {trackingType === 'reps_load' && precisaDegrauPrescrito(metodo) ? (
+            <DegrauForm
+              titulo={t('sessao.degrau.prescrito')}
+              form={degrau2}
+              showDescanso={mostraDescanso(metodo)}
+            />
+          ) : null}
 
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
@@ -1088,158 +1065,17 @@ export function ExercicioDetalheScreen({
       ) : null}
 
       {/* Series list */}
-      {series.length > 0 ? (() => {
-        const totalVolume = trackingType === 'reps_load'
-          ? series.reduce((sum, s) => sum + (s.cargaKg ?? 0) * (s.repeticoes ?? 0), 0)
-          : 0;
-        return (
-        <View style={styles.seriesCard}>
-          <View style={styles.seriesHeader}>
-            <Text style={styles.seriesTitle}>{t('sessao.detalhe.seriesRegistradasTitle')}</Text>
-            <View style={styles.seriesSummaryChip}>
-              <Text style={styles.seriesSummaryText}>
-                {t('sessao.detalhe.seriesCount', { count: series.length })}
-                {totalVolume > 0 ? ` · ${formatNumber(Math.round(totalVolume), locale)} kg` : ''}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.seriesList}>
-            {series.map((serie, i) => {
-              const isEditing = editingSerieId === serie.id;
-              if (isEditing) {
-                return (
-                  <View key={serie.id} style={[styles.serieRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
-                    <Text style={styles.serieLabel}>{t('sessao.detalhe.editandoSerie')}</Text>
-                    <View style={styles.textModeRow}>
-                      <View style={styles.pickerCol}>
-                        <Text style={styles.pickerLabel}>{t('sessao.common.cargaKgLabel')}</Text>
-                        {editKgText !== null ? (
-                          <TextInput
-                            style={styles.cargaInput}
-                            value={editKgText}
-                            onChangeText={(text) => {
-                              setEditKgText(text);
-                              const num = parseDecimalInput(text);
-                              if (num != null && Number.isFinite(num) && num >= 0) setEditKg(num);
-                            }}
-                            keyboardType="decimal-pad"
-                            textAlign="center"
-                          />
-                        ) : (
-                          <PickerCarousel
-                            count={KG_VALUES.length}
-                            selectedIndex={kgIndexFor(editKg)}
-                            onChangeIndex={(i) => setEditKg(KG_VALUES[i])}
-                            formatItem={formatKgItem}
-                          />
-                        )}
-                      </View>
-                      <View style={styles.pickerCol}>
-                        <Text style={styles.pickerLabel}>{t('sessao.common.repsLabel')}</Text>
-                        <PickerCarousel
-                          count={30}
-                          selectedIndex={Math.max(0, Math.min(editReps - 1, 29))}
-                          onChangeIndex={(i) => setEditReps(i + 1)}
-                          formatItem={formatRepsItem}
-                        />
-                      </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      <Pressable
-                        onPress={() => {
-                          void (async () => {
-                            await onUpdateSerie({ serieId: serie.id, cargaKg: editKg, repeticoes: editReps });
-                            setEditingSerieId(null);
-                          })();
-                        }}
-                        style={({ pressed }) => [styles.addSerieBtn, { flex: 1 }, pressed ? { opacity: 0.85 } : null]}
-                      >
-                        <Text style={styles.addSerieBtnText}>{t('common.save')}</Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => setEditingSerieId(null)}
-                        style={({ pressed }) => [styles.concluirBtn, { flex: 1 }, pressed ? { opacity: 0.75 } : null]}
-                      >
-                        <Text style={styles.concluirBtnText}>{t('common.cancel')}</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                );
-              }
-              const isBest = serie.id === bestSerieId;
-              return (
-                <View key={serie.id} style={[styles.serieRow, isBest ? styles.serieRowBest : null]}>
-                  <View style={[styles.serieBadge, isBest ? styles.serieBadgeBest : null]}>
-                    <Text style={[styles.serieBadgeText, isBest ? styles.serieBadgeTextBest : null]}>{i + 1}</Text>
-                  </View>
-                  <Pressable
-                    style={{ flex: 1 }}
-                    onLongPress={() => {
-                      if (!sessaoExercicio.realizado && trackingType === 'reps_load' && serie.cargaKg != null && serie.repeticoes != null) {
-                        setEditingSerieId(serie.id);
-                        setEditKg(serie.cargaKg);
-                        setEditReps(serie.repeticoes);
-                        // Fora da grade do carrossel → editor abre em modo texto com o valor exato.
-                        setEditKgText(serie.cargaKg % 2.5 !== 0 ? String(serie.cargaKg) : null);
-                      }
-                    }}
-                  >
-                    {trackingType === 'reps_load' && serie.cargaKg != null && serie.repeticoes != null ? (
-                      <View style={styles.serieMetricRow}>
-                        <View style={styles.serieMetricCellRight}>
-                          <Text style={[styles.serieValue, isBest ? styles.serieValueBest : null]}>
-                            {formatCarga(serie.cargaKg)}
-                          </Text>
-                          <Text style={styles.serieUnit}> kg</Text>
-                        </View>
-                        <Text style={styles.serieTimes}>×</Text>
-                        <View style={styles.serieMetricCellLeft}>
-                          <Text style={[styles.serieValue, isBest ? styles.serieValueBest : null]}>
-                            {serie.repeticoes}
-                          </Text>
-                          <Text style={styles.serieUnit}> reps</Text>
-                        </View>
-                      </View>
-                    ) : (
-                      <Text style={[styles.serieLabel, isBest ? styles.serieLabelBest : null]}>
-                        {formatSerieMetric(serie, trackingType)}
-                      </Text>
-                    )}
-                    {serie.observacao ? <Text style={styles.serieObs}>{serie.observacao}</Text> : null}
-                  </Pressable>
-                  {isBest ? <Text style={styles.serieBestStar}>★</Text> : null}
-                  {!sessaoExercicio.realizado ? (
-                    <Pressable
-                      disabled={deletingSerieIds.has(serie.id)}
-                      onPress={() => {
-                        void (async () => {
-                          setDeletingSerieIds((prev) => new Set(prev).add(serie.id));
-                          try {
-                            await onDeleteSerie(serie.id);
-                          } finally {
-                            setDeletingSerieIds((prev) => {
-                              const next = new Set(prev);
-                              next.delete(serie.id);
-                              return next;
-                            });
-                          }
-                        })();
-                      }}
-                      style={({ pressed }) => [
-                        styles.deleteSerieBtn,
-                        (pressed || deletingSerieIds.has(serie.id)) ? { opacity: 0.4 } : null,
-                      ]}
-                    >
-                      <Text style={styles.deleteSerieBtnText}>✕</Text>
-                    </Pressable>
-                  ) : null}
-                </View>
-              );
-            })}
-          </View>
-        </View>
-        );
-      })() : null}
+      <SeriesRegistradasList
+        series={series}
+        trackingType={trackingType}
+        realizado={sessaoExercicio.realizado}
+        bestSerieId={bestSerieId}
+        locale={locale}
+        onDeleteSerie={onDeleteSerie}
+        onUpdateSerie={onUpdateSerie}
+        onRegistrarSegmento={onRegistrarSegmento}
+        onRemoverSegmento={onRemoverSegmento}
+      />
     </ScrollView>
     <ConfirmDialog
       visible={confirmConcluirVisible}

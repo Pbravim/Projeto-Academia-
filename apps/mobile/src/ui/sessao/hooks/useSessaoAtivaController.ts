@@ -7,7 +7,9 @@ import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cas
 import type { DeleteSerieUseCase } from '../../../application/sessoes/use-cases/DeleteSerieUseCase';
 import type { FinalizarSessaoUseCase } from '../../../application/sessoes/use-cases/FinalizarSessaoUseCase';
 import type { GetSessaoDetalheUseCase, SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { RegistrarSegmentoInput, RegistrarSegmentoUseCase } from '../../../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import type { RegistrarSerieInput, RegistrarSerieUseCase } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
+import type { RemoverSegmentoUseCase } from '../../../application/sessoes/use-cases/RemoverSegmentoUseCase';
 import type { SubstituirExercicioSessaoUseCase } from '../../../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
 import type { SugerirProgressaoUseCase,SugestaoProgressao } from '../../../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import type { CandidatoSubstituto,SugerirSubstitutosUseCase } from '../../../application/sessoes/use-cases/SugerirSubstitutosUseCase';
@@ -23,6 +25,8 @@ import { translate, useLocale } from '../../shared/i18n';
 export interface SessaoAtivaControllerDependencies {
   getSessaoDetalhe: GetSessaoDetalheUseCase;
   registrarSerie: RegistrarSerieUseCase;
+  registrarSegmento: RegistrarSegmentoUseCase;
+  removerSegmento: RemoverSegmentoUseCase;
   deleteSerie: DeleteSerieUseCase;
   updateSerie: UpdateSerieUseCase;
   toggleExercicioRealizado: ToggleExercicioRealizadoUseCase;
@@ -51,6 +55,9 @@ export interface SessaoAtivaControllerState {
   sessaoExercicioSubstituindo: string | null;
   onRegistrarSerie: (input: RegistrarSerieInput) => Promise<void>;
   onRegistrarSeriesEmLote: (inputs: RegistrarSerieInput[]) => Promise<void>;
+  /** `true` em sucesso — os chamadores (form inline de degrau) só fecham/limpam quando `true`. */
+  onRegistrarSegmento: (input: RegistrarSegmentoInput) => Promise<boolean>;
+  onRemoverSegmento: (segmentoId: string) => Promise<void>;
   onDeleteSerie: (serieId: string) => Promise<void>;
   onDeleteSeries: (serieIds: string[]) => Promise<void>;
   onUpdateSerie: (input: UpdateSerieInput) => Promise<void>;
@@ -178,6 +185,12 @@ export function useSessaoAtivaController(
     setErrorMessage(null);
     try {
       const nova = await dependencies.registrarSerie.execute(input);
+      if ((input.segmentos?.length ?? 0) > 0) {
+        // O use case cria os degraus junto com a série-mãe, mas retorna só a mãe
+        // (sem os ids gerados dos segmentos) — recarrega para trazê-los completos.
+        await loadDetalhe();
+        return;
+      }
       const alvo = detalhe?.exercicios.find((ex) => ex.sessaoExercicio.id === input.sessaoExercicioId);
       const carga = alvo ? novaCargaPadrao(alvo.sessaoExercicio, input) : null;
       patchExercicios(new Set([input.sessaoExercicioId]), (ex) => ({
@@ -199,6 +212,11 @@ export function useSessaoAtivaController(
   const onRegistrarSeriesEmLote = async (inputs: RegistrarSerieInput[]) => {
     setErrorMessage(null);
     try {
+      if (inputs.some((input) => (input.segmentos?.length ?? 0) > 0)) {
+        await Promise.all(inputs.map((input) => dependencies.registrarSerie.execute(input)));
+        await loadDetalhe();
+        return;
+      }
       const novas = await Promise.all(inputs.map((input) => dependencies.registrarSerie.execute(input)));
       const porExercicio = new Map<string, typeof novas>();
       inputs.forEach((input, i) => {
@@ -375,6 +393,30 @@ export function useSessaoAtivaController(
     setCandidatosSubstituicao([]);
   };
 
+  const onRegistrarSegmento = async (input: RegistrarSegmentoInput): Promise<boolean> => {
+    setErrorMessage(null);
+    try {
+      await dependencies.registrarSegmento.execute(input);
+      await loadDetalhe();
+      return true;
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.registrar_segmento_failed', error);
+      setErrorMessage(translate(locale, 'sessao.errors.registrarSegmento'));
+      return false;
+    }
+  };
+
+  const onRemoverSegmento = async (segmentoId: string) => {
+    setErrorMessage(null);
+    try {
+      await dependencies.removerSegmento.execute(segmentoId);
+      await loadDetalhe();
+    } catch (error) {
+      dependencies.logger.error('sessao_ativa.remover_segmento_failed', error);
+      setErrorMessage(translate(locale, 'sessao.errors.removerSegmento'));
+    }
+  };
+
   const onAtualizarMetodo = async (sessaoExercicioId: string, metodo: SessaoExercicioPrimitives['metodo']) => {
     setErrorMessage(null);
     try {
@@ -438,6 +480,8 @@ export function useSessaoAtivaController(
     sessaoExercicioSubstituindo,
     onRegistrarSerie,
     onRegistrarSeriesEmLote,
+    onRegistrarSegmento,
+    onRemoverSegmento,
     onDeleteSerie,
     onDeleteSeries,
     onUpdateSerie,

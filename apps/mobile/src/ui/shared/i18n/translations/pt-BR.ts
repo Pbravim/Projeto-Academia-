@@ -27,6 +27,7 @@ export const ptBR = {
       verMidia: 'Ver demonstração do exercício',
       concluirExercicio: 'Concluir exercício',
       concluirGrupo: 'Concluir grupo de exercícios',
+      removerSerie: 'Remover série %{n}',
     },
     common: {
       concluir: 'Concluir',
@@ -136,6 +137,15 @@ export const ptBR = {
       concluirTitle: 'Concluir exercício',
       concluirMessage: 'Marcar "%{nome}" como concluído?',
     },
+    degrau: {
+      adicionar: '+ degrau',
+      titulo: 'Degrau %{n}',
+      prescrito: 'Degrau 2 — prescrito no treino',
+      descansoLabel: 'Descanso (s)',
+      remover: 'Remover degrau',
+      removerN: 'Remover degrau %{n} (%{carga}kg × %{reps})',
+      erroInvalido: 'Carga e repetições do degrau inválidas',
+    },
     biset: {
       setsRegistrados: 'Sets registrados',
       cargaInvalidaPara: 'Carga inválida para %{nome}.',
@@ -197,6 +207,8 @@ export const ptBR = {
       carregarSubstitutos: 'Não foi possível carregar substitutos.',
       substituir: 'Não foi possível substituir o exercício.',
       atualizarTecnica: 'Não foi possível atualizar a técnica.',
+      registrarSegmento: 'Não foi possível registrar o degrau.',
+      removerSegmento: 'Não foi possível remover o degrau.',
     },
   },
   dashboard: {
