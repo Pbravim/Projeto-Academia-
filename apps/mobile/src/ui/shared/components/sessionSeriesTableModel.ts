@@ -1,6 +1,9 @@
 import { calcularEstimativa1rm } from '../../../shared/utils/estimativa1rm';
+import { formatCarga, formatDegrausStack } from '../degrauFormatters';
 import { type AppLocale,translate } from '../i18n/core';
 import { formatFixedDecimal } from '../i18n/formatters';
+
+export { formatCarga } from '../degrauFormatters';
 
 export interface SessionTableInputSet {
   cargaKg: number;
@@ -39,12 +42,6 @@ export interface SessionTableRowVM {
   volumeLabel: string | null;
   trend: 'up' | 'down' | null;
   isLatest: boolean;
-}
-
-export function formatCarga(kg: number, locale: AppLocale = 'pt-BR'): string {
-  if (kg % 1 === 0) return String(kg);
-  const oneDecimal = Math.round(kg * 10) / 10;
-  return formatFixedDecimal(kg, locale, oneDecimal === kg ? 1 : 2);
 }
 
 export function formatVolume(kg: number, locale: AppLocale = 'pt-BR'): string {
@@ -86,12 +83,7 @@ export function buildSessionTableRows(
         !bestMarked &&
         calcularEstimativa1rm(x.cargaKg, x.repeticoes) === best;
       if (isBest) bestMarked = true;
-      const degrausLabel = x.segmentos && x.segmentos.length > 0
-        ? [
-            `${formatCarga(x.cargaKg, locale)}×${x.repeticoes}`,
-            ...x.segmentos.map((seg) => `${formatCarga(seg.cargaKg, locale)}×${seg.repeticoes}`),
-          ].join(' → ')
-        : null;
+      const degrausLabel = formatDegrausStack({ cargaKg: x.cargaKg, repeticoes: x.repeticoes }, x.segmentos, locale);
       return {
         cargaLabel: formatCarga(x.cargaKg, locale),
         repsLabel: String(x.repeticoes),

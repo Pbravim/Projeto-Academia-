@@ -16,6 +16,7 @@ import { DegrauForm } from '../components/DegrauForm';
 import { SeriesRegistradasList } from '../components/SeriesRegistradasList';
 import { useDegrauForm } from '../hooks/useDegrauForm';
 import { precisaDegrauPrescrito, mostraDescanso, formatSerieMetric } from '../presenters/segmentosPresentation';
+import { formatDuracao } from '../../shared/degrauFormatters';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
 import { ConfirmDialog } from '../../shared/components/ConfirmDialog';
 import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
@@ -64,13 +65,6 @@ const DESCANSO_PRESETS: { label: string; value: number | null }[] = [
 
 function kgIndexFor(kg: number): number {
   return Math.max(0, Math.min(Math.round(kg / 2.5), KG_VALUES.length - 1));
-}
-
-function formatDuracao(segundos: number): string {
-  const min = Math.floor(segundos / 60);
-  const sec = segundos % 60;
-  if (min > 0) return `${min}:${String(sec).padStart(2, '0')} min`;
-  return `${sec}s`;
 }
 
 export function ExercicioDetalheScreen({

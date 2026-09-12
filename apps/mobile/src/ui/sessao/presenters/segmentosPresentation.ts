@@ -1,5 +1,5 @@
 import type { SerieSegmentoPrimitives } from '../../../domain/sessoes/entities/SerieSegmento';
-import { formatCarga } from '../../shared/components/sessionSeriesTableModel';
+import { formatCarga, formatDegrausStack as formatDegrausStackOrdenado, formatDuracao } from '../../shared/degrauFormatters';
 import type { AppLocale } from '../../shared/i18n/core';
 
 export type MetodoSessao = 'normal' | 'drop_set' | 'piramide' | 'rest_pause';
@@ -18,18 +18,8 @@ export function formatDegrausStack(
   locale: AppLocale = 'pt-BR',
 ): string | null {
   if (!segmentos || segmentos.length === 0) return null;
-  if (serie.cargaKg == null || serie.repeticoes == null) return null;
-
-  const degraus = [...segmentos]
-    .sort((a, b) => a.ordem - b.ordem)
-    .filter((s) => s.cargaKg != null && s.repeticoes != null);
-
-  const partes = [
-    `${formatCarga(serie.cargaKg, locale)}×${serie.repeticoes}`,
-    ...degraus.map((s) => `${formatCarga(s.cargaKg!, locale)}×${s.repeticoes}`),
-  ];
-
-  return partes.join(' → ');
+  const ordenados = [...segmentos].sort((a, b) => a.ordem - b.ordem);
+  return formatDegrausStackOrdenado(serie, ordenados, locale);
 }
 
 /** Métodos cujo template pré-cria um 2º degrau (Degrau 2 — prescrito). */
@@ -47,13 +37,6 @@ export function volumeComDegraus(serie: SerieMaeBase, segmentos: SegmentoBase[] 
   const base = (serie.cargaKg ?? 0) * (serie.repeticoes ?? 0);
   const extra = (segmentos ?? []).reduce((sum, s) => sum + (s.cargaKg ?? 0) * (s.repeticoes ?? 0), 0);
   return base + extra;
-}
-
-function formatDuracao(segundos: number): string {
-  const min = Math.floor(segundos / 60);
-  const sec = segundos % 60;
-  if (min > 0) return `${min}:${String(sec).padStart(2, '0')} min`;
-  return `${sec}s`;
 }
 
 interface SerieMetricInput {
