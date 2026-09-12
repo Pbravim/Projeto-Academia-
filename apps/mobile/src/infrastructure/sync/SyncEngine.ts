@@ -3,6 +3,7 @@ import type {
   ExerciseSyncRow,
   RegistroPesoSyncRow,
   SerieRegistradaSyncRow,
+  SerieSegmentoSyncRow,
   SessaoExercicioSyncRow,
   SessaoTreinoSyncRow,
   SyncRequest,
@@ -56,6 +57,7 @@ export class SyncEngine {
     private readonly sessaoTreinoRepo: SyncableRepo<SessaoTreinoSyncRow>,
     private readonly sessaoExercicioRepo: SyncableRepo<SessaoExercicioSyncRow>,
     private readonly serieRepo: SyncableRepo<SerieRegistradaSyncRow>,
+    private readonly serieSegmentoRepo: SyncableRepo<SerieSegmentoSyncRow>,
     private readonly pesoRepo: SyncableRepo<RegistroPesoSyncRow>,
     private readonly exerciseAlternativeRepo: SyncableRepo<ExerciseAlternativeSyncRow>,
     private readonly database?: TransactionRunner,
@@ -103,6 +105,7 @@ export class SyncEngine {
       sessaoTreinos,
       sessaoExercicios,
       seriesRegistradas,
+      serieSegmentos,
       registrosPeso,
       exerciseAlternatives,
     ] = await Promise.all([
@@ -112,6 +115,7 @@ export class SyncEngine {
       this.sessaoTreinoRepo.getDirty(),
       this.sessaoExercicioRepo.getDirty(),
       this.serieRepo.getDirty(),
+      this.serieSegmentoRepo.getDirty(),
       this.pesoRepo.getDirty(),
       this.exerciseAlternativeRepo.getDirty(),
     ]);
@@ -127,6 +131,7 @@ export class SyncEngine {
           sessaoTreinos,
           sessaoExercicios,
           seriesRegistradas,
+          serieSegmentos,
           registrosPeso,
           userSettings: [],
           exerciseAlternatives,
@@ -158,6 +163,8 @@ export class SyncEngine {
       await applyIfAny(serverChanges.sessaoTreinos, this.sessaoTreinoRepo);
       await applyIfAny(serverChanges.sessaoExercicios, this.sessaoExercicioRepo);
       await applyIfAny(serverChanges.seriesRegistradas, this.serieRepo);
+      // Imediatamente após seriesRegistradas (FK): o degrau não pode chegar antes da mãe.
+      await applyIfAny(serverChanges.serieSegmentos ?? [], this.serieSegmentoRepo);
       await applyIfAny(serverChanges.registrosPeso, this.pesoRepo);
     };
 

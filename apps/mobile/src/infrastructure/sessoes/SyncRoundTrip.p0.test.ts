@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { RegistroPeso } from '../../domain/peso/entities/RegistroPeso';
+import { SerieRegistrada } from '../../domain/sessoes/entities/SerieRegistrada';
+import { SerieSegmento } from '../../domain/sessoes/entities/SerieSegmento';
 import { SessaoExercicio } from '../../domain/sessoes/entities/SessaoExercicio';
 import { SessaoTreino } from '../../domain/sessoes/entities/SessaoTreino';
 import { createTestDatabase } from '../../test/db-setup';
 import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseClient';
 import { SQLiteRegistroPesoRepository } from '../peso/SQLiteRegistroPesoRepository';
 
+import { SQLiteSerieRegistradaRepository } from './SQLiteSerieRegistradaRepository';
+import { SQLiteSerieSegmentoRepository } from './SQLiteSerieSegmentoRepository';
 import { SQLiteSessaoExercicioRepository } from './SQLiteSessaoExercicioRepository';
 import { SQLiteSessaoTreinoRepository } from './SQLiteSessaoTreinoRepository';
 
@@ -154,5 +158,80 @@ describe('SQLiteRegistroPesoRepository — sync round-trip', () => {
 
     const applied = await repo2.findById('rp-1');
     expect(applied?.toPrimitives()).toMatchObject({ pesoKg: 82.5, observacao: 'em jejum' });
+  });
+});
+
+describe('SerieRegistrada + SerieSegmento — sync round-trip (mãe + degrau)', () => {
+  it('sincroniza a série-mãe e o degrau juntos, parent-first, num device novo', async () => {
+    await db.run(
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, status)
+       VALUES ('st-1', 'treino-1', 'Treino A', '2026-09-12T10:00:00.000Z', 'em_andamento')`
+    );
+    await db.run(
+      `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot)
+       VALUES ('se-1', 'st-1', 'ex-1', 0, 'Supino', 'Peito', 'Composto')`
+    );
+
+    const serieRepo = new SQLiteSerieRegistradaRepository(db);
+    const segmentoRepo = new SQLiteSerieSegmentoRepository(db);
+
+    await serieRepo.save(SerieRegistrada.restore({
+      id: 'serie-1', sessaoExercicioId: 'se-1', ordem: 0, tipoSerie: 'valida',
+      cargaKg: 80, repeticoes: 10, duracaoSegundos: null, distanciaMetros: null,
+      intensidade: null, observacao: null,
+    }));
+    await segmentoRepo.save(SerieSegmento.create({
+      id: 'seg-1', serieId: 'serie-1', ordem: 2, cargaKg: 60, repeticoes: 6, descansoSegundos: 20,
+    }));
+
+    const dirtySeries = await serieRepo.getDirty();
+    const dirtySegmentos = await segmentoRepo.getDirty();
+    expect(dirtySeries).toHaveLength(1);
+    expect(dirtySegmentos).toHaveLength(1);
+
+    // Device novo: aplica a mãe antes do degrau (FK real).
+    const db2 = createTestDatabase();
+    await db2.run(
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, status)
+       VALUES ('st-1', 'treino-1', 'Treino A', '2026-09-12T10:00:00.000Z', 'em_andamento')`
+    );
+    await db2.run(
+      `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot)
+       VALUES ('se-1', 'st-1', 'ex-1', 0, 'Supino', 'Peito', 'Composto')`
+    );
+    const serieRepo2 = new SQLiteSerieRegistradaRepository(db2);
+    const segmentoRepo2 = new SQLiteSerieSegmentoRepository(db2);
+    await serieRepo2.applyServerRows(dirtySeries);
+    await segmentoRepo2.applyServerRows(dirtySegmentos);
+
+    const mae = await serieRepo2.findById('serie-1');
+    const degrau = await segmentoRepo2.findById('seg-1');
+    expect(mae?.toPrimitives()).toMatchObject({ cargaKg: 80, repeticoes: 10 });
+    expect(degrau?.toPrimitives()).toMatchObject({ serieId: 'serie-1', ordem: 2, cargaKg: 60, repeticoes: 6 });
+  });
+
+  it('apagar a série-mãe tombstona também o degrau (cascata explícita de soft-delete)', async () => {
+    await db.run(
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, status)
+       VALUES ('st-2', 'treino-1', 'Treino A', '2026-09-12T10:00:00.000Z', 'em_andamento')`
+    );
+    await db.run(
+      `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot)
+       VALUES ('se-2', 'st-2', 'ex-1', 0, 'Supino', 'Peito', 'Composto')`
+    );
+    const serieRepo = new SQLiteSerieRegistradaRepository(db);
+    const segmentoRepo = new SQLiteSerieSegmentoRepository(db);
+    await serieRepo.save(SerieRegistrada.restore({
+      id: 'serie-2', sessaoExercicioId: 'se-2', ordem: 0, tipoSerie: 'valida',
+      cargaKg: 80, repeticoes: 10, duracaoSegundos: null, distanciaMetros: null,
+      intensidade: null, observacao: null,
+    }));
+    await segmentoRepo.save(SerieSegmento.create({
+      id: 'seg-2', serieId: 'serie-2', ordem: 2, cargaKg: 60, repeticoes: 6,
+    }));
+
+    await serieRepo.delete('serie-2');
+
+    expect(await segmentoRepo.findById('seg-2')).toBeNull();
   });
 });

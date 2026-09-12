@@ -10,6 +10,7 @@ const emptyChanges = () => ({
   sessaoTreinos: [],
   sessaoExercicios: [],
   seriesRegistradas: [],
+  serieSegmentos: [],
   registrosPeso: [],
   userSettings: [],
   exerciseAlternatives: [],
@@ -34,6 +35,7 @@ describe('SyncEngine', () => {
   let sessaoTreinoRepo: ReturnType<typeof makeRepo>;
   let sessaoExercicioRepo: ReturnType<typeof makeRepo>;
   let serieRepo: ReturnType<typeof makeRepo>;
+  let serieSegmentoRepo: ReturnType<typeof makeRepo>;
   let pesoRepo: ReturnType<typeof makeRepo>;
   let exerciseAlternativeRepo: ReturnType<typeof makeRepo>;
 
@@ -47,6 +49,7 @@ describe('SyncEngine', () => {
       sessaoTreinoRepo,
       sessaoExercicioRepo,
       serieRepo,
+      serieSegmentoRepo,
       pesoRepo,
       exerciseAlternativeRepo,
       undefined,
@@ -62,6 +65,7 @@ describe('SyncEngine', () => {
     sessaoTreinoRepo = makeRepo();
     sessaoExercicioRepo = makeRepo();
     serieRepo = makeRepo();
+    serieSegmentoRepo = makeRepo();
     pesoRepo = makeRepo();
     exerciseAlternativeRepo = makeRepo();
   });

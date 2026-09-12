@@ -77,6 +77,48 @@ export class SQLiteSerieSegmentoRepository implements SerieSegmentoRepository {
       [nowIso(), nowIso(), ...serieIds]
     );
   }
+
+  async getDirty(): Promise<import('@academia/contracts').SerieSegmentoSyncRow[]> {
+    const rows = await this.database.getAll<{
+      id: string; serie_id: string; ordem: number;
+      carga_kg: number | null; repeticoes: number | null; descanso_segundos: number | null;
+      created_at: string; updated_at: string; deleted_at: string | null;
+    }>(
+      `SELECT id, serie_id, ordem, carga_kg, repeticoes, descanso_segundos,
+              created_at, updated_at, deleted_at
+       FROM serie_segmentos WHERE dirty = 1`
+    );
+    return rows.map((r) => ({
+      id: r.id, serieId: r.serie_id, ordem: r.ordem,
+      cargaKg: r.carga_kg, repeticoes: r.repeticoes, descansoSegundos: r.descanso_segundos,
+      createdAt: r.created_at, updatedAt: r.updated_at, deletedAt: r.deleted_at,
+    }));
+  }
+
+  async applyServerRows(rows: import('@academia/contracts').SerieSegmentoSyncRow[]): Promise<void> {
+    for (const r of rows) {
+      await this.database.run(
+        // Guarda LWW: linha local dirty mais nova nunca e sobrescrita pelo echo-back.
+        `INSERT INTO serie_segmentos
+           (id, serie_id, ordem, carga_kg, repeticoes, descanso_segundos,
+            created_at, updated_at, deleted_at, dirty, server_rev)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)
+         ON CONFLICT(id) DO UPDATE SET
+           serie_id = excluded.serie_id,
+           ordem = excluded.ordem,
+           carga_kg = excluded.carga_kg,
+           repeticoes = excluded.repeticoes,
+           descanso_segundos = excluded.descanso_segundos,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at,
+           dirty = 0,
+           server_rev = 1
+         WHERE serie_segmentos.dirty = 0 OR serie_segmentos.updated_at IS NULL OR excluded.updated_at >= serie_segmentos.updated_at`,
+        [r.id, r.serieId, r.ordem, r.cargaKg, r.repeticoes, r.descansoSegundos,
+         r.createdAt, r.updatedAt, r.deletedAt]
+      );
+    }
+  }
 }
 
 function mapRow(row: SerieSegmentoRow): SerieSegmentoPrimitives {
