@@ -80,7 +80,9 @@ export class InMemoryExerciseRepository implements ExerciseRepository {
       const p = exercise.toPrimitives();
       const inName = p.normalizedName.includes(q);
       const inVariations = p.nameVariations.some((v) => v.toLowerCase().includes(q));
-      if (inName || inVariations) results.push(exercise);
+      const inEquipment = (p.equipment ?? '').toLowerCase().includes(q);
+      const inPrimaryEquipment = (p.primaryEquipment ?? '').toLowerCase().includes(q);
+      if (inName || inVariations || inEquipment || inPrimaryEquipment) results.push(exercise);
     }
     return results;
   }

@@ -140,9 +140,11 @@ export class SQLiteExerciseRepository implements ExerciseRepository {
        FROM exercises
        WHERE deleted_at IS NULL
          AND (normalized_name LIKE ?
-              OR (name_variations IS NOT NULL AND LOWER(name_variations) LIKE ?))
+              OR (name_variations IS NOT NULL AND LOWER(name_variations) LIKE ?)
+              OR (equipment IS NOT NULL AND LOWER(equipment) LIKE ?)
+              OR (primary_equipment IS NOT NULL AND LOWER(primary_equipment) LIKE ?))
        ORDER BY normalized_name ASC`,
-      [q, q]
+      [q, q, q, q]
     );
     return rows.map((row) => Exercise.restore(mapRowToPrimitives(row)));
   }
