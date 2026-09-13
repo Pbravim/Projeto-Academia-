@@ -1,13 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { Exercise } from '../../../domain/exercises/entities/Exercise';
+import { Exercise, type ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { Treino } from '../../../domain/treinos/entities/Treino';
-import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
+import { TreinoExercicio, type TreinoExercicioPrimitives } from '../../../domain/treinos/entities/TreinoExercicio';
+import { casarExercicios } from '../../../domain/treinos/treino-json/casarExercicios';
+import { parseTreinoJson } from '../../../domain/treinos/treino-json/parseTreinoJson';
 import { InMemoryExerciseRepository } from '../../../infrastructure/exercises/InMemoryExerciseRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { TreinoNotFoundError } from '../errors/TreinoNotFoundError';
 
+import { ConfirmarImportacaoTreinoUseCase, type ImportacaoResolvida } from './ConfirmarImportacaoTreinoUseCase';
+import { CreateTreinoUseCase } from './CreateTreinoUseCase';
 import { ExportarTreinoUseCase } from './ExportarTreinoUseCase';
 
 describe('ExportarTreinoUseCase', () => {
@@ -86,5 +90,68 @@ describe('ExportarTreinoUseCase', () => {
     await uc.execute('treino-1');
 
     expect(findByIdsSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('round-trip: export -> parse -> casar -> confirmar reproduz os TreinoExercicio originais (por particao de grupo)', async () => {
+    const treinoRepository = new InMemoryTreinoRepository();
+    const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
+    const exerciseRepository = new InMemoryExerciseRepository();
+
+    const exercicios: ExercisePrimitives[] = [
+      Exercise.create({ id: 'ex-1', name: 'Supino reto com barra', groupMuscles: ['Peito'], createdAt: new Date('2026-01-01') }).toPrimitives(),
+      Exercise.create({ id: 'ex-2', name: 'Triceps corda', groupMuscles: ['Triceps'], createdAt: new Date('2026-01-01') }).toPrimitives(),
+      Exercise.create({ id: 'ex-3', name: 'Triceps testa', groupMuscles: ['Triceps'], createdAt: new Date('2026-01-01') }).toPrimitives(),
+      Exercise.create({ id: 'ex-4', name: 'Esteira', groupMuscles: ['Cardio'], createdAt: new Date('2026-01-01') }).toPrimitives(),
+    ];
+    for (const exercicio of exercicios) await exerciseRepository.save(Exercise.restore(exercicio));
+
+    await treinoRepository.save(Treino.create({ id: 'treino-rt', name: 'Treino Round Trip', createdAt: new Date('2026-01-01') }));
+
+    const originais: TreinoExercicioPrimitives[] = [
+      { id: 'te-1', treinoId: 'treino-rt', exercicioId: 'ex-1', ordem: 1, seriesRecomendadas: 4, execucoesRecomendadas: 8, cargaPadrao: null, tempoDescansoSegundos: 90, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null },
+      { id: 'te-2', treinoId: 'treino-rt', exercicioId: 'ex-2', ordem: 2, seriesRecomendadas: 3, execucoesRecomendadas: 15, cargaPadrao: null, tempoDescansoSegundos: 60, metodo: 'normal', grupoId: 'g1', duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null },
+      { id: 'te-3', treinoId: 'treino-rt', exercicioId: 'ex-3', ordem: 3, seriesRecomendadas: 3, execucoesRecomendadas: 12, cargaPadrao: null, tempoDescansoSegundos: 60, metodo: 'normal', grupoId: 'g1', duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null },
+      { id: 'te-4', treinoId: 'treino-rt', exercicioId: 'ex-4', ordem: 4, seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: 600, distanciaRecomendadaMetros: 2000, intensidadeRecomendada: 7 },
+    ];
+    for (const original of originais) await treinoExercicioRepository.save(TreinoExercicio.create(original));
+
+    const exportarUc = new ExportarTreinoUseCase({ treinoRepository, treinoExercicioRepository, exerciseRepository });
+    const { conteudo } = await exportarUc.execute('treino-rt');
+
+    const parseResult = parseTreinoJson(conteudo);
+    expect(parseResult.ok).toBe(true);
+    if (!parseResult.ok) return;
+
+    const propostaItens = casarExercicios(parseResult.treino.exercicios, exercicios);
+    expect(propostaItens.every((i) => i.status === 'casado')).toBe(true);
+
+    const resolvida: ImportacaoResolvida = {
+      nome: `${parseResult.treino.nome} (reimportado)`,
+      objetivo: parseResult.treino.objetivo,
+      itens: propostaItens.map((i) => ({ item: i.item, exercicioId: (i.exercicio as ExercisePrimitives).id })),
+    };
+
+    let idCounter = 0;
+    let grupoCounter = 0;
+    const confirmarUc = new ConfirmarImportacaoTreinoUseCase({
+      createTreino: new CreateTreinoUseCase({ treinoRepository, idGenerator: () => 'treino-rt-2', now: () => new Date('2026-02-01') }),
+      treinoExercicioRepository,
+      idGenerator: () => `te-rt-${++idCounter}`,
+      gerarGrupoId: () => `grupo-rt-${++grupoCounter}`,
+    });
+
+    const novoTreino = await confirmarUc.execute(resolvida);
+    const reconstruidos = await treinoExercicioRepository.listByTreinoId(novoTreino.id);
+    const reconstruidosPrimitives = reconstruidos.map((te) => te.toPrimitives());
+
+    const semIdentidade = (te: TreinoExercicioPrimitives) => {
+      const { id: _id, treinoId: _treinoId, grupoId: _grupoId, ...resto } = te;
+      return resto;
+    };
+    expect(reconstruidosPrimitives.map(semIdentidade)).toEqual(originais.map(semIdentidade));
+
+    const particao = (itens: TreinoExercicioPrimitives[]) =>
+      itens.map((te) => itens.findIndex((outro) => outro.grupoId !== null && outro.grupoId === te.grupoId));
+    expect(particao(reconstruidosPrimitives)).toEqual(particao(originais));
   });
 });
