@@ -245,22 +245,20 @@ describe('SqliteHistoricoExportRepository', () => {
 
   it('orders by exercicio_ordem e serie_ordem mesmo quando inseridos fora de ordem (prende a REGRA, não o rowid nem o id)', async () => {
     await seedSessao(db);
-    // Ids escolhidos para ordenar AO CONTRÁRIO de `ordem` (e o rowid de
-    // inserção também fica invertido): uma query que ordene por `se.id`/
-    // `sr.id` em vez de `se.ordem`/`sr.ordem` produziria a ordem errada e
-    // este teste morreria — não só a mutação que ordena por rowid.
-    await seedExercicio(db, { id: 'se-a', ordem: 2 });
-    await seedExercicio(db, { id: 'se-z', ordem: 1 });
-    await seedSerie(db, { id: 'sra-a', sessaoExercicioId: 'se-a', ordem: 2 });
-    await seedSerie(db, { id: 'sra-z', sessaoExercicioId: 'se-a', ordem: 1 });
-    await seedSerie(db, { id: 'srz-a', sessaoExercicioId: 'se-z', ordem: 2 });
-    await seedSerie(db, { id: 'srz-z', sessaoExercicioId: 'se-z', ordem: 1 });
+    // Ids não-monotônicos em relação a `ordem` (1/2/3 ↔ se-b/se-c/se-a): uma
+    // query que ordene por `se.id` (ASC OU DESC) em vez de `se.ordem`
+    // produziria uma ordem errada nos dois sentidos — não só a mutação que
+    // ordena por rowid (achado #1, review-c-2/c-3).
+    await seedExercicio(db, { id: 'se-b', ordem: 1 });
+    await seedExercicio(db, { id: 'se-c', ordem: 2 });
+    await seedExercicio(db, { id: 'se-a', ordem: 3 });
+    await seedSerie(db, { id: 'sr-b', sessaoExercicioId: 'se-b', ordem: 1 });
+    await seedSerie(db, { id: 'sr-c', sessaoExercicioId: 'se-c', ordem: 1 });
+    await seedSerie(db, { id: 'sr-a', sessaoExercicioId: 'se-a', ordem: 1 });
 
     const { series } = await repo.listRowsParaExportacao();
 
-    expect(series.map((s) => [s.exercicio_ordem, s.serie_ordem])).toEqual([
-      [1, 1], [1, 2], [2, 1], [2, 2],
-    ]);
+    expect(series.map((s) => s.sessao_exercicio_id)).toEqual(['se-b', 'se-c', 'se-a']);
   });
 
   it('ordena segmentos por ordem mesmo quando inseridos fora de ordem e de id', async () => {
