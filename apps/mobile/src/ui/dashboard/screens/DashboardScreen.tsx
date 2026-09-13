@@ -60,7 +60,7 @@ export function DashboardScreen({
           disabled={isExporting || isLoading || isResetting}
           style={({ pressed }) => [styles.exportBtn, pressed ? { opacity: 0.8 } : null, (isExporting || isLoading || isResetting) ? styles.exportBtnDisabled : null]}
         >
-          <Text style={styles.exportBtnText}>{isExporting ? t('dashboard.home.exportando') : t('dashboard.home.exportarCsv')}</Text>
+          <Text style={styles.exportBtnText}>{isExporting ? t('dashboard.home.exportando') : t('dashboard.home.exportarHistorico')}</Text>
         </Pressable>
         <Pressable
           onPress={() => setConfirmResetVisible(true)}

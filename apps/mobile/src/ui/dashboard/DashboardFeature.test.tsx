@@ -56,6 +56,10 @@ vi.mock('./hooks/useTreinoEvolucaoController', () => ({
 
 vi.mock('../shared/tabActivity', () => ({ useTabActive: () => true }));
 
+vi.mock('../shared/components/ExportFormatDialog', () => ({
+  ExportFormatDialog: host('ExportFormatDialog'),
+}));
+
 vi.mock('./screens/DashboardScreen', () => ({
   DashboardScreen: host('DashboardScreen'),
 }));
