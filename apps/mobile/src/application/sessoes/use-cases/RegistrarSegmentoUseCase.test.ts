@@ -52,7 +52,7 @@ async function seedAtiva(deps: ReturnType<typeof makeDeps>, trackingTypeSnapshot
     treinoExercicioRepository: new InMemoryTreinoExercicioRepository(),
     idGenerator: () => `serie_${++idCounter}`,
   });
-  return trackingTypeSnapshot === 'cardio'
+  return trackingTypeSnapshot === 'cardio' || trackingTypeSnapshot === 'hold'
     ? registrarSerie.execute({ sessaoExercicioId: 'se_1', duracaoSegundos: 600 })
     : registrarSerie.execute({ sessaoExercicioId: 'se_1', cargaKg: 60, repeticoes: 8 });
 }
@@ -107,14 +107,17 @@ describe('RegistrarSegmentoUseCase', () => {
     ).rejects.toThrow(SessaoEncerradaError);
   });
 
-  it('throws SessaoValidationError when exercicio is not reps_load (e.g. cardio)', async () => {
-    const deps = makeDeps();
-    const serie = await seedAtiva(deps, 'cardio');
+  it.each(['cardio', 'hold', 'reps_only'] as const)(
+    'throws SessaoValidationError when exercicio is not reps_load (%s)',
+    async (trackingType) => {
+      const deps = makeDeps();
+      const serie = await seedAtiva(deps, trackingType);
 
-    await expect(
-      deps.useCase.execute({ serieId: serie.id, cargaKg: 50, repeticoes: 6 })
-    ).rejects.toThrow(SessaoValidationError);
-  });
+      await expect(
+        deps.useCase.execute({ serieId: serie.id, cargaKg: 50, repeticoes: 6 })
+      ).rejects.toThrow(SessaoValidationError);
+    }
+  );
 
   it('throws SessaoValidationError for invalid carga', async () => {
     const deps = makeDeps();
