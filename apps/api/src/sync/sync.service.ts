@@ -2,6 +2,7 @@ import type { SyncChanges,SyncRequest, SyncResponse } from '@academia/contracts'
 import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { lwwTime, lwwUpdate, skip } from './lww';
 
 // A concurrent transaction on another device stamps rows with a `now` computed before
 // its commit; if it commits after our pull read, those rows carry serverUpdatedAt < our
@@ -15,18 +16,6 @@ export class SyncService {
   private readonly logger = new Logger(SyncService.name);
 
   constructor(private readonly prisma: PrismaService) {}
-
-  // Uma linha rejeitada (id colidindo com linha de outro usuário, pai não
-  // possuído) é PULADA com log em vez de abortar a transação: um throw aqui
-  // envenenava a conta — o dirty nunca limpava no mobile e todo sync futuro
-  // falhava com o mesmo erro, sem remédio na UI.
-  private skip(table: string, userId: string, ids: Iterable<string>) {
-    const list = [...ids];
-    if (list.length === 0) return;
-    this.logger.warn(
-      `sync: skipping ${list.length} ${table} row(s) not owned by user ${userId}: ${list.join(', ')}`,
-    );
-  }
 
   async sync(userId: string, req: SyncRequest): Promise<SyncResponse> {
     const sinceDate = req.since ? new Date(req.since) : null;
@@ -77,22 +66,6 @@ export class SyncService {
     changes.exerciseAlternatives?.forEach(clamp); // ausente em clientes antigos
   }
 
-  private lwwUpdate<T extends { updatedAt: string | null; deletedAt: string | null }>(
-    incoming: T,
-    existing: { updatedAt: string | null; deletedAt: string | null } | undefined,
-  ): T {
-    if (!existing) return incoming;
-    return this.lwwTime(incoming) >= this.lwwTime(existing) ? incoming : (existing as T);
-  }
-
-  // Effective LWW timestamp: deletes carry their time in deletedAt (updatedAt may lag),
-  // so the row's logical clock is the max of the two. ISO-8601 compares lexicographically.
-  private lwwTime(row: { updatedAt: string | null; deletedAt: string | null }): string {
-    const updated = row.updatedAt ?? '';
-    const deleted = row.deletedAt ?? '';
-    return updated >= deleted ? updated : deleted;
-  }
-
   private async applyExercises(tx: any, userId: string, rows: SyncRequest['changes']['exercises'], now: Date) {
     // Only custom exercises are user-owned; silently drop any row where isCustom is false
     // (client cannot create or modify global catalogue exercises).
@@ -121,14 +94,14 @@ export class SyncService {
     const rejected = new Set<string>(
       [...allCustomInDbIds].filter((id) => !ownedCustomIds.has(id)),
     );
-    this.skip('exercise', userId, rejected);
+    skip(this.logger, 'exercise', userId, rejected);
 
     for (const row of customRows) {
       if (rejected.has(row.id)) continue;
       // Skip any row that resolves to a global catalogue entry (extra safety net)
       if (globalCatalogueIds.has(row.id)) continue;
 
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.exercise.upsert({
         where: { id: row.id },
         create: {
@@ -183,11 +156,11 @@ export class SyncService {
     const rejected = new Set<string>(
       allInDb.map((r: any) => r.id).filter((id: string) => !ownedIds.has(id)),
     );
-    this.skip('treino', userId, rejected);
+    skip(this.logger, 'treino', userId, rejected);
 
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.treino.upsert({
         where: { id: row.id },
         create: {
@@ -226,7 +199,7 @@ export class SyncService {
     for (const existing of existingRows) {
       if (!ownedTreinoIds.has(existing.treinoId)) rejected.add(existing.id);
     }
-    this.skip('treinoExercicio', userId, rejected);
+    skip(this.logger, 'treinoExercicio', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.treinoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -237,7 +210,7 @@ export class SyncService {
     );
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.treinoExercicio.upsert({
         where: { id: row.id },
         create: {
@@ -286,11 +259,11 @@ export class SyncService {
     const rejected = new Set<string>(
       allInDb.map((r: any) => r.id).filter((id: string) => !ownedIds.has(id)),
     );
-    this.skip('sessaoTreino', userId, rejected);
+    skip(this.logger, 'sessaoTreino', userId, rejected);
 
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.sessaoTreino.upsert({
         where: { id: row.id },
         create: {
@@ -333,7 +306,7 @@ export class SyncService {
     for (const existing of existingRowsCheck) {
       if (!ownedSessaoIds.has(existing.sessaoTreinoId)) rejected.add(existing.id);
     }
-    this.skip('sessaoExercicio', userId, rejected);
+    skip(this.logger, 'sessaoExercicio', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.sessaoExercicio.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -344,7 +317,7 @@ export class SyncService {
     );
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.sessaoExercicio.upsert({
         where: { id: row.id },
         create: {
@@ -406,7 +379,7 @@ export class SyncService {
     for (const existing of existingRowsCheck) {
       if (!ownedSessaoExercicioIds.has(existing.sessaoExercicioId)) rejected.add(existing.id);
     }
-    this.skip('serieRegistrada', userId, rejected);
+    skip(this.logger, 'serieRegistrada', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.serieRegistrada.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -417,7 +390,7 @@ export class SyncService {
     );
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.serieRegistrada.upsert({
         where: { id: row.id },
         create: {
@@ -468,7 +441,7 @@ export class SyncService {
     for (const existing of existingRowsCheck) {
       if (!ownedSerieIds.has(existing.serieId)) rejected.add(existing.id);
     }
-    this.skip('serieSegmento', userId, rejected);
+    skip(this.logger, 'serieSegmento', userId, rejected);
 
     const existing = rows.length === 0 ? [] : await tx.serieSegmento.findMany({
       where: { id: { in: rows.map((r) => r.id) } },
@@ -479,7 +452,7 @@ export class SyncService {
     );
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.serieSegmento.upsert({
         where: { id: row.id },
         create: {
@@ -518,11 +491,11 @@ export class SyncService {
     const rejected = new Set<string>(
       allInDb.map((r: any) => r.id).filter((id: string) => !ownedIds.has(id)),
     );
-    this.skip('registroPeso', userId, rejected);
+    skip(this.logger, 'registroPeso', userId, rejected);
 
     for (const row of rows) {
       if (rejected.has(row.id)) continue;
-      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      const winner = lwwUpdate(row, existingMap.get(row.id));
       await tx.registroPeso.upsert({
         where: { id: row.id },
         create: {
@@ -551,7 +524,7 @@ export class SyncService {
     for (const row of rows) {
       const existingRow = existingMap.get(row.key);
       const winner =
-        !existingRow || this.lwwTime(row) >= this.lwwTime(existingRow)
+        !existingRow || lwwTime(row) >= lwwTime(existingRow)
           ? row
           : (existingRow as typeof row);
       await tx.userSetting.upsert({
@@ -589,7 +562,7 @@ export class SyncService {
     );
 
     for (const row of rows) {
-      const winner = this.lwwUpdate(row, existingMap.get(`${row.exercicioId}|${row.alternativaId}`));
+      const winner = lwwUpdate(row, existingMap.get(`${row.exercicioId}|${row.alternativaId}`));
       await tx.exerciseAlternative.upsert({
         where: {
           userId_exercicioId_alternativaId: {
