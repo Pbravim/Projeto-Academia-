@@ -1,18 +1,17 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExportarHistoricoUseCase } from './ExportarHistoricoUseCase';
 
-vi.mock('expo-file-system', () => {
-  const mockFileInstance = {
-    uri: 'file:///cache/historico_2026-09-12.csv',
-    write: vi.fn(),
-    delete: vi.fn(),
-  };
-  return {
-    File: vi.fn(function () { return mockFileInstance; }) as any,
-    Paths: { cache: 'file:///cache/' },
-  };
-});
+const mockFileInstance = vi.hoisted(() => ({
+  uri: 'file:///cache/historico_2026-09-12.csv',
+  write: vi.fn(),
+  delete: vi.fn(),
+}));
+
+vi.mock('expo-file-system', () => ({
+  File: vi.fn(function () { return mockFileInstance; }) as any,
+  Paths: { cache: 'file:///cache/' },
+}));
 
 vi.mock('expo-sharing', () => ({
   isAvailableAsync: vi.fn().mockResolvedValue(true),
@@ -52,7 +51,12 @@ function makeRepo(series = [seriesRow], segmentos: unknown[] = []) {
 }
 
 describe('ExportarHistoricoUseCase', () => {
-  it('csv: creates a File named historico_<data>.csv and shares with mimeType text/csv', async () => {
+  beforeEach(() => {
+    mockFileInstance.write.mockClear();
+    mockFileInstance.delete.mockClear();
+  });
+
+  it('csv: creates a File named historico_<data>.csv, shares with mimeType text/csv and deletes the file after', async () => {
     const { shareAsync } = await import('expo-sharing');
     const { File } = await import('expo-file-system');
     const historicoExportRepository = makeRepo();
@@ -65,12 +69,12 @@ describe('ExportarHistoricoUseCase', () => {
 
     expect(File).toHaveBeenCalledWith(expect.anything(), 'historico_2026-09-12.csv');
     expect(shareAsync).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ mimeType: 'text/csv' }));
+    expect(mockFileInstance.delete).toHaveBeenCalledTimes(1);
   });
 
-  it('json: creates a .json File, shares with mimeType application/json and writes a parseable schema', async () => {
+  it('json: creates a .json File, shares with mimeType application/json, writes a parseable schema and deletes the file after', async () => {
     const { shareAsync } = await import('expo-sharing');
     const { File } = await import('expo-file-system');
-    const mockFileInstance = vi.mocked(File).mock.results[0]?.value ?? (File as unknown as () => { write: (s: string) => void })();
     const historicoExportRepository = makeRepo();
     const useCase = new ExportarHistoricoUseCase({
       historicoExportRepository,
@@ -81,8 +85,9 @@ describe('ExportarHistoricoUseCase', () => {
 
     expect(File).toHaveBeenCalledWith(expect.anything(), 'historico_2026-09-12.json');
     expect(shareAsync).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ mimeType: 'application/json' }));
-    const written = vi.mocked(mockFileInstance.write).mock.calls.at(-1)?.[0];
+    const written = mockFileInstance.write.mock.calls.at(-1)?.[0];
     expect(JSON.parse(written)).toMatchObject({ schema: 'projeto-academia/historico@2' });
+    expect(mockFileInstance.delete).toHaveBeenCalledTimes(1);
   });
 
   it('throws when there are no rows to export', async () => {
@@ -97,6 +102,17 @@ describe('ExportarHistoricoUseCase', () => {
     const historicoExportRepository = makeRepo();
     const useCase = new ExportarHistoricoUseCase({ historicoExportRepository });
     await expect(useCase.execute('csv')).rejects.toThrow('Compartilhamento nao disponivel neste dispositivo.');
+  });
+
+  it('deletes the file even when shareAsync rejects', async () => {
+    const { shareAsync } = await import('expo-sharing');
+    vi.mocked(shareAsync).mockRejectedValueOnce(new Error('share falhou'));
+    const historicoExportRepository = makeRepo();
+    const useCase = new ExportarHistoricoUseCase({ historicoExportRepository });
+
+    await expect(useCase.execute('csv')).rejects.toThrow('share falhou');
+
+    expect(mockFileInstance.delete).toHaveBeenCalledTimes(1);
   });
 
   it('uses the injected now() to fix the exported date', async () => {
