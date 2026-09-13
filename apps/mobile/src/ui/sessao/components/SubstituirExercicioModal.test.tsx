@@ -114,7 +114,7 @@ describe('SubstituirExercicioModal', () => {
     expect(texts).toContain('sessao.substituir.catalogo');
   });
 
-  it('mostra estado vazio quando so ha candidatos "catalogo" e nao ha busca (achado #1, review-b-1)', async () => {
+  it('estado vazio so aparece sem busca: com busca que casa mostra o candidato, com busca que nao casa mostra semResultado (achado #1 rev-1/rev-2)', async () => {
     const candidatos: CandidatoSubstituto[] = [
       makeCandidato('ex1', 'Remada curvada', 'catalogo', { groupMuscles: ['Costas'] }),
     ];

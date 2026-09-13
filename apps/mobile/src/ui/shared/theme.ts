@@ -45,6 +45,8 @@ export interface Colors {
   tabActive: string;
   tabText: string;
   tabTextActive: string;
+  // Opacidade do estado pressed de Pressable (mesmo valor nos dois temas)
+  pressedOpacity: number;
 }
 
 // ── Energetic / athletic palette ──
@@ -83,6 +85,7 @@ const light: Colors = {
   tabActive: '#f97316',
   tabText: '#95908a',
   tabTextActive: '#ffffff',
+  pressedOpacity: 0.7,
 };
 
 // Dark surfaces are warm charcoal (stone, no blue cast). Orange is the
@@ -121,6 +124,7 @@ const dark: Colors = {
   tabActive: '#fb8b3c',
   tabText: '#8a8580',
   tabTextActive: '#ffffff',
+  pressedOpacity: 0.7,
 };
 
 const SETTING_KEY = 'theme_preference';

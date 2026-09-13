@@ -1,5 +1,5 @@
 import type { SerieSegmentoPrimitives } from '../../../domain/sessoes/entities/SerieSegmento';
-import { formatCarga, formatDegrausStack as formatDegrausStackOrdenado, formatDuracao } from '../../shared/degrauFormatters';
+import { formatCarga, formatDuracao } from '../../shared/degrauFormatters';
 import type { AppLocale } from '../../shared/i18n/core';
 
 export type MetodoSessao = 'normal' | 'drop_set' | 'piramide' | 'rest_pause';
@@ -10,17 +10,6 @@ interface SerieMaeBase {
 }
 
 type SegmentoBase = Pick<SerieSegmentoPrimitives, 'ordem' | 'cargaKg' | 'repeticoes'>;
-
-/** Pilha "60×8 → 50×6 → 40×7" da série-mãe + degraus, ordenados por `ordem`. Sem degraus → `null`. */
-export function formatDegrausStack(
-  serie: SerieMaeBase,
-  segmentos: SegmentoBase[] | undefined,
-  locale: AppLocale = 'pt-BR',
-): string | null {
-  if (!segmentos || segmentos.length === 0) return null;
-  const ordenados = [...segmentos].sort((a, b) => a.ordem - b.ordem);
-  return formatDegrausStackOrdenado(serie, ordenados, locale);
-}
 
 /** Métodos cujo template pré-cria um 2º degrau (Degrau 2 — prescrito). */
 export function precisaDegrauPrescrito(metodo: string): boolean {

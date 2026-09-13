@@ -57,8 +57,8 @@ export function withHorizontalOf(corner: Corner, reference: Corner): Corner {
 }
 
 // Margens fixas, não somadas ao safe-area-inset: o banner monta dentro do
-// `tabPage` (SessaoAtivaScreen), que já fica entre a `topBar`/`tabBar` do
-// MobileApp — essas duas já absorvem o insets.top/insets.bottom. Somar de
+// `tabPage`, definido em `MobileApp.tsx`, entre a `topBar`/`tabBar` do
+// próprio MobileApp — essas duas já absorvem o insets.top/insets.bottom. Somar de
 // novo aqui só afasta o pill mais do que o necessário das bordas do tabPage
 // (achado #4, review-a-1.md: safe area contada duas vezes).
 //

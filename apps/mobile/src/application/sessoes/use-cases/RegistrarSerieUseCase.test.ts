@@ -194,21 +194,30 @@ describe('RegistrarSerieUseCase', () => {
     expect(await deps.serieSegmentoRepository.listBySerieId(serie.id)).toHaveLength(0);
   });
 
-  it('rejects segmentos when the exercicio is not reps_load, and writes nothing (achado #3, revisao 1)', async () => {
-    const deps = makeDeps();
-    await seedAtiva(deps, 'cardio');
+  it.each(['cardio', 'hold', 'reps_only'] as const)(
+    'rejects segmentos when the exercicio is not reps_load, and writes nothing (achado #3, revisao 1) (%s)',
+    async (trackingType) => {
+      const deps = makeDeps();
+      await seedAtiva(deps, trackingType);
 
-    await expect(
-      deps.useCase.execute({
-        sessaoExercicioId: 'se_1',
-        duracaoSegundos: 600,
-        segmentos: [{ cargaKg: 50, repeticoes: 6 }],
-      })
-    ).rejects.toThrow(SessaoValidationError);
+      // Input por tipo (como o proprio seedAtiva ja faz): reps_only nao aceita
+      // duracaoSegundos — usar duracao para os 3 tipos deixaria a validacao de
+      // reps_only morrer antes de chegar na regra de segmentos, mascarando a
+      // mutacao `=== 'cardio' || === 'hold'` (achado #2, review-1).
+      const inputPorTipo = trackingType === 'reps_only' ? { repeticoes: 8 } : { duracaoSegundos: 600 };
 
-    // Transacional: nem a serie-mae deve ter sido gravada.
-    expect(await deps.serieRegistradaRepository.listBySessaoExercicioId('se_1')).toHaveLength(0);
-  });
+      await expect(
+        deps.useCase.execute({
+          sessaoExercicioId: 'se_1',
+          ...inputPorTipo,
+          segmentos: [{ cargaKg: 50, repeticoes: 6 }],
+        })
+      ).rejects.toThrow(SessaoValidationError);
+
+      // Transacional: nem a serie-mae deve ter sido gravada.
+      expect(await deps.serieRegistradaRepository.listBySessaoExercicioId('se_1')).toHaveLength(0);
+    }
+  );
 });
 
 describe('RegistrarSerieUseCase — atualização automática de carga (fronteira)', () => {

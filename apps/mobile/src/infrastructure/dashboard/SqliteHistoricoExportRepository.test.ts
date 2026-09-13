@@ -243,23 +243,38 @@ describe('SqliteHistoricoExportRepository', () => {
     expect(series.map((s) => s.sessao_id)).toEqual(['s-earlier', 's-later']);
   });
 
-  it('orders by exercicio_ordem e serie_ordem mesmo quando inseridos fora de ordem (prende a REGRA, não o rowid nem o id)', async () => {
+  it('orders by exercicio.ordem e serie.ordem mesmo com ids e insercao fora de ordem em ambos os niveis, com series alinhadas E invertidas vs id (prende a REGRA, nao o rowid nem o id, em qualquer sentido)', async () => {
     await seedSessao(db);
-    // Ids escolhidos para ordenar AO CONTRÁRIO de `ordem` (e o rowid de
-    // inserção também fica invertido): uma query que ordene por `se.id`/
-    // `sr.id` em vez de `se.ordem`/`sr.ordem` produziria a ordem errada e
-    // este teste morreria — não só a mutação que ordena por rowid.
-    await seedExercicio(db, { id: 'se-a', ordem: 2 });
-    await seedExercicio(db, { id: 'se-z', ordem: 1 });
-    await seedSerie(db, { id: 'sra-a', sessaoExercicioId: 'se-a', ordem: 2 });
-    await seedSerie(db, { id: 'sra-z', sessaoExercicioId: 'se-a', ordem: 1 });
-    await seedSerie(db, { id: 'srz-a', sessaoExercicioId: 'se-z', ordem: 2 });
-    await seedSerie(db, { id: 'srz-z', sessaoExercicioId: 'se-z', ordem: 1 });
+    // Exercicios: ids não-monotônicos vs `ordem` (1/2/3 ↔ se-b/se-c/se-a) E
+    // inseridos fora da sequência de `ordem` (se-a/3 primeiro) — pega
+    // `se.id ASC/DESC`, "drop se.ordem" e `se.ordem DESC`.
+    await seedExercicio(db, { id: 'se-a', ordem: 3 });
+    // Séries de se-a: ids ALINHADOS a `ordem` (sr-a-x=1 < sr-a-y=2), mas
+    // inseridas fora de ordem (sr-a-y antes de sr-a-x) — pega `sr.id DESC`
+    // (inverteria a ordem correta deste grupo) e, junto com a inserção fora
+    // de ordem, "drop sr.ordem" (cairia no rowid, também invertido).
+    await seedSerie(db, { id: 'sr-a-y', sessaoExercicioId: 'se-a', ordem: 2 });
+    await seedSerie(db, { id: 'sr-a-x', sessaoExercicioId: 'se-a', ordem: 1 });
+
+    await seedExercicio(db, { id: 'se-b', ordem: 1 });
+    // Séries de se-b e se-c: ids INVERTIDOS vs `ordem` (sr-*-x=2 > sr-*-y=1,
+    // ao contrário de se-a) e também inseridas fora de ordem — pega
+    // `sr.id ASC` (inverteria a ordem correta nestes grupos, complementando
+    // o kill de `sr.id DESC` do grupo se-a) e `sr.ordem DESC` (valor errado
+    // em todo grupo com 2 ordens distintas, independente do id).
+    await seedSerie(db, { id: 'sr-b-x', sessaoExercicioId: 'se-b', ordem: 2 });
+    await seedSerie(db, { id: 'sr-b-y', sessaoExercicioId: 'se-b', ordem: 1 });
+
+    await seedExercicio(db, { id: 'se-c', ordem: 2 });
+    await seedSerie(db, { id: 'sr-c-x', sessaoExercicioId: 'se-c', ordem: 2 });
+    await seedSerie(db, { id: 'sr-c-y', sessaoExercicioId: 'se-c', ordem: 1 });
 
     const { series } = await repo.listRowsParaExportacao();
 
-    expect(series.map((s) => [s.exercicio_ordem, s.serie_ordem])).toEqual([
-      [1, 1], [1, 2], [2, 1], [2, 2],
+    expect(series.map((s) => [s.sessao_exercicio_id, s.serie_ordem])).toEqual([
+      ['se-b', 1], ['se-b', 2],
+      ['se-c', 1], ['se-c', 2],
+      ['se-a', 1], ['se-a', 2],
     ]);
   });
 

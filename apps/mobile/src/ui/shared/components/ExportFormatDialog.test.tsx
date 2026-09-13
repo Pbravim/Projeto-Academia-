@@ -65,4 +65,21 @@ describe('ExportFormatDialog', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('cancel button style resolves pressed to styles.cancelBtnPressed (reads the theme token, not a literal)', async () => {
+    const renderer = await render({ visible: true, onSelect: vi.fn(), onClose: vi.fn() });
+
+    const cancelBtn = renderer.root.find((n) => n.props.accessibilityLabel === 'common.cancel');
+
+    // O mock do tema devolve o NOME da prop acessada (Proxy stringificante);
+    // `{ opacity: 'pressedOpacity' }` só bate se o componente ler
+    // `styles.cancelBtnPressed` (que resolve `c.pressedOpacity`) — um
+    // `opacity: 0.7` literal ou `styles.cancelBtn` no pressed não bateria
+    // (achado #3, review-1).
+    expect(cancelBtn.props.style({ pressed: true })).toEqual([
+      expect.anything(),
+      { opacity: 'pressedOpacity' },
+    ]);
+    expect(cancelBtn.props.style({ pressed: false })).toEqual([expect.anything(), null]);
+  });
 });

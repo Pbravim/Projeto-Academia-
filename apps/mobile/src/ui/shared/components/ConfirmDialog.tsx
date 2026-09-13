@@ -44,7 +44,7 @@ export function ConfirmDialog({
             {!hideCancel ? (
               <Pressable
                 onPress={onCancel}
-                style={({ pressed }) => [styles.cancelBtn, pressed ? { opacity: 0.7 } : null]}
+                style={({ pressed }) => [styles.cancelBtn, pressed ? styles.cancelBtnPressed : null]}
               >
                 <Text style={styles.cancelBtnText}>{resolvedCancelLabel}</Text>
               </Pressable>
@@ -97,6 +97,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderColor: c.cardBorder,
     },
     cancelBtnText: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
+    cancelBtnPressed: { opacity: c.pressedOpacity },
     confirmBtn: {
       flex: 1,
       borderRadius: 14,

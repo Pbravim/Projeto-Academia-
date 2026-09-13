@@ -52,10 +52,10 @@ describe('parseDegrauInput', () => {
     expect(result.error).not.toBeNull();
   });
 
-  it('sem cargaVaziaEhConvite (form inline "+ degrau"): reps-só é erro, não convite silencioso (achado #1, r2)', () => {
+  it.each(['6', '12'])('sem cargaVaziaEhConvite (form inline "+ degrau"): reps-só é erro, não convite silencioso (achado #1, r2) (reps=%s)', (repsText) => {
     // Regressão: abrir "+ degrau" (sem prefill, ambos vazios) e digitar só reps
     // devia reprovar com erro visível, não devolver null silenciosamente.
-    const result = parseDegrauInput({ cargaText: '', repsText: '6', descansoText: '' }, 'pt-BR');
+    const result = parseDegrauInput({ cargaText: '', repsText, descansoText: '' }, 'pt-BR');
     expect(result.input).toBeNull();
     expect(result.error).toBe('Carga e repetições do degrau inválidas');
   });
@@ -130,10 +130,10 @@ describe('useDegrauForm', () => {
     expect(result.current.descansoText).toBe('15');
   });
 
-  it('toInput sets a translated error for reps-only input (default mode, no prefill) — achado #1, r2', async () => {
+  it.each(['6', '12'])('toInput sets a translated error for reps-only input (default mode, no prefill) — achado #1, r2 (reps=%s)', async (repsText) => {
     const { result } = await renderHook(() => useDegrauForm('pt-BR'));
     await act(async () => {
-      result.current.setRepsText('6');
+      result.current.setRepsText(repsText);
     });
     let input: ReturnType<typeof result.current.toInput> = null;
     await act(async () => {

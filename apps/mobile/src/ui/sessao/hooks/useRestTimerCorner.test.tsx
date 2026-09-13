@@ -1,3 +1,4 @@
+import { Keyboard } from 'react-native';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { act, renderHook } from '../../../test/renderHook';
@@ -57,6 +58,7 @@ vi.mock('react-native', () => ({
     },
   },
   useWindowDimensions: () => ({ width: 400, height: 800 }),
+  Keyboard: { addListener: vi.fn() },
 }));
 
 async function flush() {
@@ -197,6 +199,7 @@ describe('useRestTimerCorner', () => {
     const { result } = await renderHook(() => useRestTimerCorner());
     await flush();
 
+    expect(Keyboard.addListener).not.toHaveBeenCalled();
     expect(result.current.positionStyle).toEqual({ bottom: 24, right: 16 });
   });
 
