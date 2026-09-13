@@ -247,3 +247,15 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   aninhado diferente) sem quebrar nada — `mobile:test`, `mobile:typecheck`,
   `lint:mobile`, `lint:api`, `apps/api test`, `expo-doctor` (21/21) e
   `expo export --platform android` todos verdes depois.
+
+## Operação nits-revisoes (2026-09-13)
+
+- **Fixture substituída num teste de regressão deve preservar todos os kills da
+  anterior.** Ao trocar a fixture de ordenação do export (#46) para matar `se.id
+  ASC/DESC`, a nova ficou com 1 série por exercício, inserida já em ordem — e três
+  mutações que a fixture da base matava (drop `se.ordem`, drop `sr.ordem`, `sr.ordem
+  DESC`) passaram a sobreviver, com título do `it` e commit afirmando o contrário.
+  Regra: antes de trocar uma fixture, liste as mutações que a antiga matava
+  (`git show origin/<base>:<teste>` + mutação à mão) e reprove cada uma na nova, além
+  das que motivaram a troca. "Mais exemplos" não é "mais cobertura" se os eixos
+  acidentais (rowid, id, ordem de inserção) colapsam com o eixo da regra.
