@@ -17,8 +17,11 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (s: unknown) => s },
 }));
 
+// Sentinela: 0.42 nao coincide com nenhum opacity literal do componente
+// (0.7/0.85 pre-existentes), entao um regresso a `{ opacity: 0.7 }` inline
+// nao passaria por coincidencia (achado #3, review-1).
 vi.mock('../theme', () => ({
-  useTheme: () => new Proxy({ pressedOpacity: 0.7 }, { get: (t, prop) => (prop in t ? (t as never)[prop] : String(prop)) }),
+  useTheme: () => new Proxy({ pressedOpacity: 0.42 }, { get: (t, prop) => (prop in t ? (t as never)[prop] : String(prop)) }),
 }));
 
 vi.mock('../i18n', () => ({
@@ -68,7 +71,7 @@ describe('ConfirmDialog', () => {
 
     expect(cancelBtn.props.style({ pressed: true })).toEqual([
       expect.anything(),
-      { opacity: 0.7 },
+      { opacity: 0.42 },
     ]);
     expect(cancelBtn.props.style({ pressed: false })).toEqual([expect.anything(), null]);
 
