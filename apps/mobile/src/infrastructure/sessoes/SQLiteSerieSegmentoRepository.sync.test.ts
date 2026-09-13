@@ -73,6 +73,29 @@ describe('SQLiteSerieSegmentoRepository — sync round-trip', () => {
     expect(stillDirty?.toPrimitives().cargaKg).toBe(40);
   });
 
+  it('echo-back do próprio servidor (mesmo updatedAt) limpa o dirty no ramo DO UPDATE', async () => {
+    // review-c3-2.md achado 1: a correção anterior só provava o ramo INSERT
+    // (device novo). Aqui a linha já existe no MESMO repo (o device que fez o
+    // push) e o echo do servidor cai no ON CONFLICT ... DO UPDATE — o caminho
+    // real de produto que zera o dirty após um push bem-sucedido. Sem a asserção
+    // de getDirty()/dirty=0 aqui, `dirty = 1` só no ramo DO UPDATE continua verde
+    // (mutação preguiçosa M3b da review-c3-2).
+    const degrau = SerieSegmento.create({
+      id: 'seg-4', serieId: 'sr1', ordem: 2, cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+    });
+    await repo.save(degrau);
+    const [dirtyRow] = await repo.getDirty();
+
+    // Echo do servidor com o MESMO updatedAt (confirma o push, não uma edição nova).
+    await repo.applyServerRows([dirtyRow]);
+
+    expect(await repo.getDirty()).toEqual([]);
+    const row = await db.getFirst<{ dirty: number; server_rev: number | null }>(
+      'SELECT dirty, server_rev FROM serie_segmentos WHERE id = ?', ['seg-4']
+    );
+    expect(row).toMatchObject({ dirty: 0, server_rev: 1 });
+  });
+
   it('tombstone do servidor aplica (soft-delete local)', async () => {
     const degrau = SerieSegmento.create({
       id: 'seg-3', serieId: 'sr1', ordem: 2, cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
