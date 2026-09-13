@@ -64,7 +64,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.55)',
+      backgroundColor: c.overlay,
       justifyContent: 'center',
       paddingHorizontal: 28,
     },

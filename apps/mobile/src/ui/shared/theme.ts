@@ -11,6 +11,8 @@ export interface Colors {
   card: string;
   cardAlt: string;
   cardBorder: string;
+  // Overlay (modal backdrop scrim — mesmo valor em ambos os temas)
+  overlay: string;
   // Hero card (dark green header)
   hero: string;
   heroText: string;
@@ -54,6 +56,7 @@ const light: Colors = {
   card: '#ffffff',
   cardAlt: '#edeae7',
   cardBorder: '#e0dcd8',
+  overlay: 'rgba(0,0,0,0.55)',
   hero: '#221e1a',
   heroText: '#f8f6f4',
   heroSubtext: '#fb923c',
@@ -89,6 +92,7 @@ const dark: Colors = {
   card: '#1c1a18',
   cardAlt: '#242220',
   cardBorder: '#312e2b',
+  overlay: 'rgba(0,0,0,0.55)',
   hero: '#282420',
   heroText: '#f5f3f1',
   heroSubtext: '#fb923c',
