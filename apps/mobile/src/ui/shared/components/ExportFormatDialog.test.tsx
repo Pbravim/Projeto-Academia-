@@ -65,4 +65,13 @@ describe('ExportFormatDialog', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('cancel button style resolves pressed to styles.cancelBtnPressed', async () => {
+    const renderer = await render({ visible: true, onSelect: vi.fn(), onClose: vi.fn() });
+
+    const cancelBtn = renderer.root.find((n) => n.props.accessibilityLabel === 'common.cancel');
+
+    expect(cancelBtn.props.style({ pressed: true })).toEqual([expect.anything(), expect.anything()]);
+    expect(cancelBtn.props.style({ pressed: false })).toEqual([expect.anything(), null]);
+  });
 });
