@@ -196,10 +196,11 @@ describe('useRestTimerCorner', () => {
     // Achado #1 (review-a-1.md): as telas consumidoras já são
     // KeyboardAvoidingView; somar aqui empurrava o pill acima do teclado
     // e cobria a lista. O hook não escuta mais Keyboard.
-    await renderHook(() => useRestTimerCorner());
+    const { result } = await renderHook(() => useRestTimerCorner());
     await flush();
 
     expect(Keyboard.addListener).not.toHaveBeenCalled();
+    expect(result.current.positionStyle).toEqual({ bottom: 24, right: 16 });
   });
 
   describe('onMoveShouldSetPanResponder (8px threshold, either axis)', () => {
