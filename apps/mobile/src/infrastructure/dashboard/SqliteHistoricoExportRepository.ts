@@ -47,7 +47,7 @@ export class SqliteHistoricoExportRepository implements HistoricoExportRepositor
        JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
        JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
        WHERE ${FILTROS_SESSAO_SERIE}
-       ORDER BY st.data_hora_inicio ASC, se.ordem ASC, sr.ordem ASC`
+       ORDER BY st.data_hora_inicio ASC, st.id ASC, se.ordem ASC, sr.ordem ASC`
     );
 
     const segmentos = await this.db.getAll<SegmentoExportRow>(
