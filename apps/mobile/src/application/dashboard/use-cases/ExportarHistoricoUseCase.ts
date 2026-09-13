@@ -1,74 +1,65 @@
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
-import type { SQLiteDatabaseClient } from '../../../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
+import type { HistoricoExportRepository } from '../../../domain/dashboard/ports/HistoricoExportRepository';
+import { buildHistoricoExportTree } from '../export/buildHistoricoExportTree';
+import { flattenHistoricoCsvRows, serializeCsv } from '../export/historicoCsv';
+import type { ExportFormato } from '../export/HistoricoExportTypes';
+import { buildHistoricoJson, serializeHistoricoJson } from '../export/historicoJson';
 
 interface ExportarHistoricoDependencies {
-  database: SQLiteDatabaseClient;
+  historicoExportRepository: HistoricoExportRepository;
+  now?: () => Date;
 }
 
-/** Gera CSV com todo o histórico de sessões finalizadas e abre o diálogo de compartilhamento. */
+interface FormatoConfig {
+  ext: string;
+  mimeType: string;
+  uti: string;
+  serialize: (tree: ReturnType<typeof buildHistoricoExportTree>, now: Date) => string;
+}
+
+const FORMATOS: Record<ExportFormato, FormatoConfig> = {
+  csv: {
+    ext: 'csv',
+    mimeType: 'text/csv',
+    uti: 'public.comma-separated-values-text',
+    serialize: (tree) => serializeCsv(flattenHistoricoCsvRows(tree)),
+  },
+  json: {
+    ext: 'json',
+    mimeType: 'application/json',
+    uti: 'public.json',
+    serialize: (tree, now) => serializeHistoricoJson(buildHistoricoJson(tree, now)),
+  },
+};
+
+/** Gera CSV ou JSON com todo o histórico de sessões finalizadas e abre o diálogo de compartilhamento. */
 export class ExportarHistoricoUseCase {
   constructor(private readonly deps: ExportarHistoricoDependencies) {}
 
-  async execute(): Promise<void> {
-    const rows = await this.deps.database.getAll<{
-      data_hora_inicio: string;
-      treino_nome: string;
-      exercicio_nome: string;
-      serie_ordem: number;
-      carga_kg: number;
-      repeticoes: number;
-      observacao: string | null;
-    }>(
-      `SELECT
-         st.data_hora_inicio,
-         st.treino_nome_snapshot  AS treino_nome,
-         se.nome_snapshot         AS exercicio_nome,
-         sr.ordem                 AS serie_ordem,
-         sr.carga_kg,
-         sr.repeticoes,
-         sr.observacao
-       FROM sessao_treinos st
-       JOIN sessao_exercicios se ON se.sessao_treino_id = st.id
-       JOIN series_registradas sr ON sr.sessao_exercicio_id = se.id
-       WHERE st.status = 'finalizada'
-         AND st.arquivado = 0
-         AND st.deleted_at IS NULL
-         AND se.deleted_at IS NULL
-         AND sr.deleted_at IS NULL
-       ORDER BY st.data_hora_inicio DESC, se.ordem ASC, sr.ordem ASC`
-    );
+  async execute(formato: ExportFormato): Promise<void> {
+    const { series, segmentos } = await this.deps.historicoExportRepository.listRowsParaExportacao();
+    if (series.length === 0) throw new Error('Nenhum historico para exportar.');
 
-    if (rows.length === 0) throw new Error('Nenhum historico para exportar.');
+    const tree = buildHistoricoExportTree(series, segmentos);
+    const now = (this.deps.now ?? (() => new Date()))();
+    const config = FORMATOS[formato];
+    const conteudo = config.serialize(tree, now);
 
-    function esc(v: string) { return `"${v.replace(/"/g, '""')}"`; }
-
-    const lines: string[] = ['Data,Treino,Exercicio,Serie,Carga (kg),Repeticoes,Observacao'];
-    for (const r of rows) {
-      const data = new Date(r.data_hora_inicio).toLocaleDateString('pt-BR');
-      lines.push([
-        data,
-        esc(r.treino_nome),
-        esc(r.exercicio_nome),
-        r.serie_ordem,
-        r.carga_kg,
-        r.repeticoes,
-        r.observacao ? esc(r.observacao) : '',
-      ].join(','));
-    }
-
-    const csv = lines.join('\n');
-    const file = new File(Paths.document, 'historico_treinos.csv');
     const canShare = await Sharing.isAvailableAsync();
     if (!canShare) throw new Error('Compartilhamento nao disponivel neste dispositivo.');
 
+    const data = now.toISOString().slice(0, 10);
+    const nome = `historico_${data}.${config.ext}`;
+    const file = new File(Paths.cache, nome);
+
     try {
-      file.write(csv);
+      file.write(conteudo);
       await Sharing.shareAsync(file.uri, {
-        mimeType: 'text/csv',
+        mimeType: config.mimeType,
         dialogTitle: 'Exportar historico de treinos',
-        UTI: 'public.comma-separated-values-text',
+        UTI: config.uti,
       });
     } finally {
       try { file.delete(); } catch { /* ignore cleanup errors */ }
