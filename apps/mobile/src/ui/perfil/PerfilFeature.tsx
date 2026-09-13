@@ -9,6 +9,8 @@ import type { AppLogger } from '../../infrastructure/logging/AppLogger';
 import type { PesoControllerDependencies } from '../peso/hooks/usePesoController';
 import { usePesoController } from '../peso/hooks/usePesoController';
 import { ConfirmDialog } from '../shared/components/ConfirmDialog';
+import { ExportFormatDialog } from '../shared/components/ExportFormatDialog';
+import { useExportarHistorico } from '../shared/hooks/useExportarHistorico';
 import { useT } from '../shared/i18n';
 
 import { BackupSyncSection } from './components/BackupSyncSection';
@@ -40,24 +42,18 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
   const perfil = usePerfilController(onNameChange, onPhotoChange);
   const statsState = useStatsController(dependencies.getDashboardStats);
 
-  const [isExporting, setIsExporting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [confirmImportVisible, setConfirmImportVisible] = useState(false);
   const [infoDialog, setInfoDialog] = useState<{ title: string; message: string } | null>(null);
 
-  const onExportar = async () => {
-    setIsExporting(true);
-    try {
-      await dependencies.exportarHistorico.execute();
-    } catch (e) {
-      dependencies.logger.error('perfil.exportar', e);
-      setInfoDialog({ title: t('common.error'), message: e instanceof Error ? e.message : t('perfil.dialogs.erroExportar') });
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  const exp = useExportarHistorico({
+    exportarHistorico: dependencies.exportarHistorico,
+    logger: dependencies.logger,
+    onError: (e) =>
+      setInfoDialog({ title: t('common.error'), message: e instanceof Error ? e.message : t('perfil.dialogs.erroExportar') }),
+  });
 
   const onReset = async () => {
     setIsResetting(true);
@@ -108,15 +104,21 @@ export function PerfilFeature({ dependencies, onNameChange, onPhotoChange }: Per
         perfil={perfil}
         peso={peso}
         statsState={statsState}
-        isExporting={isExporting}
+        isExporting={exp.isExporting}
         isResetting={isResetting}
         isBackingUp={isBackingUp}
         isImporting={isImporting}
-        onExportar={onExportar}
+        onExportar={async () => exp.abrir()}
         onReset={onReset}
         onBackup={onBackup}
         onImport={() => setConfirmImportVisible(true)}
         backupSection={<BackupSyncSection backup={dependencies.backup} />}
+      />
+
+      <ExportFormatDialog
+        visible={exp.formatoVisible}
+        onSelect={(formato) => { void exp.exportar(formato); }}
+        onClose={exp.fechar}
       />
 
       <ConfirmDialog

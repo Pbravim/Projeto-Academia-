@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 
+import { ExportFormatDialog } from '../shared/components/ExportFormatDialog';
 import { useTabActive } from '../shared/tabActivity';
 
 import type { DashboardControllerDependencies } from './hooks/useDashboardController';
@@ -83,13 +84,20 @@ export function DashboardFeature({ dependencies, onGoToSessao }: Props) {
   }
 
   return (
-    <DashboardScreen
-      {...controller}
-      onVerEvolucao={(treinoId, treinoNome) => setView({ type: 'evolucao', treinoId, treinoNome })}
-      onVerRecordes={() => setView({ type: 'recordes' })}
-      onGerenciarSessoes={(treinoId, treinoNome) => setView({ type: 'sessoes', treinoId, treinoNome })}
-      onGoToSessao={onGoToSessao}
-    />
+    <>
+      <DashboardScreen
+        {...controller}
+        onVerEvolucao={(treinoId, treinoNome) => setView({ type: 'evolucao', treinoId, treinoNome })}
+        onVerRecordes={() => setView({ type: 'recordes' })}
+        onGerenciarSessoes={(treinoId, treinoNome) => setView({ type: 'sessoes', treinoId, treinoNome })}
+        onGoToSessao={onGoToSessao}
+      />
+      <ExportFormatDialog
+        visible={controller.exportFormatoVisible}
+        onSelect={(formato) => { void controller.onExportarFormato(formato); }}
+        onClose={controller.onFecharExportar}
+      />
+    </>
   );
 }
 

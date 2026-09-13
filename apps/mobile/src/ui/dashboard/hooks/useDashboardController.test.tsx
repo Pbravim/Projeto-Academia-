@@ -82,18 +82,34 @@ describe('useDashboardController', () => {
     expect(deps.getDashboardStats.execute).toHaveBeenCalledTimes(2);
   });
 
-  it('onExportar calls exportarHistorico once', async () => {
+  it('onExportar abre o diálogo de formato', async () => {
     const deps = makeDeps();
     const { result } = await renderHook(() => useDashboardController(deps));
 
     await flush();
 
     await act(async () => {
-      await result.current.onExportar();
+      result.current.onExportar();
+    });
+    await flush();
+
+    expect(result.current.exportFormatoVisible).toBe(true);
+    expect(deps.exportarHistorico.execute).not.toHaveBeenCalled();
+  });
+
+  it('onExportarFormato calls exportarHistorico once with the chosen format', async () => {
+    const deps = makeDeps();
+    const { result } = await renderHook(() => useDashboardController(deps));
+
+    await flush();
+
+    await act(async () => {
+      await result.current.onExportarFormato('csv');
     });
     await flush();
 
     expect(deps.exportarHistorico.execute).toHaveBeenCalledTimes(1);
+    expect(deps.exportarHistorico.execute).toHaveBeenCalledWith('csv');
   });
 
   it('onDeletarSessao calls deletarSessao with the sessaoId then reloads', async () => {

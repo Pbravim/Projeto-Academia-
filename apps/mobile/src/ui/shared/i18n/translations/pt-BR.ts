@@ -229,7 +229,7 @@ export const ptBR = {
     home: {
       description: 'Progresso real por treino, últimas 10 sessões de cada.',
       exportando: 'Exportando...',
-      exportarCsv: 'Exportar CSV',
+      exportarHistorico: 'Exportar histórico',
       resetando: 'Resetando...',
       resetarHistorico: 'Resetar histórico',
       tentarNovamente: 'Tentar novamente',
@@ -245,6 +245,14 @@ export const ptBR = {
       confirmResetMessage:
         'Isso vai apagar todas as sessões, séries e registros de progresso. Os treinos e exercícios serão mantidos. Essa ação não pode ser desfeita.',
       confirmResetLabel: 'Resetar',
+    },
+    exportar: {
+      titulo: 'Exportar histórico',
+      subtitulo: 'Escolha o formato',
+      csv: 'CSV',
+      csvDescricao: 'Planilha — uma linha por degrau de cada série',
+      json: 'JSON',
+      jsonDescricao: 'Estrutura completa: treino → exercício → série → degraus',
     },
     treinoCard: {
       gerenciarSessoesDe: 'Gerenciar sessões de %{treino}',
@@ -589,6 +597,7 @@ export const ptBR = {
       dados: 'Dados',
       apagando: 'Apagando...',
       apagarHistorico: 'Apagar histórico',
+      exportarHistorico: 'Exportar histórico',
       gerando: 'Gerando...',
       exportarBackup: 'Exportar backup (.db)',
       importando: 'Importando...',

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { ExportFormato } from '../../../application/dashboard/export/HistoricoExportTypes';
 import type { ArquivarSessaoUseCase } from '../../../application/dashboard/use-cases/ArquivarSessaoUseCase';
 import type { DeletarSessaoUseCase } from '../../../application/dashboard/use-cases/DeletarSessaoUseCase';
 import type { DesarquivarSessaoUseCase } from '../../../application/dashboard/use-cases/DesarquivarSessaoUseCase';
@@ -7,6 +8,7 @@ import type { ExportarHistoricoUseCase } from '../../../application/dashboard/us
 import type { DashboardStats, GetDashboardStatsUseCase } from '../../../application/dashboard/use-cases/GetDashboardStatsUseCase';
 import type { ResetHistoricoUseCase } from '../../../application/dashboard/use-cases/ResetHistoricoUseCase';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
+import { useExportarHistorico } from '../../shared/hooks/useExportarHistorico';
 import { translate, useLocale } from '../../shared/i18n';
 import { useTabActive } from '../../shared/tabActivity';
 
@@ -25,10 +27,13 @@ export interface DashboardControllerState {
   isLoading: boolean;
   isResetting: boolean;
   isExporting: boolean;
+  exportFormatoVisible: boolean;
   errorMessage: string | null;
   onRefresh: () => void;
   onReset: () => Promise<void>;
-  onExportar: () => Promise<void>;
+  onExportar: () => void;
+  onFecharExportar: () => void;
+  onExportarFormato: (formato: ExportFormato) => Promise<void>;
   onVerEvolucao: (treinoId: string, treinoNome: string) => void;
   onVerRecordes: () => void;
   onArquivarSessao: (sessaoId: string) => Promise<void>;
@@ -43,8 +48,13 @@ export function useDashboardController(dependencies: DashboardControllerDependen
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const exp = useExportarHistorico({
+    exportarHistorico: dependencies.exportarHistorico,
+    logger: dependencies.logger,
+    onError: (e) => setErrorMessage(e instanceof Error ? e.message : translate(locale, 'dashboard.errors.export')),
+  });
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -93,18 +103,9 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     }
   };
 
-  const onExportar = async () => {
-    setIsExporting(true);
+  const onExportar = () => {
     setErrorMessage(null);
-    try {
-      await dependencies.exportarHistorico.execute();
-    } catch (error) {
-      dependencies.logger.error('dashboard.export_failed', error);
-      const msg = error instanceof Error ? error.message : translate(locale, 'dashboard.errors.export');
-      setErrorMessage(msg);
-    } finally {
-      setIsExporting(false);
-    }
+    exp.abrir();
   };
 
   // Falha silenciosa era P2 (auditoria rodada 3): a linha não sumia e o usuário
@@ -167,11 +168,14 @@ export function useDashboardController(dependencies: DashboardControllerDependen
     stats,
     isLoading,
     isResetting,
-    isExporting,
+    isExporting: exp.isExporting,
+    exportFormatoVisible: exp.formatoVisible,
     errorMessage,
     onRefresh: () => { void load(); },
     onReset,
     onExportar,
+    onFecharExportar: exp.fechar,
+    onExportarFormato: exp.exportar,
     onVerEvolucao: () => {},
     onVerRecordes: () => {},
     onArquivarSessao,

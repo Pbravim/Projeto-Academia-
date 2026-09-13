@@ -346,7 +346,7 @@ export function PerfilScreen({
                     ]}
                   >
                     <Text style={styles.configActionBtnText}>
-                      {isExporting ? t('dashboard.home.exportando') : t('dashboard.home.exportarCsv')}
+                      {isExporting ? t('dashboard.home.exportando') : t('perfil.config.exportarHistorico')}
                     </Text>
                   </Pressable>
 
