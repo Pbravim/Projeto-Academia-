@@ -242,4 +242,52 @@ describe('SqliteHistoricoExportRepository', () => {
 
     expect(series.map((s) => s.sessao_id)).toEqual(['s-earlier', 's-later']);
   });
+
+  it('orders by exercicio_ordem e serie_ordem mesmo quando inseridos fora de ordem (prende o ORDER BY, não só o rowid)', async () => {
+    await seedSessao(db);
+    // Exercícios inseridos com ordem 2 antes de ordem 1: se o ORDER BY não
+    // ordenar por se.ordem, o rowid de inserção venceria e a asserção falharia.
+    await seedExercicio(db, { id: 'se2', ordem: 2 });
+    await seedExercicio(db, { id: 'se1', ordem: 1 });
+    // Séries inseridas com ordem 2 antes de ordem 1, em cada exercício.
+    await seedSerie(db, { id: 'sr1-2', sessaoExercicioId: 'se1', ordem: 2 });
+    await seedSerie(db, { id: 'sr1-1', sessaoExercicioId: 'se1', ordem: 1 });
+    await seedSerie(db, { id: 'sr2-2', sessaoExercicioId: 'se2', ordem: 2 });
+    await seedSerie(db, { id: 'sr2-1', sessaoExercicioId: 'se2', ordem: 1 });
+
+    const { series } = await repo.listRowsParaExportacao();
+
+    expect(series.map((s) => [s.exercicio_ordem, s.serie_ordem])).toEqual([
+      [1, 1], [1, 2], [2, 1], [2, 2],
+    ]);
+  });
+
+  it('ordena segmentos por ordem mesmo quando inseridos fora de ordem', async () => {
+    await seedSessao(db);
+    await seedExercicio(db);
+    await seedSerie(db);
+    // Degrau de ordem 3 inserido antes do de ordem 2: se o ORDER BY não
+    // ordenar por sg.ordem, o rowid de inserção venceria.
+    await seedSegmento(db, { id: 'sg-3', ordem: 3 });
+    await seedSegmento(db, { id: 'sg-2', ordem: 2 });
+
+    const { segmentos } = await repo.listRowsParaExportacao();
+
+    expect(segmentos.map((s) => s.ordem)).toEqual([2, 3]);
+  });
+
+  it('desempata por st.id quando duas sessões têm o mesmo data_hora_inicio', async () => {
+    const mesmaData = '2026-01-01T10:00:00.000Z';
+    await seedSessao(db, { id: 's-b', dataInicio: mesmaData });
+    await seedExercicio(db, { id: 'se-b', sessaoTreinoId: 's-b' });
+    await seedSerie(db, { id: 'sr-b', sessaoExercicioId: 'se-b' });
+
+    await seedSessao(db, { id: 's-a', dataInicio: mesmaData });
+    await seedExercicio(db, { id: 'se-a', sessaoTreinoId: 's-a' });
+    await seedSerie(db, { id: 'sr-a', sessaoExercicioId: 'se-a' });
+
+    const { series } = await repo.listRowsParaExportacao();
+
+    expect(series.map((s) => s.sessao_id)).toEqual(['s-a', 's-b']);
+  });
 });
