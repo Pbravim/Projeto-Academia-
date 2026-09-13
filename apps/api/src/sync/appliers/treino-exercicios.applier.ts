@@ -1,6 +1,7 @@
 import type { SyncRequest } from '@academia/contracts';
 
 import { lwwUpdate, skip } from '../lww';
+
 import type { ApplyCtx } from './types';
 
 export async function applyTreinoExercicios(

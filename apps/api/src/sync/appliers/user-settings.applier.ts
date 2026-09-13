@@ -1,6 +1,7 @@
 import type { SyncRequest } from '@academia/contracts';
 
 import { lwwTime } from '../lww';
+
 import type { ApplyCtx } from './types';
 
 export async function applyUserSettings(

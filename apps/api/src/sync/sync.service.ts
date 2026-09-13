@@ -2,6 +2,7 @@ import type { SyncChanges,SyncRequest, SyncResponse } from '@academia/contracts'
 import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+
 import { applyExerciseAlternatives, mapExerciseAlternative } from './appliers/exercise-alternatives.applier';
 import { applyExercises, mapExercise } from './appliers/exercises.applier';
 import { applyRegistrosPeso, mapRegistroPeso } from './appliers/registros-peso.applier';
