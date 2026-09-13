@@ -195,7 +195,7 @@ const syncStorage = new SettingsStorageAdapter(databaseClient);
 // Tabelas com flag dirty que participam do push (userSettings não pusha do mobile).
 const SYNC_DIRTY_TABLES = [
   'exercises', 'treinos', 'treino_exercicios', 'sessao_treinos',
-  'sessao_exercicios', 'series_registradas', 'registros_peso', 'exercise_alternatives',
+  'sessao_exercicios', 'series_registradas', 'serie_segmentos', 'registros_peso', 'exercise_alternatives',
 ] as const;
 const authSession = new AuthSession(
   new AuthApiClient(API_BASE_URL),
@@ -216,6 +216,7 @@ const syncEngine = new SyncEngine(
   sessaoTreinoRepository,
   sessaoExercicioRepository,
   serieRegistradaRepository,
+  serieSegmentoRepository,
   registroPesoRepository,
   new SQLiteExerciseAlternativeSyncRepository(databaseClient),
   databaseClient,

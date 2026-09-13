@@ -31,6 +31,10 @@ const makePrisma = () => ({
     // Return empty by default for ownership checks
     return Promise.resolve([]);
   }) },
+  serieSegmento: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
+    // Return empty by default for ownership checks
+    return Promise.resolve([]);
+  }) },
   registroPeso: { upsert: jest.fn(), findMany: jest.fn().mockImplementation((args: any) => {
     // Return empty by default for ownership checks
     return Promise.resolve([]);
@@ -69,6 +73,7 @@ describe('SyncService', () => {
     sessaoTreinos: [],
     sessaoExercicios: [],
     seriesRegistradas: [],
+    serieSegmentos: [],
     registrosPeso: [],
     userSettings: [],
     exerciseAlternatives: [],
@@ -418,6 +423,125 @@ describe('SyncService', () => {
 
     expect(mockPrisma.serieRegistrada.upsert).not.toHaveBeenCalled();
     expect(typeof result.newCursor).toBe('string');
+  });
+
+  it('upserts a serieSegmento whose série is owned by the user', async () => {
+    const now = '2026-09-12T10:00:00.000Z';
+    mockPrisma.serieRegistrada.findMany.mockResolvedValueOnce([{ id: 'serie-1' }]); // owned parent
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        serieSegmentos: [{
+          id: 'seg-1', serieId: 'serie-1', ordem: 2,
+          cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+          createdAt: now, updatedAt: now, deletedAt: null,
+        }],
+      },
+    });
+
+    expect(mockPrisma.serieSegmento.upsert).toHaveBeenCalledTimes(1);
+    const call = mockPrisma.serieSegmento.upsert.mock.calls[0][0];
+    expect(call.where).toEqual({ id: 'seg-1' });
+    expect(call.create).toMatchObject({ serieId: 'serie-1', ordem: 2, cargaKg: 40, repeticoes: 6, descansoSegundos: 30 });
+  });
+
+  it('skips a serieSegmento whose série belongs to another user (no abort)', async () => {
+    mockPrisma.serieRegistrada.findMany.mockResolvedValueOnce([]); // parent not owned
+
+    const result = await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        serieSegmentos: [{
+          id: 'seg-x', serieId: 'serie-not-mine', ordem: 2,
+          cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+          createdAt: '2026-09-12T10:00:00.000Z', updatedAt: '2026-09-12T10:00:00.000Z', deletedAt: null,
+        }],
+      },
+    });
+
+    // review-c3-1.md achado 1: sem esta asserção, remover o filtro de posse
+    // (sessaoExercicio: { sessaoTreino: { userId } }) do findMany continua verde
+    // — o mock devolve [] seja qual for o `where`.
+    expect(mockPrisma.serieRegistrada.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: { in: ['serie-not-mine'] }, sessaoExercicio: { sessaoTreino: { userId: 'user-1' } } },
+      }),
+    );
+    expect(mockPrisma.serieSegmento.upsert).not.toHaveBeenCalled();
+    expect(typeof result.newCursor).toBe('string');
+  });
+
+  it('skips a serieSegmento cujo registro existente aponta para série de outro usuário', async () => {
+    mockPrisma.serieRegistrada.findMany.mockResolvedValueOnce([{ id: 'serie-1' }]); // owned parent
+    // existingRowsCheck: o id já existe no banco, mas sob uma série que não é 'serie-1' (do outro usuário).
+    mockPrisma.serieSegmento.findMany.mockResolvedValueOnce([{ id: 'seg-1', serieId: 'serie-outro' }]);
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        serieSegmentos: [{
+          id: 'seg-1', serieId: 'serie-1', ordem: 2,
+          cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+          createdAt: '2026-09-12T10:00:00.000Z', updatedAt: '2026-09-12T10:00:00.000Z', deletedAt: null,
+        }],
+      },
+    });
+
+    expect(mockPrisma.serieSegmento.upsert).not.toHaveBeenCalled();
+  });
+
+  it('lets a newer incoming serieSegmento tombstone win over an older server edit (LWW)', async () => {
+    const serverTime = '2026-09-12T10:00:00.000Z';
+    const clientDeleteTime = '2026-09-12T12:00:00.000Z';
+    mockPrisma.serieRegistrada.findMany.mockResolvedValueOnce([{ id: 'serie-1' }]);
+    mockPrisma.serieSegmento.findMany
+      .mockResolvedValueOnce([{ id: 'seg-1', serieId: 'serie-1', updatedAt: serverTime, deletedAt: null }])
+      .mockResolvedValueOnce([{ id: 'seg-1', updatedAt: serverTime, deletedAt: null }]);
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        serieSegmentos: [{
+          id: 'seg-1', serieId: 'serie-1', ordem: 2,
+          cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+          createdAt: serverTime, updatedAt: clientDeleteTime, deletedAt: clientDeleteTime,
+        }],
+      },
+    });
+
+    const call = mockPrisma.serieSegmento.upsert.mock.calls[0][0];
+    expect(call.update.deletedAt).toBe(clientDeleteTime);
+  });
+
+  it('pulls serieSegmentos filtered by cursor and mapped', async () => {
+    const since = '2026-09-10T00:00:00.000Z';
+    mockPrisma.serieSegmento.findMany.mockResolvedValueOnce([{
+      id: 'seg-1', serieId: 'serie-1', ordem: 2,
+      cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+      createdAt: since, updatedAt: since, deletedAt: null,
+    }]);
+
+    const result = await service.sync('user-1', { since, changes: emptyChanges() });
+
+    const pullWhere = mockPrisma.serieSegmento.findMany.mock.calls[0][0].where;
+    expect(pullWhere.serverUpdatedAt).toEqual({ gt: new Date(since) });
+    // review-c3-1.md achado 1: sem esta asserção, remover o filtro de posse do pull
+    // (serie: { sessaoExercicio: { sessaoTreino: { userId } } }) continua verde.
+    expect(pullWhere.serie).toEqual({ sessaoExercicio: { sessaoTreino: { userId: 'user-1' } } });
+    expect(result.serverChanges.serieSegmentos[0]).toMatchObject({ id: 'seg-1', ordem: 2, cargaKg: 40 });
+  });
+
+  it('tolera push de cliente antigo sem o campo serieSegmentos', async () => {
+    const changes = emptyChanges();
+    delete (changes as Partial<SyncRequest['changes']>).serieSegmentos;
+
+    const result = await service.sync('user-1', { since: null, changes });
+    expect(result.serverChanges.serieSegmentos).toEqual([]);
   });
 
   it('pulls server changes filtered by the since cursor and maps the 5b fields', async () => {

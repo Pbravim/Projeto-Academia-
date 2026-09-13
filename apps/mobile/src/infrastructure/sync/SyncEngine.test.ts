@@ -10,6 +10,7 @@ const emptyChanges = () => ({
   sessaoTreinos: [],
   sessaoExercicios: [],
   seriesRegistradas: [],
+  serieSegmentos: [],
   registrosPeso: [],
   userSettings: [],
   exerciseAlternatives: [],
@@ -34,6 +35,7 @@ describe('SyncEngine', () => {
   let sessaoTreinoRepo: ReturnType<typeof makeRepo>;
   let sessaoExercicioRepo: ReturnType<typeof makeRepo>;
   let serieRepo: ReturnType<typeof makeRepo>;
+  let serieSegmentoRepo: ReturnType<typeof makeRepo>;
   let pesoRepo: ReturnType<typeof makeRepo>;
   let exerciseAlternativeRepo: ReturnType<typeof makeRepo>;
 
@@ -47,6 +49,7 @@ describe('SyncEngine', () => {
       sessaoTreinoRepo,
       sessaoExercicioRepo,
       serieRepo,
+      serieSegmentoRepo,
       pesoRepo,
       exerciseAlternativeRepo,
       undefined,
@@ -62,6 +65,7 @@ describe('SyncEngine', () => {
     sessaoTreinoRepo = makeRepo();
     sessaoExercicioRepo = makeRepo();
     serieRepo = makeRepo();
+    serieSegmentoRepo = makeRepo();
     pesoRepo = makeRepo();
     exerciseAlternativeRepo = makeRepo();
   });
@@ -78,6 +82,38 @@ describe('SyncEngine', () => {
 
     expect(apiClient.sync.mock.calls[0][0].changes.exerciseAlternatives).toEqual([link]);
     expect(exerciseAlternativeRepo.applyServerRows).toHaveBeenCalledWith([link]);
+  });
+
+  it('pusha os segmentos dirty e aplica os do servidor logo após seriesRegistradas (FK)', async () => {
+    const segmento = {
+      id: 'seg-1', serieId: 'serie-1', ordem: 2, cargaKg: 40, repeticoes: 6,
+      descansoSegundos: 30, createdAt: 'T1', updatedAt: 'T1', deletedAt: null,
+    };
+    serieSegmentoRepo = makeRepo([segmento]);
+    const calls: string[] = [];
+    serieRepo.applyServerRows.mockImplementation(async () => { calls.push('serie'); });
+    serieSegmentoRepo.applyServerRows.mockImplementation(async () => { calls.push('segmento'); });
+    apiClient.sync = vi.fn().mockResolvedValue({
+      serverChanges: { ...emptyChanges(), seriesRegistradas: [{}], serieSegmentos: [segmento] },
+      newCursor: 'c1',
+    });
+
+    await makeEngine().run();
+
+    expect(apiClient.sync.mock.calls[0][0].changes.serieSegmentos).toEqual([segmento]);
+    expect(serieSegmentoRepo.applyServerRows).toHaveBeenCalledWith([segmento]);
+    expect(calls).toEqual(['serie', 'segmento']);
+  });
+
+  it('resposta de servidor antigo sem serieSegmentos não quebra', async () => {
+    const { serieSegmentos: _omit, ...changesSemSegmentos } = emptyChanges();
+    apiClient.sync = vi.fn().mockResolvedValue({
+      serverChanges: changesSemSegmentos,
+      newCursor: 'c1',
+    });
+
+    await expect(makeEngine().run()).resolves.not.toThrow();
+    expect(serieSegmentoRepo.applyServerRows).not.toHaveBeenCalled();
   });
 
   it('sends dirty rows and applies server changes', async () => {
@@ -205,7 +241,7 @@ describe('SyncEngine', () => {
         { sync: apiClient.sync },
         mapStorage,
         exerciseRepo, treinoRepo, treinoExercicioRepo, sessaoTreinoRepo,
-        sessaoExercicioRepo, serieRepo, pesoRepo, exerciseAlternativeRepo,
+        sessaoExercicioRepo, serieRepo, serieSegmentoRepo, pesoRepo, exerciseAlternativeRepo,
         undefined,
         { attempts: 3, baseDelayMs: 0 },
         { current: () => current, onSwitch },

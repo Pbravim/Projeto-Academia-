@@ -1,12 +1,12 @@
 import type {
 ExerciseAlternativeSyncRow,   ExerciseSyncRow, RegistroPesoSyncRow,
-SerieRegistradaSyncRow,   SessaoExercicioSyncRow, SessaoTreinoSyncRow,
+SerieRegistradaSyncRow, SerieSegmentoSyncRow,   SessaoExercicioSyncRow, SessaoTreinoSyncRow,
 SyncChanges, SyncRequest,
 TreinoExercicioSyncRow, TreinoSyncRow,   UserSettingSyncRow, } from '@academia/contracts';
 import { Type } from 'class-transformer';
 import {
   IsArray, IsBoolean, IsDefined, IsInt, IsISO8601, IsNumber, IsObject,
-  IsOptional, IsString, MaxLength, ValidateNested,
+  IsOptional, IsString, MaxLength, Min, ValidateNested,
 } from 'class-validator';
 
 // Wire DTOs for POST /sync. Same shape as the @academia/contracts interfaces, but as
@@ -307,6 +307,35 @@ export class SerieRegistradaSyncRowDto implements SerieRegistradaSyncRow {
   createdAt: string;
 }
 
+export class SerieSegmentoSyncRowDto implements SerieSegmentoSyncRow {
+  @IsString() @MaxLength(255)
+  id: string;
+
+  @IsISO8601()
+  updatedAt: string;
+
+  @IsOptional() @IsISO8601()
+  deletedAt: string | null;
+
+  @IsString() @MaxLength(255)
+  serieId: string;
+
+  @IsInt() @Min(2)
+  ordem: number;
+
+  @IsOptional() @IsNumber()
+  cargaKg: number | null;
+
+  @IsOptional() @IsInt()
+  repeticoes: number | null;
+
+  @IsOptional() @IsInt() @Min(0)
+  descansoSegundos: number | null;
+
+  @IsISO8601()
+  createdAt: string;
+}
+
 export class RegistroPesoSyncRowDto implements RegistroPesoSyncRow {
   @IsString() @MaxLength(255)
   id: string;
@@ -376,6 +405,10 @@ export class SyncChangesDto implements SyncChanges {
 
   @IsArray() @ValidateNested({ each: true }) @Type(() => SerieRegistradaSyncRowDto)
   seriesRegistradas: SerieRegistradaSyncRowDto[];
+
+  // @IsOptional: clientes anteriores a este campo não o enviam.
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => SerieSegmentoSyncRowDto)
+  serieSegmentos: SerieSegmentoSyncRowDto[];
 
   @IsArray() @ValidateNested({ each: true }) @Type(() => RegistroPesoSyncRowDto)
   registrosPeso: RegistroPesoSyncRowDto[];

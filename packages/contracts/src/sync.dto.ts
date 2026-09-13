@@ -100,6 +100,15 @@ export interface SerieRegistradaSyncRow extends SyncRow {
   createdAt: string;
 }
 
+export interface SerieSegmentoSyncRow extends SyncRow {
+  serieId: string;
+  ordem: number;
+  cargaKg: number | null;
+  repeticoes: number | null;
+  descansoSegundos: number | null;
+  createdAt: string;
+}
+
 export interface RegistroPesoSyncRow extends SyncRow {
   pesoKg: number;
   dataRegistro: string;
@@ -129,6 +138,7 @@ export interface SyncChanges {
   sessaoTreinos: SessaoTreinoSyncRow[];
   sessaoExercicios: SessaoExercicioSyncRow[];
   seriesRegistradas: SerieRegistradaSyncRow[];
+  serieSegmentos: SerieSegmentoSyncRow[];
   registrosPeso: RegistroPesoSyncRow[];
   userSettings: UserSettingSyncRow[];
   exerciseAlternatives: ExerciseAlternativeSyncRow[];

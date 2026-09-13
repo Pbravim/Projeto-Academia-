@@ -40,6 +40,8 @@ export class SyncService {
       await this.applySessaoTreinos(tx, userId, req.changes.sessaoTreinos, now);
       await this.applySessaoExercicios(tx, userId, req.changes.sessaoExercicios, now);
       await this.applySeriesRegistradas(tx, userId, req.changes.seriesRegistradas, now);
+      // `?? []`: clientes anteriores ao campo serieSegmentos não o enviam.
+      await this.applySerieSegmentos(tx, userId, req.changes.serieSegmentos ?? [], now);
       await this.applyRegistrosPeso(tx, userId, req.changes.registrosPeso, now);
       await this.applyUserSettings(tx, userId, req.changes.userSettings, now);
       // `?? []`: clientes anteriores ao campo exerciseAlternatives não o enviam.
@@ -69,6 +71,7 @@ export class SyncService {
     changes.sessaoTreinos.forEach(clamp);
     changes.sessaoExercicios.forEach(clamp);
     changes.seriesRegistradas.forEach(clamp);
+    changes.serieSegmentos?.forEach(clamp); // ausente em clientes antigos
     changes.registrosPeso.forEach(clamp);
     changes.userSettings.forEach(clamp);
     changes.exerciseAlternatives?.forEach(clamp); // ausente em clientes antigos
@@ -439,6 +442,63 @@ export class SyncService {
     }
   }
 
+  private async applySerieSegmentos(
+    tx: any,
+    userId: string,
+    rows: NonNullable<SyncRequest['changes']['serieSegmentos']>,
+    now: Date,
+  ) {
+    // Validate great-grandparent ownership via serieRegistrada -> sessaoExercicio -> sessaoTreino
+    const serieIds = [...new Set(rows.map((r) => r.serieId))];
+    const ownedSeries = serieIds.length === 0 ? [] : await tx.serieRegistrada.findMany({
+      where: { id: { in: serieIds }, sessaoExercicio: { sessaoTreino: { userId } } },
+      select: { id: true },
+    });
+    const ownedSerieIds = new Set(ownedSeries.map((s: any) => s.id));
+    const rejected = new Set<string>();
+    for (const row of rows) {
+      if (!ownedSerieIds.has(row.serieId)) rejected.add(row.id);
+    }
+
+    // Rows whose existing DB record sits under another user's série are also skipped
+    const existingRowsCheck = rows.length === 0 ? [] : await tx.serieSegmento.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true, serieId: true },
+    });
+    for (const existing of existingRowsCheck) {
+      if (!ownedSerieIds.has(existing.serieId)) rejected.add(existing.id);
+    }
+    this.skip('serieSegmento', userId, rejected);
+
+    const existing = rows.length === 0 ? [] : await tx.serieSegmento.findMany({
+      where: { id: { in: rows.map((r) => r.id) } },
+      select: { id: true, updatedAt: true, deletedAt: true },
+    });
+    const existingMap = new Map<string, { updatedAt: string | null; deletedAt: string | null }>(
+      existing.map((r: any) => [r.id, r]),
+    );
+    for (const row of rows) {
+      if (rejected.has(row.id)) continue;
+      const winner = this.lwwUpdate(row, existingMap.get(row.id));
+      await tx.serieSegmento.upsert({
+        where: { id: row.id },
+        create: {
+          id: winner.id, serieId: winner.serieId, ordem: winner.ordem,
+          cargaKg: winner.cargaKg, repeticoes: winner.repeticoes,
+          descansoSegundos: winner.descansoSegundos,
+          createdAt: winner.createdAt, updatedAt: winner.updatedAt,
+          deletedAt: winner.deletedAt, dirty: false, serverUpdatedAt: now,
+        },
+        update: {
+          ordem: winner.ordem, cargaKg: winner.cargaKg, repeticoes: winner.repeticoes,
+          descansoSegundos: winner.descansoSegundos,
+          updatedAt: winner.updatedAt, deletedAt: winner.deletedAt,
+          dirty: false, serverUpdatedAt: now,
+        },
+      });
+    }
+  }
+
   private async applyRegistrosPeso(tx: any, userId: string, rows: SyncRequest['changes']['registrosPeso'], now: Date) {
     // Fetch only rows owned by this user
     const existing = rows.length === 0 ? [] : await tx.registroPeso.findMany({
@@ -554,7 +614,7 @@ export class SyncService {
     const where = (extra = {}) => ({ ...extra, serverUpdatedAt: cursor });
 
     const [exercises, treinos, treinoExercicios, sessaoTreinos,
-           sessaoExercicios, seriesRegistradas, registrosPeso, userSettings,
+           sessaoExercicios, seriesRegistradas, serieSegmentos, registrosPeso, userSettings,
            exerciseAlternatives] = await Promise.all([
       tx.exercise.findMany({ where: where({ OR: [{ userId }, { isCustom: false }] }) }),
       tx.treino.findMany({ where: where({ userId }) }),
@@ -568,6 +628,9 @@ export class SyncService {
       tx.serieRegistrada.findMany({
         where: { serverUpdatedAt: cursor, sessaoExercicio: { sessaoTreino: { userId } } },
       }),
+      tx.serieSegmento.findMany({
+        where: { serverUpdatedAt: cursor, serie: { sessaoExercicio: { sessaoTreino: { userId } } } },
+      }),
       tx.registroPeso.findMany({ where: where({ userId }) }),
       tx.userSetting.findMany({ where: where({ userId }) }),
       tx.exerciseAlternative.findMany({ where: where({ userId }) }),
@@ -580,6 +643,7 @@ export class SyncService {
       sessaoTreinos: sessaoTreinos.map(this.mapSessaoTreino),
       sessaoExercicios: sessaoExercicios.map(this.mapSessaoExercicio),
       seriesRegistradas: seriesRegistradas.map(this.mapSerieRegistrada),
+      serieSegmentos: serieSegmentos.map(this.mapSerieSegmento),
       registrosPeso: registrosPeso.map(this.mapRegistroPeso),
       userSettings: userSettings.map(this.mapUserSetting),
       exerciseAlternatives: exerciseAlternatives.map(this.mapExerciseAlternative),
@@ -647,6 +711,12 @@ export class SyncService {
     intensidade: r.intensidade,
     observacao: r.observacao, createdAt: r.createdAt,
     updatedAt: r.updatedAt, deletedAt: r.deletedAt,
+  });
+
+  private mapSerieSegmento = (r: any) => ({
+    id: r.id, serieId: r.serieId, ordem: r.ordem,
+    cargaKg: r.cargaKg, repeticoes: r.repeticoes, descansoSegundos: r.descansoSegundos,
+    createdAt: r.createdAt, updatedAt: r.updatedAt, deletedAt: r.deletedAt,
   });
 
   private mapRegistroPeso = (r: any) => ({
