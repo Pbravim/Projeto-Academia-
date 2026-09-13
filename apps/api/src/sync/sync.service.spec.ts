@@ -462,8 +462,36 @@ describe('SyncService', () => {
       },
     });
 
+    // review-c3-1.md achado 1: sem esta asserção, remover o filtro de posse
+    // (sessaoExercicio: { sessaoTreino: { userId } }) do findMany continua verde
+    // — o mock devolve [] seja qual for o `where`.
+    expect(mockPrisma.serieRegistrada.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: { in: ['serie-not-mine'] }, sessaoExercicio: { sessaoTreino: { userId: 'user-1' } } },
+      }),
+    );
     expect(mockPrisma.serieSegmento.upsert).not.toHaveBeenCalled();
     expect(typeof result.newCursor).toBe('string');
+  });
+
+  it('skips a serieSegmento cujo registro existente aponta para série de outro usuário', async () => {
+    mockPrisma.serieRegistrada.findMany.mockResolvedValueOnce([{ id: 'serie-1' }]); // owned parent
+    // existingRowsCheck: o id já existe no banco, mas sob uma série que não é 'serie-1' (do outro usuário).
+    mockPrisma.serieSegmento.findMany.mockResolvedValueOnce([{ id: 'seg-1', serieId: 'serie-outro' }]);
+
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        serieSegmentos: [{
+          id: 'seg-1', serieId: 'serie-1', ordem: 2,
+          cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
+          createdAt: '2026-09-12T10:00:00.000Z', updatedAt: '2026-09-12T10:00:00.000Z', deletedAt: null,
+        }],
+      },
+    });
+
+    expect(mockPrisma.serieSegmento.upsert).not.toHaveBeenCalled();
   });
 
   it('lets a newer incoming serieSegmento tombstone win over an older server edit (LWW)', async () => {
@@ -502,6 +530,9 @@ describe('SyncService', () => {
 
     const pullWhere = mockPrisma.serieSegmento.findMany.mock.calls[0][0].where;
     expect(pullWhere.serverUpdatedAt).toEqual({ gt: new Date(since) });
+    // review-c3-1.md achado 1: sem esta asserção, remover o filtro de posse do pull
+    // (serie: { sessaoExercicio: { sessaoTreino: { userId } } }) continua verde.
+    expect(pullWhere.serie).toEqual({ sessaoExercicio: { sessaoTreino: { userId: 'user-1' } } });
     expect(result.serverChanges.serieSegmentos[0]).toMatchObject({ id: 'seg-1', ordem: 2, cargaKg: 40 });
   });
 

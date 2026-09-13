@@ -208,6 +208,10 @@ describe('SerieRegistrada + SerieSegmento — sync round-trip (mãe + degrau)', 
     const degrau = await segmentoRepo2.findById('seg-1');
     expect(mae?.toPrimitives()).toMatchObject({ cargaKg: 80, repeticoes: 10 });
     expect(degrau?.toPrimitives()).toMatchObject({ serieId: 'serie-1', ordem: 2, cargaKg: 60, repeticoes: 6 });
+    // review-c3-1.md achado 2: sem esta asserção, gravar dirty=1 no applyServerRows
+    // continua verde (findById ignora dirty/server_rev) — o degrau seria re-pushado
+    // a cada sync, para sempre.
+    expect(await segmentoRepo2.getDirty()).toEqual([]);
   });
 
   it('apagar a série-mãe tombstona também o degrau (cascata explícita de soft-delete)', async () => {

@@ -53,6 +53,10 @@ describe('SQLiteSerieSegmentoRepository — sync round-trip', () => {
     expect(applied?.toPrimitives()).toMatchObject({
       serieId: 'sr1', ordem: 2, cargaKg: 40, repeticoes: 6, descansoSegundos: 30,
     });
+    // review-c3-1.md achado 2: sem esta asserção, gravar dirty=1 no applyServerRows
+    // continua verde (findById ignora dirty/server_rev) — a linha seria re-pushada
+    // a cada sync, para sempre.
+    expect(await repo2.getDirty()).toEqual([]);
   });
 
   it('echo-back do servidor não sobrescreve uma linha local dirty mais nova', async () => {
