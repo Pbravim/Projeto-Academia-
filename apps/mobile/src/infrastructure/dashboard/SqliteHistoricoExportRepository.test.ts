@@ -243,22 +243,34 @@ describe('SqliteHistoricoExportRepository', () => {
     expect(series.map((s) => s.sessao_id)).toEqual(['s-earlier', 's-later']);
   });
 
-  it('orders by exercicio_ordem e serie_ordem mesmo quando inseridos fora de ordem (prende a REGRA, não o rowid nem o id)', async () => {
+  it('orders by exercicio.ordem e serie.ordem mesmo com ids e insercao fora de ordem nos dois niveis (prende a REGRA, nao o rowid nem o id, nos dois eixos)', async () => {
     await seedSessao(db);
-    // Ids não-monotônicos em relação a `ordem` (1/2/3 ↔ se-b/se-c/se-a): uma
-    // query que ordene por `se.id` (ASC OU DESC) em vez de `se.ordem`
-    // produziria uma ordem errada nos dois sentidos — não só a mutação que
-    // ordena por rowid (achado #1, review-c-2/c-3).
-    await seedExercicio(db, { id: 'se-b', ordem: 1 });
-    await seedExercicio(db, { id: 'se-c', ordem: 2 });
+    // Exercicios: ids não-monotônicos vs `ordem` (1/2/3 ↔ se-b/se-c/se-a) E
+    // inseridos fora da sequência de `ordem` (se-a/3 primeiro) — pega tanto
+    // `se.id ASC/DESC` quanto "drop se.ordem" (que cairia no rowid de
+    // inserção, igual a a/b/c, diferente do correto b/c/a).
     await seedExercicio(db, { id: 'se-a', ordem: 3 });
-    await seedSerie(db, { id: 'sr-b', sessaoExercicioId: 'se-b', ordem: 1 });
-    await seedSerie(db, { id: 'sr-c', sessaoExercicioId: 'se-c', ordem: 1 });
-    await seedSerie(db, { id: 'sr-a', sessaoExercicioId: 'se-a', ordem: 1 });
+    // Séries de se-a: ids/ordem invertidos E inseridas fora de ordem
+    // (ordem 2 antes da 1) — pega `sr.ordem DESC` (valor errado sempre) e
+    // "drop sr.ordem" (rowid de inserção também ficaria 2,1 — errado).
+    await seedSerie(db, { id: 'sr-a2', sessaoExercicioId: 'se-a', ordem: 2 });
+    await seedSerie(db, { id: 'sr-a1', sessaoExercicioId: 'se-a', ordem: 1 });
+
+    await seedExercicio(db, { id: 'se-b', ordem: 1 });
+    await seedSerie(db, { id: 'sr-b2', sessaoExercicioId: 'se-b', ordem: 2 });
+    await seedSerie(db, { id: 'sr-b1', sessaoExercicioId: 'se-b', ordem: 1 });
+
+    await seedExercicio(db, { id: 'se-c', ordem: 2 });
+    await seedSerie(db, { id: 'sr-c2', sessaoExercicioId: 'se-c', ordem: 2 });
+    await seedSerie(db, { id: 'sr-c1', sessaoExercicioId: 'se-c', ordem: 1 });
 
     const { series } = await repo.listRowsParaExportacao();
 
-    expect(series.map((s) => s.sessao_exercicio_id)).toEqual(['se-b', 'se-c', 'se-a']);
+    expect(series.map((s) => [s.sessao_exercicio_id, s.serie_ordem])).toEqual([
+      ['se-b', 1], ['se-b', 2],
+      ['se-c', 1], ['se-c', 2],
+      ['se-a', 1], ['se-a', 2],
+    ]);
   });
 
   it('ordena segmentos por ordem mesmo quando inseridos fora de ordem e de id', async () => {
