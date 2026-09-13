@@ -57,6 +57,7 @@ import type { MetodoExercicio } from '../domain/treinos/entities/TreinoExercicio
 import { AuthApiClient } from '../infrastructure/auth/AuthApiClient';
 import { SecureTokenStore } from '../infrastructure/auth/SecureTokenStore';
 import { SqliteDashboardRepository } from '../infrastructure/dashboard/SqliteDashboardRepository';
+import { SqliteHistoricoExportRepository } from '../infrastructure/dashboard/SqliteHistoricoExportRepository';
 import { ExerciseSeedLoader, type SeedFile } from '../infrastructure/exercises/ExerciseSeedLoader';
 import { ExpoMediaFileCleanup } from '../infrastructure/exercises/ExpoMediaFileCleanup';
 import { gerarThumbMidia } from '../infrastructure/exercises/gerarThumbMidia';
@@ -189,6 +190,7 @@ const serieSegmentoRepository = new SQLiteSerieSegmentoRepository(databaseClient
 const historicoRepository = new SQLiteHistoricoRepository(databaseClient);
 const registroPesoRepository = new SQLiteRegistroPesoRepository(databaseClient);
 const dashboardRepository = new SqliteDashboardRepository(databaseClient);
+const historicoExportRepository = new SqliteHistoricoExportRepository(databaseClient);
 
 // --- Backup & sync (opt-in, offline-first) ---
 const syncStorage = new SettingsStorageAdapter(databaseClient);
@@ -481,7 +483,7 @@ export const mobileDependencies = {
     getDashboardStats: new GetDashboardStatsUseCase({ dashboardRepository }),
     getTreinoEvolucao: new GetTreinoEvolucaoUseCase({ dashboardRepository }),
     resetHistorico: new ResetHistoricoUseCase({ database: databaseClient }),
-    exportarHistorico: new ExportarHistoricoUseCase({ database: databaseClient }),
+    exportarHistorico: new ExportarHistoricoUseCase({ historicoExportRepository }),
     exportarBanco: new ExportarBancoUseCase({ databaseClient }),
     importarBanco: new ImportarBancoUseCase({ databaseClient }),
     arquivarSessao: new ArquivarSessaoUseCase({ dashboardRepository }),
