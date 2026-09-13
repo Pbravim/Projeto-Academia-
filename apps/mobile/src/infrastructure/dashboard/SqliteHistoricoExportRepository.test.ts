@@ -243,17 +243,18 @@ describe('SqliteHistoricoExportRepository', () => {
     expect(series.map((s) => s.sessao_id)).toEqual(['s-earlier', 's-later']);
   });
 
-  it('orders by exercicio_ordem e serie_ordem mesmo quando inseridos fora de ordem (prende o ORDER BY, não só o rowid)', async () => {
+  it('orders by exercicio_ordem e serie_ordem mesmo quando inseridos fora de ordem (prende a REGRA, não o rowid nem o id)', async () => {
     await seedSessao(db);
-    // Exercícios inseridos com ordem 2 antes de ordem 1: se o ORDER BY não
-    // ordenar por se.ordem, o rowid de inserção venceria e a asserção falharia.
-    await seedExercicio(db, { id: 'se2', ordem: 2 });
-    await seedExercicio(db, { id: 'se1', ordem: 1 });
-    // Séries inseridas com ordem 2 antes de ordem 1, em cada exercício.
-    await seedSerie(db, { id: 'sr1-2', sessaoExercicioId: 'se1', ordem: 2 });
-    await seedSerie(db, { id: 'sr1-1', sessaoExercicioId: 'se1', ordem: 1 });
-    await seedSerie(db, { id: 'sr2-2', sessaoExercicioId: 'se2', ordem: 2 });
-    await seedSerie(db, { id: 'sr2-1', sessaoExercicioId: 'se2', ordem: 1 });
+    // Ids escolhidos para ordenar AO CONTRÁRIO de `ordem` (e o rowid de
+    // inserção também fica invertido): uma query que ordene por `se.id`/
+    // `sr.id` em vez de `se.ordem`/`sr.ordem` produziria a ordem errada e
+    // este teste morreria — não só a mutação que ordena por rowid.
+    await seedExercicio(db, { id: 'se-a', ordem: 2 });
+    await seedExercicio(db, { id: 'se-z', ordem: 1 });
+    await seedSerie(db, { id: 'sra-a', sessaoExercicioId: 'se-a', ordem: 2 });
+    await seedSerie(db, { id: 'sra-z', sessaoExercicioId: 'se-a', ordem: 1 });
+    await seedSerie(db, { id: 'srz-a', sessaoExercicioId: 'se-z', ordem: 2 });
+    await seedSerie(db, { id: 'srz-z', sessaoExercicioId: 'se-z', ordem: 1 });
 
     const { series } = await repo.listRowsParaExportacao();
 
@@ -262,14 +263,15 @@ describe('SqliteHistoricoExportRepository', () => {
     ]);
   });
 
-  it('ordena segmentos por ordem mesmo quando inseridos fora de ordem', async () => {
+  it('ordena segmentos por ordem mesmo quando inseridos fora de ordem e de id', async () => {
     await seedSessao(db);
     await seedExercicio(db);
     await seedSerie(db);
-    // Degrau de ordem 3 inserido antes do de ordem 2: se o ORDER BY não
-    // ordenar por sg.ordem, o rowid de inserção venceria.
-    await seedSegmento(db, { id: 'sg-3', ordem: 3 });
-    await seedSegmento(db, { id: 'sg-2', ordem: 2 });
+    // Id do degrau de ordem 3 ('sg-a') ordena ANTES do de ordem 2 ('sg-z'):
+    // uma query que ordene por `sg.id` em vez de `sg.ordem` produziria a
+    // ordem errada, além do rowid (inserido também fora de ordem).
+    await seedSegmento(db, { id: 'sg-a', ordem: 3 });
+    await seedSegmento(db, { id: 'sg-z', ordem: 2 });
 
     const { segmentos } = await repo.listRowsParaExportacao();
 
