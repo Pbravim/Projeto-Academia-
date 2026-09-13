@@ -119,6 +119,12 @@ describe('serializeCsv', () => {
     expect(csv.endsWith(',')).toBe(true);
   });
 
+  it('escapes a lone \\r (without \\n) per RFC 4180', () => {
+    const csv = serializeCsv([['a\rb']]);
+    const [, dataLine] = csv.split('\n');
+    expect(dataLine).toBe('"a\rb"');
+  });
+
   it('renders numbers as plain strings and null/undefined as empty', () => {
     const csv = serializeCsv([[1, 2.5, null, undefined as unknown as null]]);
     const [, dataLine] = csv.split('\n');

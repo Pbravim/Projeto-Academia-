@@ -74,6 +74,6 @@ export function serializeCsv(rows: CsvCell[][]): string {
 function escapeCsvCell(value: CsvCell): string {
   if (value === null || value === undefined) return '';
   const str = String(value);
-  if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+  if (/[",\r\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
   return str;
 }
