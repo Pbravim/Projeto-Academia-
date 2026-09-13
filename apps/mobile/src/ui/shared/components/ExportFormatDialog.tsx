@@ -50,7 +50,7 @@ export function ExportFormatDialog({ visible, onSelect, onClose }: Props) {
             onPress={onClose}
             accessibilityRole="button"
             accessibilityLabel={t('common.cancel')}
-            style={({ pressed }) => [styles.cancelBtn, pressed ? { opacity: 0.7 } : null]}
+            style={({ pressed }) => [styles.cancelBtn, pressed ? styles.cancelBtnPressed : null]}
           >
             <Text style={styles.cancelBtnText}>{t('common.cancel')}</Text>
           </Pressable>
@@ -95,5 +95,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       marginTop: 4,
     },
     cancelBtnText: { color: c.textSecondary, fontSize: 14, fontWeight: '700' },
+    cancelBtnPressed: { opacity: c.pressedOpacity },
   });
 }
