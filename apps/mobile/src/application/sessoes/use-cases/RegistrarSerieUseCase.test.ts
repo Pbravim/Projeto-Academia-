@@ -200,10 +200,16 @@ describe('RegistrarSerieUseCase', () => {
       const deps = makeDeps();
       await seedAtiva(deps, trackingType);
 
+      // Input por tipo (como o proprio seedAtiva ja faz): reps_only nao aceita
+      // duracaoSegundos — usar duracao para os 3 tipos deixaria a validacao de
+      // reps_only morrer antes de chegar na regra de segmentos, mascarando a
+      // mutacao `=== 'cardio' || === 'hold'` (achado #2, review-1).
+      const inputPorTipo = trackingType === 'reps_only' ? { repeticoes: 8 } : { duracaoSegundos: 600 };
+
       await expect(
         deps.useCase.execute({
           sessaoExercicioId: 'se_1',
-          duracaoSegundos: 600,
+          ...inputPorTipo,
           segmentos: [{ cargaKg: 50, repeticoes: 6 }],
         })
       ).rejects.toThrow(SessaoValidationError);
