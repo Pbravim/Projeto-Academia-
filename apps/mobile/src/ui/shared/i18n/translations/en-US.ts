@@ -228,7 +228,7 @@ export const enUS = {
     home: {
       description: 'Real progress per workout, last 10 sessions each.',
       exportando: 'Exporting...',
-      exportarCsv: 'Export CSV',
+      exportarHistorico: 'Export history',
       resetando: 'Resetting...',
       resetarHistorico: 'Reset history',
       tentarNovamente: 'Try again',
@@ -244,6 +244,14 @@ export const enUS = {
       confirmResetMessage:
         'This will delete all sessions, sets, and progress records. Workouts and exercises will be kept. This action cannot be undone.',
       confirmResetLabel: 'Reset',
+    },
+    exportar: {
+      titulo: 'Export history',
+      subtitulo: 'Choose a format',
+      csv: 'CSV',
+      csvDescricao: 'Spreadsheet — one row per step of each set',
+      json: 'JSON',
+      jsonDescricao: 'Full structure: workout → exercise → set → steps',
     },
     treinoCard: {
       gerenciarSessoesDe: 'Manage sessions for %{treino}',
@@ -588,6 +596,7 @@ export const enUS = {
       dados: 'Data',
       apagando: 'Deleting...',
       apagarHistorico: 'Delete history',
+      exportarHistorico: 'Export history',
       gerando: 'Generating...',
       exportarBackup: 'Export backup (.db)',
       importando: 'Importing...',
