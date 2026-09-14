@@ -9,7 +9,7 @@ export interface SerieExportRow {
   sessao_id: string;
   data_hora_inicio: string;
   data_hora_fim: string | null;
-  treino_id: string;
+  treino_id: string | null;
   treino_nome_snapshot: string;
   sessao_exercicio_id: string;
   exercicio_ordem: number;
@@ -85,7 +85,7 @@ export interface ExercicioExport {
 
 export interface SessaoExport {
   id: string;
-  treino_id: string;
+  treino_id: string | null;
   treino: string;
   data_inicio: string;
   data_fim: string | null;

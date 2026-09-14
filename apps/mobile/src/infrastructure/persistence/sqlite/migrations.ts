@@ -641,7 +641,48 @@ export const migrations: string[] = [
    );
    CREATE INDEX IF NOT EXISTS idx_serie_segmentos_serie_id ON serie_segmentos (serie_id);
    CREATE INDEX IF NOT EXISTS idx_serie_segmentos_dirty ON serie_segmentos (dirty) WHERE dirty = 1;`,
+
+  // v25: sessao_treinos.treino_id vira nullable (#33 — sessao sem treino / sessao
+  // livre). SQLite nao remove NOT NULL via ALTER, entao e rebuild: CREATE new /
+  // INSERT SELECT / DROP old / RENAME. sessao_exercicios referencia sessao_treinos
+  // por FK — rodar esse rebuild com foreign_keys=ON falha com "FOREIGN KEY
+  // constraint failed" mesmo dentro de BEGIN IMMEDIATE (provado empiricamente,
+  // node:sqlite 3.51 — PRAGMA/defer_foreign_keys/legacy_alter_table dentro da
+  // transacao nao resolvem). Por isso este step esta em MIGRATIONS_SEM_FK: o
+  // runner desliga foreign_keys ANTES do BEGIN, roda o rebuild, confere
+  // `foreign_key_check` vazio e religa depois do COMMIT. Expand-only: as 11
+  // colunas de sessao_treinos sao copiadas 1:1, nenhuma removida; os 3 indices
+  // morrem com o DROP e sao recriados aqui.
+  `CREATE TABLE sessao_treinos_new (
+     id TEXT PRIMARY KEY NOT NULL,
+     treino_id TEXT,
+     treino_nome_snapshot TEXT NOT NULL,
+     data_hora_inicio TEXT NOT NULL,
+     data_hora_fim TEXT,
+     status TEXT NOT NULL,
+     arquivado INTEGER NOT NULL DEFAULT 0,
+     updated_at TEXT,
+     deleted_at TEXT,
+     dirty INTEGER NOT NULL DEFAULT 1,
+     server_rev INTEGER
+   );
+   INSERT INTO sessao_treinos_new (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado, updated_at, deleted_at, dirty, server_rev)
+     SELECT id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado, updated_at, deleted_at, dirty, server_rev FROM sessao_treinos;
+   DROP TABLE sessao_treinos;
+   ALTER TABLE sessao_treinos_new RENAME TO sessao_treinos;
+   CREATE INDEX IF NOT EXISTS idx_sessao_treinos_treino_id ON sessao_treinos (treino_id);
+   CREATE INDEX IF NOT EXISTS idx_sessao_treinos_status_data ON sessao_treinos (status, arquivado, data_hora_inicio);
+   CREATE INDEX IF NOT EXISTS idx_sessao_treinos_dirty ON sessao_treinos (dirty) WHERE dirty = 1;`,
 ];
+
+/**
+ * Steps de `migrations` (número = índice+1, o PRAGMA user_version após o step)
+ * que precisam rodar com `PRAGMA foreign_keys = OFF` — rebuilds de tabela
+ * referenciada por FK de outra tabela (SQLite não permite DROP NOT NULL via
+ * ALTER). O runner desliga FK antes do BEGIN do step, roda `foreign_key_check`
+ * logo após o COMMIT e religa antes de seguir. Ver comentário da v25.
+ */
+export const MIGRATIONS_SEM_FK: ReadonlySet<number> = new Set([25]);
 
 /**
  * Split SQL statements respecting quoted strings and other delimiters.

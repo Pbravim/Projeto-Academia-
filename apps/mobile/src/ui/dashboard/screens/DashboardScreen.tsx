@@ -26,7 +26,7 @@ export function DashboardScreen({
   onGerenciarSessoes,
   onGoToSessao,
 }: DashboardControllerState & {
-  onGerenciarSessoes: (treinoId: string, treinoNome: string) => void;
+  onGerenciarSessoes: (treinoId: string | null, treinoNome: string) => void;
   onGoToSessao?: () => void;
 }) {
   const c = useTheme();
@@ -123,14 +123,23 @@ export function DashboardScreen({
               <Text style={styles.groupLabel}>{t('dashboard.home.evolucaoPorTreinoTitle')}</Text>
               <FlatList
                 data={stats.evolucaoPorTreino}
-                keyExtractor={(item) => item.treinoNome}
-                renderItem={({ item: grupo }) => (
-                  <TreinoEvolucaoCard
-                    grupo={grupo}
-                    onVerEvolucao={() => onVerEvolucao(grupo.treinoId, grupo.treinoNome)}
-                    onGerenciar={() => onGerenciarSessoes(grupo.treinoId, grupo.treinoNome)}
-                  />
-                )}
+                keyExtractor={(item) => item.treinoId ?? '__livres__'}
+                renderItem={({ item: grupo }) => {
+                  const treinoIdFixo = grupo.treinoId;
+                  // Achado 4 (review-33a-1): label resolvido AQUI (uma vez) e repassado
+                  // aos dois callbacks — antes, onGerenciarSessoes recebia o
+                  // `treinoNome` cru ('' para sessao livre), abrindo
+                  // GerenciarSessoesScreen com titulo/dialogos vazios.
+                  const label = treinoIdFixo === null ? t('dashboard.home.sessoesLivres') : grupo.treinoNome;
+                  return (
+                    <TreinoEvolucaoCard
+                      grupo={grupo}
+                      label={label}
+                      onVerEvolucao={treinoIdFixo === null ? undefined : () => onVerEvolucao(treinoIdFixo, grupo.treinoNome)}
+                      onGerenciar={() => onGerenciarSessoes(grupo.treinoId, label)}
+                    />
+                  );
+                }}
                 scrollEnabled={false}
                 removeClippedSubviews
                 initialNumToRender={4}
@@ -192,17 +201,21 @@ export function DashboardScreen({
 
 const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
   grupo,
+  label,
   onVerEvolucao,
   onGerenciar,
 }: {
   grupo: EvolucaoPorTreino;
-  onVerEvolucao: () => void;
+  label: string;
+  onVerEvolucao?: () => void;
   onGerenciar: () => void;
 }) {
   const c = useTheme();
   const locale = useLocale();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
+
+  const treinoLabel = label;
 
   const [expanded, setExpanded] = useState(false);
   const [chartMode, setChartMode] = useState<DashboardChartMode>('orm');
@@ -252,7 +265,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
           onPress={() => setExpanded((v) => !v)}
           style={({ pressed }) => [styles.treinoHeaderMain, pressed ? { opacity: 0.7 } : null]}
         >
-          <Text style={styles.treinoNome}>{grupo.treinoNome}</Text>
+          <Text style={styles.treinoNome}>{treinoLabel}</Text>
           <Text style={styles.treinoMeta}>{t('dashboard.common.sessoesCount', { count: sessoes.length })}</Text>
         </Pressable>
         <View style={styles.treinoHeaderRight}>
@@ -263,7 +276,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
             onPress={onGerenciar}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel={t('dashboard.treinoCard.gerenciarSessoesDe', { treino: grupo.treinoNome })}
+            accessibilityLabel={t('dashboard.treinoCard.gerenciarSessoesDe', { treino: treinoLabel })}
             style={({ pressed }) => [styles.treinoMenuBtn, pressed ? { opacity: 0.7 } : null]}
           >
             <Ionicons name="archive-outline" size={15} color={c.textSecondary} />
@@ -358,13 +371,15 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
         </Pressable>
       ) : null}
 
-      {/* Bottom CTA */}
-      <Pressable
-        onPress={onVerEvolucao}
-        style={({ pressed }) => [styles.verEvolucaoBtn, pressed ? styles.verEvolucaoBtnPressed : null]}
-      >
-        <Text style={styles.verEvolucaoBtnText}>{t('dashboard.treinoCard.verEvolucaoPorExercicio')}</Text>
-      </Pressable>
+      {/* Bottom CTA — oculto para sessoes sem treino (#33): nao ha template para agrupar evolucao por exercicio */}
+      {onVerEvolucao ? (
+        <Pressable
+          onPress={onVerEvolucao}
+          style={({ pressed }) => [styles.verEvolucaoBtn, pressed ? styles.verEvolucaoBtnPressed : null]}
+        >
+          <Text style={styles.verEvolucaoBtnText}>{t('dashboard.treinoCard.verEvolucaoPorExercicio')}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 });

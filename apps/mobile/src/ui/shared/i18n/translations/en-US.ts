@@ -237,6 +237,7 @@ export const enUS = {
       verTodos: 'View all',
       maisExercicios: '+%{count} exercises →',
       evolucaoPorTreinoTitle: 'Progress by workout',
+      sessoesLivres: 'Free sessions',
       semDadosTitle: 'No data yet',
       semDadosText: 'Finish a session to see records and progress by workout here.',
       semHistoricoTitle: 'No history yet',

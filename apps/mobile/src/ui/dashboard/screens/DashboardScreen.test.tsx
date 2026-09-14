@@ -110,4 +110,85 @@ describe('DashboardScreen', () => {
     });
     expect(onRefresh).toHaveBeenCalled();
   });
+
+  it('grupo sem treino (#33): rotula "Sessões livres", oculta "ver evolução" e chama onGerenciarSessoes com treinoId null', async () => {
+    const onGerenciarSessoes = vi.fn();
+    const stats = {
+      totalSessoes: 1,
+      sessoesUltimoMes: 1,
+      aderenciaSemanal: [],
+      aderenciaMensal: [],
+      aderenciaAnual: [],
+      recordesPessoais: [],
+      evolucaoPorTreino: [
+        {
+          treinoId: null,
+          treinoNome: '',
+          sessoes: [{ id: 's1', dataHoraInicio: '2026-09-13T10:00:00.000Z', dataHoraFim: null, volumeTotal: 0, melhorOrm: 0, duracaoMin: null, arquivado: false }],
+          sessoesArquivadas: [],
+        },
+      ],
+    };
+    const renderer = await render({ ...baseProps, stats, errorMessage: null, onGerenciarSessoes });
+
+    const flatList = renderer.root.findByType('FlatList');
+    const rendered = flatList.props.renderItem({ item: stats.evolucaoPorTreino[0] });
+    let cardRenderer!: ReactTestRenderer;
+    await act(async () => {
+      cardRenderer = TestRenderer.create(rendered);
+    });
+
+    const cardTexts = cardRenderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(cardTexts).toContain('dashboard.home.sessoesLivres');
+    expect(cardTexts).not.toContain('dashboard.treinoCard.verEvolucaoPorExercicio');
+
+    const gerenciarBtn = cardRenderer.root
+      .findAllByType('Pressable')
+      .find((p) => (p.props as { accessibilityRole?: string }).accessibilityRole === 'button');
+    await act(async () => {
+      (gerenciarBtn!.props as { onPress: () => void }).onPress();
+    });
+    expect(onGerenciarSessoes).toHaveBeenCalledWith(null, 'dashboard.home.sessoesLivres');
+  });
+
+  it('grupo com treino: keyExtractor usa treinoId e "ver evolução" chama onVerEvolucao', async () => {
+    const onVerEvolucao = vi.fn();
+    const grupoLivre = {
+      treinoId: null, treinoNome: '',
+      sessoes: [{ id: 's1', dataHoraInicio: '2026-09-13T10:00:00.000Z', dataHoraFim: null, volumeTotal: 0, melhorOrm: 0, duracaoMin: null, arquivado: false }],
+      sessoesArquivadas: [],
+    };
+    const grupoComTreino = {
+      treinoId: 'tr-1', treinoNome: 'Treino A',
+      sessoes: [{ id: 's2', dataHoraInicio: '2026-09-13T10:00:00.000Z', dataHoraFim: null, volumeTotal: 0, melhorOrm: 0, duracaoMin: null, arquivado: false }],
+      sessoesArquivadas: [],
+    };
+    const stats = {
+      totalSessoes: 2, sessoesUltimoMes: 2,
+      aderenciaSemanal: [], aderenciaMensal: [], aderenciaAnual: [], recordesPessoais: [],
+      evolucaoPorTreino: [grupoLivre, grupoComTreino],
+    };
+    const renderer = await render({ ...baseProps, stats, errorMessage: null, onVerEvolucao });
+
+    const flatList = renderer.root.findByType('FlatList');
+    expect(flatList.props.keyExtractor(grupoLivre)).toBe('__livres__');
+    expect(flatList.props.keyExtractor(grupoComTreino)).toBe('tr-1');
+
+    const rendered = flatList.props.renderItem({ item: grupoComTreino });
+    let cardRenderer!: ReactTestRenderer;
+    await act(async () => {
+      cardRenderer = TestRenderer.create(rendered);
+    });
+
+    const verEvolucaoBtn = cardRenderer.root
+      .findAllByType('Pressable')
+      .find((p) => p.findAllByType('Text').some((t) => t.props.children === 'dashboard.treinoCard.verEvolucaoPorExercicio'));
+    expect(verEvolucaoBtn).toBeDefined();
+    // Exercita a funcao de estilo (pressed) — RN chama isso internamente; o mock so repassa a prop.
+    (verEvolucaoBtn!.props as { style: (s: { pressed: boolean }) => unknown }).style({ pressed: true });
+    await act(async () => {
+      (verEvolucaoBtn!.props as { onPress: () => void }).onPress();
+    });
+    expect(onVerEvolucao).toHaveBeenCalledWith('tr-1', 'Treino A');
+  });
 });

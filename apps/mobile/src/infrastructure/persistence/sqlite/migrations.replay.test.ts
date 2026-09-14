@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createTestDatabase } from '../../../test/db-setup';
+import { createTestDatabase, createTestDatabaseAtVersion } from '../../../test/db-setup';
 
 import { migrations } from './migrations';
 
@@ -34,5 +34,94 @@ describe('replay das migrações de produção', () => {
       expect(names.has('deleted_at'), `${table}.deleted_at`).toBe(true);
       expect(names.has('dirty'), `${table}.dirty`).toBe(true);
     }
+  });
+
+  it('v25: sessao_treinos.treino_id vira nullable e mantem as 11 colunas', async () => {
+    const db = createTestDatabase();
+    const cols = await db.getAll<{ name: string; notnull: number }>('PRAGMA table_info(sessao_treinos)');
+    const byName = new Map(cols.map((c) => [c.name, c]));
+    expect(byName.get('treino_id')?.notnull).toBe(0);
+    const expected = [
+      'id', 'treino_id', 'treino_nome_snapshot', 'data_hora_inicio', 'data_hora_fim',
+      'status', 'arquivado', 'updated_at', 'deleted_at', 'dirty', 'server_rev',
+    ];
+    for (const name of expected) {
+      expect(byName.has(name), `sessao_treinos.${name}`).toBe(true);
+    }
+    expect(cols.length).toBe(expected.length);
+  });
+
+  it('v25 (replay com dados): rebuild preserva linhas de sessao_treinos e sessao_exercicios, FK intacta e 3 indices recriados', async () => {
+    // Aplica v1..v24 manualmente (a mesma cadeia real, so parando 1 step antes),
+    // insere dados, depois roda a v25 sozinha e compara.
+    const dbAntes = createTestDatabaseAtVersion(24);
+    await dbAntes.run(
+      `INSERT INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
+       ('ex-1', 'Supino', 'supino', 'Peito', 'Composto', 'Barra', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z')`
+    );
+    // Achado 1 (review-33a-1): as 5 colunas antes NULL/DEFAULT (data_hora_fim,
+    // arquivado, deleted_at, dirty, server_rev) colapsavam com o valor que o
+    // rebuild produz quando a coluna e OMITIDA do INSERT...SELECT — omitir
+    // qualquer uma sobrevivia porque NULL/DEFAULT == valor original. Toda
+    // coluna abaixo tem um valor distinto do NULL/DEFAULT da tabela nova
+    // (2a linha com valores DIFERENTES da 1a, para pegar troca de ordem entre
+    // colunas do mesmo tipo).
+    await dbAntes.run(
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado, updated_at, deleted_at, dirty, server_rev)
+       VALUES ('st-1', 'treino-1', 'Peito', '2026-09-13T10:00:00.000Z', '2026-09-13T11:00:00.000Z', 'finalizada', 1, '2026-09-13T10:30:00.000Z', '2026-09-13T12:00:00.000Z', 0, 7)`
+    );
+    await dbAntes.run(
+      // treino_id ainda e NOT NULL nesta versao (v24, pre-v25) — a coluna so
+      // vira nullable NO PROPRIO step que este teste esta provando.
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado, updated_at, deleted_at, dirty, server_rev)
+       VALUES ('st-2', 'treino-2', 'Treino B', '2026-09-13T09:00:00.000Z', '2026-09-13T09:45:00.000Z', 'em_andamento', 0, '2026-09-13T09:50:00.000Z', NULL, 1, 3)`
+    );
+    await dbAntes.run(
+      `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, realizado, updated_at, deleted_at, dirty, server_rev)
+       VALUES ('se-1', 'st-1', 'ex-1', 1, 'Supino', 'Peito', 'Composto', 'Barra', 1, '2026-09-13T10:00:00.000Z', NULL, 1, NULL)`
+    );
+
+    const rowsAntes = await dbAntes.getAll('SELECT * FROM sessao_treinos ORDER BY id');
+
+    await dbAntes.exec('PRAGMA foreign_keys = OFF;');
+    await dbAntes.exec('BEGIN IMMEDIATE');
+    await dbAntes.exec(migrations[24]);
+    await dbAntes.exec(`PRAGMA user_version = 25`);
+    await dbAntes.exec('COMMIT');
+    const fkViolations = await dbAntes.getAll('PRAGMA foreign_key_check');
+    await dbAntes.exec('PRAGMA foreign_keys = ON;');
+
+    expect(fkViolations).toEqual([]);
+
+    const rowsDepois = await dbAntes.getAll('SELECT * FROM sessao_treinos ORDER BY id');
+    expect(rowsDepois).toEqual(rowsAntes);
+    expect(rowsDepois[0]).toMatchObject({
+      id: 'st-1', treino_id: 'treino-1', data_hora_fim: '2026-09-13T11:00:00.000Z',
+      status: 'finalizada', arquivado: 1, deleted_at: '2026-09-13T12:00:00.000Z',
+      dirty: 0, server_rev: 7,
+    });
+    expect(rowsDepois[1]).toMatchObject({
+      id: 'st-2', treino_id: 'treino-2', data_hora_fim: '2026-09-13T09:45:00.000Z',
+      status: 'em_andamento', arquivado: 0, deleted_at: null, dirty: 1, server_rev: 3,
+    });
+
+    const fkList = await dbAntes.getAll<{ table: string }>('PRAGMA foreign_key_list(sessao_exercicios)');
+    expect(fkList.some((fk) => fk.table === 'sessao_treinos')).toBe(true);
+
+    // insert orfao deve falhar com FK religada
+    await expect(
+      dbAntes.run(
+        `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, realizado, updated_at, deleted_at, dirty, server_rev)
+         VALUES ('se-orfao', 'st-inexistente', 'ex-1', 1, 'x', 'x', 'x', 1, NULL, NULL, 1, NULL)`
+      )
+    ).rejects.toThrow();
+
+    const indices = await dbAntes.getAll<{ name: string }>(
+      "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'sessao_treinos'"
+    );
+    const indexNames = new Set(indices.map((i) => i.name));
+    expect(indexNames.has('idx_sessao_treinos_treino_id')).toBe(true);
+    expect(indexNames.has('idx_sessao_treinos_status_data')).toBe(true);
+    expect(indexNames.has('idx_sessao_treinos_dirty')).toBe(true);
   });
 });

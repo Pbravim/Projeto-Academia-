@@ -5,7 +5,7 @@ import type { SQLiteDatabaseClient } from '../persistence/sqlite/SQLiteDatabaseC
 
 interface SessaoTreinoRow {
   id: string;
-  treino_id: string;
+  treino_id: string | null;
   treino_nome_snapshot: string;
   data_hora_inicio: string;
   data_hora_fim: string | null;
@@ -55,7 +55,7 @@ export class SQLiteSessaoTreinoRepository implements SessaoTreinoRepository {
 
   async getDirty(): Promise<import('@academia/contracts').SessaoTreinoSyncRow[]> {
     const rows = await this.database.getAll<{
-      id: string; treino_id: string; treino_nome_snapshot: string;
+      id: string; treino_id: string | null; treino_nome_snapshot: string;
       data_hora_inicio: string; data_hora_fim: string | null; status: string;
       arquivado: number; updated_at: string; deleted_at: string | null;
     }>(

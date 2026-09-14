@@ -114,8 +114,8 @@ model TreinoExercicio {
 
 model SessaoTreino {
   id              String    @id
-  treinoId        String    @map("treino_id")
-  treino          Treino    @relation(fields: [treinoId], references: [id])
+  treinoId        String?   @map("treino_id")
+  treino          Treino?   @relation(fields: [treinoId], references: [id], onDelete: SetNull)
   treinoNomeSnapshot String   @map("treino_nome_snapshot")
   dataHoraInicio  String    @map("data_hora_inicio")
   dataHoraFim     String?   @map("data_hora_fim")
