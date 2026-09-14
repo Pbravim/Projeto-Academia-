@@ -59,9 +59,22 @@ describe('replay das migrações de produção', () => {
       `INSERT INTO exercises (id, name, normalized_name, group_muscle, category, equipment, load_unit, is_custom, created_at, updated_at) VALUES
        ('ex-1', 'Supino', 'supino', 'Peito', 'Composto', 'Barra', 'kg', 0, '2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.000Z')`
     );
+    // Achado 1 (review-33a-1): as 5 colunas antes NULL/DEFAULT (data_hora_fim,
+    // arquivado, deleted_at, dirty, server_rev) colapsavam com o valor que o
+    // rebuild produz quando a coluna e OMITIDA do INSERT...SELECT — omitir
+    // qualquer uma sobrevivia porque NULL/DEFAULT == valor original. Toda
+    // coluna abaixo tem um valor distinto do NULL/DEFAULT da tabela nova
+    // (2a linha com valores DIFERENTES da 1a, para pegar troca de ordem entre
+    // colunas do mesmo tipo).
     await dbAntes.run(
       `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado, updated_at, deleted_at, dirty, server_rev)
-       VALUES ('st-1', 'treino-1', 'Peito', '2026-09-13T10:00:00.000Z', NULL, 'em_andamento', 0, '2026-09-13T10:00:00.000Z', NULL, 1, NULL)`
+       VALUES ('st-1', 'treino-1', 'Peito', '2026-09-13T10:00:00.000Z', '2026-09-13T11:00:00.000Z', 'finalizada', 1, '2026-09-13T10:30:00.000Z', '2026-09-13T12:00:00.000Z', 0, 7)`
+    );
+    await dbAntes.run(
+      // treino_id ainda e NOT NULL nesta versao (v24, pre-v25) — a coluna so
+      // vira nullable NO PROPRIO step que este teste esta provando.
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado, updated_at, deleted_at, dirty, server_rev)
+       VALUES ('st-2', 'treino-2', 'Treino B', '2026-09-13T09:00:00.000Z', '2026-09-13T09:45:00.000Z', 'em_andamento', 0, '2026-09-13T09:50:00.000Z', NULL, 1, 3)`
     );
     await dbAntes.run(
       `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, realizado, updated_at, deleted_at, dirty, server_rev)
@@ -82,6 +95,15 @@ describe('replay das migrações de produção', () => {
 
     const rowsDepois = await dbAntes.getAll('SELECT * FROM sessao_treinos ORDER BY id');
     expect(rowsDepois).toEqual(rowsAntes);
+    expect(rowsDepois[0]).toMatchObject({
+      id: 'st-1', treino_id: 'treino-1', data_hora_fim: '2026-09-13T11:00:00.000Z',
+      status: 'finalizada', arquivado: 1, deleted_at: '2026-09-13T12:00:00.000Z',
+      dirty: 0, server_rev: 7,
+    });
+    expect(rowsDepois[1]).toMatchObject({
+      id: 'st-2', treino_id: 'treino-2', data_hora_fim: '2026-09-13T09:45:00.000Z',
+      status: 'em_andamento', arquivado: 0, deleted_at: null, dirty: 1, server_rev: 3,
+    });
 
     const fkList = await dbAntes.getAll<{ table: string }>('PRAGMA foreign_key_list(sessao_exercicios)');
     expect(fkList.some((fk) => fk.table === 'sessao_treinos')).toBe(true);
