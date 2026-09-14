@@ -42,6 +42,39 @@ describe('SyncRequestDto validation', () => {
     expect(result.changes.treinos[0].name).toBe('Peito');
   });
 
+  it('accepts a sessaoTreino row with treinoId null (sessao sem treino, #33)', async () => {
+    const now = '2026-09-13T10:00:00.000Z';
+    const result = await asBody({
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        sessaoTreinos: [{
+          id: 'st1', treinoId: null, treinoNomeSnapshot: 'Treino livre 13/09',
+          dataHoraInicio: now, dataHoraFim: null, status: 'em_andamento', arquivado: false,
+          createdAt: now, updatedAt: now, deletedAt: null,
+        }],
+      },
+    });
+    expect(result.changes.sessaoTreinos[0].treinoId).toBeNull();
+  });
+
+  it('rejects a sessaoTreino row with treinoId as a number (achado 2, review-33a-1)', async () => {
+    const now = '2026-09-13T10:00:00.000Z';
+    await expect(
+      asBody({
+        since: null,
+        changes: {
+          ...emptyChanges(),
+          sessaoTreinos: [{
+            id: 'st1', treinoId: 123, treinoNomeSnapshot: 'Treino livre 13/09',
+            dataHoraInicio: now, dataHoraFim: null, status: 'em_andamento', arquivado: false,
+            createdAt: now, updatedAt: now, deletedAt: null,
+          }],
+        },
+      }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
   it('rejects a body without changes', async () => {
     await expect(asBody({ since: null })).rejects.toThrow(BadRequestException);
   });
