@@ -148,7 +148,7 @@ describe('DashboardScreen', () => {
     await act(async () => {
       (gerenciarBtn!.props as { onPress: () => void }).onPress();
     });
-    expect(onGerenciarSessoes).toHaveBeenCalledWith(null, '');
+    expect(onGerenciarSessoes).toHaveBeenCalledWith(null, 'dashboard.home.sessoesLivres');
   });
 
   it('grupo com treino: keyExtractor usa treinoId e "ver evolução" chama onVerEvolucao', async () => {

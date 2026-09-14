@@ -126,11 +126,17 @@ export function DashboardScreen({
                 keyExtractor={(item) => item.treinoId ?? '__livres__'}
                 renderItem={({ item: grupo }) => {
                   const treinoIdFixo = grupo.treinoId;
+                  // Achado 4 (review-33a-1): label resolvido AQUI (uma vez) e repassado
+                  // aos dois callbacks — antes, onGerenciarSessoes recebia o
+                  // `treinoNome` cru ('' para sessao livre), abrindo
+                  // GerenciarSessoesScreen com titulo/dialogos vazios.
+                  const label = treinoIdFixo === null ? t('dashboard.home.sessoesLivres') : grupo.treinoNome;
                   return (
                     <TreinoEvolucaoCard
                       grupo={grupo}
+                      label={label}
                       onVerEvolucao={treinoIdFixo === null ? undefined : () => onVerEvolucao(treinoIdFixo, grupo.treinoNome)}
-                      onGerenciar={() => onGerenciarSessoes(grupo.treinoId, grupo.treinoNome)}
+                      onGerenciar={() => onGerenciarSessoes(grupo.treinoId, label)}
                     />
                   );
                 }}
@@ -195,10 +201,12 @@ export function DashboardScreen({
 
 const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
   grupo,
+  label,
   onVerEvolucao,
   onGerenciar,
 }: {
   grupo: EvolucaoPorTreino;
+  label: string;
   onVerEvolucao?: () => void;
   onGerenciar: () => void;
 }) {
@@ -207,7 +215,7 @@ const TreinoEvolucaoCard = memo(function TreinoEvolucaoCard({
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
 
-  const treinoLabel = grupo.treinoId === null ? t('dashboard.home.sessoesLivres') : grupo.treinoNome;
+  const treinoLabel = label;
 
   const [expanded, setExpanded] = useState(false);
   const [chartMode, setChartMode] = useState<DashboardChartMode>('orm');
