@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
+import type { TreinoRepository } from '../../../domain/treinos/repositories/TreinoRepository';
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { DuplicateTreinoError } from '../errors/DuplicateTreinoError';
@@ -8,6 +10,44 @@ import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 
 import { ConfirmarImportacaoTreinoUseCase, type ImportacaoResolvida } from './ConfirmarImportacaoTreinoUseCase';
 import { CreateTreinoUseCase } from './CreateTreinoUseCase';
+
+/** Repositorio que registra 'save:treino' no log ANTES de delegar — usado para provar
+ * que as escritas do achado 3 (review-38a-1) ficam dentro da janela inicio/fim da transacao. */
+function treinoRepositoryComLog(log: string[]): TreinoRepository {
+  const base = new InMemoryTreinoRepository();
+  return {
+    save: async (treino) => {
+      log.push('save:treino');
+      await base.save(treino);
+    },
+    list: () => base.list(),
+    findById: (id) => base.findById(id),
+    delete: (id) => base.delete(id),
+  };
+}
+
+function treinoExercicioRepositoryComLog(log: string[]): TreinoExercicioRepository {
+  const base = new InMemoryTreinoExercicioRepository();
+  return {
+    save: async (treinoExercicio) => {
+      log.push('save:te');
+      await base.save(treinoExercicio);
+    },
+    listByTreinoId: (treinoId) => base.listByTreinoId(treinoId),
+    findById: (id) => base.findById(id),
+    findByTreinoIdAndExercicioId: (treinoId, exercicioId) => base.findByTreinoIdAndExercicioId(treinoId, exercicioId),
+    countByTreinoId: (treinoId) => base.countByTreinoId(treinoId),
+    countAllByTreino: () => base.countAllByTreino(),
+    maxOrdemByTreinoId: (treinoId) => base.maxOrdemByTreinoId(treinoId),
+    findTombstonedId: (treinoId, exercicioId) => base.findTombstonedId(treinoId, exercicioId),
+    updateOrdem: (id, ordem) => base.updateOrdem(id, ordem),
+    updateRecomendacoes: (id, series, execucoes, carga, descanso) => base.updateRecomendacoes(id, series, execucoes, carga, descanso),
+    updateMetodoGrupo: (id, metodo, grupoId) => base.updateMetodoGrupo(id, metodo, grupoId),
+    delete: (id) => base.delete(id),
+    deleteByTreinoId: (treinoId) => base.deleteByTreinoId(treinoId),
+    deleteByExercicioId: (exercicioId) => base.deleteByExercicioId(exercicioId),
+  };
+}
 
 function novoAmbiente() {
   const treinoRepository = new InMemoryTreinoRepository();
@@ -110,9 +150,10 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
     expect(salvos).toHaveLength(0);
   });
 
-  it('(e) com database fake, withTransaction e chamado 1x e envolve todas as escritas', async () => {
-    const treinoRepository = new InMemoryTreinoRepository();
-    const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
+  it('(e) com database fake, withTransaction e chamado 1x e TODAS as escritas ficam entre inicio e fim (log de ordem)', async () => {
+    const log: string[] = [];
+    const treinoRepository = treinoRepositoryComLog(log);
+    const treinoExercicioRepository = treinoExercicioRepositoryComLog(log);
     const createTreino = new CreateTreinoUseCase({
       treinoRepository,
       idGenerator: () => 'treino-1',
@@ -122,7 +163,10 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
     const database: TransactionPort = {
       withTransaction: async (fn) => {
         chamadas += 1;
-        return fn();
+        log.push('inicio');
+        const resultado = await fn();
+        log.push('fim');
+        return resultado;
       },
     };
     const uc = new ConfirmarImportacaoTreinoUseCase({
@@ -138,6 +182,11 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
     expect(chamadas).toBe(1);
     const itens = await treinoExercicioRepository.listByTreinoId('treino-1');
     expect(itens).toHaveLength(4);
+
+    expect(log[0]).toBe('inicio');
+    expect(log[log.length - 1]).toBe('fim');
+    const escritas = log.slice(1, -1);
+    expect(escritas).toEqual(['save:treino', 'save:te', 'save:te', 'save:te', 'save:te']);
   });
 
   it('(f) campos ausentes viram null, cargaPadrao sempre null', async () => {
