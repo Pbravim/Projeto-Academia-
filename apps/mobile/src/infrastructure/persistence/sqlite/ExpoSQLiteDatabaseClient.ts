@@ -4,7 +4,7 @@ import type { DatabaseExportPort } from '../../../domain/dashboard/ports/Databas
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { AppLogger } from '../../logging/AppLogger';
 
-import { migrations, splitSqlStatements } from './migrations';
+import { MIGRATIONS_SEM_FK, migrations, splitSqlStatements } from './migrations';
 import type { SQLiteBindParams, SQLiteDatabaseClient } from './SQLiteDatabaseClient';
 
 
@@ -134,19 +134,37 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseE
     const currentVersion = versionRow?.user_version ?? 0;
 
     for (let i = currentVersion; i < migrations.length; i++) {
+      const stepNumber = i + 1;
+      // Rebuilds de tabela referenciada por FK (ex.: v25) não aplicam com
+      // foreign_keys=ON — SQLite não permite alternar o pragma dentro de uma
+      // transação, então o OFF/ON fica FORA do BEGIN/COMMIT do step.
+      const semFk = MIGRATIONS_SEM_FK.has(stepNumber);
+      if (semFk) {
+        await database.execAsync('PRAGMA foreign_keys = OFF;');
+      }
       // Step + bump do user_version em UMA transação: um crash no meio de um
       // rebuild (ex.: entre DROP e RENAME da v22) deixava o banco irreparável
       // no boot seguinte. Com rollback, o step inteiro é re-tentável.
       await database.execAsync('BEGIN IMMEDIATE');
       try {
         await this.runMigrationStep(database, migrations[i]);
-        await database.execAsync(`PRAGMA user_version = ${i + 1}`);
+        await database.execAsync(`PRAGMA user_version = ${stepNumber}`);
         await database.execAsync('COMMIT');
       } catch (err) {
         await database.execAsync('ROLLBACK').catch(() => undefined);
+        if (semFk) {
+          await database.execAsync('PRAGMA foreign_keys = ON;').catch(() => undefined);
+        }
         throw err;
       }
-      this.logger.info('database.migration_applied', { version: i + 1 });
+      if (semFk) {
+        const violations = await database.getAllAsync('PRAGMA foreign_key_check');
+        await database.execAsync('PRAGMA foreign_keys = ON;');
+        if (violations.length > 0) {
+          throw new Error(`database.migration_fk_check_failed: step ${stepNumber}`);
+        }
+      }
+      this.logger.info('database.migration_applied', { version: stepNumber });
     }
 
     // Always verify critical columns exist — guards against any migration history on old devices.

@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 
-import { migrations, splitSqlStatements } from '../infrastructure/persistence/sqlite/migrations';
+import { MIGRATIONS_SEM_FK, migrations, splitSqlStatements } from '../infrastructure/persistence/sqlite/migrations';
 import type { SQLiteBindParams,SQLiteDatabaseClient } from '../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 
 /**
@@ -12,6 +12,16 @@ import type { SQLiteBindParams,SQLiteDatabaseClient } from '../infrastructure/pe
  * schema byte-identical to production is the whole point of this helper.
  */
 export function createTestDatabase(): SQLiteDatabaseClient {
+  return createTestDatabaseAtVersion(migrations.length);
+}
+
+/**
+ * Como `createTestDatabase`, mas para no step `upToVersion` (1-indexado, o
+ * mesmo número que vira PRAGMA user_version). Usado pelo teste de replay com
+ * dados: aplica v1..v(N-1), insere fixtures, e só então roda o step N sozinho
+ * para inspecionar seu efeito isolado (ex.: rebuild da v25).
+ */
+export function createTestDatabaseAtVersion(upToVersion: number): SQLiteDatabaseClient {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
 
@@ -19,7 +29,13 @@ export function createTestDatabase(): SQLiteDatabaseClient {
   // ONE transaction (step + user_version bump — crash mid-rebuild must roll
   // back), executing per statement and swallowing only "duplicate column name"
   // (v5 is an intentional safety-net that re-runs v3's ALTERs).
-  migrations.forEach((migration, i) => {
+  migrations.slice(0, upToVersion).forEach((migration, i) => {
+    const stepNumber = i + 1;
+    // Mesma semântica do runner de produção (ExpoSQLiteDatabaseClient): rebuilds
+    // de tabela referenciada por FK (v25) desligam foreign_keys FORA da
+    // transação — SQLite não permite alternar o pragma dentro de um BEGIN.
+    const semFk = MIGRATIONS_SEM_FK.has(stepNumber);
+    if (semFk) db.pragma('foreign_keys = OFF');
     db.exec('BEGIN IMMEDIATE');
     try {
       for (const stmt of splitSqlStatements(migration)) {
@@ -30,11 +46,19 @@ export function createTestDatabase(): SQLiteDatabaseClient {
           if (!/duplicate column name/i.test(msg)) throw err;
         }
       }
-      db.pragma(`user_version = ${i + 1}`);
+      db.pragma(`user_version = ${stepNumber}`);
       db.exec('COMMIT');
     } catch (err) {
       try { db.exec('ROLLBACK'); } catch { /* já revertido */ }
+      if (semFk) db.pragma('foreign_keys = ON');
       throw err;
+    }
+    if (semFk) {
+      const violations = db.pragma('foreign_key_check');
+      db.pragma('foreign_keys = ON');
+      if (Array.isArray(violations) && violations.length > 0) {
+        throw new Error(`database.migration_fk_check_failed: step ${stepNumber}`);
+      }
     }
   });
 
