@@ -13,7 +13,7 @@ const JSON_DA_ISSUE = JSON.stringify({
   exercicios: [
     { nome: 'Supino reto com barra', seriesAlvo: 4, repsAlvo: 8, metodo: 'normal', descansoSegundos: 90 },
     { nome: 'Crucifixo inclinado', seriesAlvo: 3, repsAlvo: 12, metodo: 'drop_set' },
-    { nome: 'Tríceps corda', seriesAlvo: 3, repsAlvo: 15, grupo: 'A' },
+    { nome: 'Tríceps corda', seriesAlvo: 3, repsAlvo: 12, grupo: 'A' },
     { nome: 'Tríceps testa', seriesAlvo: 3, repsAlvo: 12, grupo: 'A' },
   ],
 });
@@ -28,7 +28,7 @@ async function repositorioComCatalogo() {
 }
 
 describe('ImportarTreinoUseCase', () => {
-  it('JSON da issue -> proposta com 4 itens, metodo e grupo preservados no item', async () => {
+  it('JSON no formato da issue -> proposta com 4 itens, metodo e grupo preservados no item', async () => {
     const exerciseRepository = await repositorioComCatalogo();
     const uc = new ImportarTreinoUseCase({ exerciseRepository });
 

@@ -68,13 +68,14 @@ function novoAmbiente() {
   return { treinoRepository, treinoExercicioRepository, createTreino, uc };
 }
 
+// Proposta no formato da issue #38 (nao e um transcrito literal — ver achado 4, review-38a-1).
 const propostaDaIssue: ImportacaoResolvida = {
   nome: 'Treino A',
   objetivo: 'Hipertrofia',
   itens: [
     { item: { nome: 'Supino reto com barra', metodo: 'normal', seriesAlvo: 4, repsAlvo: 8, descansoSegundos: 90 }, exercicioId: 'ex-1' },
     { item: { nome: 'Crucifixo inclinado', metodo: 'drop_set', seriesAlvo: 3, repsAlvo: 12 }, exercicioId: 'ex-2' },
-    { item: { nome: 'Tríceps corda', metodo: 'normal', seriesAlvo: 3, repsAlvo: 15, grupo: 'A' }, exercicioId: 'ex-3' },
+    { item: { nome: 'Tríceps corda', metodo: 'normal', seriesAlvo: 3, repsAlvo: 12, grupo: 'A' }, exercicioId: 'ex-3' },
     { item: { nome: 'Tríceps testa', metodo: 'normal', seriesAlvo: 3, repsAlvo: 12, grupo: 'A' }, exercicioId: 'ex-4' },
   ],
 };
@@ -90,7 +91,7 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
     expect(itens).toHaveLength(4);
     expect(itens.map((i) => i.toPrimitives().ordem)).toEqual([1, 2, 3, 4]);
     expect(itens.map((i) => i.toPrimitives().seriesRecomendadas)).toEqual([4, 3, 3, 3]);
-    expect(itens.map((i) => i.toPrimitives().execucoesRecomendadas)).toEqual([8, 12, 15, 12]);
+    expect(itens.map((i) => i.toPrimitives().execucoesRecomendadas)).toEqual([8, 12, 12, 12]);
     expect(itens[0].toPrimitives().tempoDescansoSegundos).toBe(90);
     expect(itens.map((i) => i.toPrimitives().metodo)).toEqual(['normal', 'drop_set', 'normal', 'normal']);
     expect(itens[0].toPrimitives().grupoId).toBeNull();

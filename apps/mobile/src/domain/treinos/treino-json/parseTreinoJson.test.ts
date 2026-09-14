@@ -25,7 +25,7 @@ const JSON_DA_ISSUE = {
     {
       nome: 'Tríceps corda',
       seriesAlvo: 3,
-      repsAlvo: 15,
+      repsAlvo: 12,
       grupo: 'A',
     },
     {
@@ -38,7 +38,7 @@ const JSON_DA_ISSUE = {
 };
 
 describe('parseTreinoJson', () => {
-  it('(a) aceita o JSON exato da issue com 4 itens, metodo e grupo preservados', () => {
+  it('(a) aceita o JSON no formato da issue com 4 itens, metodo e grupo preservados', () => {
     const resultado = parseTreinoJson(JSON.stringify(JSON_DA_ISSUE));
 
     expect(resultado.ok).toBe(true);
