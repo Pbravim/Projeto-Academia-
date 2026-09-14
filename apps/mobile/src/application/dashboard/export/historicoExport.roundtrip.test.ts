@@ -155,4 +155,34 @@ describe('round-trip: SQLite → tree → JSON → parse (critério da issue)', 
     // 5 séries, cada uma +1 linha (mãe); a série drop-set soma +2 degraus.
     expect(csvRows).toHaveLength(5 + 2);
   });
+
+  it('sessao sem treino (#33, D9): treino_id null no JSON e celula vazia no CSV', async () => {
+    const db = createTestDatabase();
+
+    await db.run(
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, arquivado)
+       VALUES ('s-livre', NULL, 'Treino livre 13/09', '2026-09-13T10:00:00.000Z', '2026-09-13T11:00:00.000Z', 'finalizada', 0)`
+    );
+    await db.run(
+      `INSERT INTO sessao_exercicios (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, tracking_type_snapshot, metodo, grupo_id)
+       VALUES ('se-livre', 's-livre', 'seed-ex-001', 1, 'Supino reto', 'Peito', 'Composto', 'Barra', 'reps_load', 'normal', NULL)`
+    );
+    await db.run(
+      `INSERT INTO series_registradas (id, sessao_exercicio_id, ordem, tipo_serie, carga_kg, repeticoes)
+       VALUES ('sr-livre', 'se-livre', 1, 'valida', 60, 8)`
+    );
+
+    const repo = new SqliteHistoricoExportRepository(db);
+    const { series, segmentos } = await repo.listRowsParaExportacao();
+    const tree = buildHistoricoExportTree(series, segmentos);
+
+    expect(tree.sessoes[0].treino_id).toBeNull();
+
+    const envelope = buildHistoricoJson(tree, new Date('2026-09-13T18:00:00.000Z'));
+    const parsed = JSON.parse(serializeHistoricoJson(envelope));
+    expect(parsed.sessoes[0].treino_id).toBeNull();
+
+    const csvRows = flattenHistoricoCsvRows(tree);
+    expect(csvRows[0][3]).toBeNull(); // coluna treino_id
+  });
 });
