@@ -2,7 +2,7 @@ export type SessaoStatus = 'em_andamento' | 'finalizada' | 'cancelada';
 
 export interface SessaoTreinoPrimitives {
   id: string;
-  treinoId: string;
+  treinoId: string | null;
   treinoNomeSnapshot: string;
   dataHoraInicio: string;
   dataHoraFim: string | null;
@@ -11,7 +11,7 @@ export interface SessaoTreinoPrimitives {
 
 export interface CreateSessaoTreinoProps {
   id: string;
-  treinoId: string;
+  treinoId: string | null;
   treinoNomeSnapshot: string;
   dataHoraInicio: Date;
 }
