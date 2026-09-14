@@ -54,6 +54,8 @@ export function createTestDatabaseAtVersion(upToVersion: number): SQLiteDatabase
       throw err;
     }
     if (semFk) {
+      // Checagem diagnostica pos-commit, espelhando ExpoSQLiteDatabaseClient
+      // (achado 6, review-33a-1) — ver comentario la para o raciocinio completo.
       const violations = db.pragma('foreign_key_check');
       db.pragma('foreign_keys = ON');
       if (Array.isArray(violations) && violations.length > 0) {
