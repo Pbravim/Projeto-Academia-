@@ -161,4 +161,20 @@ describe('parseTreinoJson', () => {
     if (!resultado.ok) return;
     expect(resultado.treino.nome).toBe('Treino A');
   });
+
+  it('(k) "grupo" e normalizado para maiuscula — "a" e "A" caem no mesmo grupo (achado 6)', () => {
+    const comGrupoMinusculo = {
+      ...JSON_DA_ISSUE,
+      exercicios: [
+        { nome: 'Exercicio 1', grupo: 'a' },
+        { nome: 'Exercicio 2', grupo: 'A' },
+      ],
+    };
+
+    const resultado = parseTreinoJson(JSON.stringify(comGrupoMinusculo));
+
+    expect(resultado.ok).toBe(true);
+    if (!resultado.ok) return;
+    expect(resultado.treino.exercicios.map((e) => e.grupo)).toEqual(['A', 'A']);
+  });
 });

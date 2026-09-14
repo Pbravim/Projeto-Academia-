@@ -70,7 +70,9 @@ function validarItem(raw: unknown, index: number): TreinoJsonExercicioV1 {
   const seriesAlvo = validarInteiro(item.seriesAlvo, 1, path('seriesAlvo'));
   const repsAlvo = validarInteiro(item.repsAlvo, 1, path('repsAlvo'));
   const descansoSegundos = validarInteiro(item.descansoSegundos, 0, path('descansoSegundos'));
-  const grupo = validarTextoOpcional(item.grupo, path('grupo'));
+  // "a" e "A" devem casar no mesmo grupo (bi-set/circuito) — so os espacos eram
+  // normalizados antes (achado 6, review-38a-1); maiuscula/minuscula tambem entra.
+  const grupo = validarTextoOpcional(item.grupo, path('grupo'))?.toUpperCase();
   const metodo = validarMetodo(item.metodo, path('metodo'));
   const duracaoSegundos = validarNumero(item.duracaoSegundos, 0, path('duracaoSegundos'));
   const distanciaMetros = validarNumero(item.distanciaMetros, 0, path('distanciaMetros'));
