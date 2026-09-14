@@ -28,7 +28,7 @@ function localDateKey(d: Date): string {
  * livre tem um nome distinto, ex. "Treino livre 13/09"). O nome de exibição
  * (i18n) fica a cargo da tela; o repositório devolve treinoNome vazio.
  */
-export const SESSOES_LIVRES_KEY = '__sessoes_livres__';
+const SESSOES_LIVRES_KEY = '__sessoes_livres__';
 
 function getMondayOfWeek(date: Date): string {
   const d = new Date(date);
