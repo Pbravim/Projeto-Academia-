@@ -68,11 +68,27 @@ describe('ExpoSQLiteDatabaseClient.runMigrations — steps sem FK (#33, D8)', ()
     await client.exec('SELECT 1');
 
     const calls = fakeDb.execAsync.mock.calls.map((c) => c[0] as string);
-    const semFkStep = [...MIGRATIONS_SEM_FK][0]!;
+
+    // Achado 3 (review-33a-1): assere o "SO" — exatamente MIGRATIONS_SEM_FK.size
+    // steps desligam FK (a mutacao `semFk = true` em todos os 25 steps deixava
+    // os 3 testes verdes; com este count a mutacao falha, pois offCount vira 25).
+    const offCount = calls.filter((c) => c === 'PRAGMA foreign_keys = OFF;').length;
+    expect(offCount).toBe(MIGRATIONS_SEM_FK.size);
+
     const offIdx = calls.indexOf('PRAGMA foreign_keys = OFF;');
     const beginIdxAfterOff = calls.indexOf('BEGIN IMMEDIATE', offIdx);
     expect(offIdx).toBeGreaterThan(-1);
-    expect(beginIdxAfterOff).toBeGreaterThan(offIdx);
+    // OFF e o statement IMEDIATAMENTE anterior ao BEGIN do step sem FK — prende
+    // o step certo, nao so "algum BEGIN depois".
+    expect(beginIdxAfterOff).toBe(offIdx + 1);
+
+    // O BEGIN que segue o OFF pertence ao step de MIGRATIONS_SEM_FK (o
+    // `user_version = N` desse step vem logo em seguida, antes do proximo BEGIN).
+    const [semFkStep] = MIGRATIONS_SEM_FK;
+    const userVersionIdx = calls.indexOf(`PRAGMA user_version = ${semFkStep}`, beginIdxAfterOff);
+    const nextBeginIdx = calls.indexOf('BEGIN IMMEDIATE', beginIdxAfterOff + 1);
+    expect(userVersionIdx).toBeGreaterThan(beginIdxAfterOff);
+    expect(nextBeginIdx === -1 || userVersionIdx < nextBeginIdx).toBe(true);
 
     const onIdx = calls.indexOf('PRAGMA foreign_keys = ON;', beginIdxAfterOff);
     expect(onIdx).toBeGreaterThan(beginIdxAfterOff);
@@ -81,7 +97,6 @@ describe('ExpoSQLiteDatabaseClient.runMigrations — steps sem FK (#33, D8)', ()
     expect(checkCall).toBeDefined();
 
     expect(currentVersion).toBe(migrations.length);
-    void semFkStep;
   });
 
   it('lanca erro e religa foreign_keys quando foreign_key_check acusa violacao no step sem FK', async () => {
