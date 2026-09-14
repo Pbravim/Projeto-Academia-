@@ -120,7 +120,7 @@ export class RegistrarSerieUseCase {
   private async atualizarCargaSeNecessario(
     input: RegistrarSerieInput,
     se: SessaoExercicioPrimitives,
-    treinoId: string
+    treinoId: string | null
   ): Promise<void> {
     if (input.repeticoes == null || input.cargaKg == null) return;
     if (se.execucoesRecomendadas == null) return;
@@ -130,6 +130,10 @@ export class RegistrarSerieUseCase {
     // Atualiza snapshot da sessao para refletir imediatamente na UI
     const seAtualizado = SessaoExercicio.restore({ ...se, cargaPadrao: input.cargaKg });
     await this.dependencies.sessaoExercicioRepository.save(seAtualizado);
+
+    // Sessao sem treino (#33): nao ha template para pre-preencher — o snapshot
+    // da sessao ja foi atualizado acima, e e o suficiente para essa sessao.
+    if (treinoId == null) return;
 
     // Atualiza template do treino para pre-preencher proximas sessoes
     const te = await this.dependencies.treinoExercicioRepository.findByTreinoIdAndExercicioId(
