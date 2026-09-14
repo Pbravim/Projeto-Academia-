@@ -45,6 +45,7 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
 
     const treino = await uc.execute(propostaDaIssue);
 
+    expect(treino.objetivo).toBe('Hipertrofia');
     const itens = await treinoExercicioRepository.listByTreinoId(treino.id);
     expect(itens).toHaveLength(4);
     expect(itens.map((i) => i.toPrimitives().ordem)).toEqual([1, 2, 3, 4]);

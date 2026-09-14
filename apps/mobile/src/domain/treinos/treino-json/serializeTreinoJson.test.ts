@@ -44,6 +44,7 @@ describe('buildTreinoJson', () => {
 
     expect(json.schema).toBe(TREINO_JSON_SCHEMA);
     expect(json.nome).toBe('Treino A');
+    expect(json.objetivo).toBe('Hipertrofia');
     expect(json.exercicios).toHaveLength(4);
     expect(json.exercicios[2].grupo).toBe('A');
     expect(json.exercicios[3].grupo).toBe('A');
@@ -61,6 +62,7 @@ describe('buildTreinoJson', () => {
     const json = buildTreinoJson(treino, itens);
 
     expect(json.exercicios.map((e) => e.nome)).toEqual(['Primeiro', 'Segundo']);
+    expect(json).not.toHaveProperty('objetivo');
   });
 
   it('(c) equipamento = exercise.equipment (omitido se null)', () => {

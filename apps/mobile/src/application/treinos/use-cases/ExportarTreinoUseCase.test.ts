@@ -105,7 +105,7 @@ describe('ExportarTreinoUseCase', () => {
     ];
     for (const exercicio of exercicios) await exerciseRepository.save(Exercise.restore(exercicio));
 
-    await treinoRepository.save(Treino.create({ id: 'treino-rt', name: 'Treino Round Trip', createdAt: new Date('2026-01-01') }));
+    await treinoRepository.save(Treino.create({ id: 'treino-rt', name: 'Treino Round Trip', objetivo: 'Hipertrofia', createdAt: new Date('2026-01-01') }));
 
     const originais: TreinoExercicioPrimitives[] = [
       { id: 'te-1', treinoId: 'treino-rt', exercicioId: 'ex-1', ordem: 1, seriesRecomendadas: 4, execucoesRecomendadas: 8, cargaPadrao: null, tempoDescansoSegundos: 90, metodo: 'normal', grupoId: null, duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null },
@@ -141,6 +141,7 @@ describe('ExportarTreinoUseCase', () => {
     });
 
     const novoTreino = await confirmarUc.execute(resolvida);
+    expect(novoTreino.objetivo).toBe('Hipertrofia');
     const reconstruidos = await treinoExercicioRepository.listByTreinoId(novoTreino.id);
     const reconstruidosPrimitives = reconstruidos.map((te) => te.toPrimitives());
 
