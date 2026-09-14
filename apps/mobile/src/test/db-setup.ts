@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 
-import { MIGRATIONS_SEM_FK, migrations, splitSqlStatements } from '../infrastructure/persistence/sqlite/migrations';
+import { migrations, MIGRATIONS_SEM_FK, splitSqlStatements } from '../infrastructure/persistence/sqlite/migrations';
 import type { SQLiteBindParams,SQLiteDatabaseClient } from '../infrastructure/persistence/sqlite/SQLiteDatabaseClient';
 
 /**

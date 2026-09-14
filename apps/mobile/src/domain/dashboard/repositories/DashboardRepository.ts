@@ -9,7 +9,7 @@ export interface SessaoComVolume {
 }
 
 export interface EvolucaoPorTreino {
-  treinoId: string;
+  treinoId: string | null;
   treinoNome: string;
   sessoes: SessaoComVolume[];
   sessoesArquivadas: SessaoComVolume[];

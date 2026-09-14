@@ -4,7 +4,7 @@ import type { DatabaseExportPort } from '../../../domain/dashboard/ports/Databas
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
 import type { AppLogger } from '../../logging/AppLogger';
 
-import { MIGRATIONS_SEM_FK, migrations, splitSqlStatements } from './migrations';
+import { migrations, MIGRATIONS_SEM_FK, splitSqlStatements } from './migrations';
 import type { SQLiteBindParams, SQLiteDatabaseClient } from './SQLiteDatabaseClient';
 
 

@@ -27,7 +27,7 @@ type ActiveView =
   | { type: 'dashboard' }
   | { type: 'recordes' }
   | { type: 'evolucao'; treinoId: string; treinoNome: string }
-  | { type: 'sessoes'; treinoId: string; treinoNome: string };
+  | { type: 'sessoes'; treinoId: string | null; treinoNome: string };
 
 export function DashboardFeature({ dependencies, onGoToSessao }: Props) {
   const [view, setView] = useState<ActiveView>({ type: 'dashboard' });

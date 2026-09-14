@@ -110,4 +110,44 @@ describe('DashboardScreen', () => {
     });
     expect(onRefresh).toHaveBeenCalled();
   });
+
+  it('grupo sem treino (#33): rotula "Sessões livres", oculta "ver evolução" e chama onGerenciarSessoes com treinoId null', async () => {
+    const onGerenciarSessoes = vi.fn();
+    const stats = {
+      totalSessoes: 1,
+      sessoesUltimoMes: 1,
+      aderenciaSemanal: [],
+      aderenciaMensal: [],
+      aderenciaAnual: [],
+      recordesPessoais: [],
+      evolucaoPorTreino: [
+        {
+          treinoId: null,
+          treinoNome: '',
+          sessoes: [{ id: 's1', dataHoraInicio: '2026-09-13T10:00:00.000Z', dataHoraFim: null, volumeTotal: 0, melhorOrm: 0, duracaoMin: null, arquivado: false }],
+          sessoesArquivadas: [],
+        },
+      ],
+    };
+    const renderer = await render({ ...baseProps, stats, errorMessage: null, onGerenciarSessoes });
+
+    const flatList = renderer.root.findByType('FlatList');
+    const rendered = flatList.props.renderItem({ item: stats.evolucaoPorTreino[0] });
+    let cardRenderer!: ReactTestRenderer;
+    await act(async () => {
+      cardRenderer = TestRenderer.create(rendered);
+    });
+
+    const cardTexts = cardRenderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(cardTexts).toContain('dashboard.home.sessoesLivres');
+    expect(cardTexts).not.toContain('dashboard.treinoCard.verEvolucaoPorExercicio');
+
+    const gerenciarBtn = cardRenderer.root
+      .findAllByType('Pressable')
+      .find((p) => (p.props as { accessibilityRole?: string }).accessibilityRole === 'button');
+    await act(async () => {
+      (gerenciarBtn!.props as { onPress: () => void }).onPress();
+    });
+    expect(onGerenciarSessoes).toHaveBeenCalledWith(null, '');
+  });
 });

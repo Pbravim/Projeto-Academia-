@@ -238,6 +238,7 @@ export const ptBR = {
       verTodos: 'Ver todos',
       maisExercicios: '+%{count} exercícios →',
       evolucaoPorTreinoTitle: 'Evolução por treino',
+      sessoesLivres: 'Sessões livres',
       semDadosTitle: 'Sem dados ainda',
       semDadosText: 'Finalize uma sessão para ver recordes e evolução por treino aqui.',
       semHistoricoTitle: 'Sem histórico ainda',

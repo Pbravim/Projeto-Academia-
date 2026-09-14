@@ -22,6 +22,14 @@ function localDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+/**
+ * Chave de bucket para sessões sem treino (#33) — agrupa TODAS num único card
+ * "Sessões livres", em vez de um card por treino_nome_snapshot (cada sessão
+ * livre tem um nome distinto, ex. "Treino livre 13/09"). O nome de exibição
+ * (i18n) fica a cargo da tela; o repositório devolve treinoNome vazio.
+ */
+export const SESSOES_LIVRES_KEY = '__sessoes_livres__';
+
 function getMondayOfWeek(date: Date): string {
   const d = new Date(date);
   d.setHours(12, 0, 0, 0);
@@ -63,7 +71,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
       ),
       this.database.getAll<{
         id: string;
-        treino_id: string;
+        treino_id: string | null;
         treino_nome_snapshot: string;
         data_hora_inicio: string;
         data_hora_fim: string | null;
@@ -132,7 +140,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
       ),
     ]);
 
-    const byTreino = new Map<string, { treinoId: string; sessoes: SessaoComVolume[]; sessoesArquivadas: SessaoComVolume[] }>();
+    const byTreino = new Map<string, { treinoId: string | null; sessoes: SessaoComVolume[]; sessoesArquivadas: SessaoComVolume[] }>();
     for (const row of sessoes) {
       const entry: SessaoComVolume = {
         id: row.id,
@@ -148,7 +156,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
           : null,
         arquivado: row.arquivado === 1,
       };
-      const key = row.treino_nome_snapshot;
+      const key = row.treino_id === null ? SESSOES_LIVRES_KEY : row.treino_nome_snapshot;
       const existing = byTreino.get(key) ?? { treinoId: row.treino_id, sessoes: [], sessoesArquivadas: [] };
       if (entry.arquivado) {
         existing.sessoesArquivadas.push(entry);
@@ -162,7 +170,7 @@ export class SqliteDashboardRepository implements DashboardRepository {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([treinoNome, { treinoId, sessoes: sessoesDoTreino, sessoesArquivadas }]) => ({
         treinoId,
-        treinoNome,
+        treinoNome: treinoId === null ? '' : treinoNome,
         sessoes: sessoesDoTreino.slice(0, 10),
         sessoesArquivadas,
       }));

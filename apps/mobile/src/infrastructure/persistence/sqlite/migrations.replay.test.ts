@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createTestDatabase } from '../../../test/db-setup';
-import { createTestDatabaseAtVersion } from '../../../test/db-setup';
+import { createTestDatabase, createTestDatabaseAtVersion } from '../../../test/db-setup';
 
 import { migrations } from './migrations';
 
