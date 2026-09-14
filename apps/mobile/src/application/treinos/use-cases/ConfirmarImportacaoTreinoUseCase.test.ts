@@ -4,6 +4,7 @@ import type { TransactionPort } from '../../../domain/shared/ports/TransactionPo
 import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
 import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
 import { DuplicateTreinoError } from '../errors/DuplicateTreinoError';
+import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 
 import { ConfirmarImportacaoTreinoUseCase, type ImportacaoResolvida } from './ConfirmarImportacaoTreinoUseCase';
 import { CreateTreinoUseCase } from './CreateTreinoUseCase';
@@ -158,6 +159,23 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
       distanciaRecomendadaMetros: null,
       intensidadeRecomendada: null,
     });
+  });
+
+  it('(h) exercicioId repetido em 2 itens -> ExercicioJaNoTreinoError e nada salvo (achado 1)', async () => {
+    const { treinoRepository, treinoExercicioRepository, uc } = novoAmbiente();
+    const proposta: ImportacaoResolvida = {
+      nome: 'Circuito Agachamento/Flexao',
+      itens: [
+        { item: { nome: 'Agachamento', metodo: 'normal' }, exercicioId: 'ex-1' },
+        { item: { nome: 'Flexao', metodo: 'normal' }, exercicioId: 'ex-2' },
+        { item: { nome: 'Agachamento', metodo: 'normal' }, exercicioId: 'ex-1' },
+      ],
+    };
+
+    await expect(uc.execute(proposta)).rejects.toBeInstanceOf(ExercicioJaNoTreinoError);
+
+    expect(await treinoRepository.list()).toHaveLength(0);
+    expect(await treinoExercicioRepository.listByTreinoId('treino-1')).toHaveLength(0);
   });
 
   it('(g) D1: duracaoSegundos/distanciaMetros/intensidade mapeados', async () => {

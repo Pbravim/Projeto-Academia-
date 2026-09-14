@@ -3,6 +3,7 @@ import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import { TreinoExercicio } from '../../../domain/treinos/entities/TreinoExercicio';
 import type { TreinoExercicioRepository } from '../../../domain/treinos/repositories/TreinoExercicioRepository';
 import type { TreinoJsonExercicioV1 } from '../../../domain/treinos/treino-json/TreinoJsonSchema';
+import { ExercicioJaNoTreinoError } from '../errors/ExercicioJaNoTreinoError';
 
 import type { CreateTreinoUseCase } from './CreateTreinoUseCase';
 
@@ -29,12 +30,27 @@ interface ConfirmarImportacaoTreinoUseCaseDependencies {
 export class ConfirmarImportacaoTreinoUseCase {
   constructor(private readonly deps: ConfirmarImportacaoTreinoUseCaseDependencies) {}
 
-  /** @throws {DuplicateTreinoError} ja existe treino com o mesmo nome */
+  /**
+   * @throws {DuplicateTreinoError} ja existe treino com o mesmo nome
+   * @throws {ExercicioJaNoTreinoError} a proposta repete o mesmo exercicioId em 2+ itens —
+   *   `treino_exercicios` tem UNIQUE(treino_id, exercicio_id) e o REPLACE do SQLite
+   *   apagaria a linha anterior, gravando menos itens do que a proposta revisada.
+   */
   async execute(proposta: ImportacaoResolvida): Promise<TreinoPrimitives> {
+    this.validarSemExercicioDuplicado(proposta.itens);
+
     if (this.deps.database) {
       return this.deps.database.withTransaction(() => this.salvar(proposta));
     }
     return this.salvar(proposta);
+  }
+
+  private validarSemExercicioDuplicado(itens: ImportacaoResolvidaItem[]): void {
+    const vistos = new Set<string>();
+    for (const { exercicioId } of itens) {
+      if (vistos.has(exercicioId)) throw new ExercicioJaNoTreinoError(exercicioId);
+      vistos.add(exercicioId);
+    }
   }
 
   private async salvar(proposta: ImportacaoResolvida): Promise<TreinoPrimitives> {
