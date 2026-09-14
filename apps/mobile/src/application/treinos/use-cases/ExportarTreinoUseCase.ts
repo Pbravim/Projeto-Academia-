@@ -36,6 +36,8 @@ export class ExportarTreinoUseCase {
     const exercicios = await this.deps.exerciseRepository.findByIds(treinoExercicios.map((te) => te.toPrimitives().exercicioId));
     const exercicioById = new Map(exercicios.map((exercise) => [exercise.toPrimitives().id, exercise.toPrimitives()]));
 
+    // Leniente por design: um TreinoExercicio cujo exercicio nao veio de findByIds (deletado
+    // do catalogo) e omitido do export em vez de lancar — o treino continua exportavel.
     const itens: TreinoJsonExportItem[] = treinoExercicios.flatMap((te) => {
       const teP = te.toPrimitives();
       const exercise = exercicioById.get(teP.exercicioId);

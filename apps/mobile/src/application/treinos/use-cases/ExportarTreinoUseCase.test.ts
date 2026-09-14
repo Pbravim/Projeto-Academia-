@@ -51,6 +51,37 @@ describe('ExportarTreinoUseCase', () => {
     expect(conteudo.exercicios[0]).toMatchObject({ nome: 'Supino reto com barra', seriesAlvo: 4, repsAlvo: 8 });
   });
 
+  it('omite (nao lanca) um TreinoExercicio cujo exercicio nao existe mais no catalogo (achado 5)', async () => {
+    const treinoRepository = new InMemoryTreinoRepository();
+    const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
+    const exerciseRepository = new InMemoryExerciseRepository();
+
+    await treinoRepository.save(Treino.create({ id: 'treino-orfao', name: 'Treino Orfao', createdAt: new Date('2026-01-01') }));
+    await treinoExercicioRepository.save(
+      TreinoExercicio.create({
+        id: 'te-orfao',
+        treinoId: 'treino-orfao',
+        exercicioId: 'ex-inexistente',
+        ordem: 1,
+        seriesRecomendadas: null,
+        execucoesRecomendadas: null,
+        cargaPadrao: null,
+        tempoDescansoSegundos: null,
+        metodo: 'normal',
+        grupoId: null,
+        duracaoRecomendadaSegundos: null,
+        distanciaRecomendadaMetros: null,
+        intensidadeRecomendada: null,
+      })
+    );
+
+    const uc = new ExportarTreinoUseCase({ treinoRepository, treinoExercicioRepository, exerciseRepository });
+    const resultado = await uc.execute('treino-orfao');
+
+    const conteudo = JSON.parse(resultado.conteudo);
+    expect(conteudo.exercicios).toEqual([]);
+  });
+
   it('TreinoNotFoundError se o treino nao existe', async () => {
     const treinoRepository = new InMemoryTreinoRepository();
     const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
