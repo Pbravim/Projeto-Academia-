@@ -259,3 +259,11 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   (`git show origin/<base>:<teste>` + mutação à mão) e reprove cada uma na nova, além
   das que motivaram a troca. "Mais exemplos" não é "mais cobertura" se os eixos
   acidentais (rowid, id, ordem de inserção) colapsam com o eixo da regra.
+- **Repositório InMemory que não impõe as UNIQUE do schema deixa a suíte cega.** O
+  `ConfirmarImportacaoTreinoUseCase` (38a) gravava em lote via `INSERT OR REPLACE` numa
+  tabela com `UNIQUE(treino_id, exercicio_id)`: proposta com o mesmo exercício duas vezes
+  devolvia sucesso e salvava 2 de 3 — 54/54 verdes, porque o `InMemoryTreinoExercicioRepository`
+  indexa por `id`. Regra: use case que grava em lote (import, duplicar, salvar-como) precisa
+  de pelo menos um teste contra SQLite real (`src/test/db-setup.ts`) e valida as invariantes
+  do schema (UNIQUE/FK) ANTES da primeira escrita, com erro tipado — nunca confiar que o
+  fake reproduz a constraint.
