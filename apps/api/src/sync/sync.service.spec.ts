@@ -171,6 +171,31 @@ describe('SyncService', () => {
     expect(call.create.userId).toBe('user-1');
   });
 
+  it('upserts a sessaoTreino sem treino (sessao livre) com treinoId null no create e no pull', async () => {
+    const now = new Date().toISOString();
+    await service.sync('user-1', {
+      since: null,
+      changes: {
+        ...emptyChanges(),
+        sessaoTreinos: [{
+          id: 'sessao-livre-1', treinoId: null, treinoNomeSnapshot: 'Treino livre 13/09',
+          dataHoraInicio: now, dataHoraFim: null, status: 'em_andamento', arquivado: false,
+          createdAt: now, updatedAt: now, deletedAt: null,
+        }],
+      },
+    });
+    const call = mockPrisma.sessaoTreino.upsert.mock.calls[0][0];
+    expect(call.create.treinoId).toBeNull();
+
+    mockPrisma.sessaoTreino.findMany.mockReset().mockResolvedValueOnce([{
+      id: 'sessao-livre-1', treinoId: null, treinoNomeSnapshot: 'Treino livre 13/09',
+      dataHoraInicio: now, dataHoraFim: null, status: 'em_andamento', arquivado: false,
+      createdAt: now, updatedAt: now, deletedAt: null,
+    }]);
+    const pullResult = await service.sync('user-1', { since: now, changes: emptyChanges() });
+    expect(pullResult.serverChanges.sessaoTreinos[0]).toMatchObject({ id: 'sessao-livre-1', treinoId: null });
+  });
+
   it('does not overwrite a newer server row (LWW)', async () => {
     const serverTime = '2026-06-05T12:00:00.000Z';
     const clientTime = '2026-06-05T10:00:00.000Z';

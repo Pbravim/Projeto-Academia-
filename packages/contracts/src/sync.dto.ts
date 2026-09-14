@@ -51,7 +51,7 @@ export interface TreinoExercicioSyncRow extends SyncRow {
 }
 
 export interface SessaoTreinoSyncRow extends SyncRow {
-  treinoId: string;
+  treinoId: string | null;
   treinoNomeSnapshot: string;
   dataHoraInicio: string;
   dataHoraFim: string | null;

@@ -161,8 +161,8 @@ export class SessaoTreinoSyncRowDto implements SessaoTreinoSyncRow {
   @IsOptional() @IsISO8601()
   deletedAt: string | null;
 
-  @IsString() @MaxLength(255)
-  treinoId: string;
+  @IsOptional() @IsString() @MaxLength(255)
+  treinoId: string | null;
 
   @IsString() @MaxLength(255)
   treinoNomeSnapshot: string;

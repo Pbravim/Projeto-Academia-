@@ -117,4 +117,35 @@ describe('API (e2e)', () => {
       catalogVersion: 5, trackingType: 'reps_load',
     });
   });
+
+  it('POST /sync faz round-trip de uma sessao sem treino (treinoId null)', async () => {
+    const id = `sessao-livre-e2e-${Date.now()}`;
+    const now = new Date().toISOString();
+
+    await request(app.getHttpServer())
+      .post('/api/v1/sync')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        since: null,
+        changes: {
+          ...emptyChanges(),
+          sessaoTreinos: [{
+            id, treinoId: null, treinoNomeSnapshot: 'Treino livre E2E',
+            dataHoraInicio: now, dataHoraFim: null, status: 'em_andamento', arquivado: false,
+            createdAt: now, updatedAt: now, deletedAt: null,
+          }],
+        },
+      })
+      .expect(201);
+
+    const pull = await request(app.getHttpServer())
+      .post('/api/v1/sync')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ since: null, changes: emptyChanges() })
+      .expect(201);
+
+    const got = pull.body.serverChanges.sessaoTreinos.find((s: any) => s.id === id);
+    expect(got).toBeDefined();
+    expect(got.treinoId).toBeNull();
+  });
 });
