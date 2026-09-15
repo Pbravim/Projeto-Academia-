@@ -43,9 +43,12 @@ import { ToggleExercicioRealizadoUseCase } from '../application/sessoes/use-case
 import { UpdateSerieUseCase } from '../application/sessoes/use-cases/UpdateSerieUseCase';
 import { BackupSyncService } from '../application/sync/BackupSyncService';
 import { AddExercicioAoTreinoUseCase } from '../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
+import { ConfirmarImportacaoTreinoUseCase } from '../application/treinos/use-cases/ConfirmarImportacaoTreinoUseCase';
 import { CreateTreinoUseCase } from '../application/treinos/use-cases/CreateTreinoUseCase';
 import { DeleteTreinoUseCase } from '../application/treinos/use-cases/DeleteTreinoUseCase';
 import { DuplicarTreinoUseCase } from '../application/treinos/use-cases/DuplicarTreinoUseCase';
+import { ExportarTreinoUseCase } from '../application/treinos/use-cases/ExportarTreinoUseCase';
+import { ImportarTreinoUseCase } from '../application/treinos/use-cases/ImportarTreinoUseCase';
 import { ListTreinoExerciciosUseCase } from '../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import { ListTreinosUseCase } from '../application/treinos/use-cases/ListTreinosUseCase';
 import { RemoveExercicioDoTreinoUseCase } from '../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
@@ -101,6 +104,8 @@ import { SQLiteSessaoTreinoRepository } from '../infrastructure/sessoes/SQLiteSe
 import { SettingsStorageAdapter } from '../infrastructure/sync/SettingsStorageAdapter';
 import { SyncApiClient } from '../infrastructure/sync/SyncApiClient';
 import { SYNC_CURSOR_KEY,SyncEngine } from '../infrastructure/sync/SyncEngine';
+import { compartilharArquivoTexto } from '../infrastructure/treinos/compartilharArquivoTexto';
+import { lerArquivoTexto } from '../infrastructure/treinos/lerArquivoTexto';
 import { SQLiteTreinoExercicioRepository } from '../infrastructure/treinos/SQLiteTreinoExercicioRepository';
 import { SQLiteTreinoRepository } from '../infrastructure/treinos/SQLiteTreinoRepository';
 import { generateId } from '../shared/utils/generateId';
@@ -337,6 +342,25 @@ export const mobileDependencies = {
         now: () => new Date(),
       }),
       countExerciciosByTreino: () => treinoExercicioRepository.countAllByTreino(),
+      importarTreino: new ImportarTreinoUseCase({ exerciseRepository }),
+      confirmarImportacao: new ConfirmarImportacaoTreinoUseCase({
+        createTreino: new CreateTreinoUseCase({
+          treinoRepository,
+          idGenerator: () => generateId('treino'),
+          now: () => new Date(),
+        }),
+        treinoExercicioRepository,
+        idGenerator: () => generateId('treino_exercicio'),
+        gerarGrupoId: () => generateId('grupo'),
+        database: databaseClient,
+      }),
+      listExercises,
+      createExercise: new CreateExerciseUseCase({
+        exerciseRepository,
+        idGenerator: () => generateId('exercise'),
+        now: () => new Date(),
+      }),
+      lerArquivoTexto,
       logger,
     },
     detail: {
@@ -371,6 +395,8 @@ export const mobileDependencies = {
         return { id: p.id, treinoNomeSnapshot: p.treinoNomeSnapshot };
       },
       cancelarSessao: (sessaoId: string) => cancelarSessaoUC.execute(sessaoId),
+      exportarTreino: new ExportarTreinoUseCase({ treinoRepository, treinoExercicioRepository, exerciseRepository }),
+      compartilharArquivo: compartilharArquivoTexto,
       logger,
     },
   },

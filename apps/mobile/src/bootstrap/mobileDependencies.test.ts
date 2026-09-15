@@ -232,6 +232,11 @@ describe('mobileDependencies — montagem do grafo', () => {
     expectClass(treinos.list.deleteTreino, 'DeleteTreinoUseCase');
     expectClass(treinos.list.duplicarTreino, 'DuplicarTreinoUseCase');
     expect(treinos.list.countExerciciosByTreino).toBeTypeOf('function');
+    expectClass(treinos.list.importarTreino, 'ImportarTreinoUseCase');
+    expectClass(treinos.list.confirmarImportacao, 'ConfirmarImportacaoTreinoUseCase');
+    expectClass(treinos.list.listExercises, 'ListExercisesUseCase');
+    expectClass(treinos.list.createExercise, 'CreateExerciseUseCase');
+    expect(treinos.list.lerArquivoTexto).toBeTypeOf('function');
 
     expectClass(treinos.detail.listTreinoExercicios, 'ListTreinoExerciciosUseCase');
     expectClass(treinos.detail.addExercicioAoTreino, 'AddExercicioAoTreinoUseCase');
@@ -246,9 +251,11 @@ describe('mobileDependencies — montagem do grafo', () => {
       treinos.detail.removeAlternativa,
       treinos.detail.getSessaoAtiva,
       treinos.detail.cancelarSessao,
+      treinos.detail.compartilharArquivo,
     ]) {
       expect(fn).toBeTypeOf('function');
     }
+    expectClass(treinos.detail.exportarTreino, 'ExportarTreinoUseCase');
   });
 
   it('sessao (feature e ativa) sai com os use cases do tipo certo', async () => {
