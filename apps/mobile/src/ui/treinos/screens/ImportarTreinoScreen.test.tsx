@@ -143,6 +143,23 @@ describe('ImportarTreinoScreen', () => {
     expect(modalProps.current!.visible).toBe(true);
   });
 
+  it('etapa revisao: badge/CTA derivam de exercicioId, nao de status — item "nao_casado" ja resolvido mostra "casado"/"trocar" (achado 5)', async () => {
+    const catalogo = [{ id: 'ex-3', name: 'Agachamento livre' } as never];
+    const itens: ItemRevisao[] = [
+      { item: { nome: 'Agachamento', metodo: 'normal' }, status: 'nao_casado', exercicioId: 'ex-3', candidatos: [] },
+    ];
+    const renderer = await render(
+      createElement(ImportarTreinoScreen, baseProps({ etapa: 'revisao', itens, catalogo, podeSalvar: true }))
+    );
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('treinos.importar.casado');
+    expect(texts).not.toContain('treinos.importar.naoCasado');
+    expect(texts).toContain('treinos.importar.trocar');
+    expect(texts).not.toContain('treinos.importar.escolherNoCatalogo');
+    expect(texts).toContain('Agachamento livre');
+  });
+
   it('etapa revisao: onSelect/onCriarCustom/onClose do modal resolvem o item e fecham o picker', async () => {
     const resolverItem = vi.fn();
     const criarCustom = vi.fn();

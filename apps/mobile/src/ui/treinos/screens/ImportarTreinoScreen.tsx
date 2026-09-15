@@ -86,13 +86,15 @@ export function ImportarTreinoScreen({
           <ScrollView contentContainerStyle={styles.content}>
             {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
 
-            {itens.map((it, index) => (
+            {itens.map((it, index) => {
+              const resolvido = it.exercicioId !== null;
+              return (
               <View key={index} style={styles.itemCard}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemNome}>{it.item.nome}</Text>
-                  <View style={[styles.badge, it.status === 'casado' ? styles.badgeCasado : styles.badgeNaoCasado]}>
-                    <Text style={[styles.badgeText, it.status === 'casado' ? styles.badgeTextCasado : styles.badgeTextNaoCasado]}>
-                      {it.status === 'casado' ? t('treinos.importar.casado') : t('treinos.importar.naoCasado')}
+                  <View style={[styles.badge, resolvido ? styles.badgeCasado : styles.badgeNaoCasado]}>
+                    <Text style={[styles.badgeText, resolvido ? styles.badgeTextCasado : styles.badgeTextNaoCasado]}>
+                      {resolvido ? t('treinos.importar.casado') : t('treinos.importar.naoCasado')}
                     </Text>
                   </View>
                 </View>
@@ -109,11 +111,12 @@ export function ImportarTreinoScreen({
                   style={({ pressed }) => [styles.itemActionBtn, pressed ? { opacity: 0.85 } : null]}
                 >
                   <Text style={styles.itemActionBtnText}>
-                    {it.status === 'casado' ? t('treinos.importar.trocar') : t('treinos.importar.escolherNoCatalogo')}
+                    {resolvido ? t('treinos.importar.trocar') : t('treinos.importar.escolherNoCatalogo')}
                   </Text>
                 </Pressable>
               </View>
-            ))}
+              );
+            })}
           </ScrollView>
 
           <View style={styles.footer}>
