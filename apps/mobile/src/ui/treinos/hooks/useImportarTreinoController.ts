@@ -88,9 +88,14 @@ export function useImportarTreinoController(
   };
 
   const escolherArquivo = async () => {
-    const conteudo = await dependencies.lerArquivoTexto();
-    if (conteudo === null) return;
-    onChangeTexto(conteudo);
+    try {
+      const conteudo = await dependencies.lerArquivoTexto();
+      if (conteudo === null) return;
+      onChangeTexto(conteudo);
+    } catch (error) {
+      dependencies.logger.error('treino_importar.ler_arquivo_failed', error);
+      setErrorMessage(translate(locale, 'treinos.importar.erros.leitura'));
+    }
   };
 
   const analisar = async () => {

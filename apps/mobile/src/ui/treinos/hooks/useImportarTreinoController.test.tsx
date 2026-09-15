@@ -241,7 +241,7 @@ describe('useImportarTreinoController', () => {
     expect(result3.current.errorMessage).toBe('Não foi possível salvar o treino importado.');
   });
 
-  it('(g) escolherArquivo: cancelado nao altera texto; escolhido preenche o texto', async () => {
+  it('(g) escolherArquivo: cancelado nao altera texto; escolhido preenche o texto; rejeicao mostra erro sem alterar o texto', async () => {
     const lerArquivoTexto = vi.fn().mockResolvedValueOnce(null).mockResolvedValueOnce('{"schema":"x"}');
     const deps = makeDependencies({ lerArquivoTexto });
     const { result } = await renderHook(() => useImportarTreinoController(deps, vi.fn()));
@@ -252,6 +252,17 @@ describe('useImportarTreinoController', () => {
 
     await act(async () => { await result.current.escolherArquivo(); });
     expect(result.current.texto).toBe('{"schema":"x"}');
+
+    const falhandoDeps = makeDependencies({
+      lerArquivoTexto: vi.fn().mockRejectedValue(new Error('picker falhou')),
+    });
+    const { result: result2 } = await renderHook(() => useImportarTreinoController(falhandoDeps, vi.fn()));
+    await flush();
+
+    await act(async () => { await result2.current.escolherArquivo(); });
+
+    expect(result2.current.texto).toBe('');
+    expect(result2.current.errorMessage).toBe('Não foi possível ler o arquivo.');
   });
 
   it('(h) salvar com podeSalvar falso e no-op', async () => {
