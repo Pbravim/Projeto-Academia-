@@ -12,12 +12,21 @@ import { TreinoFeature, type TreinoFeatureDependencies } from './TreinoFeature';
  * teste dedicado.
  */
 
-vi.mock('react-native', () => ({ BackHandler: { addEventListener: () => ({ remove: () => {} }) } }));
-
 const hooks = vi.hoisted(() => ({
   reloadList: vi.fn(),
   reloadPlano: vi.fn(),
   onImportadoCaptured: null as ((treino: unknown) => void) | null,
+  onSelectTreinoCaptured: null as ((treino: unknown) => void) | null,
+  backHandlerListener: null as (() => boolean) | null,
+}));
+
+vi.mock('react-native', () => ({
+  BackHandler: {
+    addEventListener: (_event: string, listener: () => boolean) => {
+      hooks.backHandlerListener = listener;
+      return { remove: () => { hooks.backHandlerListener = null; } };
+    },
+  },
 }));
 
 vi.mock('./hooks/usePlanoController', () => ({
@@ -25,23 +34,26 @@ vi.mock('./hooks/usePlanoController', () => ({
 }));
 
 vi.mock('./hooks/useTreinoListController', () => ({
-  useTreinoListController: () => ({
-    draft: { name: '', objetivo: '' },
-    treinos: [],
-    treinosVazios: new Set(),
-    errorMessage: null,
-    feedbackMessage: null,
-    isLoading: false,
-    isSubmitting: false,
-    deletingId: null,
-    duplicandoId: null,
-    onChangeField: vi.fn(),
-    onSubmit: vi.fn(),
-    onDelete: vi.fn(),
-    onDuplicate: vi.fn(),
-    onSelectTreino: vi.fn(),
-    reload: hooks.reloadList,
-  }),
+  useTreinoListController: (_deps: unknown, onSelectTreino: (treino: unknown) => void) => {
+    hooks.onSelectTreinoCaptured = onSelectTreino;
+    return {
+      draft: { name: '', objetivo: '' },
+      treinos: [],
+      treinosVazios: new Set(),
+      errorMessage: null,
+      feedbackMessage: null,
+      isLoading: false,
+      isSubmitting: false,
+      deletingId: null,
+      duplicandoId: null,
+      onChangeField: vi.fn(),
+      onSubmit: vi.fn(),
+      onDelete: vi.fn(),
+      onDuplicate: vi.fn(),
+      onSelectTreino: vi.fn(),
+      reload: hooks.reloadList,
+    };
+  },
 }));
 
 vi.mock('./hooks/useTreinoDetailController', () => ({
@@ -117,5 +129,39 @@ describe('TreinoFeature — navegacao de importacao', () => {
     expect(hooks.reloadPlano).toHaveBeenCalledTimes(1);
     // selectTreinoSeVisivel troca pra o detalhe do treino importado (guard P3) — a importacao fecha.
     expect(renderer.root.findAll((n) => n.props.testID === 'cancelar-importar')).toHaveLength(0);
+  });
+
+  it('hardware back durante a importacao fecha a tela de importacao', async () => {
+    const renderer = await render(
+      createElement(TreinoFeature, { dependencies: makeDependencies(), onGoToSessao: vi.fn() })
+    );
+
+    const irImportar = renderer.root.find((n) => n.props.testID === 'ir-importar');
+    await act(async () => { irImportar.props.onPress(); });
+    expect(hooks.backHandlerListener).not.toBeNull();
+
+    await act(async () => { hooks.backHandlerListener!(); });
+
+    expect(renderer.root.findAll((n) => n.props.testID === 'ir-importar')).toHaveLength(1);
+  });
+
+  it('hardware back com um treino selecionado fecha o detalhe (closeDetail) e recarrega', async () => {
+    hooks.reloadList.mockClear();
+    hooks.reloadPlano.mockClear();
+    const renderer = await render(
+      createElement(TreinoFeature, { dependencies: makeDependencies(), onGoToSessao: vi.fn() })
+    );
+
+    expect(hooks.onSelectTreinoCaptured).not.toBeNull();
+    await act(async () => {
+      hooks.onSelectTreinoCaptured!({ id: 't1', name: 'Treino A', objetivo: null, createdAt: 'x', updatedAt: 'x' });
+    });
+    expect(hooks.backHandlerListener).not.toBeNull();
+
+    await act(async () => { hooks.backHandlerListener!(); });
+
+    expect(hooks.reloadList).toHaveBeenCalledTimes(1);
+    expect(hooks.reloadPlano).toHaveBeenCalledTimes(1);
+    expect(renderer.root.findAll((n) => n.props.testID === 'ir-importar')).toHaveLength(1);
   });
 });

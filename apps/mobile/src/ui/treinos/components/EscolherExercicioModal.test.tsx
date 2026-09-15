@@ -79,7 +79,8 @@ const agachamento = makeExercise('ex-3', 'Agachamento livre');
 const catalogo = [supinoReto, tricepsCorda, agachamento];
 
 describe('EscolherExercicioModal', () => {
-  it('mostra os candidatos primeiro (sem busca)', async () => {
+  it('mostra os candidatos primeiro (sem busca); fecha via botao voltar e via tab "buscar"', async () => {
+    const onClose = vi.fn();
     const renderer = await render(
       createElement(EscolherExercicioModal, {
         visible: true,
@@ -88,34 +89,50 @@ describe('EscolherExercicioModal', () => {
         catalogo,
         onSelect: vi.fn(),
         onCriarCustom: vi.fn(),
-        onClose: vi.fn(),
+        onClose,
       })
     );
 
     const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
     expect(texts.flat()).toContain('Supino reto');
     expect(texts.flat()).not.toContain('Triceps corda');
+
+    const [backBtn, tabBuscar] = renderer.root.findAllByType('Pressable');
+    expect(backBtn!.props.style({ pressed: true })).toEqual(expect.any(Array));
+    await act(async () => { backBtn!.props.onPress(); });
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    expect(tabBuscar!.props.style({ pressed: true })).toEqual(expect.any(Array));
+    await act(async () => { tabBuscar!.props.onPress(); });
   });
 
-  it('a busca usa matchesExerciseQuery sobre o catalogo inteiro', async () => {
+  it('a busca usa matchesExerciseQuery sobre o catalogo inteiro; tocar num resultado chama onSelect', async () => {
+    const onSelect = vi.fn();
     const renderer = await render(
       createElement(EscolherExercicioModal, {
         visible: true,
         nomeSugerido: 'X',
         candidatos: [],
         catalogo,
-        onSelect: vi.fn(),
+        onSelect,
         onCriarCustom: vi.fn(),
         onClose: vi.fn(),
       })
     );
 
-    const searchInput = renderer.root.findByProps({ returnKeyType: 'search' });
+    const searchInput = renderer.root.find((n) => n.props.returnKeyType === 'search');
     await act(async () => { searchInput.props.onChangeText('triceps'); });
 
     const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
     expect(texts.flat()).toContain('Triceps corda');
     expect(texts.flat()).not.toContain('Supino reto');
+
+    const resultado = renderer.root
+      .findAllByType('Pressable')
+      .find((n) => n.findAllByType('Text').some((t2) => t2.props.children === 'Triceps corda'))!;
+    expect(resultado.props.style({ pressed: true })).toEqual(expect.any(Array));
+    await act(async () => { resultado.props.onPress(); });
+    expect(onSelect).toHaveBeenCalledWith('ex-2');
   });
 
   it('aba custom: nome pre-preenchido, "Criar" desabilitado sem grupo, habilita e chama onCriarCustom apos escolher grupo', async () => {
@@ -135,18 +152,18 @@ describe('EscolherExercicioModal', () => {
     const tabCustom = renderer.root.findAllByType('Pressable')[2]!;
     await act(async () => { tabCustom.props.onPress(); });
 
-    const nomeField = renderer.root.findByProps({ testID: 'field-nome' });
+    const nomeField = renderer.root.find((n) => n.props.testID === 'field-nome');
     expect(nomeField.props.value).toBe('Leg press 45');
 
-    const criarBtn = renderer.root.findAllByType('Pressable').find((n) => n.props.disabled !== undefined && n.props.onPress?.name === 'handleCriar')
-      ?? renderer.root.findAllByType('Pressable').at(-1)!;
+    const criarBtn = renderer.root.findAllByType('Pressable').at(-1)!;
     expect(criarBtn.props.disabled).toBe(true);
 
-    const gruposField = renderer.root.findByProps({ testID: 'field-grupos' });
+    const gruposField = renderer.root.find((n) => n.props.testID === 'field-grupos');
     await act(async () => { gruposField.props.onChangeText('Quadriceps'); });
 
     const criarBtnDepois = renderer.root.findAllByType('Pressable').at(-1)!;
     expect(criarBtnDepois.props.disabled).toBe(false);
+    expect(criarBtnDepois.props.style({ pressed: true })).toEqual(expect.any(Array));
 
     await act(async () => { criarBtnDepois.props.onPress(); });
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
+import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import type { CreateExerciseUseCase } from '../../../application/exercises/use-cases/CreateExerciseUseCase';
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
-import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
 import type { ConfirmarImportacaoTreinoUseCase } from '../../../application/treinos/use-cases/ConfirmarImportacaoTreinoUseCase';
 import type { ImportarTreinoUseCase } from '../../../application/treinos/use-cases/ImportarTreinoUseCase';

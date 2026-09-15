@@ -30,7 +30,13 @@ vi.mock('../../shared/theme', async () => {
   return { ThemeContext: react.createContext(colors), useTheme: () => colors };
 });
 
-vi.mock('../components/EscolherExercicioModal', () => ({ EscolherExercicioModal: () => null }));
+const modalProps = vi.hoisted(() => ({ current: null as Record<string, unknown> | null }));
+vi.mock('../components/EscolherExercicioModal', () => ({
+  EscolherExercicioModal: (props: Record<string, unknown>) => {
+    modalProps.current = props;
+    return null;
+  },
+}));
 
 async function render(el: ReturnType<typeof createElement>): Promise<ReactTestRenderer> {
   let renderer!: ReactTestRenderer;
@@ -60,13 +66,22 @@ function baseProps(overrides: Partial<Parameters<typeof ImportarTreinoScreen>[0]
 }
 
 describe('ImportarTreinoScreen', () => {
-  it('etapa entrada: renderiza o textarea e os botoes de escolher arquivo / analisar', async () => {
-    const renderer = await render(createElement(ImportarTreinoScreen, baseProps()));
+  it('etapa entrada: renderiza o textarea e os botoes de escolher arquivo / analisar, e chama os handlers ao tocar', async () => {
+    const escolherArquivo = vi.fn();
+    const analisar = vi.fn();
+    const renderer = await render(createElement(ImportarTreinoScreen, baseProps({ escolherArquivo, analisar })));
 
     expect(renderer.root.findAllByType('TextInput')).toHaveLength(1);
     const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
     expect(texts).toContain('treinos.importar.escolherArquivo');
     expect(texts).toContain('treinos.importar.analisar');
+
+    const [, escolherBtn, analisarBtn] = renderer.root.findAllByType('Pressable');
+    await act(async () => { escolherBtn!.props.onPress(); });
+    await act(async () => { analisarBtn!.props.onPress(); });
+
+    expect(escolherArquivo).toHaveBeenCalledTimes(1);
+    expect(analisar).toHaveBeenCalledTimes(1);
   });
 
   it('etapa revisao: renderiza N itens com badge casado/nao casado e o botao Salvar disabled ate tudo resolvido', async () => {
@@ -90,15 +105,72 @@ describe('ImportarTreinoScreen', () => {
     expect(salvarBtn).toBeDefined();
   });
 
-  it('etapa revisao: Salvar habilita quando podeSalvar e verdadeiro', async () => {
+  it('etapa revisao: Salvar habilita quando podeSalvar e verdadeiro, e chama salvar ao tocar', async () => {
+    const salvar = vi.fn();
     const itens: ItemRevisao[] = [
       { item: { nome: 'Supino', metodo: 'normal' }, status: 'casado', exercicioId: 'ex-1', candidatos: [] },
     ];
     const renderer = await render(
-      createElement(ImportarTreinoScreen, baseProps({ etapa: 'revisao', itens, podeSalvar: true }))
+      createElement(ImportarTreinoScreen, baseProps({ etapa: 'revisao', itens, podeSalvar: true, salvar }))
     );
 
     const disabledButtons = renderer.root.findAllByType('Pressable').filter((n) => n.props.disabled === true);
     expect(disabledButtons).toHaveLength(0);
+
+    const salvarBtn = renderer.root.findAllByType('Pressable').at(-1)!;
+    await act(async () => { salvarBtn.props.onPress(); });
+    expect(salvar).toHaveBeenCalledTimes(1);
+  });
+
+  it('etapa revisao: item resolvido mostra o nome do catalogo; "trocar"/"escolher no catalogo" abre o modal', async () => {
+    const catalogo = [{ id: 'ex-1', name: 'Supino reto' } as never];
+    const itens: ItemRevisao[] = [
+      { item: { nome: 'Supino', metodo: 'normal' }, status: 'casado', exercicioId: 'ex-1', candidatos: [] },
+    ];
+    const renderer = await render(
+      createElement(ImportarTreinoScreen, baseProps({ etapa: 'revisao', itens, catalogo, podeSalvar: true }))
+    );
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('Supino reto');
+    expect(modalProps.current!.visible).toBe(false);
+
+    const trocarBtn = renderer.root
+      .findAllByType('Pressable')
+      .find((n) => n.findAllByType('Text').some((t2) => t2.props.children === 'treinos.importar.trocar'))!;
+    await act(async () => { trocarBtn.props.onPress(); });
+
+    expect(modalProps.current!.visible).toBe(true);
+  });
+
+  it('etapa revisao: onSelect/onCriarCustom/onClose do modal resolvem o item e fecham o picker', async () => {
+    const resolverItem = vi.fn();
+    const criarCustom = vi.fn();
+    const itens: ItemRevisao[] = [
+      { item: { nome: 'Agachamento', metodo: 'normal' }, status: 'nao_casado', exercicioId: null, candidatos: [] },
+    ];
+    const renderer = await render(
+      createElement(ImportarTreinoScreen, baseProps({ etapa: 'revisao', itens, resolverItem, criarCustom }))
+    );
+
+    const abrirBtn = renderer.root
+      .findAllByType('Pressable')
+      .find((n) => n.findAllByType('Text').some((t2) => t2.props.children === 'treinos.importar.escolherNoCatalogo'))!;
+    await act(async () => { abrirBtn.props.onPress(); });
+
+    await act(async () => { (modalProps.current!.onSelect as (id: string) => void)('ex-novo'); });
+    expect(resolverItem).toHaveBeenCalledWith(0, 'ex-novo');
+    expect(modalProps.current!.visible).toBe(false);
+
+    await act(async () => { abrirBtn.props.onPress(); });
+    await act(async () => {
+      (modalProps.current!.onCriarCustom as (input: unknown) => void)({ nome: 'X', groupMuscles: ['Peito'], category: '' });
+    });
+    expect(criarCustom).toHaveBeenCalledWith(0, { nome: 'X', groupMuscles: ['Peito'], category: '' });
+    expect(modalProps.current!.visible).toBe(false);
+
+    await act(async () => { abrirBtn.props.onPress(); });
+    await act(async () => { (modalProps.current!.onClose as () => void)(); });
+    expect(modalProps.current!.visible).toBe(false);
   });
 });

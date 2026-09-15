@@ -36,6 +36,7 @@ describe('ExportarTreinoButton', () => {
 
     const btn = renderer.root.findByType('Pressable');
     expect(btn.props.disabled).toBe(false);
+    expect(btn.props.style({ pressed: true })).toEqual(expect.any(Array));
     expect(renderer.root.findByType('Text').props.children).toBe('treinos.exportar.botao');
 
     await act(async () => { btn.props.onPress(); });

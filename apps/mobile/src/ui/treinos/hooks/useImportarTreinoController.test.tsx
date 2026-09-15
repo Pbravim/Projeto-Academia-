@@ -6,7 +6,7 @@ import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exer
 import { TreinoImportError } from '../../../domain/treinos/treino-json/TreinoImportError';
 import { act, renderHook } from '../../../test/renderHook';
 
-import { type UseImportarTreinoControllerDependencies,useImportarTreinoController } from './useImportarTreinoController';
+import { useImportarTreinoController,type UseImportarTreinoControllerDependencies } from './useImportarTreinoController';
 
 vi.mock('expo-localization', () => ({ getLocales: () => [{ languageTag: 'pt-BR' }] }));
 vi.mock('expo-sqlite', () => ({}));
@@ -103,6 +103,16 @@ describe('useImportarTreinoController', () => {
     await act(async () => { await result.current.analisar(); });
 
     expect(result.current.errorMessage).toBe('Este arquivo usa um schema de treino não suportado.');
+
+    const genericDeps = makeDependencies({
+      importarTreino: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const { result: result2 } = await renderHook(() => useImportarTreinoController(genericDeps, vi.fn()));
+    await flush();
+    await act(async () => { result2.current.onChangeTexto('{}'); });
+    await act(async () => { await result2.current.analisar(); });
+
+    expect(result2.current.errorMessage).toBe('Não foi possível ler o arquivo.');
   });
 
   it('(d) podeSalvar falso com item sem exercicioId, verdadeiro apos resolverItem', async () => {
@@ -156,6 +166,21 @@ describe('useImportarTreinoController', () => {
 
     expect(result2.current.itens[1]!.exercicioId).toBeNull();
     expect(result2.current.errorMessage).not.toBeNull();
+
+    const genericDeps = makeDependencies({
+      importarTreino: { execute: vi.fn().mockResolvedValue(propostaMista) } as never,
+      createExercise: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const { result: result3 } = await renderHook(() => useImportarTreinoController(genericDeps, vi.fn()));
+    await flush();
+    await act(async () => { result3.current.onChangeTexto('{}'); });
+    await act(async () => { await result3.current.analisar(); });
+
+    await act(async () => {
+      await result3.current.criarCustom(1, { nome: 'Agachamento', groupMuscles: ['Quadriceps'], category: 'Composto' });
+    });
+
+    expect(result3.current.errorMessage).toBe('Não foi possível salvar o treino importado.');
   });
 
   it('(f) salvar chama confirmarImportacao e dispara onImportado; erro mantem a revisao', async () => {
@@ -200,6 +225,20 @@ describe('useImportarTreinoController', () => {
     expect(onImportado2).not.toHaveBeenCalled();
     expect(result2.current.etapa).toBe('revisao');
     expect(result2.current.errorMessage).not.toBeNull();
+
+    const genericDeps = makeDependencies({
+      importarTreino: { execute: vi.fn().mockResolvedValue(propostaMista) } as never,
+      confirmarImportacao: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const { result: result3 } = await renderHook(() => useImportarTreinoController(genericDeps, vi.fn()));
+    await flush();
+    await act(async () => { result3.current.onChangeTexto('{}'); });
+    await act(async () => { await result3.current.analisar(); });
+    await act(async () => { result3.current.resolverItem(1, 'ex-agachamento'); });
+
+    await act(async () => { await result3.current.salvar(); });
+
+    expect(result3.current.errorMessage).toBe('Não foi possível salvar o treino importado.');
   });
 
   it('(g) escolherArquivo: cancelado nao altera texto; escolhido preenche o texto', async () => {
