@@ -111,6 +111,19 @@ describe('AdicionarExerciciosAoTreinoUseCase (#33)', () => {
     expect(todos).toHaveLength(2);
   });
 
+  it('exercicioId repetido na sessao (substituicao): usa o template da 1a ocorrencia (achado 2, sev1)', async () => {
+    const deps = await makeDeps();
+    // 2a ocorrencia do mesmo exercicioId (ex.: exercicio original reapareceu apos uma substituicao no meio da sessao).
+    await deps.sessaoExercicioRepository.save(
+      SessaoExercicio.create(baseSessaoExercicio({ id: 'se_dup', exercicioId: 'ex_avulso_1', ordem: 5, tempoDescansoSegundos: 999 }))
+    );
+
+    const criados = await deps.useCase.execute({ sessaoId: 'sessao_1', exercicioIds: ['ex_avulso_1'] });
+
+    expect(criados).toHaveLength(1);
+    expect(criados[0].tempoDescansoSegundos).toBeNull();
+  });
+
   it('reativa tombstone reutilizando o id quando o par (treino, exercicio) ja existiu', async () => {
     const deps = await makeDeps();
     const tombstonedIdSpy = deps.treinoExercicioRepository.findTombstonedId.bind(deps.treinoExercicioRepository);

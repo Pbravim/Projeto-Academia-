@@ -52,7 +52,13 @@ export class AdicionarExerciciosAoTreinoUseCase {
     if (!treino) throw new TreinoNotFoundError(treinoId);
 
     const sessaoExercicios = await this.dependencies.sessaoExercicioRepository.listBySessaoId(input.sessaoId);
-    const sessaoExercicioPorExercicioId = new Map(sessaoExercicios.map((se) => [se.toPrimitives().exercicioId, se]));
+    // Mantem a 1a ocorrencia por exercicioId (alinhado ao dedupe do SalvarSessaoComoTreinoUseCase):
+    // um `new Map(...)` direto ficaria com a ULTIMA, invertendo a politica entre os dois use cases irmaos.
+    const sessaoExercicioPorExercicioId = new Map<string, (typeof sessaoExercicios)[number]>();
+    for (const se of sessaoExercicios) {
+      const { exercicioId } = se.toPrimitives();
+      if (!sessaoExercicioPorExercicioId.has(exercicioId)) sessaoExercicioPorExercicioId.set(exercicioId, se);
+    }
 
     for (const exercicioId of input.exercicioIds) {
       if (!sessaoExercicioPorExercicioId.has(exercicioId)) throw new ExerciseNotFoundError(exercicioId);
@@ -102,3 +108,4 @@ export class AdicionarExerciciosAoTreinoUseCase {
     return criados;
   }
 }
+
