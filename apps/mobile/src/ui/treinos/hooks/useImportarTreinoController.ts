@@ -4,6 +4,7 @@ import { DuplicateExerciseError } from '../../../application/exercises/errors/Du
 import type { CreateExerciseUseCase } from '../../../application/exercises/use-cases/CreateExerciseUseCase';
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
+import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
 import type { ConfirmarImportacaoTreinoUseCase } from '../../../application/treinos/use-cases/ConfirmarImportacaoTreinoUseCase';
 import type { ImportarTreinoUseCase } from '../../../application/treinos/use-cases/ImportarTreinoUseCase';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
@@ -172,6 +173,8 @@ export function useImportarTreinoController(
       dependencies.logger.error('treino_importar.salvar_failed', error);
       if (error instanceof TreinoValidationError || error instanceof DuplicateTreinoError) {
         setErrorMessage(error.message);
+      } else if (error instanceof ExercicioJaNoTreinoError) {
+        setErrorMessage(translate(locale, 'treinos.importar.erros.exercicio_repetido'));
       } else {
         setErrorMessage(translate(locale, 'treinos.importar.erros.salvar'));
       }

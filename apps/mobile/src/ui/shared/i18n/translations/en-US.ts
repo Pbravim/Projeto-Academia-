@@ -507,6 +507,7 @@ export const enUS = {
         exercicio_invalido: 'One of the exercises in the file is invalid.',
         leitura: 'Could not read the file.',
         salvar: 'Could not save the imported workout.',
+        exercicio_repetido: 'Two or more items are linked to the same catalog exercise. Adjust them before saving.',
       },
       custom: {
         titulo: 'Create custom exercise',

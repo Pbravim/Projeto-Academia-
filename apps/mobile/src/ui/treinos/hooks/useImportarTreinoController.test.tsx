@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { DuplicateExerciseError } from '../../../application/exercises/errors/DuplicateExerciseError';
 import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
+import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { TreinoImportError } from '../../../domain/treinos/treino-json/TreinoImportError';
 import { act, renderHook } from '../../../test/renderHook';
@@ -239,6 +240,25 @@ describe('useImportarTreinoController', () => {
     await act(async () => { await result3.current.salvar(); });
 
     expect(result3.current.errorMessage).toBe('Não foi possível salvar o treino importado.');
+
+    const repetidoDeps = makeDependencies({
+      importarTreino: { execute: vi.fn().mockResolvedValue(propostaMista) } as never,
+      confirmarImportacao: { execute: vi.fn().mockRejectedValue(new ExercicioJaNoTreinoError('ex-supino')) } as never,
+    });
+    const onImportado4 = vi.fn();
+    const { result: result4 } = await renderHook(() => useImportarTreinoController(repetidoDeps, onImportado4));
+    await flush();
+    await act(async () => { result4.current.onChangeTexto('{}'); });
+    await act(async () => { await result4.current.analisar(); });
+    await act(async () => { result4.current.resolverItem(1, 'ex-supino'); });
+
+    await act(async () => { await result4.current.salvar(); });
+
+    expect(onImportado4).not.toHaveBeenCalled();
+    expect(result4.current.etapa).toBe('revisao');
+    expect(result4.current.errorMessage).toBe(
+      'Dois ou mais itens estão associados ao mesmo exercício do catálogo. Ajuste antes de salvar.'
+    );
   });
 
   it('(g) escolherArquivo: cancelado nao altera texto; escolhido preenche o texto; rejeicao mostra erro sem alterar o texto', async () => {
