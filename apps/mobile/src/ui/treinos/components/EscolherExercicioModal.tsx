@@ -84,14 +84,16 @@ export function EscolherExercicioModal({
         <View style={styles.tabs}>
           <Pressable
             onPress={() => setTab('buscar')}
-            accessibilityRole="button"
+            accessibilityRole="tab"
+            accessibilityState={{ selected: tab === 'buscar' }}
             style={({ pressed }) => [styles.tabBtn, tab === 'buscar' ? styles.tabBtnActive : null, pressed ? { opacity: 0.8 } : null]}
           >
             <Text style={[styles.tabBtnText, tab === 'buscar' ? styles.tabBtnTextActive : null]}>{t('treinos.importar.escolherNoCatalogo')}</Text>
           </Pressable>
           <Pressable
             onPress={() => setTab('custom')}
-            accessibilityRole="button"
+            accessibilityRole="tab"
+            accessibilityState={{ selected: tab === 'custom' }}
             style={({ pressed }) => [styles.tabBtn, tab === 'custom' ? styles.tabBtnActive : null, pressed ? { opacity: 0.8 } : null]}
           >
             <Text style={[styles.tabBtnText, tab === 'custom' ? styles.tabBtnTextActive : null]}>{t('treinos.importar.criarCustom')}</Text>

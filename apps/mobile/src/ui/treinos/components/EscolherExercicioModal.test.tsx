@@ -97,11 +97,17 @@ describe('EscolherExercicioModal', () => {
     expect(texts.flat()).toContain('Supino reto');
     expect(texts.flat()).not.toContain('Triceps corda');
 
-    const [backBtn, tabBuscar] = renderer.root.findAllByType('Pressable');
+    const [backBtn, tabBuscar, tabCustom] = renderer.root.findAllByType('Pressable');
     expect(backBtn!.props.style({ pressed: true })).toContainEqual({ opacity: 0.6 });
     expect(backBtn!.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.6 });
     await act(async () => { backBtn!.props.onPress(); });
     expect(onClose).toHaveBeenCalledTimes(1);
+
+    // Abas anunciam papel e estado pra leitor de tela (achado 10).
+    expect(tabBuscar!.props.accessibilityRole).toBe('tab');
+    expect(tabBuscar!.props.accessibilityState).toEqual({ selected: true });
+    expect(tabCustom!.props.accessibilityRole).toBe('tab');
+    expect(tabCustom!.props.accessibilityState).toEqual({ selected: false });
 
     expect(tabBuscar!.props.style({ pressed: true })).toContainEqual({ opacity: 0.8 });
     expect(tabBuscar!.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.8 });
