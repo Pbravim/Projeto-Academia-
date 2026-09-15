@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 import type { SerieRegistradaPrimitives } from '../../../domain/sessoes/entities/SerieRegistrada';
+import type { SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
 
 import { templateFromSessao } from './templateFromSessao';
 
