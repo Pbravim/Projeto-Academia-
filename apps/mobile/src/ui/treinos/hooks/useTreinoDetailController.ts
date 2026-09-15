@@ -3,6 +3,7 @@ import { startTransition, useEffect, useRef, useState } from 'react';
 import type { ListExercisesUseCase } from '../../../application/exercises/use-cases/ListExercisesUseCase';
 import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
 import type { AddExercicioAoTreinoUseCase } from '../../../application/treinos/use-cases/AddExercicioAoTreinoUseCase';
+import type { ExportarTreinoUseCase } from '../../../application/treinos/use-cases/ExportarTreinoUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
 import type { RemoveExercicioDoTreinoUseCase } from '../../../application/treinos/use-cases/RemoveExercicioDoTreinoUseCase';
 import type { ReordenarExerciciosUseCase } from '../../../application/treinos/use-cases/ReordenarExerciciosUseCase';
@@ -27,6 +28,8 @@ export interface TreinoDetailControllerDependencies {
   removeAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   getSessaoAtiva: () => Promise<{ id: string; treinoNomeSnapshot: string } | null>;
   cancelarSessao: (sessaoId: string) => Promise<void>;
+  exportarTreino: ExportarTreinoUseCase;
+  compartilharArquivo: (nomeArquivo: string, conteudo: string) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -55,6 +58,8 @@ export interface TreinoDetailControllerState {
   onRemoveAlternativa: (exercicioId: string, alternativaId: string) => Promise<void>;
   getSessaoAtiva: () => Promise<{ id: string; treinoNomeSnapshot: string } | null>;
   cancelarSessao: (sessaoId: string) => Promise<void>;
+  isExporting: boolean;
+  onExportar: () => Promise<void>;
   onBack: () => void;
   onGoToSessao: () => void;
 }
@@ -74,6 +79,7 @@ export function useTreinoDetailController(
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [isReordering, setIsReordering] = useState(false);
   const [alternativasByExercicioId, setAlternativasByExercicioId] = useState<Map<string, ExercisePrimitives[]>>(new Map());
+  const [isExporting, setIsExporting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -342,6 +348,20 @@ export function useTreinoDetailController(
     }
   };
 
+  const onExportar = async () => {
+    setErrorMessage(null);
+    setIsExporting(true);
+    try {
+      const { nomeArquivo, conteudo } = await dependencies.exportarTreino.execute(treino.id);
+      await dependencies.compartilharArquivo(nomeArquivo, conteudo);
+    } catch (error) {
+      dependencies.logger.error('treino_detail.export_failed', error);
+      setErrorMessage(translate(locale, 'treinos.exportar.erro'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const onUpdateObjetivo = async (novoObjetivo: string | null) => {
     setErrorMessage(null);
     try {
@@ -381,6 +401,8 @@ export function useTreinoDetailController(
     onRemoveAlternativa,
     getSessaoAtiva: dependencies.getSessaoAtiva,
     cancelarSessao: dependencies.cancelarSessao,
+    isExporting,
+    onExportar,
     onBack,
     onGoToSessao,
   };
