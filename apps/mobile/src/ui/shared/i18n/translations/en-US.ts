@@ -498,7 +498,7 @@ export const enUS = {
       salvar: 'Save',
       salvando: 'Saving...',
       cancelar: 'Cancel',
-      errors: {
+      erros: {
         json_invalido: 'The file is not valid JSON.',
         schema_ausente: 'The JSON does not indicate the workout schema.',
         schema_desconhecido: 'This file uses an unsupported workout schema.',
