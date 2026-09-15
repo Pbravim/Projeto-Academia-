@@ -18,6 +18,8 @@ const hooks = vi.hoisted(() => ({
   onImportadoCaptured: null as ((treino: unknown) => void) | null,
   onSelectTreinoCaptured: null as ((treino: unknown) => void) | null,
   backHandlerListener: null as (() => boolean) | null,
+  tabActive: true,
+  detailTreinoCaptured: null as { id: string } | null,
 }));
 
 vi.mock('react-native', () => ({
@@ -28,6 +30,8 @@ vi.mock('react-native', () => ({
     },
   },
 }));
+
+vi.mock('../shared/tabActivity', () => ({ useTabActive: () => hooks.tabActive }));
 
 vi.mock('./hooks/usePlanoController', () => ({
   usePlanoController: () => ({ plano: {}, isLoading: false, errorMessage: null, diaSelecionado: null, onSelectDia: vi.fn(), onSetTreino: vi.fn(), onClosePicker: vi.fn(), reload: hooks.reloadPlano }),
@@ -57,7 +61,10 @@ vi.mock('./hooks/useTreinoListController', () => ({
 }));
 
 vi.mock('./hooks/useTreinoDetailController', () => ({
-  useTreinoDetailController: () => ({}),
+  useTreinoDetailController: (treino: { id: string }) => {
+    hooks.detailTreinoCaptured = treino;
+    return {};
+  },
 }));
 
 vi.mock('./hooks/useImportarTreinoController', () => ({
@@ -72,7 +79,9 @@ vi.mock('./screens/TreinoListScreen', () => ({
     createElement('Pressable', { testID: 'ir-importar', onPress: props.onImportar }),
 }));
 
-vi.mock('./screens/TreinoDetailScreen', () => ({ TreinoDetailScreen: () => null }));
+vi.mock('./screens/TreinoDetailScreen', () => ({
+  TreinoDetailScreen: () => createElement('View', { testID: 'detalhe-treino' }),
+}));
 
 vi.mock('./screens/ImportarTreinoScreen', () => ({
   ImportarTreinoScreen: (props: { onCancelar: () => void }) =>
@@ -110,9 +119,11 @@ describe('TreinoFeature — navegacao de importacao', () => {
     expect(renderer.root.findAll((n) => n.props.testID === 'ir-importar')).toHaveLength(1);
   });
 
-  it('onImportado fecha a importacao e recarrega lista/plano', async () => {
+  it('onImportado fecha a importacao, recarrega lista/plano e SELECIONA o treino importado (mata m6)', async () => {
     hooks.reloadList.mockClear();
     hooks.reloadPlano.mockClear();
+    hooks.detailTreinoCaptured = null;
+    hooks.tabActive = true;
     const renderer = await render(
       createElement(TreinoFeature, { dependencies: makeDependencies(), onGoToSessao: vi.fn() })
     );
@@ -129,6 +140,33 @@ describe('TreinoFeature — navegacao de importacao', () => {
     expect(hooks.reloadPlano).toHaveBeenCalledTimes(1);
     // selectTreinoSeVisivel troca pra o detalhe do treino importado (guard P3) — a importacao fecha.
     expect(renderer.root.findAll((n) => n.props.testID === 'cancelar-importar')).toHaveLength(0);
+    // A prova real de que a selecao aconteceu (mata m6, "onImportado sem selectTreinoSeVisivel"):
+    // o detalhe do treino IMPORTADO e renderizado, nao a lista.
+    expect(renderer.root.findAll((n) => n.props.testID === 'detalhe-treino')).toHaveLength(1);
+    expect(hooks.detailTreinoCaptured).toEqual(expect.objectContaining({ id: 't1' }));
+  });
+
+  it('onImportado NAO seleciona o treino se a aba estiver oculta (guard P3 — mata m6b)', async () => {
+    hooks.reloadList.mockClear();
+    hooks.reloadPlano.mockClear();
+    hooks.detailTreinoCaptured = null;
+    hooks.tabActive = false;
+    const renderer = await render(
+      createElement(TreinoFeature, { dependencies: makeDependencies(), onGoToSessao: vi.fn() })
+    );
+
+    const irImportar = renderer.root.find((n) => n.props.testID === 'ir-importar');
+    await act(async () => { irImportar.props.onPress(); });
+
+    await act(async () => {
+      hooks.onImportadoCaptured!({ id: 't1', name: 'Novo treino', objetivo: null, createdAt: 'x', updatedAt: 'x' });
+    });
+
+    // Guard bloqueia a selecao: nem o detalhe aparece, nem a tela de importacao continua — cai na lista.
+    expect(renderer.root.findAll((n) => n.props.testID === 'detalhe-treino')).toHaveLength(0);
+    expect(renderer.root.findAll((n) => n.props.testID === 'ir-importar')).toHaveLength(1);
+
+    hooks.tabActive = true;
   });
 
   it('hardware back durante a importacao fecha a tela de importacao', async () => {
