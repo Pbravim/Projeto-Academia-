@@ -24,17 +24,17 @@ describe('compartilharArquivoTexto', () => {
     mockFileInstance.delete.mockClear();
   });
 
-  it('escreve o conteudo, compartilha com mimeType application/json e apaga o arquivo depois', async () => {
+  it('escreve o conteudo, compartilha com mimeType application/json, dialogTitle recebido por parametro e apaga o arquivo depois', async () => {
     const { shareAsync } = await import('expo-sharing');
     const { File } = await import('expo-file-system');
 
-    await compartilharArquivoTexto('treino_treino-a.json', '{"schema":"x"}');
+    await compartilharArquivoTexto('treino_treino-a.json', '{"schema":"x"}', 'Exportar');
 
     expect(File).toHaveBeenCalledWith(expect.anything(), 'treino_treino-a.json');
     expect(mockFileInstance.write).toHaveBeenCalledWith('{"schema":"x"}');
     expect(shareAsync).toHaveBeenCalledWith(
       mockFileInstance.uri,
-      expect.objectContaining({ mimeType: 'application/json', UTI: 'public.json' })
+      expect.objectContaining({ mimeType: 'application/json', dialogTitle: 'Exportar', UTI: 'public.json' })
     );
     expect(mockFileInstance.delete).toHaveBeenCalledTimes(1);
   });
@@ -43,7 +43,7 @@ describe('compartilharArquivoTexto', () => {
     const { isAvailableAsync } = await import('expo-sharing');
     vi.mocked(isAvailableAsync).mockResolvedValueOnce(false);
 
-    await expect(compartilharArquivoTexto('treino_x.json', '{}')).rejects.toThrow(
+    await expect(compartilharArquivoTexto('treino_x.json', '{}', 'Exportar')).rejects.toThrow(
       'Compartilhamento nao disponivel neste dispositivo.'
     );
   });
@@ -52,7 +52,7 @@ describe('compartilharArquivoTexto', () => {
     const { shareAsync } = await import('expo-sharing');
     vi.mocked(shareAsync).mockRejectedValueOnce(new Error('share falhou'));
 
-    await expect(compartilharArquivoTexto('treino_x.json', '{}')).rejects.toThrow('share falhou');
+    await expect(compartilharArquivoTexto('treino_x.json', '{}', 'Exportar')).rejects.toThrow('share falhou');
 
     expect(mockFileInstance.delete).toHaveBeenCalledTimes(1);
   });

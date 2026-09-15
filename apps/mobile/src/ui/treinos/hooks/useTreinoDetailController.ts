@@ -29,7 +29,7 @@ export interface TreinoDetailControllerDependencies {
   getSessaoAtiva: () => Promise<{ id: string; treinoNomeSnapshot: string } | null>;
   cancelarSessao: (sessaoId: string) => Promise<void>;
   exportarTreino: ExportarTreinoUseCase;
-  compartilharArquivo: (nomeArquivo: string, conteudo: string) => Promise<void>;
+  compartilharArquivo: (nomeArquivo: string, conteudo: string, dialogTitle: string) => Promise<void>;
   logger: AppLogger;
 }
 
@@ -353,7 +353,7 @@ export function useTreinoDetailController(
     setIsExporting(true);
     try {
       const { nomeArquivo, conteudo } = await dependencies.exportarTreino.execute(treino.id);
-      await dependencies.compartilharArquivo(nomeArquivo, conteudo);
+      await dependencies.compartilharArquivo(nomeArquivo, conteudo, translate(locale, 'treinos.exportar.botao'));
     } catch (error) {
       dependencies.logger.error('treino_detail.export_failed', error);
       setErrorMessage(translate(locale, 'treinos.exportar.erro'));

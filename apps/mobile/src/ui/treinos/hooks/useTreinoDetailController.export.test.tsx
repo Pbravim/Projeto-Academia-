@@ -44,7 +44,7 @@ const flush = async () => {
 };
 
 describe('useTreinoDetailController — exportar', () => {
-  it('onExportar chama exportarTreino e compartilharArquivo com nomeArquivo/conteudo, alternando isExporting', async () => {
+  it('onExportar chama exportarTreino e compartilharArquivo com nomeArquivo/conteudo/dialogTitle traduzido, alternando isExporting', async () => {
     const deps = makeDependencies();
     const { result } = await renderHook(() => useTreinoDetailController(treino, deps, vi.fn(), vi.fn()));
     await flush();
@@ -54,7 +54,7 @@ describe('useTreinoDetailController — exportar', () => {
     await act(async () => { await result.current.onExportar(); });
 
     expect(deps.exportarTreino.execute).toHaveBeenCalledWith('t1');
-    expect(deps.compartilharArquivo).toHaveBeenCalledWith('treino_peito.json', '{}');
+    expect(deps.compartilharArquivo).toHaveBeenCalledWith('treino_peito.json', '{}', 'Exportar');
     expect(result.current.isExporting).toBe(false);
   });
 
