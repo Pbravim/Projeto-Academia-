@@ -63,6 +63,7 @@ function makeDeps(overrides?: Partial<SessaoAtivaControllerDependencies>): Sessa
     toggleExercicioRealizado: { execute: vi.fn().mockResolvedValue(undefined) } as never,
     addExercicioASessao: { execute: vi.fn().mockResolvedValue(undefined) } as never,
     finalizarSessao: { execute: vi.fn().mockResolvedValue(undefined) } as never,
+    getDecisaoFinalizacao: { execute: vi.fn().mockResolvedValue({ tipo: 'nenhuma' }) } as never,
     cancelarSessao: { execute: vi.fn().mockResolvedValue(undefined) } as never,
     sugerirProgressao: {
       executeLote: vi.fn().mockResolvedValue(new Map()),
@@ -162,11 +163,22 @@ describe('useSessaoAtivaController', () => {
     expect(result.current.errorMessage).toBe('Não foi possível registrar a série.');
   });
 
-  it('onFinalizar calls onFinalizado with the latest detalhe', async () => {
+  it('onFinalizar calls getDecisaoFinalizacao after finalizarSessao and passes the decisao to onFinalizado', async () => {
     const detalheFinal = { ...detalheBase, sessao: { ...sessao, status: 'finalizada' as const, dataHoraFim: '2026-05-21T11:00:00.000Z' } };
+    const decisao = { tipo: 'salvar_como_treino' as const, nomeAtual: 'Treino A', totalExercicios: 1 };
+    const chamadas: string[] = [];
     const deps = makeDeps({
+      finalizarSessao: {
+        execute: vi.fn().mockImplementation(async () => { chamadas.push('finalizar'); }),
+      } as never,
+      getDecisaoFinalizacao: {
+        execute: vi.fn().mockImplementation(async () => { chamadas.push('decisao'); return decisao; }),
+      } as never,
       getSessaoDetalhe: {
-        execute: vi.fn().mockResolvedValueOnce(detalheBase).mockResolvedValueOnce(detalheFinal),
+        execute: vi.fn().mockImplementation(async () => {
+          chamadas.push('detalhe');
+          return chamadas.filter((c) => c === 'detalhe').length === 1 ? detalheBase : detalheFinal;
+        }),
       } as never,
     });
     const onFinalizado = vi.fn();
@@ -176,7 +188,24 @@ describe('useSessaoAtivaController', () => {
     await flush();
     await act(async () => { await result.current.onFinalizar(); });
     expect(deps.finalizarSessao.execute).toHaveBeenCalledWith('s1');
-    expect(onFinalizado).toHaveBeenCalledWith(detalheFinal);
+    expect(deps.getDecisaoFinalizacao.execute).toHaveBeenCalledWith('s1');
+    expect(chamadas).toEqual(['detalhe', 'finalizar', 'decisao', 'detalhe']);
+    expect(onFinalizado).toHaveBeenCalledWith(detalheFinal, decisao);
+  });
+
+  it('onFinalizar falls back to decisao "nenhuma" and still calls onFinalizado when getDecisaoFinalizacao fails', async () => {
+    const deps = makeDeps({
+      getDecisaoFinalizacao: { execute: vi.fn().mockRejectedValue(new Error('boom')) } as never,
+    });
+    const onFinalizado = vi.fn();
+    const { result } = await renderHook(() =>
+      useSessaoAtivaController(sessao, deps, onFinalizado, () => undefined),
+    );
+    await flush();
+    await act(async () => { await result.current.onFinalizar(); });
+    expect(onFinalizado).toHaveBeenCalledWith(detalheBase, { tipo: 'nenhuma' });
+    expect(deps.logger.error).toHaveBeenCalledWith('sessao_ativa.get_decisao_failed', expect.any(Error));
+    expect(result.current.errorMessage).toBeNull();
   });
 
   it('onFinalizar surfaces error and clears finalizing state', async () => {

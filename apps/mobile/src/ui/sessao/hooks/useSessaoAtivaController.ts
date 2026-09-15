@@ -6,6 +6,7 @@ import type { AddExercicioASessaoUseCase } from '../../../application/sessoes/us
 import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cases/CancelarSessaoUseCase';
 import type { DeleteSerieUseCase } from '../../../application/sessoes/use-cases/DeleteSerieUseCase';
 import type { FinalizarSessaoUseCase } from '../../../application/sessoes/use-cases/FinalizarSessaoUseCase';
+import type { DecisaoFinalizacao,GetDecisaoFinalizacaoUseCase } from '../../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import type { GetSessaoDetalheUseCase, SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { RegistrarSegmentoInput, RegistrarSegmentoUseCase } from '../../../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import type { RegistrarSerieInput, RegistrarSerieUseCase } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
@@ -32,6 +33,7 @@ export interface SessaoAtivaControllerDependencies {
   toggleExercicioRealizado: ToggleExercicioRealizadoUseCase;
   addExercicioASessao: AddExercicioASessaoUseCase;
   finalizarSessao: FinalizarSessaoUseCase;
+  getDecisaoFinalizacao: GetDecisaoFinalizacaoUseCase;
   cancelarSessao: CancelarSessaoUseCase;
   sugerirProgressao: SugerirProgressaoUseCase;
   sugerirSubstitutos: SugerirSubstitutosUseCase;
@@ -76,7 +78,7 @@ export interface SessaoAtivaControllerState {
 export function useSessaoAtivaController(
   sessao: SessaoTreinoPrimitives,
   dependencies: SessaoAtivaControllerDependencies,
-  onFinalizado: (detalhe: SessaoDetalhe) => void,
+  onFinalizado: (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => void,
   onCancelado: () => void
 ): SessaoAtivaControllerState {
   const locale = useLocale();
@@ -335,8 +337,18 @@ export function useSessaoAtivaController(
     setErrorMessage(null);
     try {
       await dependencies.finalizarSessao.execute(sessao.id);
+
+      // A decisao (D6) e uma etapa opcional apos a sessao ja finalizada: uma falha
+      // aqui nao pode prender o aluno numa sessao encerrada — cai em 'nenhuma' e loga.
+      let decisao: DecisaoFinalizacao = { tipo: 'nenhuma' };
+      try {
+        decisao = await dependencies.getDecisaoFinalizacao.execute(sessao.id);
+      } catch (decisaoError) {
+        dependencies.logger.error('sessao_ativa.get_decisao_failed', decisaoError);
+      }
+
       const detalheCompleto = await dependencies.getSessaoDetalhe.execute(sessao.id);
-      onFinalizado(detalheCompleto);
+      onFinalizado(detalheCompleto, decisao);
     } catch (error) {
       dependencies.logger.error('sessao_ativa.finalizar_failed', error);
       setErrorMessage(translate(locale, 'sessao.errors.finalizar'));
