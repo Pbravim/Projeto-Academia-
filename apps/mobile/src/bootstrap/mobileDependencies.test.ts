@@ -265,6 +265,7 @@ describe('mobileDependencies — montagem do grafo', () => {
     expectClass(sessao.feature.getSessaoAtiva, 'GetSessaoAtivaUseCase');
     expectClass(sessao.feature.sugerirTreino, 'SugerirTreinoUseCase');
     expectClass(sessao.feature.iniciarSessao, 'IniciarSessaoUseCase');
+    expectClass(sessao.feature.iniciarSessaoLivre, 'IniciarSessaoLivreUseCase');
     expectClass(sessao.feature.listTreinoExercicios, 'ListTreinoExerciciosUseCase');
 
     expectClass(sessao.ativa.getSessaoDetalhe, 'GetSessaoDetalheUseCase');
@@ -276,11 +277,15 @@ describe('mobileDependencies — montagem do grafo', () => {
     expectClass(sessao.ativa.toggleExercicioRealizado, 'ToggleExercicioRealizadoUseCase');
     expectClass(sessao.ativa.addExercicioASessao, 'AddExercicioASessaoUseCase');
     expectClass(sessao.ativa.finalizarSessao, 'FinalizarSessaoUseCase');
+    expectClass(sessao.ativa.getDecisaoFinalizacao, 'GetDecisaoFinalizacaoUseCase');
     expectClass(sessao.ativa.cancelarSessao, 'CancelarSessaoUseCase');
     expectClass(sessao.ativa.sugerirProgressao, 'SugerirProgressaoUseCase');
     expectClass(sessao.ativa.sugerirSubstitutos, 'SugerirSubstitutosUseCase');
     expectClass(sessao.ativa.substituirExercicio, 'SubstituirExercicioSessaoUseCase');
     expect(sessao.ativa.atualizarMetodoSessaoExercicio).toBeTypeOf('function');
+
+    expectClass(sessao.decisao.salvarSessaoComoTreino, 'SalvarSessaoComoTreinoUseCase');
+    expectClass(sessao.decisao.adicionarExerciciosAoTreino, 'AdicionarExerciciosAoTreinoUseCase');
   });
 
   it('peso e dashboard saem com os use cases do tipo certo', async () => {

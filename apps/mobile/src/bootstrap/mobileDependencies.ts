@@ -26,15 +26,19 @@ import { RegistrarPesoUseCase } from '../application/peso/use-cases/RegistrarPes
 import { GetPlanoSemanalUseCase } from '../application/plano/use-cases/GetPlanoSemanalUseCase';
 import { SetDiaPlanoUseCase } from '../application/plano/use-cases/SetDiaPlanoUseCase';
 import { AddExercicioASessaoUseCase } from '../application/sessoes/use-cases/AddExercicioASessaoUseCase';
+import { AdicionarExerciciosAoTreinoUseCase } from '../application/sessoes/use-cases/AdicionarExerciciosAoTreinoUseCase';
 import { CancelarSessaoUseCase } from '../application/sessoes/use-cases/CancelarSessaoUseCase';
 import { DeleteSerieUseCase } from '../application/sessoes/use-cases/DeleteSerieUseCase';
 import { FinalizarSessaoUseCase } from '../application/sessoes/use-cases/FinalizarSessaoUseCase';
+import { GetDecisaoFinalizacaoUseCase } from '../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import { GetSessaoAtivaUseCase } from '../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import { GetSessaoDetalheUseCase } from '../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import { IniciarSessaoLivreUseCase } from '../application/sessoes/use-cases/IniciarSessaoLivreUseCase';
 import { IniciarSessaoUseCase } from '../application/sessoes/use-cases/IniciarSessaoUseCase';
 import { RegistrarSegmentoUseCase } from '../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import { RegistrarSerieUseCase } from '../application/sessoes/use-cases/RegistrarSerieUseCase';
 import { RemoverSegmentoUseCase } from '../application/sessoes/use-cases/RemoverSegmentoUseCase';
+import { SalvarSessaoComoTreinoUseCase } from '../application/sessoes/use-cases/SalvarSessaoComoTreinoUseCase';
 import { SubstituirExercicioSessaoUseCase } from '../application/sessoes/use-cases/SubstituirExercicioSessaoUseCase';
 import { SugerirProgressaoUseCase } from '../application/sessoes/use-cases/SugerirProgressaoUseCase';
 import { SugerirSubstitutosUseCase } from '../application/sessoes/use-cases/SugerirSubstitutosUseCase';
@@ -415,6 +419,12 @@ export const mobileDependencies = {
         now: () => new Date(),
         database: databaseClient,
       }),
+      iniciarSessaoLivre: new IniciarSessaoLivreUseCase({
+        sessaoTreinoRepository,
+        idGenerator: () => generateId('sessao'),
+        now: () => new Date(),
+        database: databaseClient,
+      }),
       listTreinos,
       listTreinoExercicios: new ListTreinoExerciciosUseCase(treinoExercicioRepository),
       logger,
@@ -470,6 +480,13 @@ export const mobileDependencies = {
         sessaoTreinoRepository,
         now: () => new Date(),
       }),
+      getDecisaoFinalizacao: new GetDecisaoFinalizacaoUseCase({
+        sessaoTreinoRepository,
+        sessaoExercicioRepository,
+        treinoRepository,
+        treinoExercicioRepository,
+        serieRegistradaRepository,
+      }),
       cancelarSessao: cancelarSessaoUC,
       atualizarMetodoSessaoExercicio: async (id: string, metodo: SessaoExercicioPrimitives['metodo']) => {
         const se = await sessaoExercicioRepository.findById(id);
@@ -490,6 +507,28 @@ export const mobileDependencies = {
         database: databaseClient,
       }),
       listExercises,
+      logger,
+    },
+    decisao: {
+      salvarSessaoComoTreino: new SalvarSessaoComoTreinoUseCase({
+        sessaoTreinoRepository,
+        sessaoExercicioRepository,
+        serieRegistradaRepository,
+        treinoRepository,
+        treinoExercicioRepository,
+        idGenerator: () => generateId('treino'),
+        now: () => new Date(),
+        database: databaseClient,
+      }),
+      adicionarExerciciosAoTreino: new AdicionarExerciciosAoTreinoUseCase({
+        sessaoTreinoRepository,
+        sessaoExercicioRepository,
+        serieRegistradaRepository,
+        treinoRepository,
+        treinoExercicioRepository,
+        idGenerator: () => generateId('treino_exercicio'),
+        database: databaseClient,
+      }),
       logger,
     },
   },
