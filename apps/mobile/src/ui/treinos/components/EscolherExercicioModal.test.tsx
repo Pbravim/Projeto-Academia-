@@ -98,11 +98,13 @@ describe('EscolherExercicioModal', () => {
     expect(texts.flat()).not.toContain('Triceps corda');
 
     const [backBtn, tabBuscar] = renderer.root.findAllByType('Pressable');
-    expect(backBtn!.props.style({ pressed: true })).toEqual(expect.any(Array));
+    expect(backBtn!.props.style({ pressed: true })).toContainEqual({ opacity: 0.6 });
+    expect(backBtn!.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.6 });
     await act(async () => { backBtn!.props.onPress(); });
     expect(onClose).toHaveBeenCalledTimes(1);
 
-    expect(tabBuscar!.props.style({ pressed: true })).toEqual(expect.any(Array));
+    expect(tabBuscar!.props.style({ pressed: true })).toContainEqual({ opacity: 0.8 });
+    expect(tabBuscar!.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.8 });
     await act(async () => { tabBuscar!.props.onPress(); });
   });
 
@@ -130,7 +132,8 @@ describe('EscolherExercicioModal', () => {
     const resultado = renderer.root
       .findAllByType('Pressable')
       .find((n) => n.findAllByType('Text').some((t2) => t2.props.children === 'Triceps corda'))!;
-    expect(resultado.props.style({ pressed: true })).toEqual(expect.any(Array));
+    expect(resultado.props.style({ pressed: true })).toContainEqual({ opacity: 0.75 });
+    expect(resultado.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.75 });
     await act(async () => { resultado.props.onPress(); });
     expect(onSelect).toHaveBeenCalledWith('ex-2');
   });
@@ -163,7 +166,8 @@ describe('EscolherExercicioModal', () => {
 
     const criarBtnDepois = renderer.root.findAllByType('Pressable').at(-1)!;
     expect(criarBtnDepois.props.disabled).toBe(false);
-    expect(criarBtnDepois.props.style({ pressed: true })).toEqual(expect.any(Array));
+    expect(criarBtnDepois.props.style({ pressed: true })).toContainEqual({ opacity: 0.85 });
+    expect(criarBtnDepois.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.85 });
 
     await act(async () => { criarBtnDepois.props.onPress(); });
 

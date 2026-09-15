@@ -85,7 +85,8 @@ describe('TreinoListScreen', () => {
     const importarBtn = renderer.root
       .findAllByType('Pressable')
       .find((n) => n.findAllByType('Text').some((t) => t.props.children === 'treinos.list.importarTreino'))!;
-    expect(importarBtn.props.style({ pressed: true })).toEqual(expect.any(Array));
+    expect(importarBtn.props.style({ pressed: true })).toContainEqual({ opacity: 0.85 });
+    expect(importarBtn.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.85 });
     await act(async () => { importarBtn.props.onPress(); });
 
     expect(onImportar).toHaveBeenCalledTimes(1);
