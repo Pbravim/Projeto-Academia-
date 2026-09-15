@@ -68,7 +68,7 @@ const propostaMista = {
 };
 
 describe('useImportarTreinoController', () => {
-  it('(a) analisar com texto vazio nao chama o use case e mostra erro', async () => {
+  it('(a) analisar com texto vazio nao chama o use case e mostra a chave erros.vazio (achado 6)', async () => {
     const deps = makeDependencies();
     const { result } = await renderHook(() => useImportarTreinoController(deps, vi.fn()));
     await flush();
@@ -76,7 +76,7 @@ describe('useImportarTreinoController', () => {
     await act(async () => { await result.current.analisar(); });
 
     expect(deps.importarTreino.execute).not.toHaveBeenCalled();
-    expect(result.current.errorMessage).not.toBeNull();
+    expect(result.current.errorMessage).toBe('Cole o JSON ou escolha um arquivo.');
   });
 
   it('(b) analisar OK vai para revisao com exercicioId preenchido nos casados e null nos nao casados', async () => {

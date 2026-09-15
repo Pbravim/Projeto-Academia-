@@ -101,7 +101,7 @@ export function useImportarTreinoController(
 
   const analisar = async () => {
     if (texto.trim().length === 0) {
-      setErrorMessage(translate(locale, 'treinos.importar.erros.leitura'));
+      setErrorMessage(translate(locale, 'treinos.importar.erros.vazio'));
       return;
     }
 

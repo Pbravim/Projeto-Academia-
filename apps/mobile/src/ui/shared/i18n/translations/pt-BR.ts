@@ -500,6 +500,7 @@ export const ptBR = {
       salvando: 'Salvando...',
       cancelar: 'Cancelar',
       erros: {
+        vazio: 'Cole o JSON ou escolha um arquivo.',
         json_invalido: 'O arquivo não é um JSON válido.',
         schema_ausente: 'O JSON não indica o schema do treino.',
         schema_desconhecido: 'Este arquivo usa um schema de treino não suportado.',

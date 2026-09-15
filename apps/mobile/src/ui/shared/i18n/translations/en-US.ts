@@ -499,6 +499,7 @@ export const enUS = {
       salvando: 'Saving...',
       cancelar: 'Cancel',
       erros: {
+        vazio: 'Paste the JSON or choose a file.',
         json_invalido: 'The file is not valid JSON.',
         schema_ausente: 'The JSON does not indicate the workout schema.',
         schema_desconhecido: 'This file uses an unsupported workout schema.',
