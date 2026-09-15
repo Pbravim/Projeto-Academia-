@@ -505,7 +505,7 @@ export const enUS = {
         schema_desconhecido: 'This file uses an unsupported workout schema.',
         nome_invalido: 'The workout name is invalid.',
         exercicios_vazios: 'The workout needs at least one exercise.',
-        exercicio_invalido: 'One of the exercises in the file is invalid.',
+        exercicio_invalido: 'One of the exercises in the file is invalid.%{path}',
         leitura: 'Could not read the file.',
         salvar: 'Could not save the imported workout.',
         exercicio_repetido: 'Two or more items are linked to the same catalog exercise. Adjust them before saving.',

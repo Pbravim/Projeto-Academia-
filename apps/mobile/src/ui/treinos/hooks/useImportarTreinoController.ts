@@ -123,7 +123,8 @@ export function useImportarTreinoController(
     } catch (error) {
       dependencies.logger.error('treino_importar.analisar_failed', error);
       if (error instanceof TreinoImportError) {
-        setErrorMessage(translate(locale, ERROR_CODE_TO_KEY[error.code]));
+        const path = error.path ? ` (${error.path})` : '';
+        setErrorMessage(translate(locale, ERROR_CODE_TO_KEY[error.code], { path }));
       } else {
         setErrorMessage(translate(locale, 'treinos.importar.erros.leitura'));
       }

@@ -506,7 +506,7 @@ export const ptBR = {
         schema_desconhecido: 'Este arquivo usa um schema de treino não suportado.',
         nome_invalido: 'O nome do treino é inválido.',
         exercicios_vazios: 'O treino precisa ter ao menos um exercício.',
-        exercicio_invalido: 'Um dos exercícios do arquivo é inválido.',
+        exercicio_invalido: 'Um dos exercícios do arquivo é inválido.%{path}',
         leitura: 'Não foi possível ler o arquivo.',
         salvar: 'Não foi possível salvar o treino importado.',
         exercicio_repetido: 'Dois ou mais itens estão associados ao mesmo exercício do catálogo. Ajuste antes de salvar.',

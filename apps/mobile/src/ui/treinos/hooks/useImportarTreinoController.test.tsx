@@ -138,9 +138,28 @@ describe('useImportarTreinoController', () => {
       await act(async () => { result.current.onChangeTexto('{}'); });
       await act(async () => { await result.current.analisar(); });
 
-      expect(result.current.errorMessage).toBe(translate('pt-BR', `treinos.importar.erros.${code}`));
+      expect(result.current.errorMessage).toBe(translate('pt-BR', `treinos.importar.erros.${code}`, { path: '' }));
     }
   );
+
+  it('(c3) TreinoImportError com path exibe o campo na mensagem (achado 7)', async () => {
+    const deps = makeDependencies({
+      importarTreino: {
+        execute: vi.fn().mockRejectedValue(
+          new TreinoImportError('exercicio_invalido', 'Campo invalido', 'exercicios[2].seriesAlvo')
+        ),
+      } as never,
+    });
+    const { result } = await renderHook(() => useImportarTreinoController(deps, vi.fn()));
+    await flush();
+
+    await act(async () => { result.current.onChangeTexto('{}'); });
+    await act(async () => { await result.current.analisar(); });
+
+    expect(result.current.errorMessage).toBe(
+      'Um dos exercícios do arquivo é inválido. (exercicios[2].seriesAlvo)'
+    );
+  });
 
   it('(d) podeSalvar falso com item sem exercicioId, verdadeiro apos resolverItem', async () => {
     const deps = makeDependencies({
