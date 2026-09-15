@@ -82,6 +82,12 @@ export const ptBR = {
       escolhaTreino: 'Escolha o treino',
       semExercicios: 'Sem exercícios',
       iniciando: 'Iniciando...',
+      sessaoLivreTitulo: 'Sessão livre',
+      sessaoLivreDesc: 'Registre exercícios avulsos sem escolher um treino. Você decide o que fazer com eles ao finalizar.',
+      comecarLivre: 'Começar sessão livre',
+    },
+    livre: {
+      nomeSugerido: 'Treino livre %{data}',
     },
     ativa: {
       carregando: 'Carregando sessão...',
@@ -184,6 +190,18 @@ export const ptBR = {
     addExercicio: {
       empty: 'Todos os exercícios já estão nesta sessão.',
     },
+    decisao: {
+      salvarTitulo: 'Salvar como novo treino?',
+      salvarDesc: { one: '%{count} exercício registrado nesta sessão livre.', other: '%{count} exercícios registrados nesta sessão livre.' },
+      nomeLabel: 'Nome do treino',
+      nomeDuplicado: 'Já existe um treino com esse nome.',
+      salvarBtn: 'Salvar como novo treino',
+      naoSalvarBtn: 'Não salvar',
+      avulsosTitulo: '%{count} exercícios não estavam em "%{treino}". Adicionar ao treino?',
+      adicionarBtn: 'Adicionar selecionados (%{count})',
+      manterBtn: 'Manter só nesta sessão',
+      seriesValidasCount: { one: '%{count} série válida', other: '%{count} séries válidas' },
+    },
     timer: {
       pular: 'Pular descanso',
       notifTitle: 'Descanso concluído 💪',
@@ -209,6 +227,8 @@ export const ptBR = {
       atualizarTecnica: 'Não foi possível atualizar a técnica.',
       registrarSegmento: 'Não foi possível registrar o degrau.',
       removerSegmento: 'Não foi possível remover o degrau.',
+      decisao: 'Não foi possível concluir a ação.',
+      iniciarLivre: 'Não foi possível iniciar a sessão livre.',
     },
   },
   dashboard: {

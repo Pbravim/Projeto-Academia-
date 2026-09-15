@@ -81,6 +81,12 @@ export const enUS = {
       escolhaTreino: 'Choose a workout',
       semExercicios: 'No exercises',
       iniciando: 'Starting...',
+      sessaoLivreTitulo: 'Free session',
+      sessaoLivreDesc: 'Log stand-alone exercises without picking a workout. You decide what to do with them when you finish.',
+      comecarLivre: 'Start free session',
+    },
+    livre: {
+      nomeSugerido: 'Free workout %{data}',
     },
     ativa: {
       carregando: 'Loading session...',
@@ -183,6 +189,18 @@ export const enUS = {
     addExercicio: {
       empty: 'All exercises are already in this session.',
     },
+    decisao: {
+      salvarTitulo: 'Save as a new workout?',
+      salvarDesc: { one: '%{count} exercise recorded in this free session.', other: '%{count} exercises recorded in this free session.' },
+      nomeLabel: 'Workout name',
+      nomeDuplicado: 'A workout with that name already exists.',
+      salvarBtn: 'Save as new workout',
+      naoSalvarBtn: "Don't save",
+      avulsosTitulo: '%{count} exercises were not in "%{treino}". Add them to the workout?',
+      adicionarBtn: 'Add selected (%{count})',
+      manterBtn: 'Keep in this session only',
+      seriesValidasCount: { one: '%{count} valid set', other: '%{count} valid sets' },
+    },
     timer: {
       pular: 'Skip rest',
       notifTitle: 'Rest complete 💪',
@@ -208,6 +226,8 @@ export const enUS = {
       atualizarTecnica: 'Could not update the technique.',
       registrarSegmento: 'Could not record the step.',
       removerSegmento: 'Could not remove the step.',
+      decisao: 'Could not complete the action.',
+      iniciarLivre: 'Could not start the free session.',
     },
   },
   dashboard: {
