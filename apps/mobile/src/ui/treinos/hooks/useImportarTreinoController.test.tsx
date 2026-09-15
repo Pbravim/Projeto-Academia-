@@ -4,8 +4,9 @@ import { DuplicateExerciseError } from '../../../application/exercises/errors/Du
 import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
 import { ExercicioJaNoTreinoError } from '../../../application/treinos/errors/ExercicioJaNoTreinoError';
 import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
-import { TreinoImportError } from '../../../domain/treinos/treino-json/TreinoImportError';
+import { TreinoImportError, type TreinoImportErrorCode } from '../../../domain/treinos/treino-json/TreinoImportError';
 import { act, renderHook } from '../../../test/renderHook';
+import { translate } from '../../shared/i18n';
 
 import { useImportarTreinoController,type UseImportarTreinoControllerDependencies } from './useImportarTreinoController';
 
@@ -115,6 +116,31 @@ describe('useImportarTreinoController', () => {
 
     expect(result2.current.errorMessage).toBe('Não foi possível ler o arquivo.');
   });
+
+  const TODOS_OS_CODES: TreinoImportErrorCode[] = [
+    'json_invalido',
+    'schema_ausente',
+    'schema_desconhecido',
+    'nome_invalido',
+    'exercicios_vazios',
+    'exercicio_invalido',
+  ];
+
+  it.each(TODOS_OS_CODES)(
+    '(c2) TreinoImportError code=%s mapeia para a chave i18n treinos.importar.erros.%s (mata m2b)',
+    async (code) => {
+      const deps = makeDependencies({
+        importarTreino: { execute: vi.fn().mockRejectedValue(new TreinoImportError(code, 'mensagem interna')) } as never,
+      });
+      const { result } = await renderHook(() => useImportarTreinoController(deps, vi.fn()));
+      await flush();
+
+      await act(async () => { result.current.onChangeTexto('{}'); });
+      await act(async () => { await result.current.analisar(); });
+
+      expect(result.current.errorMessage).toBe(translate('pt-BR', `treinos.importar.erros.${code}`));
+    }
+  );
 
   it('(d) podeSalvar falso com item sem exercicioId, verdadeiro apos resolverItem', async () => {
     const deps = makeDependencies({
