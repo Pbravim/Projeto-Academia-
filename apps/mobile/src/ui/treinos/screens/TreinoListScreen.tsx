@@ -21,6 +21,7 @@ import { buildTreinoListViewModel } from '../presenters/buildTreinoListViewModel
 
 interface TreinoListScreenProps extends TreinoListControllerState {
   plano: PlanoControllerState;
+  onImportar: () => void;
 }
 
 export function TreinoListScreen({
@@ -39,6 +40,7 @@ export function TreinoListScreen({
   onDuplicate,
   onSelectTreino,
   plano,
+  onImportar,
 }: TreinoListScreenProps) {
   const canSubmit = draft.name.trim().length > 0 && !isSubmitting;
   const c = useTheme();
@@ -89,7 +91,12 @@ export function TreinoListScreen({
       </View>
 
       <View style={styles.formCard}>
-        <Text style={styles.sectionTitle}>{t('treinos.list.novoTreino')}</Text>
+        <View style={styles.formCardHeader}>
+          <Text style={styles.sectionTitle}>{t('treinos.list.novoTreino')}</Text>
+          <Pressable accessibilityRole="button" onPress={onImportar} style={({ pressed }) => [styles.importarButton, pressed ? { opacity: 0.85 } : null]}>
+            <Text style={styles.importarButtonText}>{t('treinos.list.importarTreino')}</Text>
+          </Pressable>
+        </View>
 
         <Field
           ref={nameInputRef}
@@ -453,6 +460,9 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderColor: c.cardBorder,
     },
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
+    formCardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+    importarButton: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.cardBorder },
+    importarButtonText: { color: c.accent, fontSize: 13, fontWeight: '700' },
     field: { gap: 6 },
     fieldLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
     requiredMark: { color: c.error, fontSize: 13, fontWeight: '700' },
