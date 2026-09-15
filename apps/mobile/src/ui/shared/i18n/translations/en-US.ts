@@ -497,7 +497,6 @@ export const enUS = {
       criarCustom: 'Create custom',
       salvar: 'Save',
       salvando: 'Saving...',
-      cancelar: 'Cancel',
       erros: {
         vazio: 'Paste the JSON or choose a file.',
         json_invalido: 'The file is not valid JSON.',

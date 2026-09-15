@@ -498,7 +498,6 @@ export const ptBR = {
       criarCustom: 'Criar personalizado',
       salvar: 'Salvar',
       salvando: 'Salvando...',
-      cancelar: 'Cancelar',
       erros: {
         vazio: 'Cole o JSON ou escolha um arquivo.',
         json_invalido: 'O arquivo não é um JSON válido.',
