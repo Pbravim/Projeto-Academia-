@@ -54,6 +54,14 @@ describe('IniciarSessaoLivreUseCase (#33 — D5)', () => {
     await expect(useCase.execute({ nome: ' a ' })).rejects.toBeInstanceOf(SessaoValidationError);
   });
 
+  it('colapsa espacos internos do nome (achado 3, sev1)', async () => {
+    const { useCase } = makeDeps();
+
+    const sessao = await useCase.execute({ nome: 'Treino   livre' });
+
+    expect(sessao.treinoNomeSnapshot).toBe('Treino livre');
+  });
+
   it('usa withTransaction quando a dependencia database e informada', async () => {
     const sessaoTreinoRepository = new InMemorySessaoTreinoRepository();
     const chamadas: string[] = [];
