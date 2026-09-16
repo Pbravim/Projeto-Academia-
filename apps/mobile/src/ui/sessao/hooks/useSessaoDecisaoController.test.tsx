@@ -1,8 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { AdicionarExerciciosAoTreinoUseCase } from '../../../application/sessoes/use-cases/AdicionarExerciciosAoTreinoUseCase';
 import type { DecisaoFinalizacao } from '../../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import { DuplicateTreinoError } from '../../../application/treinos/errors/DuplicateTreinoError';
-import { act,renderHook } from '../../../test/renderHook';
+import { SessaoExercicio, type SessaoExercicioPrimitives } from '../../../domain/sessoes/entities/SessaoExercicio';
+import { SessaoTreino } from '../../../domain/sessoes/entities/SessaoTreino';
+import { Treino } from '../../../domain/treinos/entities/Treino';
+import { InMemorySerieRegistradaRepository } from '../../../infrastructure/sessoes/InMemorySerieRegistradaRepository';
+import { InMemorySessaoExercicioRepository } from '../../../infrastructure/sessoes/InMemorySessaoExercicioRepository';
+import { InMemorySessaoTreinoRepository } from '../../../infrastructure/sessoes/InMemorySessaoTreinoRepository';
+import { InMemoryTreinoExercicioRepository } from '../../../infrastructure/treinos/InMemoryTreinoExercicioRepository';
+import { InMemoryTreinoRepository } from '../../../infrastructure/treinos/InMemoryTreinoRepository';
+import { act, renderHook } from '../../../test/renderHook';
 
 import {
   type SessaoDecisaoControllerDependencies,
@@ -105,7 +114,7 @@ describe('useSessaoDecisaoController', () => {
     expect(result.current.selecionados).toEqual(new Set(['se1', 'se2']));
   });
 
-  it('onAdicionarSelecionados calls the use case with only the selected ids and concludes', async () => {
+  it('onAdicionarSelecionados calls the use case with the exercicioId (not sessaoExercicioId) of only the selected avulsos', async () => {
     const deps = makeDeps();
     const onConcluido = vi.fn();
     const { result } = await renderHook(() =>
@@ -113,8 +122,76 @@ describe('useSessaoDecisaoController', () => {
     );
     await act(async () => { result.current.onToggleSelecionado('se2'); });
     await act(async () => { await result.current.onAdicionarSelecionados(); });
-    expect(deps.adicionarExerciciosAoTreino.execute).toHaveBeenCalledWith({ sessaoId: 's1', exercicioIds: ['se1'] });
+    expect(deps.adicionarExerciciosAoTreino.execute).toHaveBeenCalledWith({ sessaoId: 's1', exercicioIds: ['ex1'] });
     expect(onConcluido).toHaveBeenCalledTimes(1);
+  });
+
+  it('integration: creates the TreinoExercicio via the REAL AdicionarExerciciosAoTreinoUseCase with InMemory repos (achado 1, sev3, #58)', async () => {
+    // LEARNINGS "Operação onda-33-38-44": controller que consome use case de outra
+    // fatia precisa de >=1 teste contra o use case REAL — o fake unitário aceita
+    // qualquer id e não denuncia a divergência sessaoExercicioId x exercicioId.
+    const sessaoTreinoRepository = new InMemorySessaoTreinoRepository();
+    const sessaoExercicioRepository = new InMemorySessaoExercicioRepository();
+    const serieRegistradaRepository = new InMemorySerieRegistradaRepository();
+    const treinoRepository = new InMemoryTreinoRepository();
+    const treinoExercicioRepository = new InMemoryTreinoExercicioRepository();
+
+    await treinoRepository.save(Treino.create({ id: 'treino_1', name: 'Treino A', createdAt: new Date() }));
+    await sessaoTreinoRepository.save(
+      SessaoTreino.create({ id: 'sessao_1', treinoId: 'treino_1', treinoNomeSnapshot: 'Treino A', dataHoraInicio: new Date() }),
+    );
+
+    function baseSessaoExercicio(overrides: Partial<SessaoExercicioPrimitives>): SessaoExercicioPrimitives {
+      return {
+        id: 'se_x', sessaoTreinoId: 'sessao_1', exercicioId: 'ex_x', ordem: 1,
+        nomeSnapshot: 'Exercicio', grupoMuscularSnapshot: 'Peito', categoriaSnapshot: 'Composto',
+        equipamentoSnapshot: null, musculoAlvoSnapshot: [], movementPatternSnapshot: null, realizado: true,
+        seriesRecomendadas: null, execucoesRecomendadas: null, cargaPadrao: null, tempoDescansoSegundos: null,
+        metodo: 'normal', grupoId: null, trackingTypeSnapshot: 'reps_load',
+        duracaoRecomendadaSegundos: null, distanciaRecomendadaMetros: null, intensidadeRecomendada: null,
+        substituidoPorExercicioId: null, substituicaoMotivo: null, nomeOriginalSnapshot: null,
+        ...overrides,
+      };
+    }
+    await sessaoExercicioRepository.save(SessaoExercicio.create(baseSessaoExercicio({ id: 'se1', exercicioId: 'ex1', ordem: 1, nomeSnapshot: 'Supino' })));
+    await sessaoExercicioRepository.save(SessaoExercicio.create(baseSessaoExercicio({ id: 'se2', exercicioId: 'ex2', ordem: 2, nomeSnapshot: 'Remada' })));
+
+    const adicionarExerciciosAoTreino = new AdicionarExerciciosAoTreinoUseCase({
+      sessaoTreinoRepository,
+      sessaoExercicioRepository,
+      serieRegistradaRepository,
+      treinoRepository,
+      treinoExercicioRepository,
+      idGenerator: () => 'te_1',
+    });
+
+    const decisao: DecisaoFinalizacao = {
+      tipo: 'adicionar_ao_treino',
+      treinoId: 'treino_1',
+      treinoNome: 'Treino A',
+      avulsos: [
+        { sessaoExercicioId: 'se1', exercicioId: 'ex1', nome: 'Supino', seriesValidas: 3 },
+        { sessaoExercicioId: 'se2', exercicioId: 'ex2', nome: 'Remada', seriesValidas: 2 },
+      ],
+    };
+
+    const onConcluido = vi.fn();
+    const { result } = await renderHook(() =>
+      useSessaoDecisaoController('sessao_1', decisao, {
+        salvarSessaoComoTreino: { execute: vi.fn() } as never,
+        adicionarExerciciosAoTreino,
+        logger: { info: vi.fn(), error: vi.fn() } as never,
+      }, onConcluido),
+    );
+
+    // desmarca se2, mantendo so se1 selecionado
+    await act(async () => { result.current.onToggleSelecionado('se2'); });
+    await act(async () => { await result.current.onAdicionarSelecionados(); });
+
+    expect(onConcluido).toHaveBeenCalledTimes(1);
+    const criados = await treinoExercicioRepository.listByTreinoId('treino_1');
+    expect(criados).toHaveLength(1);
+    expect(criados[0].toPrimitives().exercicioId).toBe('ex1');
   });
 
   it('onAdicionarSelecionados surfaces a generic error on failure', async () => {

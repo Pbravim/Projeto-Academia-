@@ -88,9 +88,15 @@ export function useSessaoDecisaoController(
     setIsSalvando(true);
     setErrorMessage(null);
     try {
+      // `selecionados` guarda sessaoExercicioId (chave estavel do checkbox na UI),
+      // mas o use case espera exercicioId (id do catalogo) — mapear na hora de
+      // chamar, nunca enviar o id de sessao direto (achado 1, sev3, #58).
+      const exercicioIds = decisao.tipo === 'adicionar_ao_treino'
+        ? decisao.avulsos.filter((a) => selecionados.has(a.sessaoExercicioId)).map((a) => a.exercicioId)
+        : [];
       await dependencies.adicionarExerciciosAoTreino.execute({
         sessaoId,
-        exercicioIds: [...selecionados],
+        exercicioIds,
       });
       onConcluido();
     } catch (error) {
