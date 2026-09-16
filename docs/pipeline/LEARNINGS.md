@@ -267,3 +267,15 @@ arquivo antes de qualquer tarefa. Versionado — todo o resto de `docs/pipeline/
   de pelo menos um teste contra SQLite real (`src/test/db-setup.ts`) e valida as invariantes
   do schema (UNIQUE/FK) ANTES da primeira escrita, com erro tipado — nunca confiar que o
   fake reproduz a constraint.
+
+## Operação onda-33-38-44 (2026-09-15/16)
+
+- **Controller/hook de UI que chama um use case precisa de pelo menos um teste contra o
+  use case REAL (InMemory repos), não só contra um fake.** Na fatia 33c o
+  `useSessaoDecisaoController` enviava `sessaoExercicioId` onde o
+  `AdicionarExerciciosAoTreinoUseCase` espera `exercicioId`; o fake do teste unitário
+  aceitava qualquer id e a suíte ficou verde com o botão "Adicionar selecionados" sempre
+  falhando em produção (sev 3, issue #58). Mesma família do "InMemory sem UNIQUE": o fake
+  não reproduz o contrato (aqui, o significado dos ids). Regra: ao ligar UI a um use case,
+  1 `it` de integração leve instancia o use case real com repositórios InMemory e percorre
+  o caminho principal; mocks do use case ficam para os ramos de erro/loading.
