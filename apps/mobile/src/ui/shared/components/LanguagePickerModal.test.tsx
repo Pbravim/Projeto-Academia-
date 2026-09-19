@@ -87,4 +87,24 @@ describe('LanguagePickerModal', () => {
     });
     expect(onSelect).toHaveBeenCalledWith('en-US');
   });
+
+  it('mostra o check no idioma ativo e chama onClose ao pressionar o backdrop e a área de arrastar', async () => {
+    const onClose = vi.fn();
+    const renderer = await render({
+      visible: true,
+      activeLocale: 'en-US',
+      onSelect: vi.fn(),
+      onClose,
+    });
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('✓');
+
+    const pressables = renderer.root.findAllByType('Pressable');
+    await act(async () => { (pressables[0].props as { onPress: () => void }).onPress(); });
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    await act(async () => { (pressables[1].props as { onPress: () => void }).onPress(); });
+    expect(onClose).toHaveBeenCalledTimes(2);
+  });
 });

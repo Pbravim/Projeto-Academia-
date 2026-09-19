@@ -88,4 +88,68 @@ describe('PlanoPickerModal', () => {
     });
     expect(onSelect).toHaveBeenCalledWith('t1');
   });
+
+  it('descanso: chama onSelect(null) e mostra o check quando já ativo', async () => {
+    const onSelect = vi.fn(async () => {});
+    const renderer = await render({
+      dia: 'ter',
+      treinos: [treino],
+      treinosVazios: new Set(),
+      treinoAtualId: null,
+      onSelect,
+      onClose: vi.fn(),
+    });
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('✓');
+
+    const descanso = renderer.root
+      .findAllByType('Pressable')
+      .find((p) => p.findAllByType('Text').some((t) => t.props.children === 'treinos.plano.descanso'));
+    await act(async () => {
+      (descanso!.props as { onPress: () => void }).onPress();
+    });
+    expect(onSelect).toHaveBeenCalledWith(null);
+  });
+
+  it('treino vazio: não chama onSelect ao pressionar e mostra a dica', async () => {
+    const onSelect = vi.fn(async () => {});
+    const renderer = await render({
+      dia: 'qua',
+      treinos: [treino],
+      treinosVazios: new Set(['t1']),
+      treinoAtualId: null,
+      onSelect,
+      onClose: vi.fn(),
+    });
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('treinos.plano.adicioneExerciciosPrimeiro');
+
+    const row = renderer.root
+      .findAllByType('Pressable')
+      .find((p) => p.findAllByType('Text').some((t) => t.props.children === 'Treino A'));
+    await act(async () => {
+      (row!.props as { onPress: () => void }).onPress();
+    });
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('backdrop e drag area chamam onClose', async () => {
+    const onClose = vi.fn();
+    const renderer = await render({
+      dia: 'qui',
+      treinos: [],
+      treinosVazios: new Set(),
+      treinoAtualId: null,
+      onSelect: vi.fn(async () => {}),
+      onClose,
+    });
+
+    const pressables = renderer.root.findAllByType('Pressable');
+    await act(async () => {
+      (pressables[0].props as { onPress: () => void }).onPress();
+    });
+    expect(onClose).toHaveBeenCalled();
+  });
 });

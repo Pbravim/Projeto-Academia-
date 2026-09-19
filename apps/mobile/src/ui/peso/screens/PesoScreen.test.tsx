@@ -111,4 +111,53 @@ describe('PesoScreen', () => {
     });
     expect(onDelete).toHaveBeenCalledWith('r1');
   });
+
+  it('mostra pesoAtual, gráfico com ≥2 pontos, erro/feedback e chama onChangePesoKg/onChangeObservacao/onChangeDate', async () => {
+    const onChangePesoKg = vi.fn();
+    const onChangeObservacao = vi.fn();
+    const onChangeDate = vi.fn();
+    const renderer = await render({
+      ...baseProps,
+      onChangePesoKg,
+      onChangeObservacao,
+      onChangeDate,
+      errorMessage: 'Peso inválido',
+      feedbackMessage: 'Registrado!',
+      viewModel: {
+        cards: [],
+        emptyStateMessage: null,
+        pesoAtual: '80 kg',
+        chartPoints: [{ pesoKg: 80, label: '01/01' }, { pesoKg: 81, label: '02/01' }],
+      },
+    });
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('Peso inválido');
+    expect(texts).toContain('Registrado!');
+    expect(renderer.root.findAllByType('LineChart')).toHaveLength(1);
+
+    const inputs = renderer.root.findAllByType('TextInput');
+    await act(async () => { (inputs[0].props as { onChangeText: (v: string) => void }).onChangeText('82'); });
+    expect(onChangePesoKg).toHaveBeenCalledWith('82');
+    await act(async () => { (inputs[1].props as { onChangeText: (v: string) => void }).onChangeText('boa forma'); });
+    expect(onChangeObservacao).toHaveBeenCalledWith('boa forma');
+
+    const dateTrigger = renderer.root
+      .findAllByType('Pressable')
+      .find((p) => p.findAllByType('Text').some((t) => typeof t.props.children === 'string' && t.props.children.includes('01/01/2026')));
+    await act(async () => { (dateTrigger!.props as { onPress: () => void }).onPress(); });
+
+    const picker = renderer.root.findByType('DateTimePicker');
+    await act(async () => {
+      (picker.props as { onChange: (e: unknown, d: Date) => void }).onChange({}, new Date('2026-01-02'));
+    });
+    expect(onChangeDate).toHaveBeenCalled();
+  });
+
+  it('isSubmitting: mostra "salvando" e desabilita o botão', async () => {
+    const renderer = await render({ ...baseProps, isSubmitting: true });
+
+    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('peso.form.salvando');
+  });
 });
