@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJaAtivaError';
 import { TreinoSemExerciciosError } from '../../../application/sessoes/errors/TreinoSemExerciciosError';
+import type { DecisaoFinalizacao } from '../../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import { act,renderHook } from '../../../test/renderHook';
+import { act, renderHook } from '../../../test/renderHook';
 
 import { type SessaoFeatureControllerDependencies,useSessaoFeatureController } from './useSessaoFeatureController';
 
@@ -40,6 +42,7 @@ function makeDeps(overrides?: Partial<SessaoFeatureControllerDependencies>): Ses
   return {
     getSessaoAtiva: { execute: vi.fn().mockResolvedValue(null) } as never,
     iniciarSessao: { execute: vi.fn().mockResolvedValue(sessaoAtivaFake) } as never,
+    iniciarSessaoLivre: { execute: vi.fn().mockResolvedValue(sessaoAtivaFake) } as never,
     sugerirTreino: { execute: vi.fn().mockResolvedValue(null) } as never,
     listTreinos: { execute: vi.fn().mockResolvedValue([treinoA, treinoB]) } as never,
     listTreinoExercicios: {
@@ -115,7 +118,7 @@ describe('useSessaoFeatureController', () => {
     const { result } = await renderHook(() => useSessaoFeatureController(deps));
     await flush();
     const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
-    await act(async () => { result.current.onSessaoFinalizada(detalhe); });
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, { tipo: 'nenhuma' }); });
     expect(result.current.view).toBe('resumo');
     expect(result.current.sessaoAtiva).toBeNull();
     expect(result.current.sessaoResumo).toBe(detalhe);
@@ -137,7 +140,7 @@ describe('useSessaoFeatureController', () => {
     const { result } = await renderHook(() => useSessaoFeatureController(deps));
     await flush();
     const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
-    await act(async () => { result.current.onSessaoFinalizada(detalhe); });
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, { tipo: 'nenhuma' }); });
     expect(result.current.view).toBe('resumo');
     await act(async () => { result.current.onFecharResumo(); });
     await flush();
@@ -153,5 +156,69 @@ describe('useSessaoFeatureController', () => {
     await flush();
     expect(result.current.view).toBe('inicio');
     expect(deps.logger.error).toHaveBeenCalled();
+  });
+
+  it('onIniciarLivre calls iniciarSessaoLivre with the suggested name and moves to ativa', async () => {
+    const deps = makeDeps();
+    const { result } = await renderHook(() => useSessaoFeatureController(deps));
+    await flush();
+    await act(async () => { await result.current.onIniciarLivre(); });
+    expect(deps.iniciarSessaoLivre.execute).toHaveBeenCalledWith({
+      nome: expect.stringMatching(/^Treino livre \d{2}\/\d{2}$/),
+    });
+    expect(result.current.view).toBe('ativa');
+    expect(result.current.sessaoAtiva).toEqual(sessaoAtivaFake);
+  });
+
+  it('onIniciarLivre with SessaoJaAtivaError surfaces the message', async () => {
+    const deps = makeDeps({
+      iniciarSessaoLivre: { execute: vi.fn().mockRejectedValue(new SessaoJaAtivaError()) } as never,
+    });
+    const { result } = await renderHook(() => useSessaoFeatureController(deps));
+    await flush();
+    await act(async () => { await result.current.onIniciarLivre(); });
+    expect(result.current.view).toBe('inicio');
+    expect(result.current.errorMessage).toMatch(/sessao em andamento/i);
+    expect(result.current.isIniciando).toBe(false);
+  });
+
+  it('onSessaoFinalizada with decisao "nenhuma" goes to resumo', async () => {
+    const deps = makeDeps({
+      getSessaoAtiva: { execute: vi.fn().mockResolvedValue(sessaoAtivaFake) } as never,
+    });
+    const { result } = await renderHook(() => useSessaoFeatureController(deps));
+    await flush();
+    const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, { tipo: 'nenhuma' }); });
+    expect(result.current.view).toBe('resumo');
+    expect(result.current.decisaoPendente).toBeNull();
+  });
+
+  it('onSessaoFinalizada with a pending decisao goes to the decisao view', async () => {
+    const deps = makeDeps({
+      getSessaoAtiva: { execute: vi.fn().mockResolvedValue(sessaoAtivaFake) } as never,
+    });
+    const { result } = await renderHook(() => useSessaoFeatureController(deps));
+    await flush();
+    const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
+    const decisao: DecisaoFinalizacao = { tipo: 'salvar_como_treino', nomeAtual: 'Treino livre 13/09', totalExercicios: 2 };
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, decisao); });
+    expect(result.current.view).toBe('decisao');
+    expect(result.current.decisaoPendente).toEqual(decisao);
+    expect(result.current.sessaoResumo).toBe(detalhe);
+  });
+
+  it('onDecisaoConcluida clears the pending decisao and moves to resumo', async () => {
+    const deps = makeDeps({
+      getSessaoAtiva: { execute: vi.fn().mockResolvedValue(sessaoAtivaFake) } as never,
+    });
+    const { result } = await renderHook(() => useSessaoFeatureController(deps));
+    await flush();
+    const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
+    const decisao: DecisaoFinalizacao = { tipo: 'salvar_como_treino', nomeAtual: 'Treino livre 13/09', totalExercicios: 2 };
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, decisao); });
+    await act(async () => { result.current.onDecisaoConcluida(); });
+    expect(result.current.view).toBe('resumo');
+    expect(result.current.decisaoPendente).toBeNull();
   });
 });

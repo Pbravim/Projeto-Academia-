@@ -23,6 +23,14 @@ describe('i18n translate', () => {
     expect(translate('pt-BR', 'common.seriesCount', { count: 3 })).toBe('3 séries');
     expect(translate('pt-BR', 'common.seriesCount', { count: 1 })).toBe('1 série');
   });
+  it('avulsosTitulo usa singular com 1 avulso (achado 3, sev2)', () => {
+    expect(translate('pt-BR', 'sessao.decisao.avulsosTitulo', { count: 1, treino: 'Treino A' })).toBe(
+      '1 exercício não estava em "Treino A". Adicionar ao treino?',
+    );
+    expect(translate('en-US', 'sessao.decisao.avulsosTitulo', { count: 1, treino: 'Workout A' })).toBe(
+      '1 exercise was not in "Workout A". Add it to the workout?',
+    );
+  });
   it('en-US cai para pt-BR quando a chave não existe', () => {
     expect(translate('en-US', 'common.onlyInPt')).toBe('só em pt');
   });

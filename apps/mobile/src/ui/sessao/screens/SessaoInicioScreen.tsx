@@ -13,6 +13,7 @@ interface Props {
   errorMessage: string | null;
   isIniciando: boolean;
   onIniciar: (treinoId: string) => Promise<void>;
+  onIniciarLivre: () => Promise<void>;
   onGoToTreinos?: () => void;
 }
 
@@ -27,7 +28,7 @@ function labelUltimaSessao(ultimaSessao: string | null, t: ReturnType<typeof use
   return t('sessao.inicio.haDias', { count: dias });
 }
 
-export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar, onGoToTreinos }: Props) {
+export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, errorMessage, isIniciando, onIniciar, onIniciarLivre, onGoToTreinos }: Props) {
   const c = useTheme();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -40,6 +41,23 @@ export function SessaoInicioScreen({ treinos, treinosComExercicios, sugestao, er
         <Text style={styles.description}>
           {t('sessao.inicio.description')}
         </Text>
+      </View>
+
+      <View style={styles.livreCard}>
+        <Text style={styles.livreTitulo}>{t('sessao.inicio.sessaoLivreTitulo')}</Text>
+        <Text style={styles.livreDesc}>{t('sessao.inicio.sessaoLivreDesc')}</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => { void onIniciarLivre(); }}
+          disabled={isIniciando}
+          style={({ pressed }) => [
+            styles.livreBtn,
+            pressed && !isIniciando ? { opacity: 0.85 } : null,
+            isIniciando ? styles.livreBtnDisabled : null,
+          ]}
+        >
+          <Text style={styles.livreBtnText}>{t('sessao.inicio.comecarLivre')}</Text>
+        </Pressable>
       </View>
 
       {sugestao ? (
@@ -142,6 +160,12 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     title: { color: c.heroText, fontSize: 30, fontWeight: '800' },
     description: { color: c.heroDescription, fontSize: 15, lineHeight: 22 },
     errorMessage: { color: c.error, fontSize: 14, fontWeight: '600', paddingHorizontal: 4 },
+    livreCard: { backgroundColor: c.card, borderRadius: 20, padding: 18, borderWidth: 1, borderColor: c.cardBorder, gap: 8 },
+    livreTitulo: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
+    livreDesc: { color: c.textSecondary, fontSize: 13, lineHeight: 18 },
+    livreBtn: { backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.accent, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 14, alignItems: 'center', marginTop: 4 },
+    livreBtnDisabled: { opacity: 0.5 },
+    livreBtnText: { color: c.accent, fontSize: 14, fontWeight: '800' },
     emptyCard: { backgroundColor: c.card, borderRadius: 24, padding: 28, borderWidth: 1, borderColor: c.cardBorder, gap: 10, alignItems: 'center' },
     emptyTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800', textAlign: 'center' },
     emptyText: { color: c.textSecondary, fontSize: 14, lineHeight: 20, textAlign: 'center' },

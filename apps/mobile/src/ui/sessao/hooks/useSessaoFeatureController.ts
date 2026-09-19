@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { SessaoJaAtivaError } from '../../../application/sessoes/errors/SessaoJaAtivaError';
 import { TreinoSemExerciciosError } from '../../../application/sessoes/errors/TreinoSemExerciciosError';
+import type { DecisaoFinalizacao } from '../../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import type { GetSessaoAtivaUseCase } from '../../../application/sessoes/use-cases/GetSessaoAtivaUseCase';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { IniciarSessaoLivreUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoLivreUseCase';
 import type { IniciarSessaoUseCase } from '../../../application/sessoes/use-cases/IniciarSessaoUseCase';
 import type { SugerirTreinoUseCase, SugestaoTreino } from '../../../application/sessoes/use-cases/SugerirTreinoUseCase';
 import type { ListTreinoExerciciosUseCase } from '../../../application/treinos/use-cases/ListTreinoExerciciosUseCase';
@@ -12,13 +14,15 @@ import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/Se
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
 import type { AppLogger } from '../../../infrastructure/logging/AppLogger';
 import { translate, useLocale } from '../../shared/i18n';
+import { formatShortDate } from '../../shared/i18n/formatters';
 import { useTabActive } from '../../shared/tabActivity';
 
-type SessaoView = 'loading' | 'inicio' | 'ativa' | 'resumo';
+type SessaoView = 'loading' | 'inicio' | 'ativa' | 'resumo' | 'decisao';
 
 export interface SessaoFeatureControllerDependencies {
   getSessaoAtiva: GetSessaoAtivaUseCase;
   iniciarSessao: IniciarSessaoUseCase;
+  iniciarSessaoLivre: IniciarSessaoLivreUseCase;
   sugerirTreino: SugerirTreinoUseCase;
   listTreinos: ListTreinosUseCase;
   listTreinoExercicios: ListTreinoExerciciosUseCase;
@@ -29,15 +33,18 @@ export interface SessaoFeatureControllerState {
   view: SessaoView;
   sessaoAtiva: SessaoTreinoPrimitives | null;
   sessaoResumo: SessaoDetalhe | null;
+  decisaoPendente: DecisaoFinalizacao | null;
   treinos: TreinoPrimitives[];
   treinosComExercicios: Set<string>;
   sugestao: SugestaoTreino | null;
   errorMessage: string | null;
   isIniciando: boolean;
   onIniciarSessao: (treinoId: string) => Promise<void>;
-  onSessaoFinalizada: (detalhe: SessaoDetalhe) => void;
+  onIniciarLivre: () => Promise<void>;
+  onSessaoFinalizada: (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => void;
   onSessaoCancelada: () => void;
   onFecharResumo: () => void;
+  onDecisaoConcluida: () => void;
 }
 
 export function useSessaoFeatureController(
@@ -47,6 +54,7 @@ export function useSessaoFeatureController(
   const [view, setView] = useState<SessaoView>('loading');
   const [sessaoAtiva, setSessaoAtiva] = useState<SessaoTreinoPrimitives | null>(null);
   const [sessaoResumo, setSessaoResumo] = useState<SessaoDetalhe | null>(null);
+  const [decisaoPendente, setDecisaoPendente] = useState<DecisaoFinalizacao | null>(null);
   const [treinos, setTreinos] = useState<TreinoPrimitives[]>([]);
   const [treinosComExercicios, setTreinosComExercicios] = useState<Set<string>>(new Set());
   const [sugestao, setSugestao] = useState<SugestaoTreino | null>(null);
@@ -125,9 +133,41 @@ export function useSessaoFeatureController(
     }
   };
 
-  const onSessaoFinalizada = (detalhe: SessaoDetalhe) => {
+  const onIniciarLivre = async () => {
+    setIsIniciando(true);
+    setErrorMessage(null);
+
+    try {
+      const nome = translate(locale, 'sessao.livre.nomeSugerido', { data: formatShortDate(new Date(), locale) });
+      const sessao = await dependencies.iniciarSessaoLivre.execute({ nome });
+      setSessaoAtiva(sessao);
+      setView('ativa');
+    } catch (error) {
+      dependencies.logger.error('sessao_feature.iniciar_livre_failed', error);
+
+      if (error instanceof SessaoJaAtivaError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage(translate(locale, 'sessao.errors.iniciarLivre'));
+      }
+    } finally {
+      setIsIniciando(false);
+    }
+  };
+
+  const onSessaoFinalizada = (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => {
     setSessaoAtiva(null);
     setSessaoResumo(detalhe);
+    if (decisao.tipo === 'nenhuma') {
+      setView('resumo');
+    } else {
+      setDecisaoPendente(decisao);
+      setView('decisao');
+    }
+  };
+
+  const onDecisaoConcluida = () => {
+    setDecisaoPendente(null);
     setView('resumo');
   };
 
@@ -146,14 +186,17 @@ export function useSessaoFeatureController(
     view,
     sessaoAtiva,
     sessaoResumo,
+    decisaoPendente,
     treinos,
     treinosComExercicios,
     sugestao,
     errorMessage,
     isIniciando,
     onIniciarSessao,
+    onIniciarLivre,
     onSessaoFinalizada,
     onSessaoCancelada,
     onFecharResumo,
+    onDecisaoConcluida,
   };
 }
