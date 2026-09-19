@@ -46,20 +46,21 @@ async function render(): Promise<ReactTestRenderer> {
 
 describe('BackupSyncSection', () => {
   it('deslogado: mostra o formulário e alterna para o modo de criar conta', async () => {
+    const register = vi.fn();
     useBackupSync.mockReturnValue({
       authenticated: false,
       email: null,
       busy: false,
       status: null,
       login: vi.fn(),
-      register: vi.fn(),
+      register,
       logout: vi.fn(),
       syncNow: vi.fn(),
     });
 
     const renderer = await render();
 
-    const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    let texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
     expect(texts).toContain('perfil.backup.semConta');
 
     const toggle = renderer.root
@@ -68,6 +69,24 @@ describe('BackupSyncSection', () => {
     await act(async () => {
       (toggle!.props as { onPress: () => void }).onPress();
     });
+
+    texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(texts).toContain('perfil.backup.jaTemConta');
+    expect(texts).toContain('perfil.backup.criarConta');
+    expect(texts).not.toContain('perfil.backup.semConta');
+
+    const inputs = renderer.root.findAllByType('TextInput');
+    await act(async () => { (inputs[0].props as { onChangeText: (v: string) => void }).onChangeText('Fulano'); });
+    await act(async () => { (inputs[1].props as { onChangeText: (v: string) => void }).onChangeText('a@b.com'); });
+    await act(async () => { (inputs[2].props as { onChangeText: (v: string) => void }).onChangeText('senha123'); });
+
+    const submit = renderer.root
+      .findAllByType('Pressable')
+      .find((p) => p.findAllByType('Text').some((t) => t.props.children === 'perfil.backup.criarConta'));
+    await act(async () => {
+      (submit!.props as { onPress: () => void }).onPress();
+    });
+    expect(register).toHaveBeenCalledWith('a@b.com', 'senha123', 'Fulano');
   });
 
   it('autenticado: mostra o email conectado e chama syncNow', async () => {
