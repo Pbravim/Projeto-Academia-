@@ -301,6 +301,14 @@ describe('TreinoListScreen — objetivo (ObjetivoPicker)', () => {
       (okBtn.props as { onPress: () => void }).onPress();
     });
     expect(onChangeField).toHaveBeenCalledWith('objetivo', 'X');
+
+    // Reabre o sheet (mesmo trigger, agora exibindo "X") para provar que o
+    // input customizado voltou a ficar vazio (achado 1, sev2).
+    await act(async () => {
+      (trigger.props as { onPress: () => void }).onPress();
+    });
+    const customInputReopened = textInputWithPlaceholder(renderer, 'treinos.objetivo.digitePlaceholder');
+    expect(customInputReopened.props.value).toBe('');
   });
 
   it('custom vazio nao chama onChangeField', async () => {
