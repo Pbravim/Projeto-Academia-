@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { ExercisePrimitives } from '../../../domain/exercises/entities/Exercise';
 import { normalizeText } from '../../../shared/utils/normalizeText';
 import { parseDecimalInput } from '../../../shared/utils/parseDecimalInput';
 import { ExerciseMediaViewer } from '../../exercises/components/ExerciseMediaViewer';
@@ -11,16 +10,11 @@ import { useLocale, useT } from '../../shared/i18n';
 import { useTheme } from '../../shared/theme';
 import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
 import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
-import { ExportarTreinoButton } from '../components/ExportarTreinoButton';
 import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
+import { TreinoDetailHeader } from '../components/TreinoDetailHeader';
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
-
-const GROUP_ORDER = [
-  'Peito', 'Costas', 'Ombros', 'Biceps', 'Triceps',
-  'Quadriceps', 'Posterior', 'Gluteos', 'Panturrilha',
-  'Abdomen', 'Trapezio', 'Antebraco',
-];
+import { groupExercisesByMuscle } from '../presenters/groupExercisesByMuscle';
 
 function grupoLabel(n: number, t: (key: string) => string): string {
   if (n === 2) return t('treinos.detail.grupoLabel.biSet');
@@ -32,31 +26,6 @@ function grupoColor(n: number): string {
   if (n === 2) return '#16a34a';
   if (n === 3) return '#ea580c';
   return '#0891b2';
-}
-
-function primaryGroup(groupMuscles: string[]): string {
-  return groupMuscles[0] ?? 'Outros';
-}
-
-function groupExercises(exercises: ExercisePrimitives[]): { group: string; items: ExercisePrimitives[] }[] {
-  const byGroup = new Map<string, ExercisePrimitives[]>();
-  for (const ex of exercises) {
-    const group = primaryGroup(ex.groupMuscles);
-    const list = byGroup.get(group) ?? [];
-    list.push(ex);
-    byGroup.set(group, list);
-  }
-  return Array.from(byGroup.entries())
-    .sort(([a], [b]) => {
-      const ai = GROUP_ORDER.indexOf(a), bi = GROUP_ORDER.indexOf(b);
-      const ao = ai === -1 ? GROUP_ORDER.length : ai;
-      const bo = bi === -1 ? GROUP_ORDER.length : bi;
-      return ao !== bo ? ao - bo : a.localeCompare(b);
-    })
-    .map(([group, items]) => ({
-      group,
-      items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
-    }));
 }
 
 function gerarGrupoId(): string {
@@ -110,8 +79,6 @@ export function TreinoDetailScreen({
 
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [editingNome, setEditingNome] = useState(false);
-  const [nomeText, setNomeText] = useState(treino.name);
   const [substitutoPickerFor, setSubstitutoPickerFor] = useState<{ exercicioId: string } | null>(null);
   const [mediaViewerInfo, setMediaViewerInfo] = useState<{ name: string; mediaLocal: string | null; mediaOnline: string | null } | null>(null);
 
@@ -177,7 +144,7 @@ export function TreinoDetailScreen({
     );
   }, [notAddedExercises, search]);
 
-  const groupedExercises = useMemo(() => groupExercises(filteredExercises), [filteredExercises]);
+  const groupedExercises = useMemo(() => groupExercisesByMuscle(filteredExercises), [filteredExercises]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -193,14 +160,6 @@ export function TreinoDetailScreen({
     await onAddMultiplosExercicios(Array.from(selected));
     setSelected(new Set());
     setSearch('');
-  };
-
-  const handleSaveNome = async () => {
-    const trimmed = nomeText.trim();
-    if (trimmed && trimmed !== treino.name) {
-      await onUpdateNome(trimmed);
-    }
-    setEditingNome(false);
   };
 
   // Sorted exercises for group rendering
@@ -263,51 +222,16 @@ export function TreinoDetailScreen({
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
     >
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => { void handleSaveAll(); }}
-          disabled={isSaving}
-          style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
-        >
-          <Text style={styles.backButtonText}>{isSaving ? t('treinos.detail.salvando') : t('common.backArrow')}</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.heroCard}>
-        <View style={styles.heroCardHeader}>
-          <Text style={styles.eyebrow}>{t('treinos.detail.eyebrow')}</Text>
-          <ExportarTreinoButton isExporting={isExporting} onPress={() => { void onExportar(); }} />
-        </View>
-        {editingNome ? (
-          <View style={styles.editNomeRow}>
-            <TextInput
-              style={styles.editNomeInput}
-              value={nomeText}
-              onChangeText={setNomeText}
-              autoFocus
-              onBlur={() => { void handleSaveNome(); }}
-              onSubmitEditing={() => { void handleSaveNome(); }}
-              returnKeyType="done"
-            />
-            <Pressable onPress={() => { void handleSaveNome(); }} style={styles.saveNomeBtn}>
-              <Text style={styles.saveNomeBtnText}>{t('common.save')}</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <View style={styles.nomeRow}>
-            <Text style={styles.title}>{viewModel.treinoName}</Text>
-            <Pressable onPress={() => { setNomeText(treino.name); setEditingNome(true); }} style={styles.editNomeBtn}>
-              <Text style={styles.editNomeBtnText}>✎</Text>
-            </Pressable>
-          </View>
-        )}
-        <ObjetivoInlineField
-          value={treino.objetivo ?? ''}
-          onChange={(v) => { void onUpdateObjetivo(v || null); }}
-          styles={styles}
-          placeholderTextColor={c.heroDescription}
-        />
-      </View>
+      <TreinoDetailHeader
+        nome={treino.name}
+        objetivo={treino.objetivo ?? ''}
+        isSaving={isSaving}
+        isExporting={isExporting}
+        onSaveAll={() => { void handleSaveAll(); }}
+        onUpdateNome={onUpdateNome}
+        onUpdateObjetivo={onUpdateObjetivo}
+        onExportar={() => { void onExportar(); }}
+      />
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>{t('treinos.detail.exerciciosDoTreino')}</Text>
@@ -608,152 +532,10 @@ export function TreinoDetailScreen({
   );
 }
 
-interface ObjetivoInlineFieldProps {
-  value: string;
-  onChange: (value: string) => void;
-  styles: ReturnType<typeof makeStyles>;
-  placeholderTextColor: string;
-}
-
-function ObjetivoInlineField({ value, onChange, styles, placeholderTextColor }: ObjetivoInlineFieldProps) {
-  const c = useTheme();
-  const t = useT();
-  const [open, setOpen] = useState(false);
-  const [customText, setCustomText] = useState('');
-
-  const OBJETIVOS = [
-    t('treinos.detail.objetivoField.options.hipertrofia'),
-    t('treinos.detail.objetivoField.options.forca'),
-    t('treinos.detail.objetivoField.options.resistencia'),
-    t('treinos.detail.objetivoField.options.emagrecimento'),
-    t('treinos.detail.objetivoField.options.mobilidade'),
-    t('treinos.detail.objetivoField.options.reabilitacao'),
-    t('treinos.detail.objetivoField.options.condicionamento'),
-  ];
-
-  const isCustom = value !== '' && !OBJETIVOS.includes(value);
-  const displayValue = value || null;
-
-  function select(opt: string) {
-    onChange(opt);
-    setOpen(false);
-  }
-
-  function confirmCustom() {
-    const trimmed = customText.trim();
-    if (!trimmed) return;
-    onChange(trimmed);
-    setCustomText('');
-    setOpen(false);
-  }
-
-  function clear() {
-    onChange('');
-    setOpen(false);
-  }
-
-  return (
-    <>
-      <Pressable onPress={() => setOpen(true)} style={styles.objetivoTrigger}>
-        <Text style={[styles.description, !displayValue ? styles.objetivoPlaceholder : null]}>
-          {displayValue ?? t('treinos.detail.objetivoField.placeholder')}
-        </Text>
-        <Text style={styles.objetivoEditIcon}>✎</Text>
-      </Pressable>
-
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
-        <View style={styles.sheet}>
-          <View style={styles.sheetHandle} />
-          <Text style={styles.sheetTitle}>{t('treinos.detail.objetivoField.sheetTitle')}</Text>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Pressable
-              onPress={clear}
-              style={({ pressed }) => [styles.sheetRow, pressed ? { backgroundColor: c.cardAlt } : null]}
-            >
-              <Text style={[styles.sheetRowText, !value ? styles.sheetRowActive : null]}>{t('treinos.detail.objetivoField.semObjetivo')}</Text>
-              {!value ? <Text style={styles.sheetCheck}>✓</Text> : null}
-            </Pressable>
-            <View style={styles.sheetDivider} />
-            {OBJETIVOS.map((opt) => {
-              const active = value === opt;
-              return (
-                <Pressable
-                  key={opt}
-                  onPress={() => select(opt)}
-                  style={({ pressed }) => [styles.sheetRow, pressed ? { backgroundColor: c.cardAlt } : null]}
-                >
-                  <Text style={[styles.sheetRowText, active ? styles.sheetRowActive : null]}>{opt}</Text>
-                  {active ? <Text style={styles.sheetCheck}>✓</Text> : null}
-                </Pressable>
-              );
-            })}
-            <View style={styles.sheetDivider} />
-            <Text style={styles.sheetSectionLabel}>{t('treinos.objetivo.outroPersonalizado')}</Text>
-            {isCustom ? (
-              <View style={styles.sheetRow}>
-                <Text style={[styles.sheetRowText, styles.sheetRowActive]}>{value}</Text>
-                <Text style={styles.sheetCheck}>✓</Text>
-              </View>
-            ) : null}
-            <View style={styles.customInputRow}>
-              <TextInput
-                style={styles.customInput}
-                placeholder={t('treinos.objetivo.digitePlaceholder')}
-                placeholderTextColor={placeholderTextColor}
-                value={customText}
-                onChangeText={setCustomText}
-                onSubmitEditing={confirmCustom}
-                returnKeyType="done"
-              />
-              <Pressable onPress={confirmCustom} style={styles.addCustomBtn}>
-                <Text style={styles.addCustomBtnText}>{t('common.ok')}</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        </View>
-      </Modal>
-    </>
-  );
-}
-
 function makeStyles(c: ReturnType<typeof useTheme>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.background },
     content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 18 },
-    header: { flexDirection: 'row', alignItems: 'center' },
-    backButton: { paddingVertical: 8, paddingRight: 12 },
-    backButtonPressed: { opacity: 0.6 },
-    backButtonText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
-    heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 10 },
-    heroCardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-    nomeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    title: { color: c.heroText, fontSize: 28, fontWeight: '800', flex: 1 },
-    editNomeBtn: { padding: 4 },
-    editNomeBtnText: { color: c.heroSubtext, fontSize: 20 },
-    editNomeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    editNomeInput: { flex: 1, backgroundColor: c.hero, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, color: c.heroText, fontSize: 20, fontWeight: '800', borderWidth: 1, borderColor: c.inputBorder },
-    saveNomeBtn: { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: c.accent, borderRadius: 10 },
-    saveNomeBtnText: { color: c.accentText, fontSize: 13, fontWeight: '700' },
-    description: { color: c.heroDescription, fontSize: 15, lineHeight: 22, flex: 1 },
-    objetivoTrigger: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    objetivoPlaceholder: { opacity: 0.5 },
-    objetivoEditIcon: { color: c.heroSubtext, fontSize: 16 },
-    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' },
-    sheet: { backgroundColor: c.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 32, maxHeight: '60%' },
-    sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: c.cardBorder, alignSelf: 'center', marginTop: 10, marginBottom: 4 },
-    sheetTitle: { color: c.textPrimary, fontSize: 17, fontWeight: '800', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
-    sheetRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: c.cardBorder },
-    sheetRowText: { flex: 1, color: c.textPrimary, fontSize: 15 },
-    sheetRowActive: { color: c.accentInk, fontWeight: '700' },
-    sheetCheck: { color: c.accentInk, fontSize: 16, fontWeight: '800' },
-    sheetDivider: { height: 1, backgroundColor: c.cardBorder, marginVertical: 4 },
-    sheetSectionLabel: { color: c.textSecondary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 6 },
-    customInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingVertical: 12 },
-    customInput: { flex: 1, height: 42, borderRadius: 12, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 12, color: c.inputText, fontSize: 14 },
-    addCustomBtn: { height: 42, paddingHorizontal: 16, borderRadius: 12, backgroundColor: c.hero, alignItems: 'center', justifyContent: 'center' },
-    addCustomBtnText: { color: c.heroText, fontSize: 13, fontWeight: '700' },
     card: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
     helperText: { color: c.textSecondary, fontSize: 13, lineHeight: 18 },
