@@ -18,8 +18,17 @@ export class SQLiteSessaoTreinoRepository implements SessaoTreinoRepository {
   async save(sessao: SessaoTreino): Promise<void> {
     const p = sessao.toPrimitives();
     await this.database.run(
-      `INSERT OR REPLACE INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+      `INSERT INTO sessao_treinos (id, treino_id, treino_nome_snapshot, data_hora_inicio, data_hora_fim, status, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         treino_id = excluded.treino_id,
+         treino_nome_snapshot = excluded.treino_nome_snapshot,
+         data_hora_inicio = excluded.data_hora_inicio,
+         data_hora_fim = excluded.data_hora_fim,
+         status = excluded.status,
+         updated_at = excluded.updated_at,
+         deleted_at = NULL,
+         dirty = 1`,
       [p.id, p.treinoId, p.treinoNomeSnapshot, p.dataHoraInicio, p.dataHoraFim, p.status, nowIso()]
     );
   }
