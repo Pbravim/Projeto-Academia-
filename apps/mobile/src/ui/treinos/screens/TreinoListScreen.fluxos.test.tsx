@@ -420,17 +420,34 @@ describe('TreinoListScreen — duplicar', () => {
     expect(onDuplicate).toHaveBeenCalledWith('t1');
   });
 
-  it('duplicandoId mostra o texto de carregamento, aplica o estilo de loading e desabilita os dois botoes', async () => {
+  it('duplicandoId mostra o texto/estilo de carregamento so no card afetado e desabilita os dois botoes de ambos os cards', async () => {
+    // Fixture com 2 treinos (achado 3, sev2): com 1 so treino, "algum card"
+    // e "este card" colapsam e a mutacao passa verde sem prender a regra.
     const t1 = treino('t1', 'Peito');
+    const t2 = treino('t2', 'Costas');
     const renderer = await render(
-      createElement(TreinoListScreen, baseProps({ treinos: [t1], duplicandoId: 't1' })),
+      createElement(TreinoListScreen, baseProps({ treinos: [t1, t2], duplicandoId: 't1' })),
     );
+
+    const duplicandoTexts = renderer.root
+      .findAllByType('Text' as never)
+      .filter((n) => extractText(n.props.children) === 'treinos.list.duplicando');
+    expect(duplicandoTexts).toHaveLength(1);
+    const duplicarTexts = renderer.root
+      .findAllByType('Text' as never)
+      .filter((n) => extractText(n.props.children) === 'treinos.list.duplicar');
+    expect(duplicarTexts).toHaveLength(1);
+
     const loadingDup = pressableWithText(renderer, 'treinos.list.duplicando')!;
     expect(loadingDup.props.disabled).toBe(true);
     expect(loadingDup.props.style({ pressed: false })).toContainEqual({ opacity: 0.5 });
 
-    const delBtn = pressableWithText(renderer, 'common.delete')!;
-    expect(delBtn.props.disabled).toBe(true);
+    const notLoadingDup = pressableWithText(renderer, 'treinos.list.duplicar')!;
+    expect(notLoadingDup.props.style({ pressed: false })).not.toContainEqual({ opacity: 0.5 });
+
+    const delBtns = leafPressablesWithText(renderer, 'common.delete');
+    expect(delBtns).toHaveLength(2);
+    expect(delBtns.every((b) => b.props.disabled)).toBe(true);
   });
 
   it('deletingId tambem desabilita o botao de duplicar', async () => {
@@ -497,13 +514,21 @@ describe('TreinoListScreen — excluir com confirmação', () => {
     expect(texts).not.toContain('treinos.list.confirmDeleteTitle');
   });
 
-  it('deletingId mostra o texto de excluindo', async () => {
+  it('deletingId mostra o texto de excluindo so no card afetado', async () => {
+    // Fixture com 2 treinos (achado 3, sev2) — ver nota no teste de duplicar.
     const t1 = treino('t1', 'Peito');
+    const t2 = treino('t2', 'Costas');
     const renderer = await render(
-      createElement(TreinoListScreen, baseProps({ treinos: [t1], deletingId: 't1' })),
+      createElement(TreinoListScreen, baseProps({ treinos: [t1, t2], deletingId: 't1' })),
     );
-    const texts = renderer.root.findAllByType('Text' as never).map((n) => extractText(n.props.children));
-    expect(texts).toContain('treinos.list.excluindo');
+    const excluindoTexts = renderer.root
+      .findAllByType('Text' as never)
+      .filter((n) => extractText(n.props.children) === 'treinos.list.excluindo');
+    expect(excluindoTexts).toHaveLength(1);
+    const deleteTexts = renderer.root
+      .findAllByType('Text' as never)
+      .filter((n) => extractText(n.props.children) === 'common.delete');
+    expect(deleteTexts).toHaveLength(1);
   });
 });
 
