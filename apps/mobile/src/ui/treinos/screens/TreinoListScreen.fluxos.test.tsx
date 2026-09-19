@@ -282,6 +282,10 @@ describe('TreinoListScreen — objetivo (ObjetivoPicker)', () => {
       (opt.props as { onPress: () => void }).onPress();
     });
     expect(onChangeField).toHaveBeenCalledWith('objetivo', 'treinos.list.objetivoPicker.options.forca');
+
+    // Sheet fecha apos escolher a opcao (achado 2, sev2 — mata M8).
+    const optAfterSelect = pressableWithText(renderer, 'treinos.list.objetivoPicker.options.forca');
+    expect(optAfterSelect).toBeUndefined();
   });
 
   it('custom: digitar com espacos + OK chama onChangeField ja aparado e limpa o input', async () => {
@@ -301,6 +305,10 @@ describe('TreinoListScreen — objetivo (ObjetivoPicker)', () => {
       (okBtn.props as { onPress: () => void }).onPress();
     });
     expect(onChangeField).toHaveBeenCalledWith('objetivo', 'X');
+
+    // Sheet fecha apos confirmar o custom (achado 2, sev2 — mata M10).
+    const okBtnAfterConfirm = pressableWithText(renderer, 'common.ok');
+    expect(okBtnAfterConfirm).toBeUndefined();
 
     // Reabre o sheet (mesmo trigger, agora exibindo "X") para provar que o
     // input customizado voltou a ficar vazio (achado 1, sev2).
