@@ -346,10 +346,7 @@ describe('TreinoListScreen — objetivo (ObjetivoPicker)', () => {
   it('sheet aberto que perde editable (isSubmitting inicia) nao seleciona mais', async () => {
     const onChangeField = vi.fn();
     const props = baseProps({ onChangeField });
-    let renderer!: ReactTestRenderer;
-    await act(async () => {
-      renderer = TestRenderer.create(createElement(TreinoListScreen, props));
-    });
+    const renderer = await render(createElement(TreinoListScreen, props));
     const trigger = pressableWithText(renderer, 'treinos.list.objetivoPicker.selecionar')!;
     await act(async () => {
       (trigger.props as { onPress: () => void }).onPress();
