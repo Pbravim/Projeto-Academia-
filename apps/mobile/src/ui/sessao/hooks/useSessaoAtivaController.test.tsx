@@ -4,7 +4,7 @@ import { ExercicioJaNaSessaoError } from '../../../application/sessoes/errors/Ex
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import { SessaoValidationError } from '../../../domain/sessoes/errors/SessaoValidationError';
-import { act,renderHook } from '../../../test/renderHook';
+import { act, renderHook } from '../../../test/renderHook';
 
 import {
   type SessaoAtivaControllerDependencies,

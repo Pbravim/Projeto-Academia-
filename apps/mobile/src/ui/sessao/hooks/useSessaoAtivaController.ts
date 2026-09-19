@@ -6,7 +6,7 @@ import type { AddExercicioASessaoUseCase } from '../../../application/sessoes/us
 import type { CancelarSessaoUseCase } from '../../../application/sessoes/use-cases/CancelarSessaoUseCase';
 import type { DeleteSerieUseCase } from '../../../application/sessoes/use-cases/DeleteSerieUseCase';
 import type { FinalizarSessaoUseCase } from '../../../application/sessoes/use-cases/FinalizarSessaoUseCase';
-import type { DecisaoFinalizacao,GetDecisaoFinalizacaoUseCase } from '../../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
+import type { DecisaoFinalizacao, GetDecisaoFinalizacaoUseCase } from '../../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import type { GetSessaoDetalheUseCase, SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { RegistrarSegmentoInput, RegistrarSegmentoUseCase } from '../../../application/sessoes/use-cases/RegistrarSegmentoUseCase';
 import type { RegistrarSerieInput, RegistrarSerieUseCase } from '../../../application/sessoes/use-cases/RegistrarSerieUseCase';
