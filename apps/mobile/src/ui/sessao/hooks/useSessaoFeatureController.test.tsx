@@ -6,7 +6,7 @@ import type { DecisaoFinalizacao } from '../../../application/sessoes/use-cases/
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { SessaoTreinoPrimitives } from '../../../domain/sessoes/entities/SessaoTreino';
 import type { TreinoPrimitives } from '../../../domain/treinos/entities/Treino';
-import { act,renderHook } from '../../../test/renderHook';
+import { act, renderHook } from '../../../test/renderHook';
 
 import { type SessaoFeatureControllerDependencies,useSessaoFeatureController } from './useSessaoFeatureController';
 
@@ -118,7 +118,7 @@ describe('useSessaoFeatureController', () => {
     const { result } = await renderHook(() => useSessaoFeatureController(deps));
     await flush();
     const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
-    await act(async () => { result.current.onSessaoFinalizada(detalhe); });
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, { tipo: 'nenhuma' }); });
     expect(result.current.view).toBe('resumo');
     expect(result.current.sessaoAtiva).toBeNull();
     expect(result.current.sessaoResumo).toBe(detalhe);
@@ -140,7 +140,7 @@ describe('useSessaoFeatureController', () => {
     const { result } = await renderHook(() => useSessaoFeatureController(deps));
     await flush();
     const detalhe = { sessao: sessaoAtivaFake, exercicios: [] } as unknown as SessaoDetalhe;
-    await act(async () => { result.current.onSessaoFinalizada(detalhe); });
+    await act(async () => { result.current.onSessaoFinalizada(detalhe, { tipo: 'nenhuma' }); });
     expect(result.current.view).toBe('resumo');
     await act(async () => { result.current.onFecharResumo(); });
     await flush();

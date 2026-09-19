@@ -41,7 +41,7 @@ export interface SessaoFeatureControllerState {
   isIniciando: boolean;
   onIniciarSessao: (treinoId: string) => Promise<void>;
   onIniciarLivre: () => Promise<void>;
-  onSessaoFinalizada: (detalhe: SessaoDetalhe, decisao?: DecisaoFinalizacao) => void;
+  onSessaoFinalizada: (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => void;
   onSessaoCancelada: () => void;
   onFecharResumo: () => void;
   onDecisaoConcluida: () => void;
@@ -155,7 +155,7 @@ export function useSessaoFeatureController(
     }
   };
 
-  const onSessaoFinalizada = (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao = { tipo: 'nenhuma' }) => {
+  const onSessaoFinalizada = (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => {
     setSessaoAtiva(null);
     setSessaoResumo(detalhe);
     if (decisao.tipo === 'nenhuma') {
