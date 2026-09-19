@@ -196,7 +196,10 @@ export const enUS = {
       nomeDuplicado: 'A workout with that name already exists.',
       salvarBtn: 'Save as new workout',
       naoSalvarBtn: "Don't save",
-      avulsosTitulo: '%{count} exercises were not in "%{treino}". Add them to the workout?',
+      avulsosTitulo: {
+        one: '%{count} exercise was not in "%{treino}". Add it to the workout?',
+        other: '%{count} exercises were not in "%{treino}". Add them to the workout?',
+      },
       adicionarBtn: 'Add selected (%{count})',
       manterBtn: 'Keep in this session only',
       seriesValidasCount: { one: '%{count} valid set', other: '%{count} valid sets' },

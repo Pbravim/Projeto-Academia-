@@ -197,7 +197,10 @@ export const ptBR = {
       nomeDuplicado: 'Já existe um treino com esse nome.',
       salvarBtn: 'Salvar como novo treino',
       naoSalvarBtn: 'Não salvar',
-      avulsosTitulo: '%{count} exercícios não estavam em "%{treino}". Adicionar ao treino?',
+      avulsosTitulo: {
+        one: '%{count} exercício não estava em "%{treino}". Adicionar ao treino?',
+        other: '%{count} exercícios não estavam em "%{treino}". Adicionar ao treino?',
+      },
       adicionarBtn: 'Adicionar selecionados (%{count})',
       manterBtn: 'Manter só nesta sessão',
       seriesValidasCount: { one: '%{count} série válida', other: '%{count} séries válidas' },
