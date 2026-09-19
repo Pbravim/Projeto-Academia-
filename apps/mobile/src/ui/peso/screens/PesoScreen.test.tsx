@@ -154,10 +154,19 @@ describe('PesoScreen', () => {
     expect(onChangeDate).toHaveBeenCalled();
   });
 
-  it('isSubmitting: mostra "salvando" e desabilita o botão', async () => {
+  it('isSubmitting: mostra "salvando" e desabilita o botão e os campos', async () => {
     const renderer = await render({ ...baseProps, isSubmitting: true });
 
     const texts = renderer.root.findAllByType('Text').map((n) => n.props.children);
     expect(texts).toContain('peso.form.salvando');
+
+    const submit = renderer.root
+      .findAllByType('Pressable')
+      .find((p) => p.findAllByType('Text').some((t) => t.props.children === 'peso.form.salvando'));
+    expect(submit!.props.disabled).toBe(true);
+
+    const inputs = renderer.root.findAllByType('TextInput');
+    expect(inputs[0].props.editable).toBe(false);
+    expect(inputs[1].props.editable).toBe(false);
   });
 });
