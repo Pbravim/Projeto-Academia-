@@ -56,6 +56,8 @@ const createMockDependencies = (
   removeAlternativa: vi.fn(),
   getSessaoAtiva: vi.fn().mockResolvedValue(null),
   cancelarSessao: vi.fn(),
+  exportarTreino: { execute: vi.fn() } as never,
+  compartilharArquivo: vi.fn(),
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() } as never,
 });
 

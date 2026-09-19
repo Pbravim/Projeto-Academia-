@@ -11,6 +11,7 @@ import { useLocale, useT } from '../../shared/i18n';
 import { useTheme } from '../../shared/theme';
 import { ExercicioCardTreino } from '../components/ExercicioCardTreino';
 import { ExercisePickerGroup } from '../components/ExercisePickerGroup';
+import { ExportarTreinoButton } from '../components/ExportarTreinoButton';
 import { SubstitutosPickerModal } from '../components/SubstitutosPickerModal';
 import type { TreinoDetailControllerState } from '../hooks/useTreinoDetailController';
 import { buildTreinoDetailViewModel } from '../presenters/buildTreinoDetailViewModel';
@@ -86,6 +87,8 @@ export function TreinoDetailScreen({
   onRemoveAlternativa,
   getSessaoAtiva,
   cancelarSessao,
+  isExporting,
+  onExportar,
   onBack,
   onGoToSessao,
 }: TreinoDetailControllerState) {
@@ -271,7 +274,10 @@ export function TreinoDetailScreen({
       </View>
 
       <View style={styles.heroCard}>
-        <Text style={styles.eyebrow}>{t('treinos.detail.eyebrow')}</Text>
+        <View style={styles.heroCardHeader}>
+          <Text style={styles.eyebrow}>{t('treinos.detail.eyebrow')}</Text>
+          <ExportarTreinoButton isExporting={isExporting} onPress={() => { void onExportar(); }} />
+        </View>
         {editingNome ? (
           <View style={styles.editNomeRow}>
             <TextInput
@@ -720,6 +726,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     backButtonPressed: { opacity: 0.6 },
     backButtonText: { color: c.accent, fontSize: 15, fontWeight: '700' },
     heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 10 },
+    heroCardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
     nomeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     title: { color: c.heroText, fontSize: 28, fontWeight: '800', flex: 1 },
