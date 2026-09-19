@@ -310,8 +310,8 @@ describe('TreinoListScreen — objetivo (ObjetivoPicker)', () => {
     const okBtnAfterConfirm = pressableWithText(renderer, 'common.ok');
     expect(okBtnAfterConfirm).toBeUndefined();
 
-    // Reabre o sheet (mesmo trigger, agora exibindo "X") para provar que o
-    // input customizado voltou a ficar vazio (achado 1, sev2).
+    // Reabre o sheet (o draft e fake, o trigger segue no placeholder) para
+    // provar que o input customizado voltou a ficar vazio (achado 1, sev2).
     await act(async () => {
       (trigger.props as { onPress: () => void }).onPress();
     });
