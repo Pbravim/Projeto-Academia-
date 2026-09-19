@@ -447,7 +447,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     actionRow: { flexDirection: 'row', gap: 10 },
     exportBtn: { flex: 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: c.accent },
     exportBtnDisabled: { opacity: 0.5 },
-    exportBtnText: { color: c.accent, fontSize: 14, fontWeight: '700' },
+    exportBtnText: { color: c.accentInk, fontSize: 14, fontWeight: '700' },
     resetBtn: { flex: 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderColor: c.error },
     resetBtnDisabled: { opacity: 0.5 },
     resetBtnText: { color: c.error, fontSize: 14, fontWeight: '700' },
@@ -477,7 +477,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: c.cardBorder,
     },
-    verTodosBtnText: { color: c.accent, fontSize: 12, fontWeight: '700' },
+    verTodosBtnText: { color: c.accentInk, fontSize: 12, fontWeight: '700' },
     recordeRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -492,9 +492,9 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     recordeRank2: { color: c.textSecondary },
     recordeRank3: { color: '#a0522d' },
     recordeNome: { flex: 1, color: c.textPrimary, fontSize: 14, fontWeight: '700' },
-    recordeValor: { color: c.accent, fontSize: 15, fontWeight: '800' },
+    recordeValor: { color: c.accentInk, fontSize: 15, fontWeight: '800' },
     verTodosRow: { alignItems: 'center', paddingVertical: 6 },
-    verTodosRowText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    verTodosRowText: { color: c.accentInk, fontSize: 13, fontWeight: '700' },
     groupLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 },
     // Treino card header — flex row, main area pressable, buttons separate
     treinoHeader: { flexDirection: 'row', alignItems: 'center' },
@@ -592,7 +592,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderColor: c.accent,
     },
     verEvolucaoBtnPressed: { opacity: 0.7 },
-    verEvolucaoBtnText: { color: c.accent, fontSize: 14, fontWeight: '700' },
+    verEvolucaoBtnText: { color: c.accentInk, fontSize: 14, fontWeight: '700' },
     flex1: { flex: 1 },
     flex2: { flex: 2 },
   });

@@ -286,7 +286,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     dateTrigger: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: c.inputBorder, backgroundColor: c.inputBg, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     dateTriggerText: { color: c.inputText, fontSize: 15 },
-    dateTriggerTextPast: { color: c.accent, fontWeight: '700' },
+    dateTriggerTextPast: { color: c.accentInk, fontWeight: '700' },
     dateCalIcon: { fontSize: 18 },
     errorMessage: {
       color: c.error,

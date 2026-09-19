@@ -127,6 +127,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     primaryBtnText: { color: c.accentText, fontWeight: '700', fontSize: 15 },
     linkBtn: { alignItems: 'center', paddingVertical: 6 },
-    linkText: { color: c.accent, fontSize: 13, fontWeight: '600' },
+    linkText: { color: c.accentInk, fontSize: 13, fontWeight: '600' },
   });
 }

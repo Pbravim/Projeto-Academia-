@@ -173,7 +173,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderBottomColor: c.cardBorder,
     },
     backBtn: { paddingVertical: 4 },
-    backBtnText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backBtnText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
     title: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     content: { padding: 20, gap: 14 },
     label: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
@@ -234,7 +234,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderWidth: 1,
       borderColor: c.cardBorder,
     },
-    itemActionBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    itemActionBtnText: { color: c.accentInk, fontSize: 13, fontWeight: '700' },
     footer: {
       padding: 20,
       borderTopWidth: 1,

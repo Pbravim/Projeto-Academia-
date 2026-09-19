@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { dark, light } from './theme';
+
 vi.mock('react-native', () => ({ useColorScheme: () => 'light' }));
 vi.mock('../../bootstrap/databaseClient', () => ({
   databaseClient: {
@@ -7,8 +9,6 @@ vi.mock('../../bootstrap/databaseClient', () => ({
     setSetting: vi.fn().mockResolvedValue(undefined),
   },
 }));
-
-import { dark, light } from './theme';
 
 // WCAG 2.x contrast ratio (relative luminance sRGB) — ver
 // https://www.w3.org/TR/WCAG21/#contrast-minimum

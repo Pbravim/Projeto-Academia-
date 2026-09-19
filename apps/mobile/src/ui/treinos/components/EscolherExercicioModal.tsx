@@ -184,7 +184,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderBottomColor: c.cardBorder,
     },
     backBtn: { paddingVertical: 4 },
-    backBtnText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backBtnText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
     title: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     tabs: { flexDirection: 'row', paddingHorizontal: 20, paddingTop: 14, gap: 8 },
     tabBtn: {

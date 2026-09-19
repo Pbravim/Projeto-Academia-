@@ -840,7 +840,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       alignItems: 'center', justifyContent: 'space-between',
     },
     dateTriggerText: { color: c.inputText, fontSize: 15 },
-    dateTriggerTextPast: { color: c.accent, fontWeight: '700' },
+    dateTriggerTextPast: { color: c.accentInk, fontWeight: '700' },
     dateCalIcon: { fontSize: 18 },
     errorMessage: { color: c.error, fontSize: 14, fontWeight: '600' },
     successMessage: { color: c.success, fontSize: 14, fontWeight: '600' },

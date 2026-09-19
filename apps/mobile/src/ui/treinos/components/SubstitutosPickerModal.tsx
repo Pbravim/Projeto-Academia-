@@ -246,7 +246,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderBottomColor: c.cardBorder,
     },
     backBtn: { paddingVertical: 4 },
-    backBtnText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backBtnText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
     title: { color: c.textPrimary, fontSize: 17, fontWeight: '800' },
     search: {
       margin: 16,
@@ -273,7 +273,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     groupTitle: { color: c.textPrimary, fontSize: 13, fontWeight: '800' },
     groupMeta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     groupBadge: { backgroundColor: c.accentLight, borderRadius: 10, paddingHorizontal: 7, paddingVertical: 2 },
-    groupBadgeText: { color: c.accent, fontSize: 11, fontWeight: '700' },
+    groupBadgeText: { color: c.accentInk, fontSize: 11, fontWeight: '700' },
     groupChevron: { color: c.textSecondary, fontSize: 10, fontWeight: '700' },
     item: {
       flexDirection: 'row',
@@ -294,7 +294,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     itemName: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     itemNameAdded: { color: c.textSecondary },
     itemMeta: { color: c.textSecondary, fontSize: 12, marginTop: 2 },
-    actionIcon: { color: c.accent, fontSize: 22, fontWeight: '800', width: 28, textAlign: 'center' },
+    actionIcon: { color: c.accentInk, fontSize: 22, fontWeight: '800', width: 28, textAlign: 'center' },
     actionIconAdded: { color: c.textSecondary, fontSize: 18 },
     empty: { color: c.textSecondary, fontSize: 14, textAlign: 'center', paddingVertical: 48 },
   });

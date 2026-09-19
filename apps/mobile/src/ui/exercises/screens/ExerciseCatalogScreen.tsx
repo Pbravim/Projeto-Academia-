@@ -600,7 +600,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     formHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     listCard: { backgroundColor: c.card, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: c.cardBorder },
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
-    cancelLink: { color: c.accent, fontSize: 14, fontWeight: '700' },
+    cancelLink: { color: c.accentInk, fontSize: 14, fontWeight: '700' },
     helperText: { color: c.textSecondary, fontSize: 13, lineHeight: 18 },
     errorBanner: { backgroundColor: c.errorBg, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: c.error },
     errorBannerText: { color: c.error, fontSize: 14, fontWeight: '700' },
@@ -653,7 +653,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     suggestionRowPressed: { opacity: 0.7 },
     suggestionName: { color: c.textPrimary, fontSize: 14, fontWeight: '700' },
     suggestionMeta: { color: c.textSecondary, fontSize: 12, marginTop: 1 },
-    suggestionEditHint: { color: c.accent, fontSize: 12, fontWeight: '700' },
+    suggestionEditHint: { color: c.accentInk, fontSize: 12, fontWeight: '700' },
 
     // Substitutes section
     substSection: { gap: 10, paddingTop: 4 },
@@ -667,14 +667,14 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderWidth: 1, borderColor: c.accent,
       maxWidth: '100%',
     },
-    substChipText: { color: c.accent, fontSize: 13, fontWeight: '700', flexShrink: 1 },
-    substChipRemove: { color: c.accent, fontSize: 13, fontWeight: '800' },
+    substChipText: { color: c.accentInk, fontSize: 13, fontWeight: '700', flexShrink: 1 },
+    substChipRemove: { color: c.accentInk, fontSize: 13, fontWeight: '800' },
     addSubstBtn: {
       alignSelf: 'flex-start',
       paddingHorizontal: 14, paddingVertical: 8,
       borderRadius: 20, borderWidth: 1, borderColor: c.accent,
     },
-    addSubstBtnText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    addSubstBtnText: { color: c.accentInk, fontSize: 13, fontWeight: '700' },
     substPicker: { gap: 6 },
     substSearch: {
       height: 40, borderRadius: 12, borderWidth: 1,

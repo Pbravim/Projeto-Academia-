@@ -114,10 +114,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     rowPressed: { backgroundColor: c.cardAlt },
     rowInfo: { flex: 1 },
     rowText: { color: c.textPrimary, fontSize: 15, fontWeight: '600' },
-    rowTextActive: { color: c.accent, fontWeight: '800' },
+    rowTextActive: { color: c.accentInk, fontWeight: '800' },
     rowMeta: { color: c.textSecondary, fontSize: 12, marginTop: 2 },
     rowDisabled: { opacity: 0.45 },
     rowTextDisabled: { color: c.textSecondary },
-    check: { color: c.accent, fontSize: 17, fontWeight: '800', marginLeft: 12 },
+    check: { color: c.accentInk, fontSize: 17, fontWeight: '800', marginLeft: 12 },
   });
 }

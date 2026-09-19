@@ -58,7 +58,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     screen: { flex: 1, backgroundColor: c.background },
     content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 16 },
     header: { paddingVertical: 4 },
-    backText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
     backPressed: { opacity: 0.6 },
     heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 8 },
     eyebrow: {
@@ -96,6 +96,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     rank: { fontSize: 13, fontWeight: '800', minWidth: 22, textAlign: 'center' },
     nome: { flex: 1, color: c.textPrimary, fontSize: 14, fontWeight: '700' },
-    valor: { color: c.accent, fontSize: 15, fontWeight: '800' },
+    valor: { color: c.accentInk, fontSize: 15, fontWeight: '800' },
   });
 }
