@@ -39,6 +39,6 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     buttonPressed: { opacity: 0.8 },
     buttonDisabled: { opacity: 0.6 },
-    buttonText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    buttonText: { color: c.accentInk, fontSize: 13, fontWeight: '700' },
   });
 }

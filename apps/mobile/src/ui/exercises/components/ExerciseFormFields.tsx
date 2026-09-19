@@ -385,7 +385,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     },
     sheetRowPressed: { backgroundColor: c.cardAlt },
     sheetRowText: { flex: 1, color: c.textPrimary, fontSize: 15 },
-    sheetRowTextActive: { color: c.accent, fontWeight: '700' },
+    sheetRowTextActive: { color: c.accentInk, fontWeight: '700' },
     // Checkbox (multi-select)
     checkbox: {
       width: 22,
@@ -399,7 +399,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     checkboxActive: { backgroundColor: c.hero, borderColor: c.hero },
     checkmark: { color: c.heroText, fontSize: 13, fontWeight: '800' },
     // Radio (single-select)
-    radioCheck: { color: c.accent, fontSize: 16, fontWeight: '800' },
+    radioCheck: { color: c.accentInk, fontSize: 16, fontWeight: '800' },
     // Divider & custom section
     sheetDivider: { height: 1, backgroundColor: c.cardBorder, marginVertical: 4 },
     sheetSectionLabel: {

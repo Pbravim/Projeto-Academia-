@@ -78,10 +78,10 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     setsCount: { color: c.textSecondary, fontSize: 11, fontWeight: '600' },
     rightCol: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     volume: { color: c.textSecondary, fontSize: 12, fontWeight: '600', fontVariant: ['tabular-nums'] },
-    orm: { color: c.accent, fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] },
+    orm: { color: c.accentInk, fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] },
     trendUp: { color: c.success, fontSize: 12, fontWeight: '800' },
     trendDown: { color: c.error, fontSize: 12, fontWeight: '800' },
-    subLabel: { color: c.accent, fontSize: 11, fontWeight: '600' },
+    subLabel: { color: c.accentInk, fontSize: 11, fontWeight: '600' },
     setsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
     setChip: {
       backgroundColor: c.card,
@@ -96,7 +96,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     setUnit: { color: c.textSecondary, fontSize: 10, fontWeight: '600' },
     setTimes: { color: c.textSecondary, fontSize: 11, fontWeight: '600' },
     setMuted: { color: c.textSecondary, fontWeight: '500' },
-    setBest: { color: c.accent, fontWeight: '800' },
+    setBest: { color: c.accentInk, fontWeight: '800' },
     semSeries: { color: c.textSecondary, fontSize: 12 },
   });
 }

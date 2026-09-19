@@ -99,7 +99,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     rowPressed: { backgroundColor: c.cardAlt },
     rowFlag: { fontSize: 20 },
     rowText: { flex: 1, color: c.textPrimary, fontSize: 15, fontWeight: '600' },
-    rowTextActive: { color: c.accent, fontWeight: '800' },
-    check: { color: c.accent, fontSize: 17, fontWeight: '800' },
+    rowTextActive: { color: c.accentInk, fontWeight: '800' },
+    check: { color: c.accentInk, fontSize: 17, fontWeight: '800' },
   });
 }

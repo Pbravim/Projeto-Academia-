@@ -27,6 +27,8 @@ export interface Colors {
   accent: string;
   accentText: string;
   accentLight: string;
+  // Accent como tinta de texto pequeno sobre superfícies claras (Refs #57)
+  accentInk: string;
   // Status
   error: string;
   errorBg: string;
@@ -53,7 +55,7 @@ export interface Colors {
 // Warm charcoal (stone/espresso) hero + vivid energy-orange accent on
 // warm neutral surfaces. Green appears only as a small success signal,
 // never as surface or ambient tint.
-const light: Colors = {
+export const light: Colors = {
   background: '#f4f2f0',
   card: '#ffffff',
   cardAlt: '#edeae7',
@@ -70,6 +72,9 @@ const light: Colors = {
   accent: '#f97316',
   accentText: '#ffffff',
   accentLight: '#ffe6d2',
+  // ≥4.5:1 sobre background/card/cardAlt/accentLight (WCAG AA texto pequeno) —
+  // `accent` dá só ~2,3–2,8:1 nessas superfícies claras (#57).
+  accentInk: '#a8420a',
   error: '#dc2626',
   errorBg: '#fde7e5',
   success: '#16a34a',
@@ -90,7 +95,7 @@ const light: Colors = {
 
 // Dark surfaces are warm charcoal (stone, no blue cast). Orange is the
 // single brand accent; green is reserved for success states.
-const dark: Colors = {
+export const dark: Colors = {
   background: '#121110',
   card: '#1c1a18',
   cardAlt: '#242220',
@@ -108,6 +113,8 @@ const dark: Colors = {
   accent: '#fb8b3c',
   accentText: '#1a0f05',
   accentLight: '#2a1c0d',
+  // Dark neutro preservado: igual a `accent`, nada muda visualmente (#57).
+  accentInk: '#fb8b3c',
   error: '#f0635a',
   errorBg: '#3a1714',
   success: '#4ade80',

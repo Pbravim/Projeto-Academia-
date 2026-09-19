@@ -270,7 +270,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     header: { flexDirection: 'row', alignItems: 'center' },
     backButton: { paddingVertical: 8, paddingRight: 12 },
     backButtonPressed: { opacity: 0.6 },
-    backButtonText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backButtonText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
     heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 8 },
     eyebrow: { color: c.heroSubtext, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
     title: { color: c.heroText, fontSize: 26, fontWeight: '800' },

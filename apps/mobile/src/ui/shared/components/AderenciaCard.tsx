@@ -200,7 +200,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     barChart: { gap: 0 },
     barRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 72 },
     barCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 2 },
-    barCount: { color: c.accent, fontSize: 9, fontWeight: '800', height: 12, textAlign: 'center' },
+    barCount: { color: c.accentInk, fontSize: 9, fontWeight: '800', height: 12, textAlign: 'center' },
     bar: { width: '100%', borderRadius: 3, backgroundColor: c.accent, opacity: 0.6 },
     barEmpty: { backgroundColor: c.cardBorder, opacity: 1 },
     barToday: { opacity: 1 },

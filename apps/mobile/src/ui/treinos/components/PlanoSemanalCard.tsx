@@ -81,7 +81,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     cellHoje: { borderColor: c.accent },
     cellPressed: { opacity: 0.7 },
     dayLabel: { color: c.textSecondary, fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
-    dayLabelHoje: { color: c.accent },
+    dayLabelHoje: { color: c.accentInk },
     badge: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
     badgeFilled: { backgroundColor: c.accent },
     badgeEmpty: { backgroundColor: c.background, borderWidth: 1, borderColor: c.cardBorder },

@@ -462,7 +462,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     sectionTitle: { color: c.textPrimary, fontSize: 20, fontWeight: '800' },
     formCardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
     importarButton: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: c.cardAlt, borderWidth: 1, borderColor: c.cardBorder },
-    importarButtonText: { color: c.accent, fontSize: 13, fontWeight: '700' },
+    importarButtonText: { color: c.accentInk, fontSize: 13, fontWeight: '700' },
     field: { gap: 6 },
     fieldLabel: { color: c.textLabel, fontSize: 13, fontWeight: '700' },
     requiredMark: { color: c.error, fontSize: 13, fontWeight: '700' },
@@ -525,8 +525,8 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       borderBottomColor: c.cardBorder,
     },
     sheetRowText: { flex: 1, color: c.textPrimary, fontSize: 15 },
-    sheetRowActive: { color: c.accent, fontWeight: '700' },
-    sheetCheck: { color: c.accent, fontSize: 16, fontWeight: '800' },
+    sheetRowActive: { color: c.accentInk, fontWeight: '700' },
+    sheetCheck: { color: c.accentInk, fontSize: 16, fontWeight: '800' },
     sheetDivider: {
       height: 1,
       backgroundColor: c.cardBorder,
@@ -599,7 +599,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
       fontWeight: '700',
     },
     emptyStateBox: { alignItems: 'center', paddingVertical: 16, gap: 6 },
-    emptyStateIcon: { color: c.accent, fontSize: 28, fontWeight: '800' },
+    emptyStateIcon: { color: c.accentInk, fontSize: 28, fontWeight: '800' },
     treinoCard: {
       borderRadius: 18,
       padding: 16,

@@ -85,7 +85,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     screen: { flex: 1, backgroundColor: c.background },
     content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 16 },
     header: { paddingVertical: 4 },
-    backText: { color: c.accent, fontSize: 15, fontWeight: '700' },
+    backText: { color: c.accentInk, fontSize: 15, fontWeight: '700' },
     backPressed: { opacity: 0.6 },
     heroCard: { backgroundColor: c.hero, borderRadius: 24, padding: 22, gap: 8 },
     eyebrow: {

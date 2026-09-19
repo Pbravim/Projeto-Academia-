@@ -147,7 +147,7 @@ function makeStyles(c: ReturnType<typeof useTheme>) {
     exerciseTitle: { color: c.textPrimary, fontSize: 16, fontWeight: '800' },
     exerciseSubtitle: { color: c.textLabel, fontSize: 14, fontWeight: '600' },
     exerciseMeta: { color: c.textSecondary, fontSize: 13 },
-    exerciseUltimoPeso: { color: c.accent, fontSize: 12, fontWeight: '700', marginTop: 2 },
+    exerciseUltimoPeso: { color: c.accentInk, fontSize: 12, fontWeight: '700', marginTop: 2 },
     cardActions: { flexDirection: 'row', gap: 8, marginTop: 8 },
     actionButton: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, backgroundColor: c.cardAlt },
     actionButtonPressed: { opacity: 0.75 },
