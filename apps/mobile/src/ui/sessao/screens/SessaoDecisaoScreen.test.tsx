@@ -151,6 +151,18 @@ describe('SessaoDecisaoScreen — adicionar_ao_treino', () => {
     expect(checkboxes.every((cb) => cb.props.accessibilityState.checked === true)).toBe(true);
   });
 
+  it('accessibilityState.checked reflects the selection, not a constant (achado 2, sev2)', async () => {
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoDecisaoScreen, baseProps({ decisao: decisaoAdicionar, selecionados: new Set(['se1']) })),
+      );
+    });
+    const checkboxes = renderer.root.findAll((n) => n.type === 'Pressable' && n.props.accessibilityRole === 'checkbox');
+    expect(checkboxes[0].props.accessibilityState.checked).toBe(true);
+    expect(checkboxes[1].props.accessibilityState.checked).toBe(false);
+  });
+
   it('calls onToggleSelecionado with the sessaoExercicioId when a checkbox is pressed', async () => {
     const onToggleSelecionado = vi.fn();
     let renderer!: ReactTestRenderer;
