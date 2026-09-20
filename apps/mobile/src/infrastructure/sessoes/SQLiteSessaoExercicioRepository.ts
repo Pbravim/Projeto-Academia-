@@ -37,9 +37,36 @@ export class SQLiteSessaoExercicioRepository implements SessaoExercicioRepositor
   async save(se: SessaoExercicio): Promise<void> {
     const p = se.toPrimitives();
     await this.database.run(
-      `INSERT OR REPLACE INTO sessao_exercicios
+      `INSERT INTO sessao_exercicios
         (id, sessao_treino_id, exercicio_id, ordem, nome_snapshot, grupo_muscular_snapshot, categoria_snapshot, equipamento_snapshot, musculo_alvo_snapshot, movement_pattern_snapshot, realizado, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, tracking_type_snapshot, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada, substituido_por_exercicio_id, substituicao_motivo, nome_original_snapshot, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         sessao_treino_id = excluded.sessao_treino_id,
+         exercicio_id = excluded.exercicio_id,
+         ordem = excluded.ordem,
+         nome_snapshot = excluded.nome_snapshot,
+         grupo_muscular_snapshot = excluded.grupo_muscular_snapshot,
+         categoria_snapshot = excluded.categoria_snapshot,
+         equipamento_snapshot = excluded.equipamento_snapshot,
+         musculo_alvo_snapshot = excluded.musculo_alvo_snapshot,
+         movement_pattern_snapshot = excluded.movement_pattern_snapshot,
+         realizado = excluded.realizado,
+         series_recomendadas = excluded.series_recomendadas,
+         execucoes_recomendadas = excluded.execucoes_recomendadas,
+         carga_padrao = excluded.carga_padrao,
+         tempo_descanso_segundos = excluded.tempo_descanso_segundos,
+         metodo = excluded.metodo,
+         grupo_id = excluded.grupo_id,
+         tracking_type_snapshot = excluded.tracking_type_snapshot,
+         duracao_recomendada_segundos = excluded.duracao_recomendada_segundos,
+         distancia_recomendada_metros = excluded.distancia_recomendada_metros,
+         intensidade_recomendada = excluded.intensidade_recomendada,
+         substituido_por_exercicio_id = excluded.substituido_por_exercicio_id,
+         substituicao_motivo = excluded.substituicao_motivo,
+         nome_original_snapshot = excluded.nome_original_snapshot,
+         updated_at = excluded.updated_at,
+         deleted_at = NULL,
+         dirty = 1`,
       [p.id, p.sessaoTreinoId, p.exercicioId, p.ordem, p.nomeSnapshot, p.grupoMuscularSnapshot, p.categoriaSnapshot, p.equipamentoSnapshot, JSON.stringify(p.musculoAlvoSnapshot), p.movementPatternSnapshot ?? null, p.realizado ? 1 : 0, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null, p.trackingTypeSnapshot ?? null, p.duracaoRecomendadaSegundos ?? null, p.distanciaRecomendadaMetros ?? null, p.intensidadeRecomendada ?? null, p.substituidoPorExercicioId ?? null, p.substituicaoMotivo ?? null, p.nomeOriginalSnapshot ?? null, nowIso()]
     );
   }
