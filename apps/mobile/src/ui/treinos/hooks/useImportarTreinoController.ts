@@ -175,7 +175,9 @@ export function useImportarTreinoController(
       if (error instanceof TreinoValidationError || error instanceof DuplicateTreinoError) {
         setErrorMessage(error.message);
       } else if (error instanceof ExercicioJaNoTreinoError) {
-        setErrorMessage(translate(locale, 'treinos.importar.erros.exercicio_repetido'));
+        const itemRepetido = itens.find((it) => it.exercicioId === error.exercicioId);
+        const nomeRepetido = itemRepetido?.item.nome ?? error.exercicioId;
+        setErrorMessage(translate(locale, 'treinos.importar.erros.exercicio_repetido', { nome: nomeRepetido }));
       } else {
         setErrorMessage(translate(locale, 'treinos.importar.erros.salvar'));
       }

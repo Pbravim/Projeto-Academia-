@@ -127,7 +127,7 @@ describe('useImportarTreinoController', () => {
   ];
 
   it.each(TODOS_OS_CODES)(
-    '(c2) TreinoImportError code=%s mapeia para a chave i18n treinos.importar.erros.%s (mata m2b)',
+    '(c2) TreinoImportError code=%s mapeia para a chave i18n correspondente (mata m2b)',
     async (code) => {
       const deps = makeDependencies({
         importarTreino: { execute: vi.fn().mockRejectedValue(new TreinoImportError(code, 'mensagem interna')) } as never,
@@ -302,7 +302,43 @@ describe('useImportarTreinoController', () => {
     expect(onImportado4).not.toHaveBeenCalled();
     expect(result4.current.etapa).toBe('revisao');
     expect(result4.current.errorMessage).toBe(
-      'Dois ou mais itens estão associados ao mesmo exercício do catálogo. Ajuste antes de salvar.'
+      'O exercício "Supino reto com barra" aparece mais de uma vez. Ajuste antes de salvar.'
+    );
+  });
+
+  it('mensagem de exercicio repetido nomeia o item pelo exercicioId (fallback id) (Fixes #60.3)', async () => {
+    const repetidoDeps = makeDependencies({
+      importarTreino: { execute: vi.fn().mockResolvedValue(propostaMista) } as never,
+      confirmarImportacao: { execute: vi.fn().mockRejectedValue(new ExercicioJaNoTreinoError('ex-agachamento')) } as never,
+    });
+    const { result } = await renderHook(() => useImportarTreinoController(repetidoDeps, vi.fn()));
+    await flush();
+    await act(async () => { result.current.onChangeTexto('{}'); });
+    await act(async () => { await result.current.analisar(); });
+    await act(async () => { result.current.resolverItem(1, 'ex-agachamento'); });
+
+    await act(async () => { await result.current.salvar(); });
+
+    expect(result.current.errorMessage).toBe(
+      'O exercício "Agachamento" aparece mais de uma vez. Ajuste antes de salvar.'
+    );
+  });
+
+  it('mensagem de exercicio repetido usa o exercicioId como fallback quando o item nao e encontrado', async () => {
+    const repetidoDeps = makeDependencies({
+      importarTreino: { execute: vi.fn().mockResolvedValue(propostaMista) } as never,
+      confirmarImportacao: { execute: vi.fn().mockRejectedValue(new ExercicioJaNoTreinoError('ex-inexistente')) } as never,
+    });
+    const { result } = await renderHook(() => useImportarTreinoController(repetidoDeps, vi.fn()));
+    await flush();
+    await act(async () => { result.current.onChangeTexto('{}'); });
+    await act(async () => { await result.current.analisar(); });
+    await act(async () => { result.current.resolverItem(1, 'ex-agachamento'); });
+
+    await act(async () => { await result.current.salvar(); });
+
+    expect(result.current.errorMessage).toBe(
+      'O exercício "ex-inexistente" aparece mais de uma vez. Ajuste antes de salvar.'
     );
   });
 

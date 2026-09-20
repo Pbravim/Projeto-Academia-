@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import TestRenderer, { act, type ReactTestRenderer } from 'react-test-renderer';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TreinoFeature, type TreinoFeatureDependencies } from './TreinoFeature';
 
@@ -103,6 +103,10 @@ function makeDependencies(): TreinoFeatureDependencies {
 }
 
 describe('TreinoFeature — navegacao de importacao', () => {
+  beforeEach(() => {
+    hooks.tabActive = true;
+  });
+
   it('onImportar troca para ImportarTreinoScreen; onCancelar volta pra lista', async () => {
     const renderer = await render(
       createElement(TreinoFeature, { dependencies: makeDependencies(), onGoToSessao: vi.fn() })
@@ -123,7 +127,6 @@ describe('TreinoFeature — navegacao de importacao', () => {
     hooks.reloadList.mockClear();
     hooks.reloadPlano.mockClear();
     hooks.detailTreinoCaptured = null;
-    hooks.tabActive = true;
     const renderer = await render(
       createElement(TreinoFeature, { dependencies: makeDependencies(), onGoToSessao: vi.fn() })
     );
@@ -165,8 +168,6 @@ describe('TreinoFeature — navegacao de importacao', () => {
     // Guard bloqueia a selecao: nem o detalhe aparece, nem a tela de importacao continua — cai na lista.
     expect(renderer.root.findAll((n) => n.props.testID === 'detalhe-treino')).toHaveLength(0);
     expect(renderer.root.findAll((n) => n.props.testID === 'ir-importar')).toHaveLength(1);
-
-    hooks.tabActive = true;
   });
 
   it('hardware back durante a importacao fecha a tela de importacao', async () => {
