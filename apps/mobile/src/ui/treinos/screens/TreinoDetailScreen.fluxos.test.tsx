@@ -552,7 +552,7 @@ describe('TreinoDetailScreen — fluxos', () => {
   });
 
   describe('mover dentro do grupo', () => {
-    it('onMoveUpInGroup do card do meio (t2, grupo de 3) chama só onMoveUpInGroup com t2', async () => {
+    it.each(['t1', 't2', 't3'] as const)('onMoveUpInGroup do card %s (grupo de 3) chama só onMoveUpInGroup com esse id', async (targetId) => {
       const onMoveUpInGroup = vi.fn().mockResolvedValue(undefined);
       const onMoveDownInGroup = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
@@ -564,12 +564,12 @@ describe('TreinoDetailScreen — fluxos', () => {
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onMoveUpInGroup, onMoveDownInGroup, treinoExercicios, exercisesById }))
       );
-      await act(async () => { byTestID(renderer, 'card-t2').props.onMoveUpInGroup(); });
-      expect(onMoveUpInGroup).toHaveBeenCalledWith('t2');
+      await act(async () => { byTestID(renderer, `card-${targetId}`).props.onMoveUpInGroup(); });
+      expect(onMoveUpInGroup).toHaveBeenCalledWith(targetId);
       expect(onMoveDownInGroup).not.toHaveBeenCalled();
     });
 
-    it('onMoveDownInGroup do card do meio (t2, grupo de 3) chama só onMoveDownInGroup com t2', async () => {
+    it.each(['t1', 't2', 't3'] as const)('onMoveDownInGroup do card %s (grupo de 3) chama só onMoveDownInGroup com esse id', async (targetId) => {
       const onMoveUpInGroup = vi.fn().mockResolvedValue(undefined);
       const onMoveDownInGroup = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
@@ -581,37 +581,43 @@ describe('TreinoDetailScreen — fluxos', () => {
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onMoveUpInGroup, onMoveDownInGroup, treinoExercicios, exercisesById }))
       );
-      await act(async () => { byTestID(renderer, 'card-t2').props.onMoveDownInGroup(); });
-      expect(onMoveDownInGroup).toHaveBeenCalledWith('t2');
+      await act(async () => { byTestID(renderer, `card-${targetId}`).props.onMoveDownInGroup(); });
+      expect(onMoveDownInGroup).toHaveBeenCalledWith(targetId);
       expect(onMoveUpInGroup).not.toHaveBeenCalled();
     });
   });
 
   describe('vincular com próximo', () => {
-    it('vincula t2 (do meio, fixture com 3) com o próximo (t3), preservando o metodo de cada um', async () => {
+    const metodoOf = { t1: 'rest_pause', t2: 'piramide', t3: 'drop_set' } as const;
+
+    it.each([
+      ['t1', 't2'],
+      ['t2', 't3'],
+    ] as const)('vincula %s com o próximo (%s), preservando o metodo de cada um', async (targetId, nextId) => {
       const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
       const treinoExercicios = [
-        te('t1', 'e1', 1, { metodo: 'rest_pause' }),
-        te('t2', 'e2', 2, { metodo: 'piramide' }),
-        te('t3', 'e3', 3, { metodo: 'drop_set' }),
+        te('t1', 'e1', 1, { metodo: metodoOf.t1 }),
+        te('t2', 'e2', 2, { metodo: metodoOf.t2 }),
+        te('t3', 'e3', 3, { metodo: metodoOf.t3 }),
       ];
+      const outroId = (['t1', 't2', 't3'] as const).find((id) => id !== targetId && id !== nextId)!;
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
       );
 
-      expect(byTestID(renderer, 'card-t2').props.canVincular).toBe(true);
+      expect(byTestID(renderer, `card-${targetId}`).props.canVincular).toBe(true);
 
-      await act(async () => { await byTestID(renderer, 'card-t2').props.onVincular(); });
+      await act(async () => { await byTestID(renderer, `card-${targetId}`).props.onVincular(); });
 
       expect(onUpdateMetodoGrupo).toHaveBeenCalledTimes(2);
       const gid1 = onUpdateMetodoGrupo.mock.calls[0][2] as string;
       const gid2 = onUpdateMetodoGrupo.mock.calls[1][2] as string;
       expect(gid1).toMatch(/^g_/);
       expect(gid1).toBe(gid2);
-      expect(onUpdateMetodoGrupo.mock.calls[0]).toEqual(['t2', 'piramide', gid1]);
-      expect(onUpdateMetodoGrupo.mock.calls[1]).toEqual(['t3', 'drop_set', gid2]);
-      expect(onUpdateMetodoGrupo).not.toHaveBeenCalledWith('t1', expect.anything(), expect.anything());
+      expect(onUpdateMetodoGrupo.mock.calls[0]).toEqual([targetId, metodoOf[targetId], gid1]);
+      expect(onUpdateMetodoGrupo.mock.calls[1]).toEqual([nextId, metodoOf[nextId], gid2]);
+      expect(onUpdateMetodoGrupo).not.toHaveBeenCalledWith(outroId, expect.anything(), expect.anything());
     });
 
     it('sem próximo, canVincular é false e onVincular não chama onUpdateMetodoGrupo', async () => {
@@ -651,7 +657,7 @@ describe('TreinoDetailScreen — fluxos', () => {
   });
 
   describe('sair do grupo', () => {
-    it('sai do grupo com 3 membros (alvo no meio, t2): só remove o próprio, sem dissolver', async () => {
+    it.each(['t2', 't3'] as const)('sai do grupo com 3 membros (alvo %s): só remove o próprio, sem dissolver', async (targetId) => {
       const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
       const treinoExercicios = [
@@ -662,26 +668,29 @@ describe('TreinoDetailScreen — fluxos', () => {
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
       );
-      await act(async () => { await byTestID(renderer, 'card-t2').props.onSairDoGrupo(); });
+      await act(async () => { await byTestID(renderer, `card-${targetId}`).props.onSairDoGrupo(); });
       expect(onUpdateMetodoGrupo).toHaveBeenCalledTimes(1);
-      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'normal', null);
+      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith(targetId, 'normal', null);
     });
 
-    it('sai do grupo com 2 membros (alvo é o último do grupo, precedido de um single): dissolve o restante com o metodo real dele', async () => {
+    it.each([
+      ['t3', 't2', 'piramide'],
+      ['t2', 't3', 'drop_set'],
+    ] as const)('sai do grupo com 2 membros (alvo %s, precedido de um single): dissolve o restante (%s) com o metodo real (%s) dele', async (targetId, restanteId, restanteMetodo) => {
       const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
       const treinoExercicios = [
         te('t1', 'e1', 1),
-        te('t2', 'e2', 2, { grupoId: 'g1', metodo: 'piramide' }),
-        te('t3', 'e3', 3, { grupoId: 'g1', metodo: 'drop_set' }),
+        te('t2', 'e2', 2, { grupoId: 'g1', metodo: restanteId === 't2' ? restanteMetodo : 'normal' }),
+        te('t3', 'e3', 3, { grupoId: 'g1', metodo: restanteId === 't3' ? restanteMetodo : 'normal' }),
       ];
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
       );
-      await act(async () => { await byTestID(renderer, 'card-t3').props.onSairDoGrupo(); });
+      await act(async () => { await byTestID(renderer, `card-${targetId}`).props.onSairDoGrupo(); });
       expect(onUpdateMetodoGrupo).toHaveBeenCalledTimes(2);
-      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t3', 'normal', null);
-      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'piramide', null);
+      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith(targetId, 'normal', null);
+      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith(restanteId, restanteMetodo, null);
     });
   });
 
