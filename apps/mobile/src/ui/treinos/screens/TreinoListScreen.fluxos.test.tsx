@@ -426,19 +426,22 @@ describe('TreinoListScreen — duplicar', () => {
     expect(onDuplicate).toHaveBeenCalledWith('t1');
   });
 
-  it('duplicandoId mostra o texto/estilo de carregamento no card cujo id bate (nao no primeiro) e desabilita os dois botoes de ambos os cards', async () => {
+  it.each([
+    ['t1', 'Peito', 'Costas'],
+    ['t2', 'Costas', 'Peito'],
+  ] as const)('duplicandoId=%s mostra o texto/estilo de carregamento no card cujo id bate (nao por posicao) e desabilita os dois botoes de ambos os cards', async (targetId, targetTitle, otherTitle) => {
     // Fixture com 2 treinos (achado 3, sev2 da r1): com 1 so treino, "algum
-    // card" e "este card" colapsam. Alvo e o SEGUNDO card (t2) — amarrado
-    // pelo titulo, nao por indice (achado 1, sev2 da r2: mata M19/M20, que
-    // trocam "=== card.id" por "indice 0").
+    // card" e "este card" colapsam. it.each cobre AMBOS os cards como alvo
+    // (achado 1, sev2 da r3): com um so alvo fixo, "id que bate", "segundo
+    // card", "ultimo card" e "id literal" colapsavam (M21-M24 sobreviviam).
     const t1 = treino('t1', 'Peito');
     const t2 = treino('t2', 'Costas');
     const renderer = await render(
-      createElement(TreinoListScreen, baseProps({ treinos: [t1, t2], duplicandoId: 't2' })),
+      createElement(TreinoListScreen, baseProps({ treinos: [t1, t2], duplicandoId: targetId })),
     );
 
-    expect(extractText(cardWithTitle(renderer, 'Costas').props.children)).toContain('treinos.list.duplicando');
-    expect(extractText(cardWithTitle(renderer, 'Peito').props.children)).toContain('treinos.list.duplicar');
+    expect(extractText(cardWithTitle(renderer, targetTitle).props.children)).toContain('treinos.list.duplicando');
+    expect(extractText(cardWithTitle(renderer, otherTitle).props.children)).toContain('treinos.list.duplicar');
 
     const duplicandoTexts = renderer.root
       .findAllByType('Text' as never)
@@ -525,17 +528,20 @@ describe('TreinoListScreen — excluir com confirmação', () => {
     expect(texts).not.toContain('treinos.list.confirmDeleteTitle');
   });
 
-  it('deletingId mostra o texto de excluindo no card cujo id bate (nao no primeiro)', async () => {
-    // Fixture com 2 treinos, alvo no SEGUNDO card (t2) — ver nota no teste
-    // de duplicar (achado 1, sev2 da r2: mata M19/M20).
+  it.each([
+    ['t1', 'Peito', 'Costas'],
+    ['t2', 'Costas', 'Peito'],
+  ] as const)('deletingId=%s mostra o texto de excluindo no card cujo id bate (nao por posicao)', async (targetId, targetTitle, otherTitle) => {
+    // it.each cobre AMBOS os cards como alvo (achado 1, sev2 da r3) — ver
+    // nota no teste de duplicar.
     const t1 = treino('t1', 'Peito');
     const t2 = treino('t2', 'Costas');
     const renderer = await render(
-      createElement(TreinoListScreen, baseProps({ treinos: [t1, t2], deletingId: 't2' })),
+      createElement(TreinoListScreen, baseProps({ treinos: [t1, t2], deletingId: targetId })),
     );
 
-    expect(extractText(cardWithTitle(renderer, 'Costas').props.children)).toContain('treinos.list.excluindo');
-    expect(extractText(cardWithTitle(renderer, 'Peito').props.children)).toContain('common.delete');
+    expect(extractText(cardWithTitle(renderer, targetTitle).props.children)).toContain('treinos.list.excluindo');
+    expect(extractText(cardWithTitle(renderer, otherTitle).props.children)).toContain('common.delete');
 
     const excluindoTexts = renderer.root
       .findAllByType('Text' as never)
