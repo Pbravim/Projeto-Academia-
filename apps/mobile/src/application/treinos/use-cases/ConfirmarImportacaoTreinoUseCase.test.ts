@@ -219,7 +219,8 @@ describe('ConfirmarImportacaoTreinoUseCase', () => {
       itens: [
         { item: { nome: 'Agachamento', metodo: 'normal' }, exercicioId: 'ex-1' },
         { item: { nome: 'Flexao', metodo: 'normal' }, exercicioId: 'ex-2' },
-        { item: { nome: 'Agachamento', metodo: 'normal' }, exercicioId: 'ex-1' },
+        { item: { nome: 'Flexao', metodo: 'normal' }, exercicioId: 'ex-2' },
+        { item: { nome: 'Afundo', metodo: 'normal' }, exercicioId: 'ex-3' },
       ],
     };
 
