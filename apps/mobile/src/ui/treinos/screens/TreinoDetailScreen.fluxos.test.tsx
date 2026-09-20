@@ -657,13 +657,13 @@ describe('TreinoDetailScreen — fluxos', () => {
   });
 
   describe('sair do grupo', () => {
-    it.each(['t2', 't3'] as const)('sai do grupo com 3 membros (alvo %s): só remove o próprio, sem dissolver', async (targetId) => {
+    it.each(['t2', 't3'] as const)('sai do grupo com 3 membros (alvo %s): só remove o próprio, sem dissolver, resetando o metodo p/ normal', async (targetId) => {
       const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
       const treinoExercicios = [
-        te('t1', 'e1', 1, { grupoId: 'g1' }),
-        te('t2', 'e2', 2, { grupoId: 'g1' }),
-        te('t3', 'e3', 3, { grupoId: 'g1' }),
+        te('t1', 'e1', 1, { grupoId: 'g1', metodo: 'rest_pause' }),
+        te('t2', 'e2', 2, { grupoId: 'g1', metodo: 'piramide' }),
+        te('t3', 'e3', 3, { grupoId: 'g1', metodo: 'drop_set' }),
       ];
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
@@ -681,8 +681,8 @@ describe('TreinoDetailScreen — fluxos', () => {
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
       const treinoExercicios = [
         te('t1', 'e1', 1),
-        te('t2', 'e2', 2, { grupoId: 'g1', metodo: restanteId === 't2' ? restanteMetodo : 'normal' }),
-        te('t3', 'e3', 3, { grupoId: 'g1', metodo: restanteId === 't3' ? restanteMetodo : 'normal' }),
+        te('t2', 'e2', 2, { grupoId: 'g1', metodo: restanteId === 't2' ? restanteMetodo : 'rest_pause' }),
+        te('t3', 'e3', 3, { grupoId: 'g1', metodo: restanteId === 't3' ? restanteMetodo : 'rest_pause' }),
       ];
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
