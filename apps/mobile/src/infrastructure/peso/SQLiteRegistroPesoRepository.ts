@@ -16,8 +16,15 @@ export class SQLiteRegistroPesoRepository implements RegistroPesoRepository {
   async save(registro: RegistroPeso): Promise<void> {
     const p = registro.toPrimitives();
     await this.database.run(
-      `INSERT OR REPLACE INTO registros_peso (id, peso_kg, data_registro, observacao, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, NULL, 1)`,
+      `INSERT INTO registros_peso (id, peso_kg, data_registro, observacao, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         peso_kg = excluded.peso_kg,
+         data_registro = excluded.data_registro,
+         observacao = excluded.observacao,
+         updated_at = excluded.updated_at,
+         deleted_at = NULL,
+         dirty = 1`,
       [p.id, p.pesoKg, p.dataRegistro, p.observacao, nowIso()]
     );
   }
