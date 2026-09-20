@@ -160,8 +160,8 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseE
       if (semFk) {
         // Checagem DIAGNOSTICA, nao protetora (achado 6, review-33a-1): roda
         // DEPOIS do COMMIT, entao uma violacao aqui nao impede o step de ficar
-        // gravado (user_version ja avancou) — so derruba o boot atual e loga o
-        // motivo. Mover para antes do COMMIT bloquearia o boot para sempre num
+        // gravado (user_version ja avancou) — so lanca, derrubando o boot atual.
+        // Mover para antes do COMMIT bloquearia o boot para sempre num
         // device com orfao pre-existente; como a copia e 1:1 e a FK do filho
         // aponta por nome, essa violacao so viria de um orfao anterior a
         // foreign_keys=ON no runner (26812c9, 2026-05-27) — caso teorico.

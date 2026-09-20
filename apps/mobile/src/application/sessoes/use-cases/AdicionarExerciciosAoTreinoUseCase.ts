@@ -108,4 +108,3 @@ export class AdicionarExerciciosAoTreinoUseCase {
     return criados;
   }
 }
-

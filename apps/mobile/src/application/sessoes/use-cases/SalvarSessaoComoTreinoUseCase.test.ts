@@ -134,12 +134,12 @@ describe('SalvarSessaoComoTreinoUseCase (#33 — D2/D3)', () => {
 
   it('colapsa espacos internos do nome antes de comparar duplicata (achado 3, sev1)', async () => {
     const deps = makeDeps();
-    await deps.treinoRepository.save(Treino.create({ id: 'treino_existente', name: 'Treino A', createdAt: new Date() }));
+    await deps.treinoRepository.save(Treino.create({ id: 'treino_existente', name: 'Treino Muito A', createdAt: new Date() }));
     await deps.sessaoTreinoRepository.save(
       SessaoTreino.create({ id: 'sessao_1', treinoId: null, treinoNomeSnapshot: 'Treino livre 15/09', dataHoraInicio: new Date() })
     );
 
-    await expect(deps.useCase.execute({ sessaoId: 'sessao_1', nome: 'treino   a' })).rejects.toBeInstanceOf(DuplicateTreinoError);
+    await expect(deps.useCase.execute({ sessaoId: 'sessao_1', nome: 'treino   muito   a' })).rejects.toBeInstanceOf(DuplicateTreinoError);
   });
 
   it('rejeita sessao cancelada', async () => {

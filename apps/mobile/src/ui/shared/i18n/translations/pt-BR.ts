@@ -531,7 +531,7 @@ export const ptBR = {
         exercicio_invalido: 'Um dos exercícios do arquivo é inválido.%{path}',
         leitura: 'Não foi possível ler o arquivo.',
         salvar: 'Não foi possível salvar o treino importado.',
-        exercicio_repetido: 'Dois ou mais itens estão associados ao mesmo exercício do catálogo. Ajuste antes de salvar.',
+        exercicio_repetido: 'O exercício "%{nome}" aparece mais de uma vez. Ajuste antes de salvar.',
       },
       custom: {
         titulo: 'Criar exercício personalizado',
