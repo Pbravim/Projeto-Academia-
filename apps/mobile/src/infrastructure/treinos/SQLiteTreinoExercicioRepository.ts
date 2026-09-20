@@ -26,8 +26,24 @@ export class SQLiteTreinoExercicioRepository implements TreinoExercicioRepositor
     const p = treinoExercicio.toPrimitives();
 
     await this.database.run(
-      `INSERT OR REPLACE INTO treino_exercicios (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+      `INSERT INTO treino_exercicios (id, treino_id, exercicio_id, ordem, series_recomendadas, execucoes_recomendadas, carga_padrao, tempo_descanso_segundos, metodo, grupo_id, duracao_recomendada_segundos, distancia_recomendada_metros, intensidade_recomendada, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         treino_id = excluded.treino_id,
+         exercicio_id = excluded.exercicio_id,
+         ordem = excluded.ordem,
+         series_recomendadas = excluded.series_recomendadas,
+         execucoes_recomendadas = excluded.execucoes_recomendadas,
+         carga_padrao = excluded.carga_padrao,
+         tempo_descanso_segundos = excluded.tempo_descanso_segundos,
+         metodo = excluded.metodo,
+         grupo_id = excluded.grupo_id,
+         duracao_recomendada_segundos = excluded.duracao_recomendada_segundos,
+         distancia_recomendada_metros = excluded.distancia_recomendada_metros,
+         intensidade_recomendada = excluded.intensidade_recomendada,
+         updated_at = excluded.updated_at,
+         deleted_at = NULL,
+         dirty = 1`,
       [p.id, p.treinoId, p.exercicioId, p.ordem, p.seriesRecomendadas ?? null, p.execucoesRecomendadas ?? null, p.cargaPadrao ?? null, p.tempoDescansoSegundos ?? null, p.metodo, p.grupoId ?? null, p.duracaoRecomendadaSegundos ?? null, p.distanciaRecomendadaMetros ?? null, p.intensidadeRecomendada ?? null, nowIso()]
     );
   }
