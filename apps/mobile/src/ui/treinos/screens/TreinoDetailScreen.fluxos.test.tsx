@@ -852,6 +852,7 @@ describe('TreinoDetailScreen — fluxos', () => {
       expect(onUpdateRecomendacoes).toHaveBeenCalledWith('t3', null, null, null, null);
       expect(onBack).toHaveBeenCalledTimes(1);
       expect(cancelarSessao.mock.invocationCallOrder[0]).toBeLessThan(onUpdateRecomendacoes.mock.invocationCallOrder[0]);
+      expect(byTestID(renderer, 'confirm').props.visible).toBe(false);
     });
 
     it('ao cancelar, vai para a sessão e nada é salvo', async () => {
