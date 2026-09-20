@@ -375,7 +375,7 @@ describe('TreinoDetailScreen — fluxos', () => {
   });
 
   describe('busca', () => {
-    it('filtra por nome ou grupo muscular, e zera a seleção', async () => {
+    it('filtra por nome, e zera a seleção', async () => {
       const availableExercises = [ex('e5', 'Supino Reto', ['Peito']), ex('e6', 'Remada Curvada', ['Costas'])];
       const renderer = await render(createElement(TreinoDetailScreen, baseProps({ availableExercises })));
 
@@ -390,6 +390,17 @@ describe('TreinoDetailScreen — fluxos', () => {
       expect(hasText(renderer, 'treinos.detail.toqueParaSelecionar')).toBe(true);
     });
 
+    it('filtra por grupo muscular quando o nome não contém o termo', async () => {
+      const availableExercises = [ex('e5', 'Supino Reto', ['Peito']), ex('e6', 'Remada Curvada', ['Costas'])];
+      const renderer = await render(createElement(TreinoDetailScreen, baseProps({ availableExercises })));
+
+      const searchInput = textInputs(renderer).find((n) => n.props.placeholder === 'treinos.detail.buscarPlaceholder')!;
+      await act(async () => { searchInput.props.onChangeText('cost'); });
+
+      expect(byTestID(renderer, 'picker-Costas')).toBeDefined();
+      expect(byTestID(renderer, 'picker-Peito')).toBeUndefined();
+    });
+
     it('sem resultado mostra nenhumExercicioEncontrado', async () => {
       const availableExercises = [ex('e5', 'Supino Reto', ['Peito'])];
       const renderer = await render(createElement(TreinoDetailScreen, baseProps({ availableExercises })));
@@ -400,10 +411,22 @@ describe('TreinoDetailScreen — fluxos', () => {
       expect(hasText(renderer, 'treinos.detail.nenhumExercicioEncontrado')).toBe(true);
     });
 
-    it('sem exercícios disponíveis, a seção de adicionar não renderiza', async () => {
+    it('sem exercícios disponíveis (lista vazia), a seção de adicionar não renderiza', async () => {
       const exercisesById = new Map([['e1', ex('e1', 'Supino')]]);
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ treinoExercicios: [te('t1', 'e1', 1)], availableExercises: [], exercisesById }))
+      );
+      expect(hasText(renderer, 'treinos.detail.adicionarExercicios')).toBe(false);
+    });
+
+    it('com tudo adicionado (notAddedExercises vazio pelo filtro), a seção de adicionar não renderiza', async () => {
+      const exercisesById = new Map([['e1', ex('e1', 'Supino')]]);
+      const renderer = await render(
+        createElement(TreinoDetailScreen, baseProps({
+          treinoExercicios: [te('t1', 'e1', 1)],
+          availableExercises: [ex('e1', 'Supino')],
+          exercisesById,
+        }))
       );
       expect(hasText(renderer, 'treinos.detail.adicionarExercicios')).toBe(false);
     });
@@ -489,6 +512,42 @@ describe('TreinoDetailScreen — fluxos', () => {
       for (const seta of setas) {
         expect(seta.props.disabled).toBe(true);
       }
+    });
+
+    it('bloco no índice 0 tem ↑ disabled mesmo sem isReordering; ↓ fica habilitado', async () => {
+      const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
+      const treinoExercicios = [
+        te('t1', 'e1', 1, { grupoId: 'g1' }),
+        te('t2', 'e2', 2, { grupoId: 'g1' }),
+        te('t3', 'e3', 3),
+      ];
+      const renderer = await render(
+        createElement(TreinoDetailScreen, baseProps({ isReordering: false, treinoExercicios, exercisesById }))
+      );
+
+      const cima = renderer.root.findAll((n) => n.props.accessibilityLabel === 'treinos.detail.moverBlocoCima')[0];
+      const baixo = renderer.root.findAll((n) => n.props.accessibilityLabel === 'treinos.detail.moverBlocoBaixo')[0];
+
+      expect(cima.props.disabled).toBe(true);
+      expect(baixo.props.disabled).toBe(false);
+    });
+
+    it('bloco no último índice tem ↓ disabled mesmo sem isReordering; ↑ fica habilitado', async () => {
+      const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
+      const treinoExercicios = [
+        te('t1', 'e1', 1),
+        te('t2', 'e2', 2, { grupoId: 'g1' }),
+        te('t3', 'e3', 3, { grupoId: 'g1' }),
+      ];
+      const renderer = await render(
+        createElement(TreinoDetailScreen, baseProps({ isReordering: false, treinoExercicios, exercisesById }))
+      );
+
+      const cima = renderer.root.findAll((n) => n.props.accessibilityLabel === 'treinos.detail.moverBlocoCima')[0];
+      const baixo = renderer.root.findAll((n) => n.props.accessibilityLabel === 'treinos.detail.moverBlocoBaixo')[0];
+
+      expect(baixo.props.disabled).toBe(true);
+      expect(cima.props.disabled).toBe(false);
     });
   });
 
@@ -646,7 +705,7 @@ describe('TreinoDetailScreen — fluxos', () => {
     expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'drop_set', null);
   });
 
-  it('séries/descanso unificados do bloco chamam onUpdateRecomendacoes para os membros', async () => {
+  it('séries/descanso unificados do bloco (os 2 inputs) chamam onUpdateRecomendacoes para os membros', async () => {
     const onUpdateRecomendacoes = vi.fn().mockResolvedValue(undefined);
     const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')]]);
     const treinoExercicios = [
@@ -657,15 +716,18 @@ describe('TreinoDetailScreen — fluxos', () => {
       createElement(TreinoDetailScreen, baseProps({ onUpdateRecomendacoes, treinoExercicios, exercisesById }))
     );
 
-    const seriesInput = textInputs(renderer).find((n) => n.props.placeholder === '—' && n.props.defaultValue === '')!;
+    const grupoRecInputs = textInputs(renderer).filter((n) => n.props.placeholder === '—' && n.props.defaultValue === '');
+    expect(grupoRecInputs).toHaveLength(2);
+    const [seriesInput, descansoInput] = grupoRecInputs;
     await act(async () => { seriesInput.props.onChangeText('4'); });
+    await act(async () => { descansoInput.props.onChangeText('60'); });
 
     const saveBtn = pressableWithText(renderer, 'treinos.detail.salvarTreino')!;
     await act(async () => { saveBtn.props.onPress(); });
     await flush();
 
-    expect(onUpdateRecomendacoes).toHaveBeenCalledWith('t1', 4, null, null, null);
-    expect(onUpdateRecomendacoes).toHaveBeenCalledWith('t2', 4, null, null, null);
+    expect(onUpdateRecomendacoes).toHaveBeenCalledWith('t1', 4, null, null, 60);
+    expect(onUpdateRecomendacoes).toHaveBeenCalledWith('t2', 4, null, null, 60);
   });
 
   describe('recs por card + salvar', () => {
