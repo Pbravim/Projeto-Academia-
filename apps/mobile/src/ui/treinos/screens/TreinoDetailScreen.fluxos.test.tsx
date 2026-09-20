@@ -529,9 +529,14 @@ describe('TreinoDetailScreen — fluxos', () => {
   });
 
   describe('vincular com próximo', () => {
-    it('vincula t2 (do meio, fixture com 3) com o próximo (t3) gerando o mesmo grupoId para ambos', async () => {
+    it('vincula t2 (do meio, fixture com 3) com o próximo (t3), preservando o metodo de cada um', async () => {
       const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
-      const { exercisesById, treinoExercicios } = threeSingles();
+      const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
+      const treinoExercicios = [
+        te('t1', 'e1', 1, { metodo: 'rest_pause' }),
+        te('t2', 'e2', 2, { metodo: 'piramide' }),
+        te('t3', 'e3', 3, { metodo: 'drop_set' }),
+      ];
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
       );
@@ -545,7 +550,8 @@ describe('TreinoDetailScreen — fluxos', () => {
       const gid2 = onUpdateMetodoGrupo.mock.calls[1][2] as string;
       expect(gid1).toMatch(/^g_/);
       expect(gid1).toBe(gid2);
-      expect(onUpdateMetodoGrupo.mock.calls.map((c) => c[0])).toEqual(['t2', 't3']);
+      expect(onUpdateMetodoGrupo.mock.calls[0]).toEqual(['t2', 'piramide', gid1]);
+      expect(onUpdateMetodoGrupo.mock.calls[1]).toEqual(['t3', 'drop_set', gid2]);
       expect(onUpdateMetodoGrupo).not.toHaveBeenCalledWith('t1', expect.anything(), expect.anything());
     });
 
@@ -563,13 +569,13 @@ describe('TreinoDetailScreen — fluxos', () => {
     });
   });
 
-  it('vincular próximo ao grupo chama onUpdateMetodoGrupo para todos os membros + o próximo', async () => {
+  it('vincular próximo ao grupo chama onUpdateMetodoGrupo para todos os membros + o próximo, com o metodo de cada um', async () => {
     const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
     const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
     const treinoExercicios = [
-      te('t1', 'e1', 1, { grupoId: 'g1' }),
-      te('t2', 'e2', 2, { grupoId: 'g1' }),
-      te('t3', 'e3', 3),
+      te('t1', 'e1', 1, { grupoId: 'g1', metodo: 'drop_set' }),
+      te('t2', 'e2', 2, { grupoId: 'g1', metodo: 'piramide' }),
+      te('t3', 'e3', 3, { metodo: 'rest_pause' }),
     ];
     const renderer = await render(
       createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
@@ -580,11 +586,9 @@ describe('TreinoDetailScreen — fluxos', () => {
     await flush();
 
     expect(onUpdateMetodoGrupo).toHaveBeenCalledTimes(3);
-    for (const call of onUpdateMetodoGrupo.mock.calls) {
-      expect(call[2]).toBe('g1');
-    }
-    const ids = onUpdateMetodoGrupo.mock.calls.map((c) => c[0]);
-    expect(ids.sort()).toEqual(['t1', 't2', 't3']);
+    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t1', 'drop_set', 'g1');
+    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'piramide', 'g1');
+    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t3', 'rest_pause', 'g1');
   });
 
   describe('sair do grupo', () => {
@@ -604,13 +608,13 @@ describe('TreinoDetailScreen — fluxos', () => {
       expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'normal', null);
     });
 
-    it('sai do grupo com 2 membros (alvo é o último do grupo, precedido de um single): dissolve o restante', async () => {
+    it('sai do grupo com 2 membros (alvo é o último do grupo, precedido de um single): dissolve o restante com o metodo real dele', async () => {
       const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
       const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')], ['e3', ex('e3', 'c')]]);
       const treinoExercicios = [
         te('t1', 'e1', 1),
-        te('t2', 'e2', 2, { grupoId: 'g1' }),
-        te('t3', 'e3', 3, { grupoId: 'g1' }),
+        te('t2', 'e2', 2, { grupoId: 'g1', metodo: 'piramide' }),
+        te('t3', 'e3', 3, { grupoId: 'g1', metodo: 'drop_set' }),
       ];
       const renderer = await render(
         createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
@@ -618,16 +622,16 @@ describe('TreinoDetailScreen — fluxos', () => {
       await act(async () => { await byTestID(renderer, 'card-t3').props.onSairDoGrupo(); });
       expect(onUpdateMetodoGrupo).toHaveBeenCalledTimes(2);
       expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t3', 'normal', null);
-      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'normal', null);
+      expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'piramide', null);
     });
   });
 
-  it('desfazer grupo chama onUpdateMetodoGrupo para cada membro com grupoId null', async () => {
+  it('desfazer grupo chama onUpdateMetodoGrupo para cada membro com o metodo real e grupoId null', async () => {
     const onUpdateMetodoGrupo = vi.fn().mockResolvedValue(undefined);
     const exercisesById = new Map([['e1', ex('e1', 'a')], ['e2', ex('e2', 'b')]]);
     const treinoExercicios = [
-      te('t1', 'e1', 1, { grupoId: 'g1' }),
-      te('t2', 'e2', 2, { grupoId: 'g1' }),
+      te('t1', 'e1', 1, { grupoId: 'g1', metodo: 'piramide' }),
+      te('t2', 'e2', 2, { grupoId: 'g1', metodo: 'drop_set' }),
     ];
     const renderer = await render(
       createElement(TreinoDetailScreen, baseProps({ onUpdateMetodoGrupo, treinoExercicios, exercisesById }))
@@ -638,8 +642,8 @@ describe('TreinoDetailScreen — fluxos', () => {
     await flush();
 
     expect(onUpdateMetodoGrupo).toHaveBeenCalledTimes(2);
-    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t1', 'normal', null);
-    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'normal', null);
+    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t1', 'piramide', null);
+    expect(onUpdateMetodoGrupo).toHaveBeenCalledWith('t2', 'drop_set', null);
   });
 
   it('séries/descanso unificados do bloco chamam onUpdateRecomendacoes para os membros', async () => {
