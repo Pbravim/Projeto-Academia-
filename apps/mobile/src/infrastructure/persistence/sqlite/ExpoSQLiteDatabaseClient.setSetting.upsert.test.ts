@@ -10,9 +10,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * exercitado contra semantica SQLite real (nao um double).
  */
 
-let realDb: Database.Database;
+let realDb: Database;
 
-function makeRealAsyncDatabase(db: Database.Database) {
+function makeRealAsyncDatabase(db: Database) {
   return {
     execAsync: async (sql: string) => {
       db.exec(sql);
@@ -23,7 +23,8 @@ function makeRealAsyncDatabase(db: Database.Database) {
     },
     getFirstAsync: async (sql: string, params: unknown[] = []) => {
       if (sql === 'PRAGMA user_version') {
-        return { user_version: db.pragma('user_version', { simple: true }) };
+        const [row] = db.pragma('user_version') as { user_version: number }[];
+        return { user_version: row.user_version };
       }
       return db.prepare(sql).get(...params) ?? undefined;
     },
