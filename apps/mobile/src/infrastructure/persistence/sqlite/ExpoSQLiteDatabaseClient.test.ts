@@ -88,7 +88,10 @@ describe('ExpoSQLiteDatabaseClient.runMigrations — steps sem FK (#33, D8)', ()
     const userVersionIdx = calls.indexOf(`PRAGMA user_version = ${semFkStep}`, beginIdxAfterOff);
     const nextBeginIdx = calls.indexOf('BEGIN IMMEDIATE', beginIdxAfterOff + 1);
     expect(userVersionIdx).toBeGreaterThan(beginIdxAfterOff);
-    expect(nextBeginIdx === -1 || userVersionIdx < nextBeginIdx).toBe(true);
+    expect(userVersionIdx).toBeGreaterThan(-1);
+    if (nextBeginIdx !== -1) {
+      expect(userVersionIdx).toBeLessThan(nextBeginIdx);
+    }
 
     const onIdx = calls.indexOf('PRAGMA foreign_keys = ON;', beginIdxAfterOff);
     expect(onIdx).toBeGreaterThan(beginIdxAfterOff);

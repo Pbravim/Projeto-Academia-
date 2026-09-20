@@ -180,6 +180,9 @@ describe('DashboardScreen', () => {
       cardRenderer = TestRenderer.create(rendered);
     });
 
+    const cardTexts = cardRenderer.root.findAllByType('Text').map((n) => n.props.children);
+    expect(cardTexts).toContain('Treino A');
+
     const verEvolucaoBtn = cardRenderer.root
       .findAllByType('Pressable')
       .find((p) => p.findAllByType('Text').some((t) => t.props.children === 'dashboard.treinoCard.verEvolucaoPorExercicio'));
