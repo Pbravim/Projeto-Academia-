@@ -69,4 +69,30 @@ describe('SQLiteSessaoTreinoRepository — save preserva arquivado e server_rev 
     expect(row?.arquivado).toBe(1);
     expect(row?.server_rev).toBe(5);
   });
+
+  it('re-save com treinoId e dataHoraInicio novos (#66) atualiza as duas colunas no upsert', async () => {
+    const sessao = SessaoTreino.create({
+      id: 's-66', treinoId: null, treinoNomeSnapshot: 'Treino livre',
+      dataHoraInicio: new Date('2026-09-19T10:00:00.000Z'),
+    });
+    await repo.save(sessao);
+
+    await db.run('UPDATE sessao_treinos SET server_rev = 5 WHERE id = ?', ['s-66']);
+
+    const comNovosCampos = SessaoTreino.restore({
+      ...sessao.toPrimitives(),
+      treinoId: 'outro-treino',
+      dataHoraInicio: '2026-09-20T09:00:00.000Z',
+    });
+    await repo.save(comNovosCampos);
+
+    const row = await db.getFirst<{ treino_id: string | null; data_hora_inicio: string; server_rev: number }>(
+      'SELECT treino_id, data_hora_inicio, server_rev FROM sessao_treinos WHERE id = ?',
+      ['s-66'],
+    );
+
+    expect(row?.treino_id).toBe('outro-treino');
+    expect(row?.data_hora_inicio).toBe('2026-09-20T09:00:00.000Z');
+    expect(row?.server_rev).toBe(5);
+  });
 });

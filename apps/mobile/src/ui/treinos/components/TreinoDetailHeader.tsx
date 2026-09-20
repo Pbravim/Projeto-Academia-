@@ -42,15 +42,19 @@ export function TreinoDetailHeader({
     setEditingNome(false);
   };
 
+  const backLabel = isSaving ? t('treinos.detail.salvando') : t('common.backArrow');
+
   return (
     <>
       <View style={styles.header}>
         <Pressable
           onPress={onSaveAll}
           disabled={isSaving}
+          accessibilityRole="button"
+          accessibilityLabel={backLabel}
           style={({ pressed }) => [styles.backButton, pressed ? styles.backButtonPressed : null]}
         >
-          <Text style={styles.backButtonText}>{isSaving ? t('treinos.detail.salvando') : t('common.backArrow')}</Text>
+          <Text style={styles.backButtonText}>{backLabel}</Text>
         </Pressable>
       </View>
 
@@ -70,14 +74,24 @@ export function TreinoDetailHeader({
               onSubmitEditing={() => { void handleSaveNome(); }}
               returnKeyType="done"
             />
-            <Pressable onPress={() => { void handleSaveNome(); }} style={styles.saveNomeBtn}>
+            <Pressable
+              onPress={() => { void handleSaveNome(); }}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.save')}
+              style={styles.saveNomeBtn}
+            >
               <Text style={styles.saveNomeBtnText}>{t('common.save')}</Text>
             </Pressable>
           </View>
         ) : (
           <View style={styles.nomeRow}>
             <Text style={styles.title}>{nome}</Text>
-            <Pressable onPress={() => { setNomeText(nome); setEditingNome(true); }} style={styles.editNomeBtn}>
+            <Pressable
+              onPress={() => { setNomeText(nome); setEditingNome(true); }}
+              accessibilityRole="button"
+              accessibilityLabel="✎"
+              style={styles.editNomeBtn}
+            >
               <Text style={styles.editNomeBtnText}>✎</Text>
             </Pressable>
           </View>
