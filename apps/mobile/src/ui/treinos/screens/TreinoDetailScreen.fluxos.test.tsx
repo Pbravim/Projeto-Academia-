@@ -807,10 +807,9 @@ describe('TreinoDetailScreen — fluxos', () => {
     it('sem exercícios, back físico só chama onBack (sem getSessaoAtiva)', async () => {
       const getSessaoAtiva = vi.fn().mockResolvedValue(null);
       const onBack = vi.fn();
-      const renderer = await render(
+      await render(
         createElement(TreinoDetailScreen, baseProps({ getSessaoAtiva, onBack, treinoExercicios: [] }))
       );
-      void renderer;
 
       await act(async () => {
         backState.cb!();
