@@ -57,9 +57,9 @@ describe('IniciarSessaoLivreUseCase (#33 — D5)', () => {
   it('colapsa espacos internos do nome (achado 3, sev1)', async () => {
     const { useCase } = makeDeps();
 
-    const sessao = await useCase.execute({ nome: 'Treino   livre' });
+    const sessao = await useCase.execute({ nome: 'Treino   muito   livre' });
 
-    expect(sessao.treinoNomeSnapshot).toBe('Treino livre');
+    expect(sessao.treinoNomeSnapshot).toBe('Treino muito livre');
   });
 
   it('usa withTransaction quando a dependencia database e informada', async () => {
@@ -113,6 +113,8 @@ describe('IniciarSessaoLivreUseCase (#33 — D5)', () => {
 
     expect(finalizada.status).toBe('finalizada');
     expect(finalizada.treinoId).toBeNull();
+    const persistida = await sessaoTreinoRepository.findById(sessao.id);
+    expect(persistida?.toPrimitives().status).toBe('finalizada');
     const exercicios = await sessaoExercicioRepository.listBySessaoId(sessao.id);
     expect(exercicios).toHaveLength(1);
     const series = await serieRegistradaRepository.listBySessaoExercicioId(sessaoExercicio.id);
