@@ -44,6 +44,7 @@ export function ObjetivoInlineField({ value, onChange }: ObjetivoInlineFieldProp
 
   function clear() {
     onChange('');
+    setOpen(false);
   }
 
   return (

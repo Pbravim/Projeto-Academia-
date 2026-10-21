@@ -133,7 +133,7 @@ describe('TreinoDetailHeader', () => {
     expect(onExportar).toHaveBeenCalledTimes(1);
   });
 
-  it('voltar, salvar nome e ✎ têm accessibilityRole="button" e accessibilityLabel (#70.1)', async () => {
+  it('voltar, salvar nome e editar têm papel de botão e nome acessível traduzido (#70.1)', async () => {
     const renderer = await render(createElement(TreinoDetailHeader, baseProps({ nome: 'Peito' })));
     const backBtn = renderer.root.findAllByType('Pressable')[0];
     expect(backBtn.props.accessibilityRole).toBe('button');
@@ -143,7 +143,7 @@ describe('TreinoDetailHeader', () => {
       (n) => n.type === 'Pressable' && n.findAllByType('Text').some((t) => t.props.children === '✎')
     )[0];
     expect(editBtn.props.accessibilityRole).toBe('button');
-    expect(editBtn.props.accessibilityLabel).toBe('✎');
+    expect(editBtn.props.accessibilityLabel).toBe('exercises.card.editar');
 
     await act(async () => { editBtn.props.onPress(); });
     const saveNomeBtn = renderer.root.findAll(

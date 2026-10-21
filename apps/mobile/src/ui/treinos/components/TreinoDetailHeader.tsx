@@ -89,7 +89,7 @@ export function TreinoDetailHeader({
             <Pressable
               onPress={() => { setNomeText(nome); setEditingNome(true); }}
               accessibilityRole="button"
-              accessibilityLabel="✎"
+              accessibilityLabel={t('exercises.card.editar')}
               style={styles.editNomeBtn}
             >
               <Text style={styles.editNomeBtnText}>✎</Text>
