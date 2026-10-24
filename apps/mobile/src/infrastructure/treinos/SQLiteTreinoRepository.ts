@@ -18,10 +18,15 @@ export class SQLiteTreinoRepository implements TreinoRepository {
     const p = treino.toPrimitives();
 
     await this.database.run(
-      `
-        INSERT OR REPLACE INTO treinos (id, name, objetivo, created_at, updated_at, deleted_at, dirty)
-        VALUES (?, ?, ?, ?, ?, NULL, 1)
-      `,
+      `INSERT INTO treinos (id, name, objetivo, created_at, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         name = excluded.name,
+         objetivo = excluded.objetivo,
+         created_at = excluded.created_at,
+         updated_at = excluded.updated_at,
+         deleted_at = NULL,
+         dirty = 1`,
       [p.id, p.name, p.objetivo, p.createdAt, p.updatedAt]
     );
   }

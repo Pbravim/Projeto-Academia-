@@ -20,8 +20,17 @@ export class SQLiteSerieSegmentoRepository implements SerieSegmentoRepository {
     const p = segmento.toPrimitives();
     const now = nowIso();
     await this.database.run(
-      `INSERT OR REPLACE INTO serie_segmentos (id, serie_id, ordem, carga_kg, repeticoes, descanso_segundos, created_at, updated_at, deleted_at, dirty)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)`,
+      `INSERT INTO serie_segmentos (id, serie_id, ordem, carga_kg, repeticoes, descanso_segundos, created_at, updated_at, deleted_at, dirty)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         serie_id = excluded.serie_id,
+         ordem = excluded.ordem,
+         carga_kg = excluded.carga_kg,
+         repeticoes = excluded.repeticoes,
+         descanso_segundos = excluded.descanso_segundos,
+         updated_at = excluded.updated_at,
+         deleted_at = NULL,
+         dirty = 1`,
       [p.id, p.serieId, p.ordem, p.cargaKg, p.repeticoes, p.descansoSegundos, now, now]
     );
   }
