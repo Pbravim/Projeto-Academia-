@@ -151,6 +151,18 @@ describe('SessaoDecisaoScreen — adicionar_ao_treino', () => {
     expect(checkboxes.every((cb) => cb.props.accessibilityState.checked === true)).toBe(true);
   });
 
+  it('avulsosTitulo usa singular (count:1) quando há 1 avulso (#64)', async () => {
+    const decisaoUmAvulso: DecisaoFinalizacao = { ...decisaoAdicionar, avulsos: [decisaoAdicionar.avulsos[0]] };
+    let renderer!: ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(
+        createElement(SessaoDecisaoScreen, baseProps({ decisao: decisaoUmAvulso, selecionados: new Set(['se1']) })),
+      );
+    });
+    const texts = renderer.root.findAllByType('Text' as never).map((n) => extractText(n.props.children));
+    expect(texts.some((t) => t.startsWith('sessao.decisao.avulsosTitulo:') && t.includes('"count":1'))).toBe(true);
+  });
+
   it('accessibilityState.checked reflects the selection, not a constant (achado 2, sev2)', async () => {
     let renderer!: ReactTestRenderer;
     await act(async () => {
