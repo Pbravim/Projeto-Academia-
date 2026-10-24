@@ -1,4 +1,14 @@
 export const enUS = {
+  progressao: {
+    newPR: 'PR · New personal record', dayPRs: 'Today’s PRs',
+    last: 'Last: %{serie}', previous: 'Previous: %{serie}',
+    tipo: { carga: 'Load', reps: 'Reps at load', e1rm: 'e1RM' },
+    setRecord: 'Set %{ordem} · %{tipo} PR', repsValue: '%{reps} reps @ %{carga} kg',
+    strength: 'Strength (e1RM)', volume: 'Volume', carga: 'Maximum load', e1rm: 'e1RM',
+    records: 'Personal records', bestSet: 'Best set',
+    firstExecution: 'First recorded performance',
+    chart: 'Progress · %{metrica}', unavailable: 'Could not compare personal records with history.',
+  },
   common: {
     cancel: 'Cancel', back: 'Back', backArrow: '← Back', confirm: 'Confirm', save: 'Save',
     delete: 'Delete', archive: 'Archive', restore: 'Restore', ok: 'OK',

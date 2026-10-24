@@ -17,6 +17,7 @@ import { CreateExerciseUseCase } from '../application/exercises/use-cases/Create
 import { DeleteExerciseUseCase } from '../application/exercises/use-cases/DeleteExerciseUseCase';
 import { ListExercisesUseCase } from '../application/exercises/use-cases/ListExercisesUseCase';
 import { UpdateExerciseUseCase } from '../application/exercises/use-cases/UpdateExerciseUseCase';
+import { GetHistoricoAnteriorDaSessaoUseCase } from '../application/historico/use-cases/GetHistoricoAnteriorDaSessaoUseCase';
 import { GetHistoricoExercicioUseCase } from '../application/historico/use-cases/GetHistoricoExercicioUseCase';
 import { GetUltimaExecucaoValidaUseCase } from '../application/historico/use-cases/GetUltimaExecucaoValidaUseCase';
 import { GetUltimasExecucoesValidasUseCase } from '../application/historico/use-cases/GetUltimasExecucoesValidasUseCase';
@@ -406,6 +407,7 @@ export const mobileDependencies = {
   },
 
   sessao: {
+    getHistoricoAnterior: new GetHistoricoAnteriorDaSessaoUseCase(historicoRepository),
     feature: {
       getSessaoAtiva: new GetSessaoAtivaUseCase(sessaoTreinoRepository),
       sugerirTreino: new SugerirTreinoUseCase({ dashboardRepository: dashboardRepository, planoRepository: planoSemanalRepository }),

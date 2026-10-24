@@ -97,6 +97,21 @@ describe('ObjetivoInlineField', () => {
     expect(onChange).toHaveBeenCalledWith('');
   });
 
+  it('Sem objetivo chama onChange com string vazia e fecha a sheet (#70.2)', async () => {
+    const onChange = vi.fn();
+    const renderer = await render(createElement(ObjetivoInlineField, { value: 'Força', onChange }));
+    const trigger = renderer.root.findByType('Pressable');
+    await act(async () => { trigger.props.onPress(); });
+
+    const semObjetivoPressable = renderer.root.findAll(
+      (n) => n.type === 'Pressable' && n.findAllByType('Text').some((t) => t.props.children === 'treinos.detail.objetivoField.semObjetivo')
+    )[0];
+    await act(async () => { semObjetivoPressable.props.onPress(); });
+
+    expect(onChange).toHaveBeenCalledWith('');
+    expect(findText(renderer, 'treinos.detail.objetivoField.semObjetivo')).toHaveLength(0);
+  });
+
   it('custom: digitar e confirmar chama onChange com o texto sem espaços e limpa o input', async () => {
     const onChange = vi.fn();
     const renderer = await render(createElement(ObjetivoInlineField, { value: '', onChange }));

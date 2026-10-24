@@ -2,11 +2,11 @@ import * as SQLite from 'expo-sqlite';
 
 import type { DatabaseExportPort } from '../../../domain/dashboard/ports/DatabaseExportPort';
 import type { TransactionPort } from '../../../domain/shared/ports/TransactionPort';
+import { nowIso } from '../../../shared/utils/syncStamp';
 import type { AppLogger } from '../../logging/AppLogger';
 
 import { migrations, MIGRATIONS_SEM_FK, splitSqlStatements } from './migrations';
 import type { SQLiteBindParams, SQLiteDatabaseClient } from './SQLiteDatabaseClient';
-
 
 export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseExportPort, TransactionPort {
   private databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -107,7 +107,17 @@ export class ExpoSQLiteDatabaseClient implements SQLiteDatabaseClient, DatabaseE
   }
 
   async setSetting(key: string, value: string): Promise<void> {
-    await this.run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, value]);
+    // ON CONFLICT DO UPDATE, nao REPLACE: REPLACE apagaria server_rev/deleted_at
+    // (colunas de sync adicionadas na migration v16/v19) a cada re-save local.
+    await this.run(
+      `INSERT INTO settings (key, value, updated_at, dirty)
+       VALUES (?, ?, ?, 1)
+       ON CONFLICT(key) DO UPDATE SET
+         value = excluded.value,
+         updated_at = excluded.updated_at,
+         dirty = 1`,
+      [key, value, nowIso()]
+    );
   }
 
   private async getReadyDatabase(): Promise<SQLite.SQLiteDatabase> {

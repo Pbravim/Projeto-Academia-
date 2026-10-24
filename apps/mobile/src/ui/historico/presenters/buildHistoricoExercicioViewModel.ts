@@ -9,12 +9,15 @@ import { translate } from '../../shared/i18n/core';
 import { formatFullDate, formatShortDate } from '../../shared/i18n/formatters';
 import type { LineChartPoint } from '../../shared/LineChart';
 
+import { buildHistoricoProgressaoViewModel, type HistoricoProgressaoViewModel } from './buildHistoricoProgressaoViewModel';
+
 export interface PlateauInfo {
   sessoes: number;
   mensagem: string;
 }
 
 export interface HistoricoExercicioViewModel {
+  progressao?: HistoricoProgressaoViewModel;
   exercicioNome: string;
   sessionRows: SessionTableRowVM[];
   emptyStateMessage: string | null;
@@ -73,6 +76,7 @@ export function buildHistoricoExercicioViewModel(
   return {
     exercicioNome,
     sessionRows,
+    progressao: buildHistoricoProgressaoViewModel(execucoes, locale),
     emptyStateMessage: null,
     rm1ChartPoints,
     plateau: detectarPlateau(execucoes, locale),

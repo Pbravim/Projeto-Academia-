@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { SerieComSegmentos } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
@@ -9,10 +9,13 @@ import type { AppLocale } from '../../shared/i18n/core';
 import { formatNumber } from '../../shared/i18n/formatters';
 import { useTheme } from '../../shared/theme';
 import { useDegrauForm } from '../hooks/useDegrauForm';
+import { buildProgressaoExercicioViewModel } from '../presenters/buildProgressaoExercicioViewModel';
 import { volumeComDegraus } from '../presenters/segmentosPresentation';
 
+import { ProgressaoCard } from './ProgressaoCard';
 import { SerieEditor } from './SerieEditor';
 import { SerieRow } from './SerieRow';
+import { SessaoProgressaoContext } from './SessaoProgressaoContext';
 
 const KG_VALUES = Array.from({ length: 81 }, (_, i) => i * 2.5);
 
@@ -43,6 +46,10 @@ export function SeriesRegistradasList({
   const c = useTheme();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const historicos = useContext(SessaoProgressaoContext);
+  const historico = historicos?.get(series[0]?.sessaoExercicioId);
+  const progressao = useMemo(() => historico && trackingType === 'reps_load'
+    ? buildProgressaoExercicioViewModel(series, historico, locale) : null, [series, historico, trackingType, locale]);
 
   const [editingSerieId, setEditingSerieId] = useState<string | null>(null);
   const [editKg, setEditKg] = useState(0);
@@ -79,6 +86,7 @@ export function SeriesRegistradasList({
 
   return (
     <View style={styles.seriesCard}>
+      {progressao ? <ProgressaoCard progressao={progressao} /> : null}
       <View style={styles.seriesHeader}>
         <Text style={styles.seriesTitle}>{t('sessao.detalhe.seriesRegistradasTitle')}</Text>
         <View style={styles.seriesSummaryChip}>

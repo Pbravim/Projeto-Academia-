@@ -1,6 +1,10 @@
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
+import type { ExecucaoExercicio } from '../../../domain/historico/repositories/HistoricoRepository';
+import { calcularE1RM } from '../../../domain/progressao/calcularE1RM';
 import type { AppLocale } from '../../shared/i18n';
 import { formatFixedDecimal,formatNumber } from '../../shared/i18n/formatters';
+
+import { buildProgressaoExercicioViewModel, type ConquistaPR } from './buildProgressaoExercicioViewModel';
 
 export interface SerieResumoItem {
   label: string;
@@ -12,6 +16,9 @@ export interface ExercicioResumoItem {
   totalSeriesValidas: number;
   volume: number;
   melhorSerie: string | null;
+  e1rm: number | null;
+  e1rmAproximado: boolean;
+  prs: ConquistaPR[];
 }
 
 export interface SessaoResumoViewModel {
@@ -24,7 +31,10 @@ export interface SessaoResumoViewModel {
   exercicios: ExercicioResumoItem[];
 }
 
-export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe, locale: AppLocale = 'pt-BR'): SessaoResumoViewModel {
+export function buildSessaoResumoViewModel(
+  detalhe: SessaoDetalhe, locale: AppLocale = 'pt-BR',
+  historicos?: ReadonlyMap<string, ExecucaoExercicio[]>,
+): SessaoResumoViewModel {
   const { sessao, exercicios } = detalhe;
 
   const duracao = calcularDuracao(sessao.dataHoraInicio, sessao.dataHoraFim);
@@ -55,8 +65,8 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe, locale: AppLo
 
     const melhor = validasForca.reduce<{ cargaKg: number; repeticoes: number } | null>(
       (best, s) => {
-        const rm = s.cargaKg * (1 + s.repeticoes / 30);
-        const bestRm = best ? best.cargaKg * (1 + best.repeticoes / 30) : -1;
+        const rm = calcularE1RM(s.cargaKg, s.repeticoes);
+        const bestRm = best ? calcularE1RM(best.cargaKg, best.repeticoes) : -1;
         return rm > bestRm ? s : best;
       },
       null
@@ -68,6 +78,10 @@ export function buildSessaoResumoViewModel(detalhe: SessaoDetalhe, locale: AppLo
       totalSeriesValidas: validas.length,
       volume,
       melhorSerie: melhor ? `${melhor.cargaKg}kg × ${melhor.repeticoes}` : null,
+      e1rm: melhor ? calcularE1RM(melhor.cargaKg, melhor.repeticoes) : null,
+      e1rmAproximado: melhor !== null && melhor.repeticoes > 12,
+      prs: historicos && sessaoExercicio.trackingTypeSnapshot === 'reps_load'
+        ? buildProgressaoExercicioViewModel(series, historicos.get(sessaoExercicio.exercicioId) ?? [], locale).prs : [],
     };
   });
 

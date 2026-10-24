@@ -1,3 +1,5 @@
+import { calcularE1RM } from '../../domain/progressao/calcularE1RM';
+
 /**
  * Calcula a estimativa de 1RM (uma repetição máxima) usando a fórmula de Epley.
  * Fórmula: 1RM = cargaKg * (1 + repeticoes / 30)
@@ -7,9 +9,7 @@
  * @returns Estimativa de 1RM em kg
  */
 export function calcularEstimativa1rm(cargaKg: number, repeticoes: number): number {
-  // Com 1 rep o 1RM demonstrado é a própria carga — Epley inflaria 3.3%.
-  if (repeticoes <= 1) return cargaKg;
-  return cargaKg * (1 + repeticoes / 30);
+  return calcularE1RM(cargaKg, repeticoes);
 }
 
 /**

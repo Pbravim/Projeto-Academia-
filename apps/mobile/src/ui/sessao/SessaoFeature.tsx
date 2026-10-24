@@ -1,8 +1,10 @@
+import type { GetHistoricoAnteriorDaSessaoUseCase } from '../../application/historico/use-cases/GetHistoricoAnteriorDaSessaoUseCase';
 import type { DecisaoFinalizacao } from '../../application/sessoes/use-cases/GetDecisaoFinalizacaoUseCase';
 import type { SessaoDetalhe } from '../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import type { SessaoTreinoPrimitives } from '../../domain/sessoes/entities/SessaoTreino';
 import { LoadingScreen } from '../shared/LoadingScreen';
 
+import { SessaoProgressaoProvider } from './components/SessaoProgressaoContext';
 import type { SessaoAtivaControllerDependencies } from './hooks/useSessaoAtivaController';
 import { useSessaoAtivaController } from './hooks/useSessaoAtivaController';
 import type { SessaoDecisaoControllerDependencies } from './hooks/useSessaoDecisaoController';
@@ -15,6 +17,7 @@ import { SessaoInicioScreen } from './screens/SessaoInicioScreen';
 import { SessaoResumoScreen } from './screens/SessaoResumoScreen';
 
 export interface SessaoFeatureDependencies {
+  getHistoricoAnterior?: GetHistoricoAnteriorDaSessaoUseCase;
   feature: SessaoFeatureControllerDependencies;
   ativa: SessaoAtivaControllerDependencies;
   decisao: SessaoDecisaoControllerDependencies;
@@ -47,6 +50,7 @@ export function SessaoFeature({ dependencies, onGoToTreinos }: Props) {
     return (
       <SessaoResumoScreen
         detalhe={controller.sessaoResumo}
+        getHistoricoAnterior={dependencies.getHistoricoAnterior}
         onFechar={controller.onFecharResumo}
       />
     );
@@ -57,6 +61,7 @@ export function SessaoFeature({ dependencies, onGoToTreinos }: Props) {
       <SessaoAtivaView
         sessao={controller.sessaoAtiva}
         dependencies={dependencies.ativa}
+        getHistoricoAnterior={dependencies.getHistoricoAnterior}
         onFinalizado={(detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => controller.onSessaoFinalizada(detalhe, decisao)}
         onCancelado={controller.onSessaoCancelada}
       />
@@ -78,15 +83,20 @@ export function SessaoFeature({ dependencies, onGoToTreinos }: Props) {
 }
 
 interface SessaoAtivaViewProps {
+  getHistoricoAnterior?: GetHistoricoAnteriorDaSessaoUseCase;
   sessao: SessaoTreinoPrimitives;
   dependencies: SessaoAtivaControllerDependencies;
   onFinalizado: (detalhe: SessaoDetalhe, decisao: DecisaoFinalizacao) => void;
   onCancelado: () => void;
 }
 
-function SessaoAtivaView({ sessao, dependencies, onFinalizado, onCancelado }: SessaoAtivaViewProps) {
+function SessaoAtivaView({ sessao, dependencies, onFinalizado, onCancelado, getHistoricoAnterior }: SessaoAtivaViewProps) {
   const controller = useSessaoAtivaController(sessao, dependencies, onFinalizado, onCancelado);
-  return <SessaoAtivaScreen {...controller} />;
+  return (
+    <SessaoProgressaoProvider detalhe={controller.detalhe} useCase={getHistoricoAnterior}>
+      <SessaoAtivaScreen {...controller} />
+    </SessaoProgressaoProvider>
+  );
 }
 
 interface SessaoDecisaoViewProps {
