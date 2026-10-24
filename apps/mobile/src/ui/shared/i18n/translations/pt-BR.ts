@@ -1,4 +1,14 @@
 export const ptBR = {
+  progressao: {
+    newPR: 'PR · Novo recorde pessoal', dayPRs: 'PRs do dia',
+    last: 'Último: %{serie}', previous: 'Anterior: %{serie}',
+    tipo: { carga: 'Carga', reps: 'Repetições na carga', e1rm: 'e1RM' },
+    setRecord: 'Série %{ordem} · PR de %{tipo}', repsValue: '%{reps} reps @ %{carga} kg',
+    strength: 'Força (e1RM)', volume: 'Volume', carga: 'Carga máxima', e1rm: 'e1RM',
+    records: 'Recordes pessoais', bestSet: 'Melhor série',
+    firstExecution: 'Primeira execução registrada',
+    chart: 'Evolução · %{metrica}', unavailable: 'Não foi possível comparar os recordes com o histórico.',
+  },
   common: {
     cancel: 'Cancelar', back: 'Voltar', backArrow: '← Voltar', confirm: 'Confirmar', save: 'Salvar',
     delete: 'Excluir', archive: 'Arquivar', restore: 'Restaurar', ok: 'OK',

@@ -1,22 +1,27 @@
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import type { GetHistoricoAnteriorDaSessaoUseCase } from '../../../application/historico/use-cases/GetHistoricoAnteriorDaSessaoUseCase';
 import type { SessaoDetalhe } from '../../../application/sessoes/use-cases/GetSessaoDetalheUseCase';
 import { useLocale, useT } from '../../shared/i18n';
+import { formatNumber } from '../../shared/i18n/formatters';
 import { useTheme } from '../../shared/theme';
+import { useHistoricoAnteriorDaSessao } from '../hooks/useHistoricoAnteriorDaSessao';
 import { buildSessaoResumoViewModel } from '../presenters/buildSessaoResumoViewModel';
 
 interface Props {
+  getHistoricoAnterior?: GetHistoricoAnteriorDaSessaoUseCase;
   detalhe: SessaoDetalhe;
   onFechar: () => void;
 }
 
-export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
+export function SessaoResumoScreen({ detalhe, onFechar, getHistoricoAnterior }: Props) {
   const c = useTheme();
   const locale = useLocale();
   const t = useT();
   const styles = useMemo(() => makeStyles(c), [c]);
-  const vm = buildSessaoResumoViewModel(detalhe, locale);
+  const { historico, failed } = useHistoricoAnteriorDaSessao(detalhe, getHistoricoAnterior);
+  const vm = buildSessaoResumoViewModel(detalhe, locale, historico ?? undefined);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -31,6 +36,19 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
         <StatBox label={t('sessao.resumo.statSeriesValidas')} value={String(vm.totalSeriesValidas)} styles={styles} />
         <StatBox label={t('sessao.common.volume')} value={vm.volumeTotal} styles={styles} />
       </View>
+
+      {failed ? <Text style={styles.exercicioStats}>{t('progressao.unavailable')}</Text> : null}
+      {vm.exercicios.some((item) => item.prs?.length) ? (
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>{t('progressao.dayPRs')}</Text>
+          {vm.exercicios.filter((item) => item.prs?.length).map((item, i) => (
+            <View key={i} style={styles.exercicioInfo}>
+              <Text style={styles.exercicioNome}>{item.nome}</Text>
+              {item.prs.map((pr) => <Text key={`${pr.serieId}-${pr.tipo}`} style={styles.exercicioMelhor}>{pr.label}: {pr.value}</Text>)}
+            </View>
+          ))}
+        </View>
+      ) : null}
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>{t('sessao.resumo.sectionTitle')}</Text>
@@ -47,6 +65,8 @@ export function SessaoResumoScreen({ detalhe, onFechar }: Props) {
                   {item.melhorSerie ? (
                     <Text style={styles.exercicioMelhor}>{t('sessao.resumo.melhorSerie', { serie: item.melhorSerie })}</Text>
                   ) : null}
+                  {item.e1rm != null ? <Text style={styles.exercicioStats}>{t('progressao.strength')}: {item.e1rmAproximado ? '~' : ''}{formatNumber(Math.round(item.e1rm * 10) / 10, locale)} kg</Text> : null}
+                  {item.volume > 0 ? <Text style={styles.exercicioStats}>{t('progressao.volume')}: {formatNumber(item.volume, locale)} kg</Text> : null}
                 </>
               ) : (
                 <Text style={styles.naoRealizadoLabel}>{t('sessao.resumo.naoRealizado')}</Text>

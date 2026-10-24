@@ -6,6 +6,7 @@ import { useAndroidBack } from '../../shared/hooks/useAndroidBack';
 import { useT } from '../../shared/i18n';
 import { LineChart } from '../../shared/LineChart';
 import { useTheme } from '../../shared/theme';
+import { HistoricoProgressaoPanel } from '../components/HistoricoProgressaoPanel';
 import type { HistoricoExercicioControllerState } from '../hooks/useHistoricoExercicioController';
 
 export function HistoricoExercicioScreen({
@@ -40,7 +41,8 @@ export function HistoricoExercicioScreen({
         </View>
       ) : null}
 
-      {!isLoading && viewModel.rm1ChartPoints.length >= 1 ? (
+      {!isLoading && !errorMessage && viewModel.progressao ? <HistoricoProgressaoPanel progressao={viewModel.progressao} /> : null}
+      {!isLoading && !errorMessage && !viewModel.progressao && viewModel.rm1ChartPoints.length >= 1 ? (
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>{t('historico.exercicio.chartTitle')}</Text>
           <LineChart
